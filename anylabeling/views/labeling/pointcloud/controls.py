@@ -6,6 +6,7 @@ from anylabeling.views.labeling.utils.qt import new_icon
 from anylabeling.views.labeling.utils.style import get_dialog_style
 from anylabeling.views.labeling.utils.theme import get_theme
 
+from .icons import center_pixmap, get_icon
 from .model import ClassDefinition, MAX_ID
 
 
@@ -199,8 +200,13 @@ class _RemoveDelegate(QtWidgets.QStyledItemDelegate):
     def _icon(self, color, name="trash"):
         key = (color, name)
         if key not in self._icons:
+            icon = get_icon(name, color, color)
+            if icon is not None:
+                self._icons[key] = icon
+                return icon
             pixmap = new_icon(name, "svg").pixmap(32, 32)
             if not pixmap.isNull():
+                pixmap = center_pixmap(pixmap)
                 painter = QtGui.QPainter(pixmap)
                 painter.setCompositionMode(
                     QtGui.QPainter.CompositionMode.CompositionMode_SourceIn
@@ -221,11 +227,18 @@ class _RemoveDelegate(QtWidgets.QStyledItemDelegate):
         )
         if (
             colored
+            and not view.object_controls
             and index.data(QtCore.Qt.ItemDataRole.CheckStateRole) is not None
         ):
             text_rect.setLeft(view.visibility_rect(index).right() + 5)
         removable = index.data(view.REMOVABLE_ROLE) is not False
-        if removable:
+        if view.object_controls:
+            text_rect.setLeft(options.rect.left() + 8)
+            text_rect.setRight(view.lock_rect(index).left() - 4)
+            options.features &= (
+                ~QtWidgets.QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator
+            )
+        elif removable:
             text_rect.setRight(view.remove_rect(index).left() - 4)
         text = options.fontMetrics.elidedText(
             options.text,
@@ -247,7 +260,11 @@ class _RemoveDelegate(QtWidgets.QStyledItemDelegate):
             color = (
                 "#000000" if QtGui.qGray(background.rgb()) > 128 else "#ffffff"
             )
-            if index.data(QtCore.Qt.ItemDataRole.CheckStateRole) is not None:
+            if (
+                not view.object_controls
+                and index.data(QtCore.Qt.ItemDataRole.CheckStateRole)
+                is not None
+            ):
                 name = (
                     "eye"
                     if options.checkState == QtCore.Qt.CheckState.Checked
@@ -275,24 +292,55 @@ class _RemoveDelegate(QtWidgets.QStyledItemDelegate):
             text,
         )
         if (
-            removable
+            view.allow_remove
+            and (removable or view.object_controls)
             and options.state & QtWidgets.QStyle.StateFlag.State_MouseOver
         ):
+            painter.save()
+            if not removable:
+                painter.setOpacity(0.35)
             rect = view.remove_rect(index)
-            self._icon(color).paint(painter, rect.adjusted(5, 5, -5, -5))
+            self._icon(color).paint(painter, rect.adjusted(4, 4, -4, -4))
+            painter.restore()
+        if view.object_controls:
+            hovered = (
+                options.state & QtWidgets.QStyle.StateFlag.State_MouseOver
+            )
+            locked = bool(index.data(view.LOCKED_ROLE))
+            hidden = options.checkState == QtCore.Qt.CheckState.Unchecked
+            if hovered or locked:
+                self._icon(color, "lock" if locked else "unlock").paint(
+                    painter, view.lock_rect(index).adjusted(4, 4, -4, -4)
+                )
+            if hovered or hidden:
+                self._icon(color, "eye-off" if hidden else "eye").paint(
+                    painter, view.visibility_rect(index).adjusted(4, 4, -4, -4)
+                )
         painter.restore()
 
 
 class PointCloudListWidget(QtWidgets.QListWidget):
     remove_requested = QtCore.pyqtSignal(QtWidgets.QListWidgetItem)
+    lock_requested = QtCore.pyqtSignal(QtWidgets.QListWidgetItem)
     REMOVABLE_ROLE = QtCore.Qt.ItemDataRole.UserRole.value + 1
+    LOCKED_ROLE = QtCore.Qt.ItemDataRole.UserRole.value + 2
 
     def __init__(
-        self, parent=None, *, toggle_selection=False, remove_tooltip=""
+        self,
+        parent=None,
+        *,
+        toggle_selection=False,
+        remove_tooltip="",
+        object_controls=False,
+        allow_remove=True,
     ):
         super().__init__(parent)
         self.toggle_selection = toggle_selection
         self.remove_tooltip = remove_tooltip
+        self.object_controls = object_controls
+        self.allow_remove = allow_remove
+        self._header = None
+        self._pressed_control = None
         self._pressed_remove = QtCore.QPersistentModelIndex()
         self._skip_release = False
         self.setMouseTracking(True)
@@ -310,14 +358,56 @@ class PointCloudListWidget(QtWidgets.QListWidget):
         rect = self.visualRect(index)
         return QtCore.QRect(rect.right() - 27, rect.center().y() - 12, 24, 24)
 
+    def set_header(self, layout):
+        self._header = layout
+        self._align_header()
+
+    def _align_header(self):
+        if self._header is None:
+            return
+        parent = self._header.parentWidget()
+        right = (
+            self.viewport()
+            .mapTo(parent, self.viewport().rect().topRight())
+            .x()
+        )
+        self._header.setContentsMargins(
+            4, 2, parent.contentsRect().right() - right + 4, 2
+        )
+        parent.layout().activate()
+
     def visibility_rect(self, index):
         rect = self.visualRect(index)
+        if self.object_controls:
+            return self.remove_rect(index).translated(
+                -24 if self.allow_remove else 0, 0
+            )
         return QtCore.QRect(rect.left() + 3, rect.center().y() - 12, 24, 24)
+
+    def lock_rect(self, index):
+        return self.remove_rect(index).translated(
+            -48 if self.allow_remove else -24, 0
+        )
+
+    def _control_at(self, position):
+        index = self.indexAt(position)
+        if self.object_controls and index.isValid():
+            for name, rect in (
+                ("lock", self.lock_rect(index)),
+                ("visibility", self.visibility_rect(index)),
+                ("remove", self.remove_rect(index)),
+            ):
+                if rect.contains(position) and (
+                    name != "remove" or self.allow_remove
+                ):
+                    return index, name
+        return QtCore.QModelIndex(), None
 
     def _remove_at(self, position):
         index = self.indexAt(position)
         if (
-            index.isValid()
+            self.allow_remove
+            and index.isValid()
             and index.data(self.REMOVABLE_ROLE) is not False
             and self.remove_rect(index).contains(position)
         ):
@@ -325,9 +415,18 @@ class PointCloudListWidget(QtWidgets.QListWidget):
         return QtCore.QModelIndex()
 
     def mousePressEvent(self, event):
+        self._pressed_control = None
         self._skip_release = False
         self._pressed_remove = QtCore.QPersistentModelIndex()
         if event.button() == QtCore.Qt.MouseButton.LeftButton:
+            index, control = self._control_at(event.position().toPoint())
+            if control is not None:
+                self._pressed_control = (
+                    QtCore.QPersistentModelIndex(index),
+                    control,
+                )
+                event.accept()
+                return
             index = self.indexAt(event.position().toPoint())
             if (
                 index.isValid()
@@ -370,6 +469,28 @@ class PointCloudListWidget(QtWidgets.QListWidget):
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
+        if self._pressed_control is not None:
+            pressed, control = self._pressed_control
+            self._pressed_control = None
+            index, released = self._control_at(event.position().toPoint())
+            if (
+                pressed.isValid()
+                and QtCore.QModelIndex(pressed) == index
+                and control == released
+            ):
+                item = self.itemFromIndex(index)
+                if control == "lock":
+                    self.lock_requested.emit(item)
+                elif control == "visibility":
+                    item.setCheckState(
+                        QtCore.Qt.CheckState.Unchecked
+                        if item.checkState() == QtCore.Qt.CheckState.Checked
+                        else QtCore.Qt.CheckState.Checked
+                    )
+                elif item.data(self.REMOVABLE_ROLE) is not False:
+                    self.remove_requested.emit(item)
+            event.accept()
+            return
         if self._pressed_remove.isValid():
             index = self._remove_at(event.position().toPoint())
             pressed = self._pressed_remove
@@ -389,6 +510,9 @@ class PointCloudListWidget(QtWidgets.QListWidget):
             )
 
     def mouseDoubleClickEvent(self, event):
+        if self._control_at(event.position().toPoint())[1] is not None:
+            event.accept()
+            return
         index = self.indexAt(event.position().toPoint())
         if (
             index.isValid()
@@ -406,6 +530,35 @@ class PointCloudListWidget(QtWidgets.QListWidget):
 
     def viewportEvent(self, event):
         if event.type() == QtCore.QEvent.Type.ToolTip:
+            index, control = self._control_at(event.pos())
+            if control is not None:
+                title = {
+                    "lock": (
+                        self.tr("Unlock")
+                        if index.data(self.LOCKED_ROLE)
+                        else self.tr("Lock")
+                    ),
+                    "visibility": (
+                        self.tr("Hide")
+                        if index.data(QtCore.Qt.ItemDataRole.CheckStateRole)
+                        == QtCore.Qt.CheckState.Checked.value
+                        else self.tr("Show")
+                    ),
+                    "remove": (
+                        self.remove_tooltip
+                        if index.data(self.REMOVABLE_ROLE) is not False
+                        else (
+                            self.tr("Unlock before deleting")
+                            if index.data(self.LOCKED_ROLE)
+                            else self.tr("This item cannot be deleted")
+                        )
+                    ),
+                }[control]
+                QtWidgets.QToolTip.showText(
+                    event.globalPos(), title, self.viewport()
+                )
+                event.accept()
+                return True
             index = self._remove_at(event.pos())
             if index.isValid() and self.remove_tooltip:
                 QtWidgets.QToolTip.showText(
@@ -418,12 +571,20 @@ class PointCloudListWidget(QtWidgets.QListWidget):
                 QtWidgets.QToolTip.hideText()
             event.accept()
             return True
-        return super().viewportEvent(event)
+        result = super().viewportEvent(event)
+        if event.type() == QtCore.QEvent.Type.Resize:
+            self._align_header()
+        return result
 
 
 class ClassDefinitionDialog(QtWidgets.QDialog):
     def __init__(
-        self, definition=None, used_ids=(), suggested_id=1, parent=None
+        self,
+        definition=None,
+        used_ids=(),
+        suggested_id=1,
+        parent=None,
+        task="segmentation",
     ):
         super().__init__(parent)
         self._original = definition
@@ -466,7 +627,7 @@ class ClassDefinitionDialog(QtWidgets.QDialog):
         form.setVerticalSpacing(12)
         form.setColumnStretch(1, 1)
         self.id_input = QtWidgets.QSpinBox()
-        self.id_input.setRange(0, MAX_ID)
+        self.id_input.setRange(1 if task == "detection" else 0, MAX_ID)
         self.id_input.setValue(definition.id if definition else suggested_id)
         self.id_input.setEnabled(definition is None)
         if definition is not None:
@@ -502,7 +663,14 @@ class ClassDefinitionDialog(QtWidgets.QDialog):
         )
         for row, (text, widget) in enumerate(
             (
-                (self.tr("Semantic ID"), self.id_input),
+                (
+                    (
+                        self.tr("Class ID")
+                        if task == "detection"
+                        else self.tr("Semantic ID")
+                    ),
+                    self.id_input,
+                ),
                 (self.tr("Name"), self.name_input),
                 (self.tr("Color"), self.color_input),
             )

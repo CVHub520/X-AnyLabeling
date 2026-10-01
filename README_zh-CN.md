@@ -18,19 +18,19 @@
     <a href="https://modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43"><img src="https://img.shields.io/badge/modelscope-X--AnyLabeling-6750FF?link=https%3A%2F%2Fmodelscope.cn%2Fcollections%2FX-AnyLabeling-7b0e1798bcda43"></a>
 </p>
 
-<p align="center">
-  <a href="https://xanylabeling.com/zh-Hans/docs/x-anylabeling/point_cloud" target="_blank">
-    <img src="assets/resources/pointcloud/pointcloud.png" alt="X-AnyLabeling 点云标注" width="100%" />
-  </a>
-</p>
-
 <a href="https://mp.weixin.qq.com/s/RUb8ge-_7br0YeIImuK6YQ" target="_blank">
   <img src="https://github.com/user-attachments/assets/aa819dae-e38c-4b1c-a4a7-53a873d870e3" alt="X-AnyLabeling 界面" width="100%" />
 </a>
 
+<p align="center">
+  <a href="https://xanylabeling.com/zh-Hans/docs/x-anylabeling/point_cloud" target="_blank"><img src="assets/resources/pointcloud/pointcloud-3d-det.png" alt="3D 点云检测" width="50%" /></a><a href="https://xanylabeling.com/zh-Hans/docs/x-anylabeling/point_cloud" target="_blank"><img src="assets/resources/pointcloud/pointcloud-3d-seg.png" alt="3D 点云分割" width="50%" /></a>
+<br />
+  <img src="assets/resources/pointcloud/pointcloud-captions-zh.svg" alt="左：3D 点云检测；右：3D 点云分割" width="100%" />
+</p>
+
 ## 🥳 新功能
 
-- `2026-09-18`：新增 [3D 点云标注](./docs/zh_cn/point_cloud.md)功能，支持逐点语义与实例标注、相机图像参考及标定投影。
+- `2026-10-01`：新增 [3D 点云标注](./docs/zh_cn/point_cloud.md)功能，支持 3D 点云检测与分割。
 - `2026-08-19`：新增[图片标签](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#37-%E5%9B%BE%E7%89%87%E6%A0%87%E7%AD%BE)功能，支持标签新增、编辑、排序及批量删除。
 - `2026-08-12`：新增支持 [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg) 实例分割模型。
 - `2026-08-08`：新增支持 [RT-DETRv2-OBB](https://xanylabeling.com/examples/detection/obb) 旋转目标检测模型。
@@ -40,14 +40,14 @@
 
 ## 简介
 
-**X-AnyLabeling** 是一款轻量、高效、统一的跨平台桌面应用，面向文本、图像、视频及多模态数据提供 AI 辅助标注能力。它集成了丰富的内置工具、自动化标注工作流、先进的深度学习模型，以及灵活的多格式数据导入与导出能力。对于远程推理场景，[X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 提供轻量且可扩展的后端，用于连接自定义模型和计算资源。
+**X-AnyLabeling** 是一款轻量、高效、统一的跨平台桌面应用，面向文本、图像、视频、点云及多模态数据提供 AI 辅助标注能力。它集成了丰富的内置工具、自动化标注工作流、先进的深度学习模型，以及灵活的多格式数据导入与导出能力。对于远程推理场景，[X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 提供轻量且可扩展的后端，用于连接自定义模型和计算资源。
 
 ## 核心特性
 
 <img src="https://github.com/user-attachments/assets/2925bc88-e22b-4e81-873c-45fd85164f6b" width="100%" />
 
 * 统一支持文本、图像、视频、点云及多模态数据的标注与处理。
-* 覆盖图像分类、目标检测、实例分割、姿态估计、旋转目标检测、多目标跟踪、光学字符识别、车道线标注、图像描述、视觉问答、文档解析和 3D 点云标注等任务。
+* 覆盖 2D 图像分类、目标检测、实例分割、姿态估计、旋转目标检测、多目标跟踪、光学字符识别、车道线标注、图像描述、视觉问答、文档解析和 3D 点云标注等任务。
 * 提供多边形、矩形、长方体、旋转框、四边形、圆形、线段、折线、点和掩码等标注工具，并支持文本检测、文本识别和 KIE 等任务专用工具。
 * 集成多种先进的深度学习模型，支持 AI 辅助标注、自动标注和数据集批量预测。
 * 支持本地与远程推理，可接入 `ONNX Runtime`、`TensorRT`、`OpenCV DNN`、`vLLM`、`SGLang` 等推理引擎与服务框架。
@@ -62,6 +62,7 @@
 | 🖼️ **图像分类** | YOLOv5-Cls, YOLOv8-Cls, YOLO11-Cls, InternImage, PULC |
 | 🎯 **目标检测** | YOLOv5/6/7/8/9/10, YOLO11/12/26, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR, DEIMv2 |
 | 🖌️ **实例分割** | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, YOLO26-Seg, Hyper-YOLO-Seg, RF-DETR-Seg, D-FINE-seg |
+| 🎨 **语义分割** | U-Net |
 | 🏃 **姿态估计** | YOLOv8-Pose, YOLO11-Pose, YOLO26-Pose, DWPose, RTMO |
 | 😀 **人脸估计** | SCRFD, YOLOv6Lite-Face |
 | 👣 **目标跟踪** | TrackTrack, Bot-SORT, ByteTrack, SAM2/3-Video |
@@ -157,13 +158,7 @@
 
 ## 赞助
 
-X-AnyLabeling 是一个持续维护的开源项目。你的赞助将用于功能开发、模型集成、文档完善和社区支持。
-
-<a href="https://xanylabeling.com/sponsor">
-  <img src="https://github.com/user-attachments/assets/893151ad-d6b2-4846-882a-ef5376471c99" alt="赞助 X-AnyLabeling 项目" width="100%" />
-</a>
-
-点击上方图片前往赞助页面。
+你的[赞助](https://xanylabeling.com/sponsor)将支持 X-AnyLabeling 的功能开发、模型集成、文档完善和社区维护。
 
 ## 致谢
 

@@ -58,6 +58,7 @@ class SettingsRuntimeApplier:
             "shortcuts.open_dir": self._widget.actions.open_dir,
             "shortcuts.open_chatbot": self._widget.actions.open_chatbot,
             "shortcuts.open_vqa": self._widget.actions.open_vqa,
+            "shortcuts.open_pointcloud": self._widget.actions.open_pointcloud,
             "shortcuts.open_image_classifier": (
                 self._widget.actions.open_image_classifier
             ),

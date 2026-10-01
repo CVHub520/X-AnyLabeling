@@ -901,6 +901,7 @@ You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit
 | `Ctrl+3`              | Open Image Classifier Dialog                     |                                            |
 | `Ctrl+4`              | Open PaddleOCR Dialog                            |                                            |
 | `Ctrl+5`              | Open Video Classifier Dialog                     |                                            |
+| `Ctrl+6`              | Open 3D Point Cloud Workspace                     |                                            |
 | `Ctrl+q`              | Quit Application                                 |                                            |
 | `Ctrl+i`              | Open Single Image File                           |                                            |
 | `Ctrl+o`              | Open Single Video File                           |                                            |

@@ -1129,6 +1129,7 @@ class LabelingWidget(LabelDialog):
         open_pointcloud = action(
             self.tr("Point Cloud"),
             self.open_pointcloud,
+            shortcuts.get("open_pointcloud"),
             icon="cartesian",
             tip=self.tr("Open point cloud workspace"),
         )

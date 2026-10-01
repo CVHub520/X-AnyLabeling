@@ -29,21 +29,30 @@ attribute float visible;
 uniform mat4 matrix;
 uniform vec2 viewport;
 uniform float pointSize;
+uniform float pointScale;
+uniform float maxPointSize;
+uniform bool pointPrimitive;
 varying vec4 pointColor;
 void main() {
     vec4 clip = matrix * vec4(position, 1.0);
-    if (visible < 0.5 || any(greaterThan(abs(clip.xyz), vec3(clip.w)))
+    float size = pointSize;
+    if (pointScale > 0.0) {
+        size = floor(clamp(pointScale / max(clip.w, 0.1), 1.0, maxPointSize) + 0.5);
+    }
+    if (!pointPrimitive) {
+        gl_Position = clip;
+    } else if (visible < 0.5 || any(greaterThan(abs(clip.xyz), vec3(clip.w)))
         || clip.x >= clip.w || clip.y <= -clip.w) {
         gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
     } else {
         vec2 screen = (clip.xy / clip.w + 1.0) * viewport * 0.5;
         screen.y = viewport.y - screen.y;
-        screen = floor(screen) + vec2(mod(pointSize, 2.0) * 0.5);
+        screen = floor(screen) + vec2(mod(size, 2.0) * 0.5);
         screen.y = viewport.y - screen.y;
         clip.xy = (screen / viewport * 2.0 - 1.0) * clip.w;
         gl_Position = clip;
     }
-    gl_PointSize = pointSize;
+    gl_PointSize = size;
     pointColor = color;
 }
 """
@@ -79,7 +88,7 @@ class _PointCloudGLWidget(QOpenGLWidget):
         surface = QtGui.QSurfaceFormat()
         surface.setVersion(2, 1)
         surface.setDepthBufferSize(24)
-        surface.setSamples(0)
+        surface.setSamples(4)
         self.setFormat(surface)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.setMouseTracking(True)
@@ -90,6 +99,8 @@ class _PointCloudGLWidget(QOpenGLWidget):
         self.visibility_buffer = None
         self.preview_buffer = None
         self.picking_buffer = None
+        self.cuboid_buffer = None
+        self.cuboid_dirty = True
         self.picking_framebuffer = None
         self.scene_framebuffer = None
         self.scene_key = None
@@ -108,6 +119,9 @@ class _PointCloudGLWidget(QOpenGLWidget):
             self.functions = QOpenGLFunctions_2_0()
             if not self.functions.initializeOpenGLFunctions():
                 raise RuntimeError("OpenGL 2.0 functions are unavailable.")
+            self.owner._max_point_size = max(
+                1, int(self.functions.glGetFloatv(0x846D)[1])
+            )
             self.program = QOpenGLShaderProgram(self)
             for shader_type, source in (
                 (QOpenGLShader.ShaderTypeBit.Vertex, VERTEX_SHADER),
@@ -124,12 +138,14 @@ class _PointCloudGLWidget(QOpenGLWidget):
             self.visibility_buffer = QOpenGLBuffer()
             self.preview_buffer = QOpenGLBuffer()
             self.picking_buffer = QOpenGLBuffer()
+            self.cuboid_buffer = QOpenGLBuffer()
             for buffer in (
                 self.buffer,
                 self.color_buffer,
                 self.visibility_buffer,
                 self.preview_buffer,
                 self.picking_buffer,
+                self.cuboid_buffer,
             ):
                 if not buffer.create():
                     raise RuntimeError(
@@ -151,6 +167,7 @@ class _PointCloudGLWidget(QOpenGLWidget):
             self.visibility_buffer,
             self.preview_buffer,
             self.picking_buffer,
+            self.cuboid_buffer,
         ):
             if buffer is not None and buffer.isCreated():
                 buffer.destroy()
@@ -166,6 +183,7 @@ class _PointCloudGLWidget(QOpenGLWidget):
         self.visibility_dirty = True
         self.preview_dirty = True
         self.picking_dirty = True
+        self.cuboid_dirty = True
         self.owner._selection_cache = None
         self.doneCurrent()
 
@@ -184,6 +202,7 @@ class _PointCloudGLWidget(QOpenGLWidget):
             return
         try:
             self._draw_scene()
+            self._draw_cuboids()
         except (RuntimeError, MemoryError) as error:
             self.owner._renderer_failed(str(error))
             return
@@ -205,6 +224,7 @@ class _PointCloudGLWidget(QOpenGLWidget):
             surface_format.setInternalTextureFormat(
                 self.textureFormat() or 0x8058
             )
+            surface_format.setSamples(self.format().samples())
             self.scene_framebuffer = QOpenGLFramebufferObject(
                 size, surface_format
             )
@@ -248,6 +268,7 @@ class _PointCloudGLWidget(QOpenGLWidget):
         gl.glDisable(0x0BD0)
         gl.glEnable(0x8642)
         self.program.bind()
+        self.program.setUniformValue("pointPrimitive", True)
         matrix = QtGui.QMatrix4x4(self.owner._matrix().ravel().tolist())
         self.program.setUniformValue("matrix", matrix)
         self.program.setUniformValue(
@@ -256,13 +277,15 @@ class _PointCloudGLWidget(QOpenGLWidget):
         self.program.setUniformValue(
             "pointSize", float(self.owner._pixel_size())
         )
+        self.program.setUniformValue("pointScale", self.owner._point_scale())
+        self.program.setUniformValue(
+            "maxPointSize", float(self.owner._max_point_size)
+        )
 
     def _draw_points(self, picking=False, preview=True):
         gl = self.functions
         self._prepare_program()
-        gl.glClearColor(
-            *((0, 0, 0, 0) if picking else (0.075, 0.09, 0.12, 1.0))
-        )
+        gl.glClearColor(*((0, 0, 0, 0) if picking else (0, 0, 0, 1.0)))
         gl.glClear(0x00004000 | 0x00000100)
         if not len(self.owner._points):
             self.program.release()
@@ -310,6 +333,42 @@ class _PointCloudGLWidget(QOpenGLWidget):
         self.program.release()
         if preview and not picking:
             self._draw_preview()
+
+    def _draw_cuboids(self):
+        vertices, face_count = self.owner._cuboid_mesh
+        axes = self.owner._axes_vertices
+        if not len(vertices) and not len(axes):
+            return
+        gl = self.functions
+        self._prepare_program()
+        self.program.setUniformValue("pointPrimitive", False)
+        self.cuboid_buffer.bind()
+        if self.cuboid_dirty:
+            self._upload_buffer(
+                self.cuboid_buffer, np.concatenate((vertices, axes))
+            )
+            self.cuboid_dirty = False
+        for name, offset, count in (("position", 0, 3), ("color", 12, 4)):
+            self.program.enableAttributeArray(name)
+            self.program.setAttributeBuffer(name, 0x1406, offset, count, 28)
+        gl.glLineWidth(1.0)
+        gl.glDrawArrays(0x0001, len(vertices), len(axes))
+        gl.glEnable(0x0BE2)
+        gl.glBlendFuncSeparate(0x0302, 0x0303, 1, 0x0303)
+        gl.glEnable(0x0B44)
+        gl.glCullFace(0x0405)
+        gl.glEnable(0x8037)
+        gl.glPolygonOffset(1.0, 1.0)
+        gl.glDrawArrays(0x0004, 0, face_count)
+        gl.glDisable(0x8037)
+        gl.glDisable(0x0B44)
+        gl.glLineWidth(1.0)
+        gl.glDrawArrays(0x0001, face_count, len(vertices) - face_count)
+        gl.glDisable(0x0BE2)
+        for name in ("position", "color"):
+            self.program.disableAttributeArray(name)
+        self.cuboid_buffer.release()
+        self.program.release()
 
     def _draw_preview(self):
         if not len(self.owner._preview):
@@ -426,6 +485,13 @@ class _PointCloudGLWidget(QOpenGLWidget):
 
     def mouseMoveEvent(self, event):
         self.owner._mouse_move(event)
+        self.owner.pointer_moved.emit(
+            self.mapToGlobal(event.position().toPoint())
+        )
+
+    def leaveEvent(self, event):
+        super().leaveEvent(event)
+        self.owner.pointer_left.emit()
 
     def mouseReleaseEvent(self, event):
         self.owner._mouse_release(event)
@@ -454,6 +520,8 @@ class _PointCloudGLWidget(QOpenGLWidget):
 
 
 class PointCloudViewport(QtWidgets.QWidget):
+    pointer_moved = QtCore.pyqtSignal(object)
+    pointer_left = QtCore.pyqtSignal()
     camera_view_changed = QtCore.pyqtSignal(str)
     selection_completed = QtCore.pyqtSignal(object)
     selection_started = QtCore.pyqtSignal()
@@ -481,7 +549,14 @@ class PointCloudViewport(QtWidgets.QWidget):
         self._point_size = 2.0
         self._brush_radius = 20.0
         self._center = np.zeros(3, dtype=np.float32)
+        self._show_hidden_message = True
         self._scale = 10.0
+        self._scale_limits = (1e-5, 1e12)
+        self._perspective = False
+        self._max_point_size = 64
+        self._cuboid_mesh = (np.empty((0, 7), dtype=np.float32), 0)
+        self._axes_vertices = np.empty((0, 7), dtype=np.float32)
+        self._show_axes = True
         self._extent = 10.0
         self._yaw = -45.0
         self._pitch = 35.0
@@ -503,12 +578,14 @@ class PointCloudViewport(QtWidgets.QWidget):
             self.setFocusProxy(self._gl)
         layout.addWidget(self._error_label)
         if self._gl is None:
-            QtCore.QTimer.singleShot(
-                0,
+            self._platform_timer = QtCore.QTimer(self)
+            self._platform_timer.setSingleShot(True)
+            self._platform_timer.timeout.connect(
                 lambda: self._renderer_failed(
                     self.tr("The current Qt platform does not support OpenGL.")
                 ),
             )
+            self._platform_timer.start(0)
 
     @property
     def selection_active(self):
@@ -568,14 +645,15 @@ class PointCloudViewport(QtWidgets.QWidget):
         if count:
             self._update(colors=True, indices=indices)
 
-    def set_visible_mask(self, mask, indices=None):
+    def set_visible_mask(self, mask, indices=None, cancel_selection=True):
         if indices is not None:
             indices = self._point_indices(indices)
         mask = np.asarray(mask, dtype=bool)
         count = len(self._points) if indices is None else len(indices)
         if mask.shape != (count,):
             raise ValueError("Visibility must have one entry per point.")
-        self.cancel_selection()
+        if cancel_selection:
+            self.cancel_selection()
         target = slice(None) if indices is None else indices
         if np.array_equal(self._visible[target], mask):
             return
@@ -645,6 +723,10 @@ class PointCloudViewport(QtWidgets.QWidget):
         self._update(preview=True)
 
     def _fit_indices(self, indices):
+        if indices is None:
+            self._axes_vertices = np.empty((0, 7), dtype=np.float32)
+            if self._gl is not None:
+                self._gl.cuboid_dirty = True
         if len(self._points) and (indices is None or len(indices)):
             points = (
                 self._points[:, :3]
@@ -652,12 +734,26 @@ class PointCloudViewport(QtWidgets.QWidget):
                 else self._points[indices, :3]
             )
             low, high = points.min(axis=0), points.max(axis=0)
+            if indices is None and self._show_axes:
+                origin = (
+                    np.zeros(3)
+                    if np.all(low <= 0) and np.all(high >= 0)
+                    else (low.astype(np.float64) + high) / 2
+                )
+                axes = np.tile(origin, (6, 1))
+                axes[1::2] += np.eye(3) * 5
+                self._axes_vertices = np.column_stack(
+                    (axes, np.repeat(np.eye(3), 2, axis=0), np.ones(6))
+                ).astype(np.float32)
             self._center = (low.astype(np.float64) + high) / 2
             radius = max(
                 float(np.linalg.norm(high.astype(np.float64) - low) / 2), 0.1
             )
             aspect = max(self.width(), 1) / max(self.height(), 1)
-            self._scale = radius * 1.1 / min(1, aspect)
+            scale = radius * 1.1 / min(1, aspect)
+            if self._perspective:
+                scale *= math.sqrt(1 + math.tan(math.radians(25)) ** 2)
+            self._set_scale(scale)
             self._extent = (
                 max(
                     float(np.max(np.abs(self._points[:, :3] - self._center))),
@@ -666,6 +762,11 @@ class PointCloudViewport(QtWidgets.QWidget):
                 * 4
             )
         self._update()
+
+    def _set_scale(self, scale):
+        self._scale = min(
+            self._scale_limits[1], max(self._scale_limits[0], scale)
+        )
 
     def _basis(self):
         yaw, pitch = math.radians(self._yaw), math.radians(self._pitch)
@@ -688,6 +789,19 @@ class PointCloudViewport(QtWidgets.QWidget):
         matrix[1, :3] = up / self._scale
         matrix[2, :3] = forward / max(self._extent, 0.1)
         matrix[:3, 3] = -matrix[:3, :3] @ self._center
+        if self._perspective:
+            tangent = math.tan(math.radians(25))
+            distance = self._scale / tangent
+            near, far = 0.1, max(500.0, distance + self._extent)
+            matrix[0, :3] = right / (tangent * width / height)
+            matrix[1, :3] = up / tangent
+            matrix[2, :3] = forward * ((far + near) / (far - near))
+            matrix[3, :3] = forward
+            matrix[:3, 3] = -matrix[:3, :3] @ self._center
+            matrix[2, 3] += (distance * (far + near) - 2 * far * near) / (
+                far - near
+            )
+            matrix[3, 3] = distance - forward @ self._center
         return matrix
 
     def _physical_size(self):
@@ -698,6 +812,20 @@ class PointCloudViewport(QtWidgets.QWidget):
 
     def _pixel_size(self):
         return max(1, round(self._point_size * self.devicePixelRatioF()))
+
+    def _point_scale(self):
+        if not self._perspective:
+            return 0.0
+        return 0.05 * (self._point_size / 2) * self._physical_size()[1] / 2
+
+    def _point_sizes(self, matrix):
+        if not self._perspective:
+            return self._pixel_size()
+        depth = self._points[:, :3] @ matrix[3, :3] + matrix[3, 3]
+        sizes = self._point_scale() / np.maximum(depth, 0.1)
+        return np.floor(np.clip(sizes, 1, self._max_point_size) + 0.5).astype(
+            np.int32
+        )
 
     def _begin_selection(self):
         if not len(self._points) or self._error:
@@ -730,7 +858,7 @@ class PointCloudViewport(QtWidgets.QWidget):
                     self._visible & in_view,
                     width,
                     height,
-                    self._pixel_size(),
+                    self._point_sizes(matrix),
                     self._depth_mode,
                     surface_owners=owners,
                 )
@@ -814,12 +942,15 @@ class PointCloudViewport(QtWidgets.QWidget):
         button = event.button()
         if self._gl:
             self._gl.setFocus()
-        if (
-            self._tool == "polygon"
-            and button == QtCore.Qt.MouseButton.LeftButton
-            and event.modifiers() & QtCore.Qt.KeyboardModifier.ControlModifier
+        if self._tool == "polygon" and (
+            button == QtCore.Qt.MouseButton.RightButton
+            or (
+                button == QtCore.Qt.MouseButton.LeftButton
+                and event.modifiers()
+                & QtCore.Qt.KeyboardModifier.ControlModifier
+            )
         ):
-            self._drag_button = button
+            self._drag_button = QtCore.Qt.MouseButton.RightButton
             return
         if (
             button != QtCore.Qt.MouseButton.LeftButton
@@ -866,7 +997,7 @@ class PointCloudViewport(QtWidgets.QWidget):
         if self._drag_button is not None and self._last_mouse is not None:
             dx, dy = np.array(point) - self._last_mouse
             if self._drag_button in (
-                QtCore.Qt.MouseButton.LeftButton,
+                QtCore.Qt.MouseButton.RightButton,
                 QtCore.Qt.MouseButton.MiddleButton,
             ):
                 right, up, _ = self._basis()
@@ -932,10 +1063,7 @@ class PointCloudViewport(QtWidgets.QWidget):
         if not preserve_polygon:
             self.cancel_selection()
         old_scale = self._scale
-        self._scale = min(
-            1e12,
-            max(1e-5, self._scale * math.exp(-event.angleDelta().y() / 900)),
-        )
+        self._set_scale(self._scale * math.exp(-event.angleDelta().y() / 900))
         if preserve_polygon:
             factor = old_scale / self._scale
             cx, cy = self.width() / 2, self.height() / 2
@@ -974,15 +1102,6 @@ class PointCloudViewport(QtWidgets.QWidget):
                 painter.setBrush(QtGui.QColor(245, 211, 75))
                 for point in (self._polygon[0], self._polygon[-1]):
                     painter.drawEllipse(QtCore.QPointF(*point), 5, 5)
-        origin = QtCore.QPointF(48, self.height() - 48)
-        right, up, _ = self._basis()
-        for i, (label, color) in enumerate(
-            (("X", "#f07178"), ("Y", "#a5d674"), ("Z", "#79b8ff"))
-        ):
-            end = origin + QtCore.QPointF(right[i] * 30, -up[i] * 30)
-            painter.setPen(QtGui.QPen(QtGui.QColor(color), 2))
-            painter.drawLine(origin, end)
-            painter.drawText(end + QtCore.QPointF(3, -3), label)
         painter.setPen(QtGui.QColor("#cbd2df"))
         if not len(self._points):
             painter.drawText(
@@ -990,7 +1109,7 @@ class PointCloudViewport(QtWidgets.QWidget):
                 QtCore.Qt.AlignmentFlag.AlignCenter,
                 self.tr("Open a BIN or PLY point cloud to begin."),
             )
-        elif not self._visible_count:
+        elif not self._visible_count and self._show_hidden_message:
             painter.drawText(
                 self.rect(),
                 QtCore.Qt.AlignmentFlag.AlignCenter,

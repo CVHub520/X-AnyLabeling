@@ -456,8 +456,12 @@ def test_class_configuration_roundtrip_and_atomic_failure(
     classes = list(DEFAULT_CLASSES) + [
         ClassDefinition(65535, "Custom name", "#AABBCC")
     ]
-    io.save_classes(target, classes)
-    assert io.load_classes(target) == classes
+    definitions = {
+        "segmentation": classes,
+        "detection": [ClassDefinition(65535, "Vehicle", "#112233")],
+    }
+    io.save_classes(target, definitions)
+    assert io.load_classes(target) == definitions
     assert json.loads(target.read_text())["version"] == 1
     original = target.read_bytes()
 
@@ -466,33 +470,40 @@ def test_class_configuration_roundtrip_and_atomic_failure(
 
     monkeypatch.setattr(io.os, "replace", fail_replace)
     with pytest.raises(OSError):
-        io.save_classes(target, DEFAULT_CLASSES)
+        io.save_classes(target, {"segmentation": DEFAULT_CLASSES})
     assert target.read_bytes() == original
 
 
 @pytest.mark.parametrize(
     "data",
     [
-        {"version": 2, "classes": []},
-        {"version": True, "classes": []},
+        {
+            "version": 2,
+            "detection": {
+                "classes": [{"id": 1, "name": "Car", "color": "#123456"}]
+            },
+        },
+        {"version": True, "segmentation": {"classes": []}},
+        {"version": 1, "segmentation": {"classes": []}},
         {"version": 1, "classes": []},
-        {"version": 1, "classes": [{"id": 0, "name": "", "color": "#123456"}]},
         {
             "version": 1,
-            "classes": [{"id": 0, "name": "Zero", "color": "blue"}],
+            "classes": [
+                {"id": 0, "name": "Unlabeled", "color": "#808080"},
+                {"id": 10, "name": "Vehicle", "color": "#123456"},
+            ],
         },
         {
             "version": 1,
-            "classes": [{"id": 65536, "name": "Bad", "color": "#123456"}],
+            "detection": {
+                "classes": [{"id": 0, "name": "Zero", "color": "#123456"}]
+            },
         },
         {
             "version": 1,
-            "classes": [{"id": 0.0, "name": "Bad", "color": "#123456"}],
-        },
-        {"version": 1, "classes": [{"id": 0, "name": "Missing color"}]},
-        {
-            "version": 1,
-            "classes": [{"id": 0, "name": "Zero", "color": "#123456"}] * 2,
+            "detection": {
+                "classes": [{"id": 1, "name": "Car", "color": "#123456"}] * 2
+            },
         },
     ],
 )
@@ -501,6 +512,41 @@ def test_invalid_class_config_never_partially_applies(tmp_path, data):
     path.write_text(json.dumps(data))
     with pytest.raises(ValueError, match="invalid.json"):
         io.load_classes(path)
+
+
+@pytest.mark.parametrize(
+    "classes",
+    [
+        [{"id": 0, "name": "", "color": "#123456"}],
+        [{"id": 0, "name": "Zero", "color": "blue"}],
+        [{"id": 65536, "name": "Bad", "color": "#123456"}],
+        [{"id": 0.0, "name": "Bad", "color": "#123456"}],
+        [{"id": 0, "name": "Missing color"}],
+        [{"id": 0, "name": "Zero", "color": "#123456"}] * 2,
+    ],
+)
+def test_invalid_class_entries_report_path(tmp_path, classes):
+    path = tmp_path / "invalid.json"
+    path.write_text(
+        json.dumps({"version": 1, "segmentation": {"classes": classes}})
+    )
+    with pytest.raises(ValueError, match="invalid.json"):
+        io.load_classes(path)
+
+
+@pytest.mark.parametrize("task", ["detection", "segmentation"])
+def test_single_task_class_file_roundtrip(tmp_path, task):
+    path = tmp_path / "classes.json"
+    definitions = {
+        task: (
+            list(DEFAULT_CLASSES)
+            if task == "segmentation"
+            else [ClassDefinition(1, "Car", "#6496F5")]
+        )
+    }
+    io.save_classes(path, definitions)
+    assert io.load_classes(path) == definitions
+    assert json.loads(path.read_text())["version"] == 1
 
 
 @pytest.mark.skipif(

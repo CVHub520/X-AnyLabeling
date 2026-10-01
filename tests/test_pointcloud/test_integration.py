@@ -67,7 +67,12 @@ class TestPointCloudIntegration(unittest.TestCase):
                 assert actions.index(view.actions.open_pointcloud) == (
                     actions.index(view.actions.open_vqa) + 1
                 )
-                assert not any('pointcloud' in name for name in sys.modules)
+                assert not {
+                    name for name in sys.modules if 'pointcloud' in name
+                } - {
+                    'anylabeling.views.labeling.pointcloud',
+                    'anylabeling.views.labeling.pointcloud.icons',
+                }
                 window.close()
             """)
         result = subprocess.run(

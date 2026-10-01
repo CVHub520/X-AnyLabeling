@@ -6,12 +6,14 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 from anylabeling.config import get_work_directory
 from anylabeling.views.labeling.pointcloud.io import (
+    cuboid_source_path,
     default_label_path,
     discover_frames,
     label_candidates,
     load_classes,
     load_frame,
     save_classes,
+    save_cuboids,
     save_labels,
 )
 from anylabeling.views.labeling.pointcloud.model import (
@@ -31,8 +33,20 @@ from anylabeling.views.labeling.pointcloud.camera import (
     CameraConfigurationDialog,
     CameraPanel,
 )
-from anylabeling.views.labeling.pointcloud.viewport import PointCloudViewport
+from anylabeling.views.labeling.pointcloud.cuboid_viewport import (
+    CuboidViewport,
+)
+from anylabeling.views.labeling.pointcloud.detection import DetectionWorkspace
+from anylabeling.views.labeling.pointcloud.export import ExportFrame
+from anylabeling.views.labeling.pointcloud.export_dialog import (
+    PointCloudExportDialog,
+)
+from anylabeling.views.labeling.pointcloud.import_dataset import ImportTarget
+from anylabeling.views.labeling.pointcloud.import_dialog import (
+    PointCloudImportDialog,
+)
 from anylabeling.views.labeling.pointcloud.style import get_pointcloud_style
+from anylabeling.views.labeling.pointcloud.task_dialog import CreateTaskDialog
 from anylabeling.views.labeling.utils.colormap import label_colormap
 from anylabeling.views.labeling.utils.general import open_url
 from anylabeling.views.labeling.utils.qt import new_icon
@@ -55,7 +69,15 @@ class FrameLoader(QtCore.QThread):
 
     def run(self):
         try:
-            frame = load_frame(self.path, self.label_path)
+            frame = load_frame(
+                self.path,
+                self.label_path,
+                cuboid_path=(
+                    self.output_path.with_suffix(".cuboids.json")
+                    if self.output_path is not None
+                    else None
+                ),
+            )
             if self.output_path is not None:
                 frame.label_path = self.output_path
                 frame.label_exists = False
@@ -74,14 +96,28 @@ class FrameLoader(QtCore.QThread):
 class PointCloudDialog(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent, QtCore.Qt.WindowType.Window)
+        palette = self.palette()
+        palette.setColor(
+            QtGui.QPalette.ColorRole.Window,
+            QtGui.QColor(get_theme()["background"]),
+        )
+        self.setPalette(palette)
+        self.setAutoFillBackground(True)
         self.settings = QtCore.QSettings("anylabeling", "pointcloud")
         self.document = None
+        self.task_type = None
         self.files = []
         self.frame_index = -1
         self.label_directory = None
         self.label_overrides = {}
-        self.classes = list(DEFAULT_CLASSES)
-        self._saved_classes = list(self.classes)
+        self.class_definitions = {
+            "detection": [],
+            "segmentation": list(DEFAULT_CLASSES),
+        }
+        self._saved_classes = {
+            task: list(classes)
+            for task, classes in self.class_definitions.items()
+        }
         self.config_path = None
         self.dataset = None
         self._worker = None
@@ -100,6 +136,8 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         self._palette_classes = None
         self._palette = None
         self._intensity_range = None
+        self._task_color_modes = {False: "semantic", True: "rgb"}
+        self._segmentation_tool = "browse"
         self._autosave_timer = QtCore.QTimer(self)
         self._autosave_timer.setSingleShot(True)
         self._autosave_timer.setInterval(350)
@@ -120,9 +158,19 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             )
         self._refresh()
 
+    def show(self):
+        if not self.isVisible():
+            self.ensurePolished()
+            self.layout().activate()
+            self.grab()
+        super().show()
+
     @property
     def config_dirty(self):
-        return self.classes != self._saved_classes
+        return self.class_definitions != self._saved_classes
+
+    def _class_task(self):
+        return "detection" if self.detection.enabled else "segmentation"
 
     def _icon(self, name):
         theme = get_theme()
@@ -281,6 +329,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
     def _list(self, title, editable=False, toggle_selection=False):
         widget = (
             PointCloudListWidget(
+                object_controls=True,
                 toggle_selection=toggle_selection,
                 remove_tooltip=(
                     self.tr("Delete instance")
@@ -314,7 +363,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         self.splitter.setChildrenCollapsible(False)
         self._panel_widths = {0: 280, 2: 280}
         self.setCentralWidget(self.splitter)
-        self.viewport = PointCloudViewport()
+        self.viewport = CuboidViewport()
         self.viewport.selection_completed.connect(self._apply_selection)
         self.viewport.status_message.connect(self._status)
         self.viewport.renderer_error.connect(self._renderer_error)
@@ -345,16 +394,63 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         right_entry = QtWidgets.QWidget()
         right_entry.setFixedHeight(42)
         right_layout = QtWidgets.QHBoxLayout(right_entry)
-        right_layout.setContentsMargins(0, 7, 6, 9)
+        right_layout.setContentsMargins(0, 5, 6, 5)
         self.show_annotation_button = self._panel_button(2, right_layout)
-        view_header.addWidget(right_entry, 0, QtCore.Qt.AlignmentFlag.AlignTop)
         right_entry.hide()
         center_layout.addLayout(view_header)
-        center_layout.addWidget(self.viewport, 1)
+        self.detection = DetectionWorkspace(self, center)
+        views_entry = QtWidgets.QFrame()
+        views_entry.setFixedHeight(42)
+        views_layout = QtWidgets.QHBoxLayout(views_entry)
+        views_layout.setContentsMargins(0, 5, 0, 5)
+        views_layout.setSpacing(0)
+        self.camera_controls_action = self._action(
+            self.tr("Show camera controls"),
+            self._toggle_camera_controls,
+            self,
+            icon="keyboard",
+        )
+        self.camera_controls_action.setCheckable(True)
+        self.camera_controls_button = self._tool_button(
+            self.camera_controls_action, views_layout
+        )
+        self.camera_controls_button.setFixedSize(26, 26)
+        self.camera_controls_button.setProperty("panelHeader", True)
+        self.camera_controls_button.setProperty("cameraControls", True)
+        self.camera_controls_button.setFocusPolicy(
+            QtCore.Qt.FocusPolicy.NoFocus
+        )
+        self.camera_panel_action = self._action(
+            self.tr("Show camera images"),
+            lambda visible: self.camera_panel.set_images_visible(visible),
+            self,
+            icon="camera",
+        )
+        self.camera_panel_action.setCheckable(True)
+        self.camera_panel_action.setEnabled(False)
+        self.camera_panel_button = self._tool_button(
+            self.camera_panel_action, views_layout
+        )
+        self.camera_panel_button.setFixedSize(26, 26)
+        self.camera_panel_button.setProperty("panelHeader", True)
+        self.camera_panel_button.setProperty("cameraControls", True)
+        self.camera_panel_button.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        views_layout.addWidget(self.detection.views_button)
+        view_header.addWidget(views_entry, 0, QtCore.Qt.AlignmentFlag.AlignTop)
+        view_header.addWidget(right_entry, 0, QtCore.Qt.AlignmentFlag.AlignTop)
+        center_layout.addWidget(self.detection, 1)
         self.camera_panel = CameraPanel(self)
         self.camera_panel.hide()
         self.splitter.addWidget(center)
         self.splitter.addWidget(self._build_annotation_panel())
+        self.sidebar_tabs.insertTab(0, self.detection.panel, "Det")
+        self.sidebar_tabs.setTabToolTip(0, self.tr("Detection"))
+        toolbar_layout = self.view_tool_scroll.widget().layout()
+        draw_button = self._tool_button(
+            self.detection.draw_action, toolbar_layout
+        )
+        toolbar_layout.insertWidget(3, draw_button)
+        self.point_size.valueChanged.connect(self.detection.sync_display)
         self.splitter.setSizes([280, 720, 280])
         self.splitter.setStretchFactor(1, 1)
         self.color_mode.currentIndexChanged.connect(self._refresh_display)
@@ -366,6 +462,44 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         self.statusBar().addPermanentWidget(self.summary)
         self.statusBar().setSizeGripEnabled(False)
         self.setStyleSheet(get_pointcloud_style())
+        self.sidebar_tabs.currentChanged.connect(self._task_changed)
+        self.sidebar_tabs.setCurrentWidget(self.detection.panel)
+
+    def _task_changed(self, index):
+        if self.task_type is not None:
+            selected = 0 if self.task_type == "detection" else 1
+            if index != selected:
+                with QtCore.QSignalBlocker(self.sidebar_tabs):
+                    self.sidebar_tabs.setCurrentIndex(selected)
+                return
+        enabled = self.sidebar_tabs.widget(index) is self.detection.panel
+        self._task_color_modes[self.detection.enabled] = (
+            self.color_mode.currentData()
+        )
+        if enabled:
+            self._segmentation_tool = self._current_tool()
+        self._select_tool("browse" if enabled else self._segmentation_tool)
+        self.detection.activate(enabled)
+        for name in ("brush", "polygon"):
+            self.tool_actions[name].setEnabled(not enabled)
+            self.tool_actions[name].setVisible(not enabled)
+        for action in self.operation_actions.values():
+            action.setVisible(not enabled)
+        self.through_action.setVisible(not enabled)
+        self.through_action.setEnabled(not enabled)
+        with QtCore.QSignalBlocker(self.color_mode):
+            self.color_mode.setCurrentIndex(
+                self.color_mode.findData(self._task_color_modes[enabled])
+            )
+        self._sync_render_actions()
+        for button in self.view_tool_scroll.findChildren(
+            QtWidgets.QToolButton
+        ):
+            action = button.defaultAction()
+            if action is not None:
+                button.setVisible(action.isVisible())
+        self._refresh_target()
+        self._refresh_display()
 
     def createPopupMenu(self):
         return None
@@ -378,37 +512,34 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         toolbar.setToolButtonStyle(
             QtCore.Qt.ToolButtonStyle.ToolButtonTextBesideIcon
         )
-        self.open_action = self._action(
-            self.tr("Open file"), self.open_file, toolbar, icon="open"
-        )
-        self.directory_action = self._action(
-            self.tr("Open dir"),
-            self.open_directory,
-            toolbar,
-            icon="folder-chatbot",
-        )
-        self.output_directory_action = self._action(
-            self.tr("Output dir"),
-            self._change_output_directory,
-            toolbar,
-            icon="folder-chatbot",
-        )
-        self.output_directory_action.setToolTip(
-            self.tr(
-                "Choose where to automatically save labels for this sequence."
-            )
+        self.create_task_action = self._action(
+            self.tr("Create task"), self.create_task, toolbar, icon="new"
         )
         self.save_as_action = self._action(
-            self.tr("Save as"), self.save_as, toolbar, icon="export"
+            self.tr("Save as"), self.save_as, toolbar, icon="save-plus"
         )
         self.save_as_action.setToolTip(
-            self.tr("Save the current point labels to another file.")
+            self.tr(
+                "Save point labels and associated 3D cuboids to another location."
+            )
         )
-        self.camera_action = self._action(
-            self.tr("Camera image"),
-            self._configure_camera,
+        self.import_action = self._action(
+            self.tr("Upload"),
+            self._import_dataset,
             toolbar,
-            icon="image",
+            icon="pointcloud-upload",
+        )
+        self.import_action.setToolTip(
+            self.tr("Import 3D objects into the current sequence.")
+        )
+        self.export_action = self._action(
+            self.tr("Export"),
+            self._export_dataset,
+            toolbar,
+            icon="pointcloud-download",
+        )
+        self.export_action.setToolTip(
+            self.tr("Export 3D objects from all frames.")
         )
         spacer = QtWidgets.QWidget()
         spacer.setSizePolicy(
@@ -420,7 +551,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             self.tr("Keyboard shortcuts"),
             self._show_shortcuts,
             toolbar,
-            icon="keyboard",
+            icon="command",
         )
         shortcuts_button = toolbar.widgetForAction(shortcuts_action)
         shortcuts_button.setToolButtonStyle(
@@ -458,7 +589,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         header_layout.setSpacing(0)
         self._panel_button(0, header_layout)
         heading = self._heading(self.tr("Frames"))
-        heading.setIndent(0)
+        heading.setIndent(1)
         header_layout.addWidget(heading)
         header_layout.addStretch()
         self.frame_progress = QtWidgets.QLabel("0/0")
@@ -471,8 +602,12 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         layout.addWidget(header)
         self.file_list = self._list(self.tr("Frames"))
         self.file_list.setObjectName("FileList")
-        self.file_list.setStyleSheet(get_dock_style())
-        self.file_list.setIconSize(QtCore.QSize(12, 12))
+        self.file_list.setStyleSheet(
+            get_dock_style()
+            + "QListWidget#FileList::item { padding-left: 3px; }"
+            + "QListWidget#FileList::indicator { margin-right: 0; }"
+        )
+        self.file_list.setIconSize(QtCore.QSize(8, 8))
         self.file_list.currentRowChanged.connect(self._select_frame)
         self.file_list.setContextMenuPolicy(
             QtCore.Qt.ContextMenuPolicy.CustomContextMenu
@@ -489,7 +624,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
                 (
                     self.tr("Toggle Frames panel")
                     if index == 0
-                    else self.tr("Toggle Annotation panel")
+                    else self.tr("Toggle task panel")
                 ),
                 lambda: self._toggle_panel(index),
                 self,
@@ -522,6 +657,17 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         )
         button.parentWidget().setVisible(not show)
 
+    def _toggle_camera_controls(self, visible):
+        self.viewport.set_camera_controls_visible(visible)
+        title = (
+            self.tr("Hide camera controls")
+            if visible
+            else self.tr("Show camera controls")
+        )
+        self.camera_controls_action.setText(title)
+        self.camera_controls_action.setToolTip(title)
+        self.camera_controls_button.setAccessibleName(title)
+
     def _build_view_toolbar(self):
         toolbar = QtWidgets.QFrame()
         toolbar.setObjectName("pointcloudViewTools")
@@ -534,7 +680,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         self.tool_actions = {}
         for title, name, shortcut, icon in [
             (
-                self.tr("Browse: left drag to pan; right drag to rotate"),
+                self.tr("Browse: left drag to rotate; right drag to pan"),
                 "browse",
                 "V",
                 "click",
@@ -561,7 +707,6 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             self.tool_actions[name] = action
             self._tool_button(action, layout)
         self.tool_actions["browse"].setChecked(True)
-        layout.addSpacing(4)
         self.finish_action = self._action(
             self.tr("Finish polygon selection"),
             self.viewport.finish_polygon,
@@ -625,13 +770,11 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             icon="refresh",
         )
         self._tool_button(reset_action, layout)
-        layout.addSpacing(4)
         for action in (
             self.undo_action,
             self.redo_action,
         ):
             self._tool_button(action, layout)
-        layout.addSpacing(4)
         self.operation_group = QtGui.QActionGroup(self)
         self.operation_actions = {}
         for title, name, icon in [
@@ -658,7 +801,6 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             self.operation_actions[name] = action
             self._tool_button(action, layout)
         self.operation_actions["assign"].setChecked(True)
-        layout.addSpacing(4)
         self.through_action = self._action(
             self.tr(
                 "Through selection: select all depths; off selects the surface"
@@ -679,7 +821,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             [
                 (self.tr("Semantic"), "semantic"),
                 (self.tr("Intensity"), "intensity"),
-                (self.tr("RGB"), "rgb"),
+                (self.tr("Original"), "rgb"),
                 (self.tr("Instance"), "instance"),
             ]
         )
@@ -705,6 +847,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             self.render_group.addAction(action)
             self.render_actions[mode] = action
             self._tool_button(action, layout)
+        self.color_mode.setCurrentIndex(self.color_mode.findData("semantic"))
         self.render_actions["semantic"].setChecked(True)
         self.color_mode.currentIndexChanged.connect(self._sync_render_actions)
         layout.addSpacing(6)
@@ -735,7 +878,21 @@ class PointCloudDialog(QtWidgets.QMainWindow):
     def _configure_camera(self):
         dialog = CameraConfigurationDialog(self.camera_panel, self)
         if dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
-            self.camera_panel.configure(*dialog.configuration)
+            self.camera_panel.configure_sources(dialog.configuration)
+        dialog.deleteLater()
+
+    def create_task(self):
+        dialog = CreateTaskDialog(self)
+        if dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
+            configuration = dialog.configuration
+            self._request_frame(
+                list(configuration.files),
+                0,
+                configuration.output_directory,
+                {},
+                task_configuration=configuration,
+            )
+        dialog.deleteLater()
 
     def _show_point_size(self):
         self.point_size_popup.show_below(self.point_size_button)
@@ -751,6 +908,14 @@ class PointCloudDialog(QtWidgets.QMainWindow):
                 self.color_mode.model()
                 .item(self.color_mode.findData(mode))
                 .isEnabled()
+                and (
+                    not self.detection.enabled
+                    or mode not in ("semantic", "instance")
+                )
+            )
+            action.setVisible(
+                not self.detection.enabled
+                or mode not in ("semantic", "instance")
             )
             action.setChecked(self.color_mode.currentData() == mode)
 
@@ -794,7 +959,8 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         self._panel_button(2, corner_layout)
         self.sidebar_tabs.setCornerWidget(corner)
         page, layout = self._scroll_page()
-        self.sidebar_tabs.addTab(page, self.tr("Annotation"))
+        self.sidebar_tabs.addTab(page, "Seg")
+        self.sidebar_tabs.setTabToolTip(0, self.tr("Segmentation"))
         self._build_class_list(layout)
         self._build_instance_list(layout)
         return self.sidebar_tabs
@@ -810,20 +976,16 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         header.setSpacing(0)
         self.classes_heading = self._heading(self.tr("Classes"))
         header.addWidget(self.classes_heading, 1)
-        for title, callback, icon in [
-            (self.tr("New class"), lambda: self._edit_class(False), "new"),
-            (self.tr("Load classes"), self._import_classes, "upload"),
-            (
-                self.tr("Save classes"),
-                lambda: self._save_config(True),
-                "download",
-            ),
-        ]:
-            button = self._tool_button(
-                self._action(title, callback, self, icon=icon), header
-            )
-            button.setProperty("panelHeader", True)
-            button.setFixedSize(26, 26)
+        self.classes_lock_action = self._action(
+            self.tr("Lock all classes"),
+            self._toggle_all_class_locks,
+            self,
+            icon="unlock",
+        )
+        button = self._tool_button(self.classes_lock_action, header)
+        button.setProperty("panelHeader", True)
+        button.setFixedSize(24, 24)
+        button.setIconSize(QtCore.QSize(16, 16))
         self.classes_visibility_action = self._visibility_action(
             header, self.tr("Toggle all classes"), lambda: self.class_list
         )
@@ -832,14 +994,15 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             self.tr("Classes: ID / name / full-frame points"), editable=True
         )
         self.class_list.setProperty("integratedPanel", True)
+        self.class_list.allow_remove = False
         self.class_list.setMinimumHeight(130)
         self.class_list.currentItemChanged.connect(self._target_changed)
         self.class_list.itemChanged.connect(self._filter_changed)
-        self.class_list.itemDoubleClicked.connect(
-            lambda item: self._edit_class(True)
-        )
-        self.class_list.remove_requested.connect(self._remove_class)
         panel_layout.addWidget(self.class_list, 1)
+        self.class_list.set_header(header)
+        self.class_list.lock_requested.connect(
+            lambda item: self._toggle_seg_lock(self.class_list, item)
+        )
         layout.addWidget(panel, 1)
 
     def _build_instance_list(self, layout):
@@ -854,18 +1017,22 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         self.instances_heading = self._heading(self.tr("Instances"))
         header.addWidget(self.instances_heading, 1)
         self.locate_action = self._action(
-            self.tr("Locate instance"), self._locate_instance, self, icon="fit"
+            self.tr("Locate instance"),
+            self._locate_instance,
+            self,
+            icon="scan-search",
         )
         self.merge_action = self._action(
             self.tr("Merge into current instance"),
             self._merge_instances,
             self,
-            icon="merge",
+            icon="squares-unite",
         )
         for action in (self.locate_action, self.merge_action):
             button = self._tool_button(action, header)
             button.setProperty("panelHeader", True)
-            button.setFixedSize(26, 26)
+            button.setFixedSize(24, 24)
+            button.setIconSize(QtCore.QSize(16, 16))
         self.instances_visibility_action = self._visibility_action(
             header, self.tr("Toggle all instances"), lambda: self.instance_list
         )
@@ -885,6 +1052,10 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         self.instance_list.itemChanged.connect(self._filter_changed)
         self.instance_list.remove_requested.connect(self._delete_instance)
         panel_layout.addWidget(self.instance_list, 1)
+        self.instance_list.set_header(header)
+        self.instance_list.lock_requested.connect(
+            lambda item: self._toggle_seg_lock(self.instance_list, item)
+        )
         layout.addWidget(panel, 1)
 
     def _visibility_action(self, layout, title, get_list):
@@ -898,7 +1069,8 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         action.setChecked(True)
         button = self._tool_button(action, layout)
         button.setProperty("panelHeader", True)
-        button.setFixedSize(26, 26)
+        button.setFixedSize(24, 24)
+        button.setIconSize(QtCore.QSize(16, 16))
         return action
 
     def _toggle_list_visibility(self, widget):
@@ -951,6 +1123,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             or (focus is not None and widget.isAncestorOf(focus))
             for widget in (
                 self.viewport,
+                self.detection,
                 self.file_list,
                 self.camera_panel.view,
             )
@@ -967,8 +1140,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         self._status(text)
         self._select_tool("browse")
         self.tool_group.setEnabled(False)
-        self.open_action.setEnabled(False)
-        self.directory_action.setEnabled(False)
+        self.create_task_action.setEnabled(False)
         if self._worker is not None:
             self._worker.requestInterruption()
 
@@ -992,7 +1164,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
 
     def _leave_decision(self):
         self._autosave_timer.stop()
-        self.viewport.cancel_selection()
+        self.detection.cancel()
         if self._worker is not None:
             self._worker.requestInterruption()
             self._status(
@@ -1051,6 +1223,8 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             self.tr("Open point cloud"),
             self._recent(),
             self.tr("Point clouds (*.bin *.ply)"),
+            options=QtWidgets.QFileDialog.Option.DontUseNativeDialog
+            | QtWidgets.QFileDialog.Option.DontUseCustomDirectoryIcons,
         )
         if path:
             path = Path(path).resolve()
@@ -1060,7 +1234,11 @@ class PointCloudDialog(QtWidgets.QMainWindow):
 
     def open_directory(self):
         directory = QtWidgets.QFileDialog.getExistingDirectory(
-            self, self.tr("Open point cloud directory"), self._recent()
+            self,
+            self.tr("Open point cloud directory"),
+            self._recent(),
+            options=QtWidgets.QFileDialog.Option.DontUseNativeDialog
+            | QtWidgets.QFileDialog.Option.DontUseCustomDirectoryIcons,
         )
         if not directory:
             return
@@ -1125,7 +1303,9 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             else default_label_path(path)
         )
 
-    def _request_frame(self, files, index, directory, overrides):
+    def _request_frame(
+        self, files, index, directory, overrides, task_configuration=None
+    ):
         decision = self._leave_decision()
         if decision == "cancel":
             self._restore_list_row()
@@ -1166,6 +1346,8 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             and not (self.dataset is None and self.config_path is not None)
             else None
         )
+        if task_configuration is not None:
+            config_path = None
         self._pending = (
             files,
             index,
@@ -1174,6 +1356,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             dataset,
             config_path,
             decision,
+            task_configuration,
         )
         self._load_result = None
         self._load_error = None
@@ -1204,6 +1387,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         self._load_error = error
 
     def _load_finished(self):
+        created_task = False
         cancelled = self._worker.isInterruptionRequested()
         self._progress.close()
         self._progress.deleteLater()
@@ -1218,6 +1402,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
                 dataset,
                 config_path,
                 decision,
+                task_configuration,
             ) = self._pending
             previous = self.document
             try:
@@ -1242,17 +1427,61 @@ class PointCloudDialog(QtWidgets.QMainWindow):
                     overrides,
                 )
                 self.label_overrides[frame.path] = frame.label_path
-                if dataset != self.dataset and config_path is not None:
-                    self.classes = list(
-                        loaded_classes
-                        if loaded_classes is not None
-                        else DEFAULT_CLASSES
-                    )
-                    self._saved_classes = list(self.classes)
+                if task_configuration is not None or (
+                    dataset != self.dataset and config_path is not None
+                ):
+                    definitions = loaded_classes or {}
+                    self.class_definitions = {
+                        "detection": list(definitions.get("detection", ())),
+                        "segmentation": list(
+                            definitions.get("segmentation", DEFAULT_CLASSES)
+                        ),
+                    }
+                    self._saved_classes = {
+                        task: list(classes)
+                        for task, classes in self.class_definitions.items()
+                    }
                     self.config_path = config_path
                 elif decision == "discard":
-                    self.classes = list(self._saved_classes)
+                    self.class_definitions = {
+                        task: list(classes)
+                        for task, classes in self._saved_classes.items()
+                    }
                 self.dataset = dataset
+                if task_configuration is not None:
+                    created_task = True
+                    self.task_type = task_configuration.task
+                    self.detection.clipboard = None
+                    self.class_definitions[task_configuration.task] = list(
+                        task_configuration.classes
+                    )
+                    self._saved_classes = {
+                        task: list(classes)
+                        for task, classes in self.class_definitions.items()
+                    }
+                    self.settings.setValue(
+                        self._output_directory_key(dataset), str(directory)
+                    )
+                    selected = 0 if self.task_type == "detection" else 1
+                    self.sidebar_tabs.setTabEnabled(selected, True)
+                    self.sidebar_tabs.setCurrentIndex(selected)
+                    if self.task_type == "segmentation":
+                        self.color_mode.setCurrentIndex(
+                            self.color_mode.findData("semantic")
+                        )
+                    self.sidebar_tabs.setTabEnabled(1 - selected, False)
+                    self.sidebar_tabs.setTabToolTip(
+                        selected,
+                        (
+                            self.tr("Detection")
+                            if selected == 0
+                            else self.tr("Segmentation")
+                        ),
+                    )
+                    self.sidebar_tabs.setTabToolTip(
+                        1 - selected,
+                        self.tr("Create a new task to change the task type."),
+                    )
                 self.settings.setValue("recent_directory", str(dataset))
                 self._clear_filters()
                 self.instance_list.clear()
@@ -1284,6 +1513,9 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         self._set_loading(False)
         self._restore_list_row()
         self._refresh()
+        if created_task:
+            self.camera_panel.configure_sources(task_configuration.cameras)
+            self._schedule_autosave()
         if queued is not None and not cancelled and not self._load_error:
             self._select_frame(queued)
 
@@ -1291,10 +1523,10 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         if loading:
             self._navigation_focus = QtWidgets.QApplication.focusWidget()
         for action in [
-            self.open_action,
-            self.directory_action,
-            self.output_directory_action,
+            self.create_task_action,
             self.save_as_action,
+            self.export_action,
+            self.import_action,
             self.undo_action,
             self.redo_action,
         ]:
@@ -1306,8 +1538,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         for toolbar in self.findChildren(QtWidgets.QToolBar):
             toolbar.setEnabled(not loading)
         if self.viewport._error:
-            self.open_action.setEnabled(False)
-            self.directory_action.setEnabled(False)
+            self.create_task_action.setEnabled(False)
 
     def _restore_list_row(self):
         self.file_list.blockSignals(True)
@@ -1324,11 +1555,132 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         candidates = label_candidates(path)
         return candidates[0] if candidates else default_label_path(path)
 
+    def _export_dataset(self):
+        if (
+            self.document is None
+            or self._worker is not None
+            or self.task_type == "segmentation"
+        ):
+            return
+        self._autosave_timer.stop()
+        self.detection.cancel()
+        dialog = None
+        try:
+            frame = self.document.frame
+            frames = [
+                ExportFrame(
+                    path,
+                    cuboid_source_path(path, self._frame_label_path(path)),
+                    (
+                        tuple(self.document.cuboids)
+                        if path == frame.path
+                        else None
+                    ),
+                    self.camera_panel.files.get(path.stem),
+                )
+                for path in self.files
+            ]
+            dialog = PointCloudExportDialog(
+                frames, self.class_definitions["detection"], self
+            )
+            if dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
+                count, objects = dialog.export_result
+                self.statusBar().showMessage(
+                    self.tr(
+                        "Exported {frames} frames and {objects} objects to {path}"
+                    ).format(
+                        frames=count, objects=objects, path=dialog.output_path
+                    ),
+                    12000,
+                )
+        except (OSError, ValueError) as error:
+            self._error(str(error))
+        finally:
+            if dialog is not None:
+                dialog.deleteLater()
+            self._schedule_autosave()
+
+    def _import_dataset(self):
+        if (
+            self.document is None
+            or self._worker is not None
+            or self.task_type == "segmentation"
+        ):
+            return
+        self._autosave_timer.stop()
+        self.detection.cancel()
+        dialog = None
+        try:
+            frame = self.document.frame
+            targets = []
+            for path in self.files:
+                label_path = self._frame_label_path(path)
+                target = (
+                    frame.cuboid_path
+                    or label_path.with_suffix(".cuboids.json")
+                    if path == frame.path
+                    else label_path.with_suffix(".cuboids.json")
+                )
+                targets.append(
+                    ImportTarget(
+                        path,
+                        label_path,
+                        target,
+                        (
+                            tuple(self.document.cuboids)
+                            if path == frame.path
+                            else None
+                        ),
+                    )
+                )
+            dialog = PointCloudImportDialog(
+                targets, self.class_definitions["detection"], self
+            )
+            if dialog.exec() != QtWidgets.QDialog.DialogCode.Accepted:
+                return
+            plan = dialog.import_plan
+            self.class_definitions["detection"] = list(plan.classes)
+            self._saved_classes = {
+                task: list(classes)
+                for task, classes in self.class_definitions.items()
+            }
+            self.config_path = (
+                Path(dialog.config_path)
+                if dialog.config_path is not None
+                else None
+            )
+            for target in plan.targets:
+                if target.path == frame.path:
+                    self.document._commit_cuboids(target.cuboids)
+                    self.document.mark_cuboids_saved(target.cuboid_path)
+            self.detection.hidden_ids.clear()
+            self.detection.select(None)
+            self._rebuild_files()
+            self.sidebar_tabs.setCurrentWidget(self.detection.panel)
+            self._refresh()
+            self._status(
+                self.tr(
+                    "Imported {objects} objects into {frames} frames."
+                ).format(objects=plan.object_count, frames=len(plan.targets))
+            )
+        except (OSError, ValueError) as error:
+            self._error(str(error))
+        finally:
+            if dialog is not None:
+                dialog.deleteLater()
+            self._schedule_autosave()
+
     def _review_signature(self, path, target):
-        if not path.exists() or not target.exists():
+        cuboid_path = target.with_suffix(".cuboids.json")
+        if not path.exists() or not (target.exists() or cuboid_path.exists()):
             return ""
-        source_stat, target_stat = path.stat(), target.stat()
-        return f"{source_stat.st_size}:{source_stat.st_mtime_ns}:{target_stat.st_size}:{target_stat.st_mtime_ns}"
+        source_stat = path.stat()
+        signature = f"{source_stat.st_size}:{source_stat.st_mtime_ns}"
+        for member in (target, cuboid_path):
+            if member.exists():
+                stat = member.stat()
+                signature += f":{stat.st_size}:{stat.st_mtime_ns}"
+        return signature
 
     def _review_key(self, target):
         return "reviewed/" + hashlib.sha256(str(target).encode()).hexdigest()
@@ -1344,7 +1696,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         )
         item.setCheckState(
             QtCore.Qt.CheckState.Checked
-            if target.exists()
+            if target.exists() or target.with_suffix(".cuboids.json").exists()
             else QtCore.Qt.CheckState.Unchecked
         )
         signature = self._review_signature(path, target)
@@ -1358,7 +1710,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             and self.document.dirty
         ):
             reviewed = False
-        pixmap = QtGui.QPixmap(24, 24)
+        pixmap = QtGui.QPixmap(16, 16)
         pixmap.fill(QtCore.Qt.GlobalColor.transparent)
         painter = QtGui.QPainter(pixmap)
         painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
@@ -1369,7 +1721,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         )
         painter.setPen(QtGui.QPen(color, 2))
         painter.setBrush(color if reviewed else QtCore.Qt.BrushStyle.NoBrush)
-        painter.drawEllipse(5, 5, 14, 14)
+        painter.drawEllipse(1, 1, 14, 14)
         painter.end()
         item.setIcon(QtGui.QIcon(pixmap))
         item.setData(QtCore.Qt.ItemDataRole.UserRole, reviewed)
@@ -1377,6 +1729,8 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             str(path)
             + "\n"
             + str(target)
+            + "\n"
+            + str(target.with_suffix(".cuboids.json"))
             + "\n"
             + (self.tr("Reviewed") if reviewed else self.tr("Not reviewed"))
         )
@@ -1471,6 +1825,8 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             self.tr("Choose labels for current frame"),
             str(self.document.frame.label_path),
             self.tr("Point labels (*.label)"),
+            options=QtWidgets.QFileDialog.Option.DontUseNativeDialog
+            | QtWidgets.QFileDialog.Option.DontUseCustomDirectoryIcons,
         )
         if not path:
             return
@@ -1494,6 +1850,8 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             self,
             self.tr("Choose label directory"),
             str(self.document.frame.label_path.parent),
+            options=QtWidgets.QFileDialog.Option.DontUseNativeDialog
+            | QtWidgets.QFileDialog.Option.DontUseCustomDirectoryIcons,
         )
         if not directory:
             return
@@ -1511,11 +1869,13 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         if self.document is None:
             return
         self._autosave_timer.stop()
-        self.viewport.cancel_selection()
+        self.detection.cancel()
         directory = QtWidgets.QFileDialog.getExistingDirectory(
             self,
             self.tr("Change output directory"),
             str(self.label_directory or self.document.frame.label_path.parent),
+            options=QtWidgets.QFileDialog.Option.DontUseNativeDialog
+            | QtWidgets.QFileDialog.Option.DontUseCustomDirectoryIcons,
         )
         if not directory:
             self._schedule_autosave()
@@ -1547,7 +1907,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
     def _autosave(self):
         if self._worker is not None:
             return False
-        if self.viewport.selection_active:
+        if self.detection.active:
             self._autosave_timer.start()
             return False
         return self.save_work(only_changed=True)
@@ -1566,6 +1926,14 @@ class PointCloudDialog(QtWidgets.QMainWindow):
                 )
             ):
                 return False
+        cuboid_path = path.with_suffix(".cuboids.json")
+        save_boxes = bool(
+            self.document.cuboids
+            or frame.cuboid_exists
+            or self.document.cuboids_dirty
+        )
+        if save_boxes and not self._confirm_cuboid_output(cuboid_path):
+            return False
         try:
             save_labels(path, self.document.labels, self.document.frame.path)
         except (OSError, ValueError, MemoryError) as error:
@@ -1575,7 +1943,10 @@ class PointCloudDialog(QtWidgets.QMainWindow):
                 )
             )
             return False
+        if save_boxes and not self._save_cuboids(cuboid_path, confirmed=True):
+            return False
         self.document.mark_saved(path)
+        frame.cuboid_path = cuboid_path
         self.label_overrides[self.document.frame.path] = Path(path)
         self._refresh_save_state()
         self._refresh_display()
@@ -1586,14 +1957,56 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         )
         return True
 
+    def _confirm_cuboid_output(self, path):
+        frame = self.document.frame
+        return not (
+            path.exists()
+            and (path != frame.cuboid_path or not frame.cuboid_exists)
+        ) or self._confirm(
+            self.tr("Replace the existing cuboid file at {path}?").format(
+                path=path
+            )
+        )
+
+    def _save_cuboids(self, path=None, confirmed=False):
+        frame = self.document.frame
+        path = Path(
+            path
+            or frame.cuboid_path
+            or frame.label_path.with_suffix(".cuboids.json")
+        )
+        if not confirmed and not self._confirm_cuboid_output(path):
+            return False
+        try:
+            save_cuboids(path, self.document.cuboids, frame.path)
+        except (OSError, ValueError, MemoryError) as error:
+            self._error(
+                self.tr("Could not save cuboids to {path}: {error}").format(
+                    path=path, error=error
+                )
+            )
+            return False
+        self.document.mark_cuboids_saved(path)
+        self._refresh_save_state()
+        self._refresh_display()
+        self._status(
+            self.tr("Saved {count} cuboids to {path}.").format(
+                count=len(self.document.cuboids), path=path
+            )
+        )
+        return True
+
     def save_work(self, only_changed=False):
         self._autosave_timer.stop()
-        self.viewport.cancel_selection()
+        self.detection.cancel()
         labels_saved = False
-        if self.document and (not only_changed or self.document.dirty):
+        if self.document and (not only_changed or self.document.labels_dirty):
             if not self._save_labels(self.document.frame.label_path):
                 return False
             labels_saved = True
+        if self.document and self.document.cuboids_dirty:
+            if not self._save_cuboids():
+                return False
         if self.config_dirty and not self._save_config():
             if labels_saved:
                 self._status(
@@ -1608,12 +2021,14 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         if not self.document:
             return False
         self._autosave_timer.stop()
-        self.viewport.cancel_selection()
+        self.detection.cancel()
         path, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
             self.tr("Save complete frame labels"),
             str(self.document.frame.label_path),
             self.tr("Point labels (*.label)"),
+            options=QtWidgets.QFileDialog.Option.DontUseNativeDialog
+            | QtWidgets.QFileDialog.Option.DontUseCustomDirectoryIcons,
         )
         if not path:
             self._schedule_autosave()
@@ -1646,6 +2061,9 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         )
 
     def _save_config(self, choose_path=False):
+        if choose_path and self.task_type is not None:
+            return False
+        task = self._class_task()
         path = self.config_path
         if path is None:
             path = self._default_class_path()
@@ -1655,6 +2073,8 @@ class PointCloudDialog(QtWidgets.QMainWindow):
                 self.tr("Save class definitions"),
                 str(path or Path(self._recent()) / "pointcloud_classes.json"),
                 self.tr("Class definitions (*.json)"),
+                options=QtWidgets.QFileDialog.Option.DontUseNativeDialog
+                | QtWidgets.QFileDialog.Option.DontUseCustomDirectoryIcons,
             )
             if not selected:
                 return False
@@ -1667,7 +2087,11 @@ class PointCloudDialog(QtWidgets.QMainWindow):
                 raise ValueError(
                     self.tr("Class definitions must use a separate JSON file.")
                 )
-            save_classes(path, self.classes)
+            definitions = self.class_definitions
+            if choose_path:
+                definitions = load_classes(path) if path.exists() else {}
+                definitions[task] = self.class_definitions[task]
+            save_classes(path, definitions)
         except (OSError, ValueError, MemoryError) as error:
             self._error(
                 self.tr(
@@ -1675,8 +2099,18 @@ class PointCloudDialog(QtWidgets.QMainWindow):
                 ).format(path=path, error=error)
             )
             return False
-        self.config_path = path
-        self._saved_classes = list(self.classes)
+        if not choose_path:
+            self.config_path = path
+            self._saved_classes = {
+                task: list(classes)
+                for task, classes in self.class_definitions.items()
+            }
+        elif (
+            path.resolve()
+            == (self.config_path or self._default_class_path()).resolve()
+        ):
+            self.config_path = path
+            self._saved_classes[task] = list(self.class_definitions[task])
         self._refresh()
         self._status(
             self.tr("Class definitions saved to {path}.").format(path=path)
@@ -1684,31 +2118,42 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         return True
 
     def _import_classes(self):
+        if self.task_type is not None:
+            return
+        task = self._class_task()
         path, _ = QtWidgets.QFileDialog.getOpenFileName(
             self,
             self.tr("Load class definitions"),
             self._recent(),
             self.tr("Class definitions (*.json)"),
-            options=QtWidgets.QFileDialog.Option.DontUseNativeDialog,
+            options=QtWidgets.QFileDialog.Option.DontUseNativeDialog
+            | QtWidgets.QFileDialog.Option.DontUseCustomDirectoryIcons,
         )
         if not path:
             return
         try:
             classes = load_classes(path)
+            if task not in classes:
+                raise ValueError(
+                    self.tr(
+                        "This file does not contain classes for the current task."
+                    )
+                )
         except (OSError, ValueError) as error:
             self._error(str(error))
             return
-        if self.config_dirty and not self._confirm(
+        if self.class_definitions[task] != self._saved_classes[
+            task
+        ] and not self._confirm(
             self.tr(
-                "Replace the unsaved class definitions with this file? Point labels will retain their original IDs."
+                "Replace the current task's unsaved class definitions with this file? Annotation IDs and the other task's classes are unchanged."
             )
         ):
             return
         self.viewport.cancel_selection()
-        self.classes = list(classes)
-        self._saved_classes = list(classes)
-        self.config_path = Path(path).resolve()
+        self.class_definitions[task] = list(classes[task])
         self._refresh()
+        self._schedule_autosave()
 
     def _current_class(self):
         item = self.class_list.currentItem()
@@ -1722,14 +2167,16 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             else None
         )
 
-    def _class_name(self, semantic_id):
-        for definition in self.classes:
+    def _class_name(self, semantic_id, task="segmentation"):
+        for definition in self.class_definitions[task]:
             if definition.id == semantic_id:
                 return definition.name
         return "Unknown"
 
     def _next_class_name(self):
-        names = {item.name for item in self.classes}
+        names = {
+            item.name for item in self.class_definitions[self._class_task()]
+        }
         name = "Unknown"
         suffix = 0
         while name in names:
@@ -1738,7 +2185,10 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         return name
 
     def _next_class_color(self):
-        used = {QtGui.QColor(item.color).name() for item in self.classes}
+        used = {
+            QtGui.QColor(item.color).name()
+            for item in self.class_definitions[self._class_task()]
+        }
         for rgb in label_colormap(33)[1:]:
             color = QtGui.QColor(*(int(value) for value in rgb)).name()
             if color not in used:
@@ -1749,24 +2199,44 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         return QtGui.QColor.fromRgb(value).name()
 
     def _edit_class(self, editing):
-        semantic_id = self._current_class() if editing else None
+        if self.task_type is not None:
+            return
+        task = self._class_task()
+        listing = (
+            self.detection.labels
+            if self.detection.enabled
+            else self.class_list
+        )
+        current = listing.currentItem()
+        semantic_id = (
+            current.data(QtCore.Qt.ItemDataRole.UserRole)
+            if editing and current
+            else None
+        )
         if editing and semantic_id is None:
             return
         definition = next(
-            (item for item in self.classes if item.id == semantic_id), None
+            (
+                item
+                for item in self.class_definitions[task]
+                if item.id == semantic_id
+            ),
+            None,
         )
         if editing and definition is None:
             definition = ClassDefinition(
-                semantic_id, self._class_name(semantic_id), "#60A5FA"
+                semantic_id, self._class_name(semantic_id, task), "#60A5FA"
             )
         used = {
-            self.class_list.item(index).data(QtCore.Qt.ItemDataRole.UserRole)
-            for index in range(self.class_list.count())
+            listing.item(index).data(QtCore.Qt.ItemDataRole.UserRole)
+            for index in range(listing.count())
         }
         suggested = next(
             (value for value in range(1, 65536) if value not in used), 65535
         )
-        dialog = ClassDefinitionDialog(definition, used, suggested, self)
+        dialog = ClassDefinitionDialog(
+            definition, used, suggested, self, task=task
+        )
         if definition is None:
             dialog.name_input.setText(self._next_class_name())
             dialog.color_input.setText(self._next_class_color())
@@ -1774,26 +2244,44 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             return
         self.viewport.cancel_selection()
         updated = dialog.definition()
-        self.classes = sorted(
-            [item for item in self.classes if item.id != updated.id]
+        self.class_definitions[task] = sorted(
+            [
+                item
+                for item in self.class_definitions[task]
+                if item.id != updated.id
+            ]
             + [updated],
             key=lambda item: item.id,
         )
         self._refresh()
-        for index in range(self.class_list.count()):
-            item = self.class_list.item(index)
+        for index in range(listing.count()):
+            item = listing.item(index)
             if item.data(QtCore.Qt.ItemDataRole.UserRole) == updated.id:
-                self.class_list.setCurrentItem(item)
+                listing.setCurrentItem(item)
                 break
         self._schedule_autosave()
 
     def _remove_class(self, item=None):
+        if self.task_type is not None:
+            return
         semantic_id = (
             item.data(QtCore.Qt.ItemDataRole.UserRole)
             if item is not None
             else self._current_class()
         )
         if semantic_id is None:
+            return
+        if self.document and (
+            semantic_id in self.document.locked_classes
+            or any(
+                key[0] == semantic_id for key in self.document.locked_instances
+            )
+        ):
+            self._status(
+                self.tr(
+                    "Unlock the class and its instances before deleting it."
+                )
+            )
             return
         if semantic_id == 0:
             self._error(
@@ -1818,8 +2306,10 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             self.document.clear(
                 np.flatnonzero(self.document.semantic_view == semantic_id)
             )
-        self.classes = [
-            item for item in self.classes if item.id != semantic_id
+        self.class_definitions["segmentation"] = [
+            item
+            for item in self.class_definitions["segmentation"]
+            if item.id != semantic_id
         ]
         self._refresh()
         self.class_list.setCurrentRow(-1)
@@ -1827,6 +2317,8 @@ class PointCloudDialog(QtWidgets.QMainWindow):
 
     def _tool_changed(self):
         self.viewport.cancel_selection()
+        if hasattr(self, "detection"):
+            self.detection.cancel()
         tool = self._current_tool()
         self.viewport.set_tool(tool)
         if tool != "browse" and self._current_class() is None:
@@ -1851,17 +2343,34 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             self.document is not None and self._current_instance() is not None
         )
         for name, action in self.operation_actions.items():
-            enabled = self.document is not None
+            enabled = self.document is not None and not self.detection.enabled
+            if enabled and name in ("assign", "create"):
+                enabled = (
+                    self._current_class() not in self.document.locked_classes
+                )
             if name == "create":
                 enabled = enabled and self._current_class() not in (None, 0)
             elif name in ("add", "remove", "split"):
-                enabled = selected
+                enabled = (
+                    selected
+                    and not self.detection.enabled
+                    and not self.document.instance_locked(
+                        self._current_instance()
+                    )
+                )
             action.setEnabled(enabled)
             if not enabled and action.isChecked():
                 self.operation_actions["assign"].setChecked(True)
         self.locate_action.setEnabled(selected)
         self.merge_action.setEnabled(
-            selected and len(self.instance_list.selectedItems()) > 1
+            selected
+            and len(self.instance_list.selectedItems()) > 1
+            and not any(
+                self.document.instance_locked(
+                    item.data(QtCore.Qt.ItemDataRole.UserRole)
+                )
+                for item in self.instance_list.selectedItems()
+            )
         )
 
     def _depth_changed(self):
@@ -1886,13 +2395,27 @@ class PointCloudDialog(QtWidgets.QMainWindow):
     def _refresh_target(self):
         self._update_instance_actions()
         self._update_selection_actions()
+        if hasattr(self, "detection"):
+            self.detection.instance_action.setEnabled(
+                self.detection.enabled
+                and self.document is not None
+                and self._current_instance() is not None
+            )
 
     def _apply_selection(self, indices):
-        if not self.document or self._worker is not None:
+        if (
+            not self.document
+            or self._worker is not None
+            or self.detection.enabled
+        ):
             return
         indices = np.asarray(indices, dtype=np.int64)
         indices = indices[self._visible[indices]]
         doc = self.document
+        indices = doc.editable_indices(indices)
+        if not len(indices):
+            self._status(self.tr("No editable points selected."))
+            return
         operation = self.operation_group.checkedAction().data()
         semantic_id = self._current_class()
         key = self._current_instance()
@@ -1973,6 +2496,11 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         )
         if not self.document or key is None:
             return
+        if self.document.instance_locked(key):
+            self._status(
+                self.tr("Unlock the class or instance before deleting it.")
+            )
+            return
         indices = self._instance_indices(key)
         hidden = int(np.count_nonzero(~self._visible[indices]))
         if not self._confirm(
@@ -2005,6 +2533,11 @@ class PointCloudDialog(QtWidgets.QMainWindow):
                 self.tr(
                     "Instances from different semantic classes cannot be merged."
                 )
+            )
+            return
+        if any(self.document.instance_locked(key) for key in keys):
+            self._status(
+                self.tr("Unlock the selected instances before merging.")
             )
             return
         indices = np.concatenate(
@@ -2044,13 +2577,13 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         self._update_selection_actions()
 
     def undo(self):
-        self.viewport.cancel_selection()
+        self.detection.cancel()
         if self.document and self.document.undo():
             self._refresh()
             self._schedule_autosave()
 
     def redo(self):
-        self.viewport.cancel_selection()
+        self.detection.cancel()
         if self.document and self.document.redo():
             self._refresh()
             self._schedule_autosave()
@@ -2070,6 +2603,9 @@ class PointCloudDialog(QtWidgets.QMainWindow):
 
     def _restore_all(self):
         self.viewport.cancel_selection()
+        if self.detection.enabled:
+            self.detection._set_visible(set(self.detection.hidden_ids), True)
+            return
         self._clear_filters()
         self._refresh_display()
 
@@ -2079,6 +2615,61 @@ class PointCloudDialog(QtWidgets.QMainWindow):
                 self.instances_visibility_action.setChecked(True)
             self.viewport.cancel_selection()
             self._refresh_display()
+
+    def _toggle_seg_lock(self, listing, item):
+        if self.document is None:
+            return
+        value = item.data(QtCore.Qt.ItemDataRole.UserRole)
+        classes = listing is self.class_list
+        if not classes and value[0] in self.document.locked_classes:
+            self._status(
+                self.tr("Unlock the class before unlocking its instances.")
+            )
+            return
+        self.viewport.cancel_selection()
+        locked = (
+            self.document.locked_classes
+            if classes
+            else self.document.locked_instances
+        )
+        if value in locked:
+            locked.remove(value)
+        else:
+            locked.add(value)
+        self._refresh()
+
+    def _toggle_all_class_locks(self):
+        if self.document is None:
+            return
+        ids = {
+            self.class_list.item(index).data(QtCore.Qt.ItemDataRole.UserRole)
+            for index in range(self.class_list.count())
+        }
+        self.viewport.cancel_selection()
+        locked = self.document.locked_classes
+        if ids <= locked:
+            locked.difference_update(ids)
+        else:
+            locked.update(ids)
+        self._refresh()
+
+    def _set_seg_item_lock(self, item, value, instance=False):
+        doc = self.document
+        locked = bool(
+            doc
+            and (
+                doc.instance_locked(value)
+                if instance
+                else value in doc.locked_classes
+            )
+        )
+        removable = not locked and (instance or value != 0)
+        if not instance and doc:
+            removable &= not any(
+                key[0] == value for key in doc.locked_instances
+            )
+        item.setData(PointCloudListWidget.LOCKED_ROLE, locked)
+        item.setData(PointCloudListWidget.REMOVABLE_ROLE, removable)
 
     def _refresh(self, selected_instance=None):
         self._refreshing = True
@@ -2112,10 +2703,14 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             else np.zeros(65536, dtype=np.int64)
         )
         ids = sorted(
-            {item.id for item in self.classes} | set(np.flatnonzero(counts))
+            {item.id for item in self.class_definitions["segmentation"]}
+            | set(np.flatnonzero(counts))
         )
         self.class_list.clear()
-        colors = {item.id: item.color for item in self.classes}
+        colors = {
+            item.id: item.color
+            for item in self.class_definitions["segmentation"]
+        }
         for semantic_id in ids:
             item = QtWidgets.QListWidgetItem(
                 f"{self._class_name(semantic_id)} ({semantic_id}) · {counts[semantic_id]:,}"
@@ -2139,7 +2734,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
                 )
             )
             item.setBackground(color)
-            item.setData(PointCloudListWidget.REMOVABLE_ROLE, semantic_id != 0)
+            self._set_seg_item_lock(item, int(semantic_id))
             self.class_list.addItem(item)
             if semantic_id == current_class:
                 self.class_list.setCurrentItem(item)
@@ -2152,6 +2747,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
                     f"{self._class_name(key[0])} · #{key[1]} · {count:,}"
                 )
                 item.setData(QtCore.Qt.ItemDataRole.UserRole, key)
+                self._set_seg_item_lock(item, key, instance=True)
                 item.setCheckState(
                     QtCore.Qt.CheckState.Checked
                     if key in focused_instances
@@ -2174,6 +2770,22 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         self.classes_heading.setText(
             f"{self.tr('Classes')} ({len(ids) - (0 in ids)})"
         )
+        all_locked = bool(
+            self.document and ids and set(ids) <= self.document.locked_classes
+        )
+        self.classes_lock_action.setEnabled(
+            self.document is not None and bool(ids)
+        )
+        self.classes_lock_action.setIcon(
+            self._icon("lock" if all_locked else "unlock")
+        )
+        title = (
+            self.tr("Unlock all classes")
+            if all_locked
+            else self.tr("Lock all classes")
+        )
+        self.classes_lock_action.setText(title)
+        self.classes_lock_action.setToolTip(title)
         self.instances_heading.setText(
             f"{self.tr('Instances')} ({self.instance_list.count()})"
         )
@@ -2181,20 +2793,19 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         self._refresh_target()
         self._refresh_save_state()
         self._refresh_display()
+        self.detection.refresh()
 
     def _refresh_save_state(self):
         loaded = self.document is not None
         self.save_as_action.setEnabled(loaded)
-        self.output_directory_action.setEnabled(loaded)
+        self.export_action.setEnabled(
+            loaded and self.task_type != "segmentation"
+        )
+        self.import_action.setEnabled(
+            loaded and self.task_type != "segmentation"
+        )
         self.undo_action.setEnabled(loaded and self.document.can_undo)
         self.redo_action.setEnabled(loaded and self.document.can_redo)
-        if loaded:
-            self.output_directory_action.setToolTip(
-                self.tr("Automatically save labels to: {path}").format(
-                    path=self.label_directory
-                    or self.document.frame.label_path.parent
-                )
-            )
         if loaded and self.file_list.count():
             self._update_file_item(self.frame_index)
         self._refresh_window_title()
@@ -2243,7 +2854,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         self._refresh_window_title()
 
     def _class_palette(self):
-        definitions = tuple(self.classes)
+        definitions = tuple(self.class_definitions["segmentation"])
         if self._palette_classes != definitions:
             ids = np.arange(65536, dtype=np.uint32)
             self._palette = (
@@ -2300,9 +2911,15 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         if color_mode == "intensity":
             colors = self._intensity_colors(indices)
         elif color_mode == "rgb":
-            colors = doc.frame.rgb[indices].astype(np.float32) / 255
+            colors = (
+                doc.frame.rgb[indices].astype(np.float32) / 255
+                if doc.frame.rgb is not None
+                else np.ones((len(semantic), 3), dtype=np.float32)
+            )
             self._set_render_legend(
-                self.tr("RGB: original point colors; labels are unchanged.")
+                self.tr(
+                    "Original: source RGB colors or white when RGB is absent; labels are unchanged."
+                )
             )
         else:
             palette = self._class_palette()
@@ -2344,17 +2961,18 @@ class PointCloudDialog(QtWidgets.QMainWindow):
         self.viewport.cancel_selection()
         doc = self.document
         with QtCore.QSignalBlocker(self.color_mode):
-            for mode, available in (
-                ("intensity", doc.frame.has_intensity),
-                ("rgb", doc.frame.rgb is not None),
+            self.color_mode.model().item(
+                self.color_mode.findData("intensity")
+            ).setEnabled(doc.frame.has_intensity)
+            if (
+                not doc.frame.has_intensity
+                and self.color_mode.currentData() == "intensity"
             ):
-                self.color_mode.model().item(
-                    self.color_mode.findData(mode)
-                ).setEnabled(available)
-                if not available and self.color_mode.currentData() == mode:
-                    self.color_mode.setCurrentIndex(
-                        self.color_mode.findData("semantic")
+                self.color_mode.setCurrentIndex(
+                    self.color_mode.findData(
+                        "rgb" if self.detection.enabled else "semantic"
                     )
+                )
         self._sync_render_actions()
         hidden = tuple(
             self.class_list.item(index).data(QtCore.Qt.ItemDataRole.UserRole)
@@ -2376,14 +2994,21 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             if item.checkState() == QtCore.Qt.CheckState.Checked
             for key in [item.data(QtCore.Qt.ItemDataRole.UserRole)]
         )
+        detection = self.detection.enabled
+        if detection:
+            hidden = selected_codes = focused_codes = ()
+        instances_visible = (
+            detection or self.instances_visibility_action.isChecked()
+        )
         signature = (
             doc,
-            tuple(self.classes),
+            tuple(self.class_definitions["segmentation"]),
             self.color_mode.currentData(),
             selected_codes,
             hidden,
             focused_codes,
-            self.instances_visibility_action.isChecked(),
+            instances_visible,
+            detection,
         )
         if (
             signature != self._display_signature
@@ -2404,7 +3029,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             allowed = np.ones(65536, dtype=bool)
             allowed[list(hidden)] = False
             visible = allowed[semantic]
-            if not self.instances_visibility_action.isChecked():
+            if not instances_visible:
                 visible &= doc.instance_view[target] == 0
             elif focused_codes:
                 visible &= np.isin(doc.labels[target], focused_codes)
@@ -2428,12 +3053,13 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             self._display_signature = signature
             self._display_revision = doc.revision
         self.camera_panel.refresh()
+        self.detection.sync_display()
         state = (
             self.tr("Modified")
             if doc.dirty
             else (
                 self.tr("Saved")
-                if doc.frame.label_path.exists()
+                if doc.frame.label_path.exists() or doc.frame.cuboid_exists
                 else self.tr("No result file")
             )
         )
@@ -2447,6 +3073,11 @@ class PointCloudDialog(QtWidgets.QMainWindow):
                 state=state,
             )
         )
+        if self.detection.enabled:
+            self.summary.setText(
+                self.summary.text()
+                + self.tr(" · {count} cuboids").format(count=len(doc.cuboids))
+            )
         if not self._visible_count:
             self._status(
                 self.tr(
@@ -2462,6 +3093,30 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             ]
 
         groups = [
+            (
+                self.tr("3D Detection"),
+                [
+                    (self.tr("Draw cuboid"), ["N"]),
+                    (self.tr("Focus cuboid"), ["G"]),
+                    (self.tr("Delete cuboid"), ["Delete"]),
+                    (self.tr("Duplicate cuboid"), ["Ctrl+D"]),
+                    (self.tr("Copy / Paste cuboid"), ["Ctrl+C", "Ctrl+V"]),
+                    (self.tr("Pan 3D view"), [self.tr("Right drag")]),
+                    (self.tr("Rotate 3D view"), [self.tr("Left drag")]),
+                    (
+                        self.tr("Edit cuboid in side views"),
+                        [self.tr("Left or right drag on the box or handles")],
+                    ),
+                    (self.tr("Move cuboid"), [self.tr("Arrow keys")]),
+                ],
+            ),
+            (
+                self.tr("3D camera"),
+                [
+                    (action.text(), binding(action))
+                    for action in self.viewport.camera_actions.values()
+                ],
+            ),
             (
                 self.tr("Tools"),
                 [
@@ -2495,9 +3150,15 @@ class PointCloudDialog(QtWidgets.QMainWindow):
                 [
                     (
                         self.tr("Pan (Browse)"),
-                        [self.tr("Left drag"), self.tr("Middle drag")],
+                        [
+                            self.tr("Right drag"),
+                            self.tr("Middle drag"),
+                        ],
                     ),
-                    (self.tr("Rotate"), [self.tr("Right drag")]),
+                    (
+                        self.tr("Rotate"),
+                        [self.tr("Left drag")],
+                    ),
                     (self.tr("Zoom"), [self.tr("Wheel")]),
                     (self.tr("Adjust brush size"), [self.tr("Ctrl+Wheel")]),
                     (self.tr("Pan (Polygon)"), [self.tr("Ctrl+Left drag")]),

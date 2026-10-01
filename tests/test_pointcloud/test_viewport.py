@@ -128,6 +128,27 @@ class TestPointCloudViewport(unittest.TestCase):
         self.assertEqual(len(completed), 1)
         np.testing.assert_array_equal(completed[0], expected)
 
+    def test_polygon_right_drag_pans_without_cancelling(self):
+        self.prepare_selection("polygon")
+        widget = self.widget
+        for x, y in ((80, 60), (320, 60), (320, 240)):
+            widget._mouse_press(
+                self.event(QtCore.QEvent.Type.MouseButtonPress, x, y)
+            )
+        vertices = np.array(widget._polygon)
+        button = QtCore.Qt.MouseButton.RightButton
+        widget._mouse_press(
+            self.event(QtCore.QEvent.Type.MouseButtonPress, 200, 150, button)
+        )
+        widget._mouse_move(
+            self.event(QtCore.QEvent.Type.MouseMove, 220, 160, button)
+        )
+        widget._mouse_release(
+            self.event(QtCore.QEvent.Type.MouseButtonRelease, 220, 160, button)
+        )
+        np.testing.assert_allclose(widget._polygon, vertices + [20, 10])
+        self.assertTrue(widget.selection_active)
+
     def test_display_changes_preserve_points_and_fit_ignores_filter(self):
         original = self.points.copy()
         self.widget.set_visible_mask(np.array([False, False, False]))
@@ -146,13 +167,13 @@ class TestPointCloudViewport(unittest.TestCase):
         completed = []
         self.widget.selection_completed.connect(completed.append)
         original = self.points.copy()
-        cases = [("browse", QtCore.Qt.MouseButton.LeftButton, True)]
+        cases = [("browse", QtCore.Qt.MouseButton.LeftButton, False)]
         cases.extend(
             (tool, button, pan)
             for tool in ("browse", "brush", "polygon")
             for button, pan in (
                 (QtCore.Qt.MouseButton.MiddleButton, True),
-                (QtCore.Qt.MouseButton.RightButton, False),
+                (QtCore.Qt.MouseButton.RightButton, True),
             )
         )
         for tool, button, pan in cases:
@@ -219,7 +240,7 @@ class TestPointCloudViewport(unittest.TestCase):
         self.assertEqual(views, ["top", "front", "side"])
         views.clear()
         for button in (
-            QtCore.Qt.MouseButton.LeftButton,
+            QtCore.Qt.MouseButton.RightButton,
             QtCore.Qt.MouseButton.MiddleButton,
         ):
             self.widget._mouse_press(
@@ -254,7 +275,7 @@ class TestPointCloudViewport(unittest.TestCase):
                 QtCore.QEvent.Type.MouseButtonPress,
                 120,
                 140,
-                QtCore.Qt.MouseButton.RightButton,
+                QtCore.Qt.MouseButton.LeftButton,
             )
         )
         self.widget._mouse_move(
@@ -262,7 +283,7 @@ class TestPointCloudViewport(unittest.TestCase):
                 QtCore.QEvent.Type.MouseMove,
                 120,
                 140,
-                QtCore.Qt.MouseButton.RightButton,
+                QtCore.Qt.MouseButton.LeftButton,
             )
         )
         self.assertEqual(views, [])
@@ -271,7 +292,7 @@ class TestPointCloudViewport(unittest.TestCase):
                 QtCore.QEvent.Type.MouseMove,
                 156,
                 116,
-                QtCore.Qt.MouseButton.RightButton,
+                QtCore.Qt.MouseButton.LeftButton,
             )
         )
         self.assertEqual(views, [""])
@@ -407,6 +428,7 @@ class TestPointCloudViewport(unittest.TestCase):
     def test_native_renderer_uses_matching_square_point_footprint(self):
         if self.widget._gl is None:
             self.skipTest("Requires a native OpenGL display")
+        self.widget._show_axes = False
         self.widget.resize(400, 300)
         self.widget.set_cloud(np.array([[-0.5, 0.5, 0, 1]], dtype=np.float32))
         self.widget._matrix = lambda: np.eye(4, dtype=np.float32)
@@ -417,6 +439,7 @@ class TestPointCloudViewport(unittest.TestCase):
             self.widget.set_point_size(size)
             image = self.widget._gl.grabFramebuffer()
             self.assertIsNone(self.widget._error)
+            self.assertEqual(image.pixelColor(0, 0).getRgb(), (0, 0, 0, 255))
             ratio = self.widget.devicePixelRatioF()
             pixel_size = round(size * ratio)
             left = int(100 * ratio) - pixel_size // 2
@@ -486,6 +509,7 @@ class TestNativeSurfaceSelection(unittest.TestCase):
 
     def test_preview_reuses_scene_color_and_depth_without_drawing_cloud(self):
         widget = PointCloudViewport()
+        widget._show_axes = False
         widget.resize(400, 300)
         widget.set_cloud(
             np.array(

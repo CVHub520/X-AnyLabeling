@@ -66,6 +66,20 @@ def get_pointcloud_style():
         QMainWindow#pointcloudWorkspace QPushButton {{
             min-width: 0;
         }}
+        QPushButton#pointcloudConfirmButton {{
+            background-color: {theme["primary"]};
+            border-color: {theme["primary"]};
+            border-radius: 6px;
+            color: white;
+        }}
+        QPushButton#pointcloudConfirmButton:hover {{
+            background-color: {theme["primary_hover"]};
+            border-color: {theme["primary_hover"]};
+        }}
+        QPushButton#pointcloudConfirmButton:pressed {{
+            background-color: {theme["primary_pressed"]};
+            border-color: {theme["primary_pressed"]};
+        }}
         QLabel#pointcloudSectionTitle {{
             color: {theme["text"]};
             font-weight: 600;
@@ -140,7 +154,7 @@ def get_pointcloud_style():
             padding: 4px 6px;
         }}
         QMainWindow#pointcloudWorkspace QToolBar#pointcloudFileTools QToolButton {{
-            padding: 4px 0;
+            padding: 4px 0 4px 8px;
             margin: 0;
             border: none;
         }}
@@ -208,6 +222,8 @@ def get_pointcloud_style():
             background-color: transparent;
             border-color: transparent;
             color: {theme["text"]};
+            min-width: 16px;
+            min-height: 16px;
             padding: 3px;
             border-radius: 4px;
         }}
@@ -218,6 +234,39 @@ def get_pointcloud_style():
         QMainWindow#pointcloudWorkspace QToolButton#pointcloudIconButton[panelHeader="true"]:pressed:enabled {{
             background-color: {theme["surface_pressed"]};
             border-color: {theme["border"]};
+        }}
+        QMainWindow#pointcloudWorkspace QToolButton#pointcloudIconButton[cameraControls="true"]:checked {{
+            background-color: {theme["surface"]};
+            border-color: transparent;
+        }}
+        QMainWindow#pointcloudWorkspace QToolButton#pointcloudExpandButton {{
+            background-color: transparent;
+            border: none;
+            border-radius: 3px;
+            padding: 3px;
+        }}
+        QMainWindow#pointcloudWorkspace QToolButton#pointcloudExpandButton:hover {{
+            background-color: rgba(255, 255, 255, 35);
+        }}
+        QWidget#pointcloudCameraControls {{
+            background: transparent;
+        }}
+        QMainWindow#pointcloudWorkspace QToolButton#pointcloudCameraButton {{
+            background-color: #ffffff;
+            color: #1d1d1f;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            min-width: 0;
+            min-height: 0;
+            padding: 0;
+        }}
+        QMainWindow#pointcloudWorkspace QToolButton#pointcloudCameraButton:hover {{
+            background-color: #f5f5f5;
+            border-color: #409cff;
+        }}
+        QMainWindow#pointcloudWorkspace QToolButton#pointcloudCameraButton:pressed {{
+            background-color: #e6f4ff;
+            border-color: #0071e3;
         }}
         QMainWindow#pointcloudWorkspace QToolButton#pointcloudMenuButton::menu-indicator {{
             image: url({new_icon_path("caret-down", "svg")});
@@ -291,10 +340,10 @@ def get_pointcloud_style():
             color: {theme["text"]};
             border: 1px solid {theme["border"]};
             border-radius: 0;
-            padding: 0;
+            padding: 4px 8px;
         }}
         QMenu::item {{
-            padding: 6px 24px 6px 8px;
+            padding: 6px 8px;
             margin: 0;
             border-radius: 0;
         }}

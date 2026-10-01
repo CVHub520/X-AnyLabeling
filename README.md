@@ -18,17 +18,17 @@
     <a href="https://modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43"><img src="https://img.shields.io/badge/modelscope-X--AnyLabeling-6750FF?link=https%3A%2F%2Fmodelscope.cn%2Fcollections%2FX-AnyLabeling-7b0e1798bcda43"></a>
 </p>
 
-<p align="center">
-  <a href="https://xanylabeling.com/docs/x-anylabeling/point_cloud" target="_blank">
-    <img src="assets/resources/pointcloud/pointcloud.png" alt="X-AnyLabeling point cloud annotation" width="100%" />
-  </a>
-</p>
-
 <img src="https://github.com/user-attachments/assets/aa819dae-e38c-4b1c-a4a7-53a873d870e3" alt="X-AnyLabeling interface" width="100%" />
+
+<p align="center">
+  <a href="https://xanylabeling.com/docs/x-anylabeling/point_cloud" target="_blank"><img src="assets/resources/pointcloud/pointcloud-3d-det.png" alt="3D Point Cloud Detection" width="50%" /></a><a href="https://xanylabeling.com/docs/x-anylabeling/point_cloud" target="_blank"><img src="assets/resources/pointcloud/pointcloud-3d-seg.png" alt="3D Point Cloud Segmentation" width="50%" /></a>
+<br />
+  <img src="assets/resources/pointcloud/pointcloud-captions-en.svg" alt="Left: 3D Point Cloud Detection; right: 3D Point Cloud Segmentation" width="100%" />
+</p>
 
 ## 🥳 What's New
 
-- `2026-09-18`: Add [3D point cloud annotation](./docs/en/point_cloud.md), with per-point semantic and instance labeling, camera image reference, and calibrated point overlays.
+- `2026-10-01`: Add [3D point cloud annotation](./docs/en/point_cloud.md), supporting 3D point cloud detection and segmentation.
 - `2026-08-19`: Add support for [image tagging](https://xanylabeling.com/docs/x-anylabeling/user_guide#37-image-tags), with tag creation, editing, reordering, and batch deletion.
 - `2026-08-12`: Add support for [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg) instance segmentation models.
 - `2026-08-08`: Add support for the [RT-DETRv2-OBB](https://xanylabeling.com/examples/detection/obb) rotated object detection model.
@@ -38,14 +38,14 @@
 
 ## Introduction
 
-**X-AnyLabeling** is a lightweight, efficient, and unified cross-platform desktop application for AI-assisted annotation of text, image, video, and multimodal data. It combines versatile built-in tools, automated labeling workflows, state-of-the-art deep learning models, and flexible multi-format import and export. For remote inference, [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) provides a lightweight, extensible backend for connecting custom models and compute resources.
+**X-AnyLabeling** is a lightweight, efficient, and unified cross-platform desktop application for AI-assisted annotation of text, image, video, point cloud, and multimodal data. It combines versatile built-in tools, automated labeling workflows, state-of-the-art deep learning models, and flexible multi-format import and export. For remote inference, [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) provides a lightweight, extensible backend for connecting custom models and compute resources.
 
 ## Key Features
 
 <img src="https://github.com/user-attachments/assets/2925bc88-e22b-4e81-873c-45fd85164f6b" width="100%" />
 
 * Unified support for annotating and processing text, image, video, point cloud, and multimodal data.
-* Covers tasks such as image classification, object detection, instance segmentation, pose estimation, oriented object detection, multi-object tracking, optical character recognition, lane annotation, image captioning, visual question answering, document parsing, and 3D point clouds.
+* Covers tasks such as 2D image classification, object detection, instance segmentation, pose estimation, oriented object detection, multi-object tracking, optical character recognition, lane annotation, image captioning, visual question answering, document parsing, and 3D point clouds.
 * Provides polygons, rectangles, cuboids, rotated boxes, quadrilaterals, circles, lines, polylines, points, masks, and task-specific tools for text detection, text recognition, and KIE.
 * Integrates a wide range of state-of-the-art deep learning models for AI-assisted annotation, automated labeling, and batch dataset prediction.
 * Supports both local and remote inference through engines and serving frameworks such as `ONNX Runtime`, `TensorRT`, `OpenCV DNN`, `vLLM`, and `SGLang`.
@@ -60,6 +60,7 @@
 | 🖼️ Image Classification | YOLOv5-Cls, YOLOv8-Cls, YOLO11-Cls, InternImage, PULC |
 | 🎯 Object Detection | YOLOv5/6/7/8/9/10, YOLO11/12/26, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR, DEIMv2 |
 | 🖌️ Instance Segmentation | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, YOLO26-Seg, Hyper-YOLO-Seg, RF-DETR-Seg, D-FINE-seg |
+| 🎨 Semantic Segmentation | U-Net |
 | 🏃 Pose Estimation | YOLOv8-Pose, YOLO11-Pose, YOLO26-Pose, DWPose, RTMO |
 | 😀 Face Estimation | SCRFD, YOLOv6Lite-Face |
 | 👣 Tracking | TrackTrack, Bot-SORT, ByteTrack, SAM2/3-Video |
@@ -154,13 +155,7 @@ This project is licensed under the [GNU General Public License v3.0](./LICENSE).
 
 ## Sponsor
 
-X-AnyLabeling is an actively maintained open-source project. Your sponsorship helps support feature development, model integration, documentation, and community support.
-
-<a href="https://xanylabeling.com/sponsor">
-  <img src="https://github.com/user-attachments/assets/893151ad-d6b2-4846-882a-ef5376471c99" alt="Sponsor the X-AnyLabeling project" width="100%" />
-</a>
-
-Click the image above to visit the sponsorship page.
+Your [sponsorship](https://xanylabeling.com/sponsor) supports X-AnyLabeling's feature development, model integration, documentation, and community maintenance.
 
 ## Acknowledgement
 

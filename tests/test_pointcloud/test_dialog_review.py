@@ -26,6 +26,8 @@ def review_window(tmp_path):
     ):
         window = module.PointCloudDialog()
     window._error = Mock()
+    window.sidebar_tabs.setCurrentIndex(1)
+    window._default_class_path = lambda: tmp_path / "pointcloud_classes.json"
     app.processEvents()
     yield window, app
     if window._worker is not None:
@@ -99,16 +101,16 @@ def test_explicit_classes_loaded_in_empty_workspace_survive_first_cloud(
     config_path = tmp_path / "shared-classes.json"
     classes = list(module.DEFAULT_CLASSES)
     classes.append(ClassDefinition(10, "Custom vehicle", "#123456"))
-    save_classes(config_path, classes)
+    save_classes(config_path, {"segmentation": classes})
     with patch.object(
         QtWidgets.QFileDialog,
         "getOpenFileName",
         return_value=(str(config_path), ""),
     ):
         window._import_classes()
-    assert window.classes == classes
+    assert window.class_definitions["segmentation"] == classes
 
     _open(window, app, tmp_path / "1.bin")
 
-    assert window.classes == classes
-    assert window.config_path == config_path
+    assert window.class_definitions["segmentation"] == classes
+    assert window.config_path == window._default_class_path()

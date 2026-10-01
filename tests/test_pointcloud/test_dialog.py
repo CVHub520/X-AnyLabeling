@@ -8,12 +8,13 @@ import numpy as np
 import pytest
 from PyQt6 import QtCore, QtWidgets
 
+from anylabeling.resources import resources
 from anylabeling.views.labeling.pointcloud.io import load_frame, save_classes
 from anylabeling.views.labeling.pointcloud.model import ClassDefinition
 from anylabeling.views.labeling.widgets import pointcloud_dialog as module
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def app():
     return QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
 
@@ -29,6 +30,8 @@ def window(app, tmp_path):
         ),
     ):
         widget = module.PointCloudDialog()
+    widget.sidebar_tabs.setCurrentIndex(1)
+    widget._default_class_path = lambda: tmp_path / "pointcloud_classes.json"
     widget._errors = []
     widget._error = widget._errors.append
     app.processEvents()
@@ -45,15 +48,15 @@ def cloud(path, count=8):
     points.tofile(path)
     config_path = path.parent / "pointcloud_classes.json"
     if not config_path.exists():
+        classes = [
+            ClassDefinition(0, "Unlabeled", "#808080"),
+            ClassDefinition(10, "Vehicle", "#6496F5"),
+            ClassDefinition(30, "Person", "#FF1E1E"),
+            ClassDefinition(40, "Road", "#FF00FF"),
+            ClassDefinition(70, "Vegetation", "#00AF00"),
+        ]
         save_classes(
-            config_path,
-            [
-                ClassDefinition(0, "Unlabeled", "#808080"),
-                ClassDefinition(10, "Vehicle", "#6496F5"),
-                ClassDefinition(30, "Person", "#FF1E1E"),
-                ClassDefinition(40, "Road", "#FF00FF"),
-                ClassDefinition(70, "Vegetation", "#00AF00"),
-            ],
+            config_path, {"segmentation": classes, "detection": classes[1:]}
         )
     return path.resolve()
 
@@ -163,8 +166,10 @@ def test_discard_then_failed_replacement_retains_both_dirty_states(
     wait_load(window, app)
     doc = window.document
     doc.assign_semantic([0], 10)
-    window.classes[1] = ClassDefinition(10, "Custom", "#010203")
-    classes = list(window.classes)
+    window.class_definitions["segmentation"][1] = ClassDefinition(
+        10, "Custom", "#010203"
+    )
+    classes = list(window.class_definitions["segmentation"])
     window._leave_decision = lambda: "discard"
     if operation == "navigate":
         window.navigate(1)
@@ -188,7 +193,10 @@ def test_discard_then_failed_replacement_retains_both_dirty_states(
     assert window._errors
     assert window.document is doc
     assert doc.dirty and doc.can_undo
-    assert window.classes == classes and window.config_dirty
+    assert (
+        window.class_definitions["segmentation"] == classes
+        and window.config_dirty
+    )
     assert window.frame_index == 0
     assert window.file_list.currentRow() == 0
 
@@ -200,13 +208,15 @@ def test_successful_discard_restores_config_baseline_and_clears_history(
     window.open_paths(files)
     wait_load(window, app)
     window.document.assign_semantic([0], 10)
-    original_classes = list(window.classes)
-    window.classes[1] = ClassDefinition(10, "Unsaved", "#010203")
+    original_classes = list(window.class_definitions["segmentation"])
+    window.class_definitions["segmentation"][1] = ClassDefinition(
+        10, "Unsaved", "#010203"
+    )
     window._leave_decision = lambda: "discard"
     window.navigate(1)
     wait_load(window, app)
     assert window.frame_index == 1
-    assert window.classes == original_classes
+    assert window.class_definitions["segmentation"] == original_classes
     assert not window.config_dirty
     assert not window.document.dirty
     assert not window.document.can_undo
@@ -281,7 +291,9 @@ def test_discard_close_approval_does_not_destroy_or_mutate_pending_work(
 def test_partial_save_keeps_only_config_dirty(window, app, tmp_path):
     open_cloud(window, app, cloud(tmp_path / "1.bin"))
     window.document.assign_semantic([0], 10)
-    window.classes[1] = ClassDefinition(10, "Custom", "#010203")
+    window.class_definitions["segmentation"][1] = ClassDefinition(
+        10, "Custom", "#010203"
+    )
     with patch.object(
         module, "save_classes", side_effect=OSError("injected config failure")
     ):
@@ -401,7 +413,9 @@ def test_dataset_config_is_loaded_and_unknown_ids_survive_definition_changes(
     classes = list(module.DEFAULT_CLASSES) + [
         ClassDefinition(60000, "Custom", "#ABCDEF")
     ]
-    save_classes(tmp_path / "pointcloud_classes.json", classes)
+    save_classes(
+        tmp_path / "pointcloud_classes.json", {"segmentation": classes}
+    )
     open_cloud(window, app, path)
     assert window._class_name(60000) == "Custom"
     select_class(window, 60000)
@@ -445,7 +459,9 @@ def test_leaving_with_only_config_changes_does_not_rewrite_labels(
     window, app, tmp_path
 ):
     open_cloud(window, app, cloud(tmp_path / "1.bin"))
-    window.classes[1] = ClassDefinition(10, "Custom", "#123456")
+    window.class_definitions["segmentation"][1] = ClassDefinition(
+        10, "Custom", "#123456"
+    )
     with (
         patch.object(
             QtWidgets.QMessageBox,
@@ -477,9 +493,13 @@ def test_unknown_name_defaults_and_missing_definition_deletion(
 
     with patch.object(module.ClassDefinitionDialog, "exec", inspect):
         window._edit_class(True)
-        window.classes.append(ClassDefinition(60001, "Unknown", "#60A5FA"))
+        window.class_definitions["segmentation"].append(
+            ClassDefinition(60001, "Unknown", "#60A5FA")
+        )
         window._edit_class(False)
-        window.classes.append(ClassDefinition(60002, "Unknown(1)", "#60A5FA"))
+        window.class_definitions["segmentation"].append(
+            ClassDefinition(60002, "Unknown(1)", "#60A5FA")
+        )
         window._edit_class(False)
     assert names == ["Unknown", "Unknown(1)", "Unknown(2)"]
     window._confirm = lambda text: True

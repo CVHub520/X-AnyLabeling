@@ -97,7 +97,9 @@ def test_multiple_instances_highlight_and_filter_together(display_window):
     assert len(window.instance_list.selectedItems()) == 2
     np.testing.assert_array_equal(window._visible, expected)
     hide_class(window, 30)
-    np.testing.assert_array_equal(window._visible, original == ((1 << 16) | 10))
+    np.testing.assert_array_equal(
+        window._visible, original == ((1 << 16) | 10)
+    )
     np.testing.assert_array_equal(window.document.labels, original)
     assert_matches_full_refresh(window)
 
@@ -128,9 +130,7 @@ def assert_matches_full_refresh(window):
 
 
 @pytest.mark.parametrize("mode", ["semantic", "instance", "intensity"])
-@pytest.mark.parametrize(
-    "filter_mode", ["all", "hidden", "focus"]
-)
+@pytest.mark.parametrize("filter_mode", ["all", "hidden", "focus"])
 def test_incremental_edits_match_full_refresh_with_modes_and_filters(
     display_window, mode, filter_mode
 ):
@@ -141,7 +141,9 @@ def test_incremental_edits_match_full_refresh_with_modes_and_filters(
     if filter_mode == "hidden":
         hide_class(window, 10)
     elif filter_mode == "focus":
-        window.instance_list.currentItem().setCheckState(QtCore.Qt.CheckState.Checked)
+        window.instance_list.currentItem().setCheckState(
+            QtCore.Qt.CheckState.Checked
+        )
     assert_matches_full_refresh(window)
     with patch.object(
         window.viewport, "set_colors", wraps=window.viewport.set_colors
@@ -236,9 +238,13 @@ def test_instance_filter_and_palette_changes_invalidate_display(
         for key in ((10, 1), (30, 1), (0, 7), None):
             select_instance(window, key)
             assert_matches_full_refresh(window)
-        window.instance_list.item(0).setCheckState(QtCore.Qt.CheckState.Checked)
+        window.instance_list.item(0).setCheckState(
+            QtCore.Qt.CheckState.Checked
+        )
         assert_matches_full_refresh(window)
-        window.instance_list.item(1).setCheckState(QtCore.Qt.CheckState.Checked)
+        window.instance_list.item(1).setCheckState(
+            QtCore.Qt.CheckState.Checked
+        )
         assert_matches_full_refresh(window)
         hide_class(window, 10)
         assert_matches_full_refresh(window)
@@ -246,8 +252,9 @@ def test_instance_filter_and_palette_changes_invalidate_display(
         assert_matches_full_refresh(window)
     before = window.viewport._colors.copy()
     definition = ClassDefinition(10, "Updated vehicle", "#010203")
-    window.classes = [
-        definition if item.id == 10 else item for item in window.classes
+    window.class_definitions["segmentation"] = [
+        definition if item.id == 10 else item
+        for item in window.class_definitions["segmentation"]
     ]
     window._refresh()
     np.testing.assert_allclose(
@@ -319,14 +326,14 @@ def test_failed_render_preparation_restores_previous_colors_and_filters(
 def test_color_mode_stays_selected_when_switching_tools(display_window):
     window = display_window
     assert window.color_mode.currentData() == "semantic"
-    for mode in ("semantic", "intensity", "instance"):
+    for mode in ("rgb", "semantic", "intensity", "instance"):
         window.color_mode.setCurrentIndex(window.color_mode.findData(mode))
         for tool in ("brush", "polygon", "browse"):
             window._select_tool(tool)
             assert window.color_mode.currentData() == mode
 
 
-def test_rgb_display_and_unavailable_mode_fallback(window, app, tmp_path):
+def test_original_display_uses_rgb_or_white(window, app, tmp_path):
     path = tmp_path / "colors.ply"
     path.write_text(
         "ply\nformat ascii 1.0\nelement vertex 2\n"
@@ -349,5 +356,13 @@ def test_rgb_display_and_unavailable_mode_fallback(window, app, tmp_path):
     assert modes.currentData() == "rgb"
     np.testing.assert_array_equal(window.document.labels, before)
     open_cloud(window, app, dialog_tests.cloud(tmp_path / "other.bin"))
-    assert modes.currentData() == "semantic"
-    assert not modes.model().item(modes.findData("rgb")).isEnabled()
+    assert modes.currentData() == "rgb"
+    assert modes.model().item(modes.findData("rgb")).isEnabled()
+    np.testing.assert_array_equal(
+        window._display_colors(slice(None), None),
+        np.ones((len(window.document.frame.points), 3), dtype=np.float32),
+    )
+    np.testing.assert_array_equal(
+        window.viewport._colors[:, :3],
+        np.ones((len(window.document.frame.points), 3), dtype=np.float32),
+    )

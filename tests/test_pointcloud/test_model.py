@@ -96,6 +96,17 @@ def test_invalid_instance_operations_are_atomic():
         assert not doc.can_undo
 
 
+def test_undo_removes_lock_for_deleted_instance_without_reusing_it():
+    doc = document([10, 10, 10])
+    key = doc.create_instance([0], 10)
+    doc.locked_instances.add(key)
+    assert doc.undo()
+    assert not doc.locked_instances
+    assert doc.create_instance([1], 10) == key
+    assert not doc.instance_locked(key)
+    assert doc.add_to_instance([2], key) == 1
+
+
 def test_twenty_operations_save_baseline_and_new_branch():
     doc = document([0] * 25)
     snapshots = [doc.labels.copy()]

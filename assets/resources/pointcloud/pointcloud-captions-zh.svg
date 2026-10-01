@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="30" viewBox="0 0 1200 30">
+  <g fill="#808080" font-family="Arial, 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif" font-size="20" font-weight="600" text-anchor="middle">
+    <text x="300" y="22">3D 点云检测</text>
+    <text x="900" y="22">3D 点云分割</text>
+  </g>
+</svg>

@@ -6,6 +6,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 import pytest
 from PyQt6 import QtCore, QtGui, QtTest, QtWidgets
 
+from anylabeling.resources import resources
 from anylabeling.views.labeling.pointcloud.controls import (
     ClassDefinitionDialog,
     PointCloudListWidget,
@@ -15,7 +16,7 @@ from anylabeling.views.labeling.pointcloud.icons import get_icon
 from anylabeling.views.labeling.pointcloud.style import get_pointcloud_style
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def app():
     return QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
 

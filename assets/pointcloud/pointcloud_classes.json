@@ -1,0 +1,196 @@
+{
+  "version": 1,
+  "detection": {
+    "classes": [
+      {
+        "id": 1,
+        "name": "Car",
+        "color": "#6496F5"
+      },
+      {
+        "id": 2,
+        "name": "Pedestrian",
+        "color": "#FF1E1E"
+      },
+      {
+        "id": 3,
+        "name": "Cyclist",
+        "color": "#FF28C8"
+      }
+    ]
+  },
+  "segmentation": {
+    "classes": [
+      {
+        "id": 0,
+        "name": "unlabeled",
+        "color": "#000000"
+      },
+      {
+        "id": 1,
+        "name": "outlier",
+        "color": "#FF0000"
+      },
+      {
+        "id": 10,
+        "name": "car",
+        "color": "#6496F5"
+      },
+      {
+        "id": 11,
+        "name": "bicycle",
+        "color": "#64E6F5"
+      },
+      {
+        "id": 13,
+        "name": "bus",
+        "color": "#6450FA"
+      },
+      {
+        "id": 15,
+        "name": "motorcycle",
+        "color": "#1E3C96"
+      },
+      {
+        "id": 16,
+        "name": "on-rails",
+        "color": "#0000FF"
+      },
+      {
+        "id": 18,
+        "name": "truck",
+        "color": "#501EB4"
+      },
+      {
+        "id": 20,
+        "name": "other-vehicle",
+        "color": "#0000FF"
+      },
+      {
+        "id": 30,
+        "name": "person",
+        "color": "#FF1E1E"
+      },
+      {
+        "id": 31,
+        "name": "bicyclist",
+        "color": "#FF28C8"
+      },
+      {
+        "id": 32,
+        "name": "motorcyclist",
+        "color": "#961E5A"
+      },
+      {
+        "id": 40,
+        "name": "road",
+        "color": "#FF00FF"
+      },
+      {
+        "id": 44,
+        "name": "parking",
+        "color": "#FF96FF"
+      },
+      {
+        "id": 48,
+        "name": "sidewalk",
+        "color": "#4B004B"
+      },
+      {
+        "id": 49,
+        "name": "other-ground",
+        "color": "#AF004B"
+      },
+      {
+        "id": 50,
+        "name": "building",
+        "color": "#FFC800"
+      },
+      {
+        "id": 51,
+        "name": "fence",
+        "color": "#FF7832"
+      },
+      {
+        "id": 52,
+        "name": "other-structure",
+        "color": "#FF9600"
+      },
+      {
+        "id": 60,
+        "name": "lane-marking",
+        "color": "#96FFAA"
+      },
+      {
+        "id": 70,
+        "name": "vegetation",
+        "color": "#00AF00"
+      },
+      {
+        "id": 71,
+        "name": "trunk",
+        "color": "#873C00"
+      },
+      {
+        "id": 72,
+        "name": "terrain",
+        "color": "#96F050"
+      },
+      {
+        "id": 80,
+        "name": "pole",
+        "color": "#FFF096"
+      },
+      {
+        "id": 81,
+        "name": "traffic-sign",
+        "color": "#FF0000"
+      },
+      {
+        "id": 99,
+        "name": "other-object",
+        "color": "#32FFFF"
+      },
+      {
+        "id": 252,
+        "name": "moving-car",
+        "color": "#6496F5"
+      },
+      {
+        "id": 253,
+        "name": "moving-bicyclist",
+        "color": "#FF28C8"
+      },
+      {
+        "id": 254,
+        "name": "moving-person",
+        "color": "#FF1E1E"
+      },
+      {
+        "id": 255,
+        "name": "moving-motorcyclist",
+        "color": "#961E5A"
+      },
+      {
+        "id": 256,
+        "name": "moving-on-rails",
+        "color": "#0000FF"
+      },
+      {
+        "id": 257,
+        "name": "moving-bus",
+        "color": "#6450FA"
+      },
+      {
+        "id": 258,
+        "name": "moving-truck",
+        "color": "#501EB4"
+      },
+      {
+        "id": 259,
+        "name": "moving-other-vehicle",
+        "color": "#0000FF"
+      }
+    ]
+  }
+}

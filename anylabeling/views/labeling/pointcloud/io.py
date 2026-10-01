@@ -8,6 +8,7 @@ from pathlib import Path
 import numpy as np
 
 from .model import ClassDefinition, Frame, _validate_id, validate_labels
+from .cuboid import Cuboid
 
 _PLY_TYPES = {
     "char": "i1",
@@ -314,7 +315,24 @@ def _read_ply(stream):
     return points, has_intensity, rgb
 
 
-def load_frame(path, label_path=None):
+def cuboid_source_path(path, label_path, cuboid_path=None):
+    path = Path(path)
+    target = Path(cuboid_path or Path(label_path).with_suffix(".cuboids.json"))
+    directory = (
+        path.parent.parent if path.parent.name == "velodyne" else path.parent
+    )
+    for candidate in (
+        target,
+        Path(label_path).with_suffix(".cuboids.json"),
+        path.with_suffix(".cuboids.json"),
+        directory / "labels" / f"{path.stem}.cuboids.json",
+    ):
+        if candidate.exists() or candidate.is_symlink():
+            return candidate
+    return target
+
+
+def load_frame(path, label_path=None, cuboid_path=None):
     path = Path(path)
     if path.suffix.lower() not in (".bin", ".ply"):
         raise ValueError(
@@ -384,6 +402,18 @@ def load_frame(path, label_path=None):
                 f"{special} unlabeled points have nonzero instance IDs; "
                 "original labels are preserved."
             )
+        cuboid_path = (
+            Path(cuboid_path)
+            if cuboid_path is not None
+            else label_path.with_suffix(".cuboids.json")
+        )
+        cuboid_exists = cuboid_path.exists() or cuboid_path.is_symlink()
+        cuboid_source = cuboid_source_path(path, label_path, cuboid_path)
+        cuboids = (
+            load_cuboids(cuboid_source, path)
+            if cuboid_source.exists() or cuboid_source.is_symlink()
+            else ()
+        )
         return Frame(
             path,
             points,
@@ -393,6 +423,9 @@ def load_frame(path, label_path=None):
             label_exists,
             has_intensity=has_intensity,
             rgb=rgb,
+            cuboids=cuboids,
+            cuboid_path=cuboid_path,
+            cuboid_exists=cuboid_exists,
         )
     except (ValueError, UnicodeError) as error:
         raise ValueError(f"{path}: {error}") from error
@@ -413,6 +446,60 @@ def _atomic_write(path, write):
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
+
+
+def load_cuboids(path, source_path):
+    path = Path(path)
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if (
+            not isinstance(data, dict)
+            or type(data.get("version")) is not int
+            or data["version"] != 1
+            or data.get("type") != "pointcloud-cuboids"
+            or data.get("point_cloud") != Path(source_path).name
+            or not isinstance(data.get("cuboids"), list)
+        ):
+            raise ValueError(
+                "Expected version 1 cuboids for this point cloud."
+            )
+        boxes = []
+        for entry in data["cuboids"]:
+            if not isinstance(entry, dict):
+                raise ValueError("Each cuboid must be an object.")
+            try:
+                boxes.append(Cuboid(**entry))
+            except TypeError as error:
+                raise ValueError("Invalid cuboid fields.") from error
+        if len({box.id for box in boxes}) != len(boxes):
+            raise ValueError("Duplicate cuboid IDs.")
+        return tuple(boxes)
+    except (ValueError, UnicodeError) as error:
+        raise ValueError(f"{path}: {error}") from error
+
+
+def save_cuboids(path, cuboids, source_path):
+    path, source_path = Path(path), Path(source_path)
+    if not path.name.endswith(".cuboids.json"):
+        raise ValueError("Cuboid output must use the .cuboids.json extension.")
+    if path.resolve() == source_path.resolve() or (
+        path.exists() and source_path.exists() and path.samefile(source_path)
+    ):
+        raise ValueError("Cuboids cannot overwrite the source point cloud.")
+    if any(not isinstance(box, Cuboid) for box in cuboids):
+        raise ValueError("Expected cuboid annotations.")
+    if len({box.id for box in cuboids}) != len(cuboids):
+        raise ValueError("Duplicate cuboid IDs.")
+    data = {
+        "version": 1,
+        "type": "pointcloud-cuboids",
+        "point_cloud": source_path.name,
+        "cuboids": [asdict(box) for box in cuboids],
+    }
+    encoded = (json.dumps(data, indent=2, allow_nan=False) + "\n").encode(
+        "utf-8"
+    )
+    _atomic_write(path, lambda stream: stream.write(encoded))
 
 
 def save_labels(path, labels, source_path):
@@ -449,7 +536,7 @@ def save_labels(path, labels, source_path):
     _atomic_write(path, lambda stream: encoded.tofile(stream))
 
 
-def _validate_classes(classes):
+def _validate_classes(classes, task="segmentation"):
     result = []
     seen = set()
     for entry in classes:
@@ -470,8 +557,10 @@ def _validate_classes(classes):
         result.append(
             ClassDefinition(class_id, entry.name.strip(), entry.color.upper())
         )
-    if 0 not in seen:
+    if task == "segmentation" and 0 not in seen:
         raise ValueError("Class configuration must include ID 0 (unlabeled).")
+    if task == "detection" and 0 in seen:
+        raise ValueError("Detection class IDs must be in 1-65535.")
     return result
 
 
@@ -486,24 +575,60 @@ def load_classes(path):
             or data["version"] != 1
         ):
             raise ValueError("Class configuration requires version 1.")
-        if not isinstance(data.get("classes"), list):
-            raise ValueError("Class configuration requires a classes array.")
-        classes = []
-        for entry in data["classes"]:
-            if not isinstance(entry, dict) or not {
-                "id",
-                "name",
-                "color",
-            }.issubset(entry):
-                raise ValueError(
-                    "Class entries require id, name and color fields."
-                )
-            classes.append(
-                ClassDefinition(entry["id"], entry["name"], entry["color"])
+        tasks = {
+            task: data[task]
+            for task in ("detection", "segmentation")
+            if task in data
+        }
+        if not tasks:
+            raise ValueError(
+                "Class configuration requires detection or segmentation classes."
             )
-        return _validate_classes(classes)
+        result = {}
+        for task, section in tasks.items():
+            if not isinstance(section, dict) or not isinstance(
+                section.get("classes"), list
+            ):
+                raise ValueError(f"{task} requires a classes array.")
+            classes = []
+            for entry in section["classes"]:
+                if not isinstance(entry, dict) or not {
+                    "id",
+                    "name",
+                    "color",
+                }.issubset(entry):
+                    raise ValueError(
+                        "Class entries require id, name and color fields."
+                    )
+                classes.append(
+                    ClassDefinition(entry["id"], entry["name"], entry["color"])
+                )
+            result[task] = _validate_classes(classes, task)
+        return result
     except (ValueError, UnicodeError) as error:
         raise ValueError(f"{path}: {error}") from error
+
+
+def class_config_data(definitions):
+    if (
+        not isinstance(definitions, dict)
+        or not definitions
+        or definitions.keys() - {"detection", "segmentation"}
+    ):
+        raise ValueError(
+            "Class definitions must be grouped by detection or segmentation."
+        )
+    return {
+        "version": 1,
+        **{
+            task: {
+                "classes": [
+                    asdict(entry) for entry in _validate_classes(classes, task)
+                ]
+            }
+            for task, classes in definitions.items()
+        },
+    }
 
 
 def save_classes(path, classes):
@@ -512,8 +637,7 @@ def save_classes(path, classes):
         raise ValueError(
             f"{path}: class configuration must use the .json extension."
         )
-    classes = _validate_classes(classes)
-    data = {"version": 1, "classes": [asdict(entry) for entry in classes]}
+    data = class_config_data(classes)
     encoded = (json.dumps(data, indent=2, ensure_ascii=False) + "\n").encode(
         "utf-8"
     )

@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from PyQt6 import QtCore, QtGui, QtSvg
 
 
@@ -25,6 +27,52 @@ def center_pixmap(pixmap):
 
 def _polygon(points):
     return QtGui.QPolygonF([QtCore.QPointF(*point) for point in points])
+
+
+def _draw_camera_arrow(painter, angle):
+    painter.save()
+    painter.translate(12, 12)
+    painter.rotate(angle)
+    painter.drawLine(QtCore.QPointF(0, 7), QtCore.QPointF(0, -7))
+    painter.drawPolyline(_polygon([(-5, -2), (0, -7), (5, -2)]))
+    painter.restore()
+
+
+def _draw_lock(painter, locked):
+    path = QtGui.QPainterPath(QtCore.QPointF(7, 11))
+    path.lineTo(7, 7)
+    path.cubicTo(7, 1, 17, 1, 17, 7)
+    if locked:
+        path.lineTo(17, 11)
+    painter.drawPath(path)
+    if locked:
+        painter.setBrush(painter.pen().color())
+    painter.drawRoundedRect(QtCore.QRectF(4, 11, 16, 11), 2, 2)
+
+
+@lru_cache(maxsize=128)
+def _svg_renderer(name, color):
+    source = QtCore.QFile(f":/images/images/{name}.svg")
+    if not source.open(QtCore.QIODevice.OpenModeFlag.ReadOnly):
+        return None
+    data = bytes(source.readAll())
+    source.close()
+    if name == "settings":
+        data = data.replace(b"<path ", f'<path fill="{color}" '.encode())
+    data = data.replace(b"#000000", color.encode()).replace(
+        b"currentColor", color.encode()
+    )
+    return QtSvg.QSvgRenderer(QtCore.QByteArray(data))
+
+
+def draw_rotation_handle(painter, center, radius=9):
+    renderer = _svg_renderer("rotate-cw", painter.pen().color().name())
+    renderer.render(
+        painter,
+        QtCore.QRectF(
+            center.x() - radius, center.y() - radius, radius * 2, radius * 2
+        ),
+    )
 
 
 def _draw_view(painter, view, accent):
@@ -80,7 +128,17 @@ def _draw_merge(painter, accent):
     painter.drawPolyline(_polygon([(17, 9), (20, 12), (17, 15)]))
 
 
-def _draw_fit(painter, accent):
+def _draw_fullscreen(painter, restore=False):
+    for x, y in ((1, 1), (-1, 1), (-1, -1), (1, -1)):
+        outer = QtCore.QPointF(12 + x * 8, 12 + y * 8)
+        inner = QtCore.QPointF(12 + x * 3, 12 + y * 3)
+        painter.drawLine(inner, outer)
+        tip, direction = (inner, 1) if restore else (outer, -1)
+        painter.drawLine(tip, tip + QtCore.QPointF(direction * x * 4, 0))
+        painter.drawLine(tip, tip + QtCore.QPointF(0, direction * y * 4))
+
+
+def _draw_fit(painter, accent, create=False):
     painter.save()
     pen = painter.pen()
     pen.setColor(QtGui.QColor(accent))
@@ -93,7 +151,11 @@ def _draw_fit(painter, accent):
     ):
         painter.drawPolyline(_polygon(points))
     painter.restore()
-    painter.drawEllipse(QtCore.QPointF(12, 12), 2, 2)
+    if create:
+        painter.drawLine(QtCore.QPointF(9, 12), QtCore.QPointF(15, 12))
+        painter.drawLine(QtCore.QPointF(12, 9), QtCore.QPointF(12, 15))
+    else:
+        painter.drawEllipse(QtCore.QPointF(12, 12), 2, 2)
 
 
 def _draw_semantic(painter, accent):
@@ -189,18 +251,57 @@ def _draw_keyboard(painter, accent):
     painter.drawLine(QtCore.QPointF(6, 16), QtCore.QPointF(18, 16))
 
 
+def _draw_camera(painter, accent):
+    painter.drawPolygon(
+        _polygon(
+            [
+                (2, 7),
+                (7, 7),
+                (9, 4),
+                (15, 4),
+                (17, 7),
+                (22, 7),
+                (22, 20),
+                (2, 20),
+            ]
+        )
+    )
+    painter.drawEllipse(QtCore.QPointF(12, 13), 4, 4)
+
+
+def _draw_panel_horizontal(painter, accent, divider):
+    painter.drawRoundedRect(QtCore.QRectF(3, 4, 18, 16), 3, 3)
+    painter.drawLine(QtCore.QPointF(3, divider), QtCore.QPointF(21, divider))
+
+
+def _draw_confirm(painter, accent):
+    pen = painter.pen()
+    pen.setWidthF(2)
+    painter.setPen(pen)
+    painter.drawPolyline(_polygon([(5, 12), (10, 17), (20, 7)]))
+
+
 def get_icon(name, color, accent):
-    if name in ("panel-left", "panel-right"):
-        source = QtCore.QFile(f":/images/images/{name}.svg")
-        if not source.open(QtCore.QIODevice.OpenModeFlag.ReadOnly):
+    if name in (
+        "panel-left",
+        "panel-right",
+        "rotate-cw",
+        "squares-unite",
+        "scan-search",
+        "save-plus",
+        "pointcloud-download",
+        "pointcloud-upload",
+        "settings",
+        "command",
+        "keyboard",
+    ):
+        renderer = _svg_renderer(name, color)
+        if renderer is None:
             return None
-        data = bytes(source.readAll())
-        source.close()
-        data = data.replace(b"#000000", color.encode())
         pixmap = QtGui.QPixmap(72, 72)
         pixmap.fill(QtCore.Qt.GlobalColor.transparent)
         painter = QtGui.QPainter(pixmap)
-        QtSvg.QSvgRenderer(QtCore.QByteArray(data)).render(painter)
+        renderer.render(painter)
         painter.end()
         return QtGui.QIcon(center_pixmap(pixmap))
     if name == "upload":
@@ -236,6 +337,19 @@ def get_icon(name, color, accent):
         painter.end()
         return QtGui.QIcon(center_pixmap(pixmap))
     drawers = {
+        "confirm": _draw_confirm,
+        "draw-cuboid": lambda p, a: _draw_fit(p, a, create=True),
+        "lock": lambda p, a: _draw_lock(p, True),
+        "unlock": lambda p, a: _draw_lock(p, False),
+        "camera": _draw_camera,
+        "camera-up": lambda p, a: _draw_camera_arrow(p, 0),
+        "camera-down": lambda p, a: _draw_camera_arrow(p, 180),
+        "camera-left": lambda p, a: _draw_camera_arrow(p, -90),
+        "camera-right": lambda p, a: _draw_camera_arrow(p, 90),
+        "expand-view": lambda p, a: _draw_fullscreen(p),
+        "restore-view": lambda p, a: _draw_fullscreen(p, restore=True),
+        "panel-up": lambda p, a: _draw_panel_horizontal(p, a, 10),
+        "panel-down": lambda p, a: _draw_panel_horizontal(p, a, 14),
         "keyboard": _draw_keyboard,
         "brush": _draw_brush,
         "polygon": _draw_polygon,

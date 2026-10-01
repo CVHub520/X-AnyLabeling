@@ -1,7 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 import numpy as np
+
+from .cuboid import Cuboid
 
 MAX_ID = 65535
 
@@ -39,6 +41,9 @@ class Frame:
     label_exists: bool = False
     has_intensity: bool = True
     rgb: np.ndarray | None = None
+    cuboids: tuple[Cuboid, ...] = ()
+    cuboid_path: Path | None = None
+    cuboid_exists: bool = False
 
     def __post_init__(self):
         self.path = Path(self.path)
@@ -80,6 +85,12 @@ class _Edit:
     after: np.ndarray
 
 
+@dataclass
+class _CuboidEdit:
+    before: tuple[Cuboid, ...]
+    after: tuple[Cuboid, ...]
+
+
 class AnnotationDocument:
     def __init__(self, frame, history_limit=50):
         if history_limit < 20:
@@ -89,6 +100,10 @@ class AnnotationDocument:
         self.frame.labels = self.labels
         self._baseline = self._labels.copy()
         self._dirty_count = 0
+        self._cuboids = tuple(frame.cuboids)
+        self._cuboid_baseline = self._cuboids
+        self.locked_classes = set()
+        self.locked_instances = set()
         self._undo = []
         self._redo = []
         self._history_limit = history_limit
@@ -141,7 +156,77 @@ class AnnotationDocument:
 
     @property
     def dirty(self):
+        return self.labels_dirty or self.cuboids_dirty
+
+    @property
+    def labels_dirty(self):
         return self._dirty_count != 0
+
+    @property
+    def cuboids_dirty(self):
+        return self._cuboids != self._cuboid_baseline
+
+    @property
+    def cuboids(self):
+        return self._cuboids
+
+    def next_cuboid_id(self):
+        used = {box.id for box in self._cuboids}
+        for value in range(1, MAX_ID + 1):
+            if value not in used:
+                return value
+        raise ValueError("No cuboid IDs remain in this frame.")
+
+    def set_cuboid(self, cuboid):
+        if not isinstance(cuboid, Cuboid):
+            raise ValueError("Expected a cuboid annotation.")
+        existing = next(
+            (box for box in self._cuboids if box.id == cuboid.id), None
+        )
+        if existing is not None and existing.locked and cuboid != existing:
+            if replace(cuboid, locked=True) != existing:
+                raise ValueError("Unlock the cuboid before editing it.")
+        boxes = tuple(
+            cuboid if box.id == cuboid.id else box for box in self._cuboids
+        )
+        if existing is None:
+            boxes += (cuboid,)
+        return self._commit_cuboids(boxes)
+
+    def delete_cuboid(self, cuboid_id):
+        return self.delete_cuboids({cuboid_id})
+
+    def delete_cuboids(self, cuboid_ids):
+        ids = set(cuboid_ids)
+        if any(box.id in ids and box.locked for box in self._cuboids):
+            raise ValueError("Unlock the cuboid before deleting it.")
+        return self._commit_cuboids(
+            tuple(box for box in self._cuboids if box.id not in ids)
+        )
+
+    def set_cuboids_locked(self, cuboid_ids, locked):
+        ids = set(cuboid_ids)
+        return self._commit_cuboids(
+            tuple(
+                replace(box, locked=bool(locked)) if box.id in ids else box
+                for box in self._cuboids
+            )
+        )
+
+    def _commit_cuboids(self, boxes):
+        if boxes == self._cuboids:
+            return False
+        self._undo.append(_CuboidEdit(self._cuboids, boxes))
+        del self._undo[: max(0, len(self._undo) - self._history_limit)]
+        self._redo.clear()
+        self._cuboids = boxes
+        self.frame.cuboids = boxes
+        return True
+
+    def mark_cuboids_saved(self, path):
+        self.frame.cuboid_path = Path(path)
+        self.frame.cuboid_exists = True
+        self._cuboid_baseline = self._cuboids
 
     @property
     def can_undo(self):
@@ -210,6 +295,14 @@ class AnnotationDocument:
         if not indices.size:
             return 0
         values = values[changed].copy()
+        if self.locked_classes or self.locked_instances:
+            if (
+                self._locked_labels(self._labels[indices]).any()
+                or self._locked_labels(values).any()
+            ):
+                raise ValueError(
+                    "Unlock the class or instance before editing its points."
+                )
         edit = _Edit(indices, self._labels[indices].copy(), values)
         self._write(indices, values)
         self._undo.append(edit)
@@ -226,6 +319,23 @@ class AnnotationDocument:
             semantic = semantic[semantic == 0]
         changed_class = semantic != semantic_id
         return self._commit(indices[changed_class], semantic_id)
+
+    def _locked_labels(self, labels):
+        mask = np.isin(labels & np.uint32(MAX_ID), list(self.locked_classes))
+        if self.locked_instances:
+            mask |= np.isin(
+                labels,
+                [(key[1] << 16) | key[0] for key in self.locked_instances],
+            )
+        return mask
+
+    def editable_indices(self, indices):
+        if not self.locked_classes and not self.locked_instances:
+            return indices
+        return indices[~self._locked_labels(self._labels[indices])]
+
+    def instance_locked(self, key):
+        return key[0] in self.locked_classes or key in self.locked_instances
 
     def clear(self, indices):
         return self._commit(self._indices(indices), 0)
@@ -335,7 +445,7 @@ class AnnotationDocument:
         if not self._undo:
             return False
         edit = self._undo.pop()
-        self._write(edit.indices, edit.before)
+        self._apply_edit(edit, edit.before)
         self._redo.append(edit)
         return True
 
@@ -343,9 +453,17 @@ class AnnotationDocument:
         if not self._redo:
             return False
         edit = self._redo.pop()
-        self._write(edit.indices, edit.after)
+        self._apply_edit(edit, edit.after)
         self._undo.append(edit)
         return True
+
+    def _apply_edit(self, edit, values):
+        if isinstance(edit, _CuboidEdit):
+            self._cuboids = values
+            self.frame.cuboids = values
+        else:
+            self._write(edit.indices, values)
+            self.locked_instances.intersection_update(self._instance_counts)
 
     def mark_saved(self, path=None):
         self.frame.label_exists = True

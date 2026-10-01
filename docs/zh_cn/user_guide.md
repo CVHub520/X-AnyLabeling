@@ -968,6 +968,7 @@ digit_shortcuts:
 | Ctrl + 3              | 打开图像分类器窗口                       |
 | Ctrl + 4              | 打开 PaddleOCR 窗口                    |
 | Ctrl + 5              | 打开视频分类器窗口                       |
+| Ctrl + 6              | 打开 3D 点云工作区                     |
 | Ctrl + q              | 退出当前应用程序                        |
 | Ctrl + i              | 打开图像文件                          |
 | Ctrl + o              | 打开视频文件                          |

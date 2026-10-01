@@ -54,6 +54,7 @@ class SelectionSnapshot:
     surface_depth: object = None
     surface_owners: object = None
     exact_depths: object = None
+    sizes: object = None
     _tile_order: object = field(
         default=None, init=False, repr=False, compare=False
     )
@@ -81,7 +82,12 @@ class SelectionSnapshot:
     ):
         if mode not in ("surface", "through"):
             raise ValueError("Unknown depth selection mode")
-        size = max(1, int(round(point_size)))
+        sizes = None
+        if np.ndim(point_size):
+            sizes = np.maximum(1, np.asarray(point_size, dtype=np.int32))
+            size = 1
+        else:
+            size = max(1, int(round(point_size)))
         valid = np.asarray(visible, dtype=bool).copy()
         valid &= (
             np.isfinite(screen[:, 0])
@@ -92,13 +98,18 @@ class SelectionSnapshot:
         valid &= (screen[:, 1] >= 0) & (screen[:, 1] < height)
         valid &= (depths >= 0) & (depths <= 1)
         indices = np.flatnonzero(valid)
-        origins = np.floor(screen[indices]).astype(np.int32) - size // 2
+        sizes = sizes[indices] if sizes is not None else None
+        if sizes is not None:
+            size = int(sizes.max(initial=1))
+        half = size // 2 if sizes is None else sizes[:, None] // 2
+        origins = np.floor(screen[indices]).astype(np.int32) - half
         quantized = np.floor(
             np.asarray(depths[indices], dtype=np.float64) * DEPTH_MAX + 0.5
         ).astype(np.uint32)
         snapshot = cls(indices, origins, quantized, width, height, size)
+        snapshot.sizes = sizes
         indexed_surface = (
-            len(indices) >= 4096
+            (len(indices) >= 4096 or sizes is not None)
             and mode == "surface"
             and surface_owners is not None
             and depths.dtype == np.float32
@@ -106,7 +117,7 @@ class SelectionSnapshot:
         )
         if len(indices) >= 4096 and not indexed_surface:
             columns = (width + _TILE_SIZE - 1) // _TILE_SIZE
-            centers = origins + size // 2
+            centers = origins + half
             tiles = (
                 centers[:, 1] // _TILE_SIZE * columns
                 + centers[:, 0] // _TILE_SIZE
@@ -137,6 +148,8 @@ class SelectionSnapshot:
                     x = origins[:, 0] + dx
                     y = origins[:, 1] + dy
                     inside = (x >= 0) & (x < width) & (y >= 0) & (y < height)
+                    if sizes is not None:
+                        inside &= (dx < sizes) & (dy < sizes)
                     np.minimum.at(
                         snapshot.surface_depth,
                         y[inside] * width + x[inside],
@@ -146,7 +159,11 @@ class SelectionSnapshot:
 
     def _footprint_depth_keys(self, indices):
         origins = self.origins[indices]
-        half = self.point_size // 2
+        half = (
+            self.point_size // 2
+            if self.sizes is None
+            else self.sizes[indices] // 2
+        )
         pixels = (origins[:, 1] + half).astype(np.uint64)
         pixels *= self.width
         pixels += (origins[:, 0] + half).astype(np.uint64)
@@ -208,7 +225,9 @@ class SelectionSnapshot:
             return np.empty(0, dtype=np.int64)
         area = (x1 - x0) * (y1 - y0)
         count = len(self.indices) if candidate is None else len(candidate)
-        if area > min(262144, max(4096, count * self.point_size**2 * 4)):
+        if self.sizes is None and area > min(
+            262144, max(4096, count * self.point_size**2 * 4)
+        ):
             return None
         region = self.surface_owners.reshape(self.height, self.width)[
             y0:y1, x0:x1
@@ -217,11 +236,12 @@ class SelectionSnapshot:
         owners = region[y, x]
         x, y = x + x0, y + y0
         origins = self.origins[owners]
+        sizes = self.point_size if self.sizes is None else self.sizes[owners]
         inside = (
             (x >= origins[:, 0])
-            & (x < origins[:, 0] + self.point_size)
+            & (x < origins[:, 0] + sizes)
             & (y >= origins[:, 1])
-            & (y < origins[:, 1] + self.point_size)
+            & (y < origins[:, 1] + sizes)
             & contains(x + 0.5, y + 0.5)
         )
         owners = np.unique(owners[inside])
@@ -278,8 +298,13 @@ class SelectionSnapshot:
             if result is not None:
                 return result
         selected = np.zeros(len(candidate), dtype=bool)
-        for dx in range(self.point_size):
-            for dy in range(self.point_size):
+        size = (
+            self.point_size
+            if self.sizes is None
+            else int(self.sizes[candidate].max())
+        )
+        for dx in range(size):
+            for dy in range(size):
                 remaining = np.flatnonzero(~selected)
                 if not len(remaining):
                     break
@@ -289,6 +314,10 @@ class SelectionSnapshot:
                 inside = (
                     (x >= 0) & (x < self.width) & (y >= 0) & (y < self.height)
                 )
+                if self.sizes is not None:
+                    inside &= (dx < self.sizes[local]) & (
+                        dy < self.sizes[local]
+                    )
                 inside &= contains(x + 0.5, y + 0.5)
                 if self.surface_depth is not None:
                     valid = np.flatnonzero(inside)

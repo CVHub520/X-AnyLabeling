@@ -27,6 +27,8 @@ def autosave_window(app, tmp_path):
         ),
     ):
         window = module.PointCloudDialog()
+    window.sidebar_tabs.setCurrentIndex(1)
+    window._default_class_path = lambda: tmp_path / "pointcloud_classes.json"
     window._errors = []
     window._error = window._errors.append
     window._confirm = Mock(return_value=True)
@@ -235,7 +237,9 @@ def test_class_only_autosave_uses_settings_directory_without_file_dialog(
     autosave_window, app
 ):
     window = autosave_window
-    window.classes.append(ClassDefinition(10, "Vehicle", "#6496F5"))
+    window.class_definitions["segmentation"].append(
+        ClassDefinition(10, "Vehicle", "#6496F5")
+    )
     target = (
         Path(window.settings.fileName()).parent / "pointcloud_classes.json"
     )
@@ -245,7 +249,7 @@ def test_class_only_autosave_uses_settings_directory_without_file_dialog(
         choose.assert_not_called()
     assert window.document is None
     assert window.config_path == target
-    assert load_classes(target) == window.classes
+    assert load_classes(target) == window.class_definitions
 
 
 def test_partial_autosave_keeps_failed_class_configuration_dirty(
@@ -254,7 +258,9 @@ def test_partial_autosave_keeps_failed_class_configuration_dirty(
     window = autosave_window
     source = _cloud(tmp_path / "scan.bin")
     open_cloud(window, app, source)
-    window.classes.append(ClassDefinition(10, "Vehicle", "#6496F5"))
+    window.class_definitions["segmentation"].append(
+        ClassDefinition(10, "Vehicle", "#6496F5")
+    )
     _edit(window)
     with patch.object(
         module, "save_classes", side_effect=OSError("read-only config")
@@ -406,8 +412,8 @@ def test_output_created_during_fallback_load_requires_overwrite_confirmation(
     external = np.array([70] * 4, dtype="<u4").tobytes()
     original = module.load_frame
 
-    def load_then_create(path, label_path):
-        frame = original(path, label_path)
+    def load_then_create(path, label_path, **kwargs):
+        frame = original(path, label_path, **kwargs)
         if path == second:
             target.write_bytes(external)
         return frame

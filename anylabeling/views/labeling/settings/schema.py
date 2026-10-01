@@ -46,6 +46,7 @@ def _settings_translation_markers() -> None:
     QCoreApplication.translate("SettingsDialog", "Canvas")
     QCoreApplication.translate("SettingsDialog", "AI")
     QCoreApplication.translate("SettingsDialog", "Dialog")
+    QCoreApplication.translate("SettingsDialog", "Open Point Cloud Workspace")
     QCoreApplication.translate("SettingsDialog", "File")
     QCoreApplication.translate("SettingsDialog", "View")
     QCoreApplication.translate("SettingsDialog", "Display Label Popup")
@@ -408,6 +409,9 @@ def set_nested_value(data: dict[str, Any], key_path: str, value: Any) -> None:
 
 def _shortcut_label(short_key: str) -> str:
     label_overrides = {
+        "open_pointcloud": QT_TRANSLATE_NOOP(
+            SETTINGS_TRANSLATION_CONTEXT, "Open Point Cloud Workspace"
+        ),
         "open_image_classifier": QT_TRANSLATE_NOOP(
             SETTINGS_TRANSLATION_CONTEXT, "Open Image Classifier Dialog"
         ),
@@ -1283,6 +1287,7 @@ def _shortcut_category_map() -> dict[str, tuple[str, ...]]:
             "open_vqa",
             "open_image_classifier",
             "open_video_classifier",
+            "open_pointcloud",
             "open_paddleocr",
             "show_overview",
             "show_navigator",

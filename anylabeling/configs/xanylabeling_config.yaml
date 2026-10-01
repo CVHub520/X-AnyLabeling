@@ -144,6 +144,7 @@ shortcuts:
   open_image_classifier: Ctrl+3
   open_paddleocr: Ctrl+4
   open_video_classifier: Ctrl+5
+  open_pointcloud: Ctrl+6
   quit: Ctrl+Q
   save: Ctrl+S
   save_as: Ctrl+Shift+S

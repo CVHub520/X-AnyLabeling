@@ -153,10 +153,12 @@ def test_native_workflow_benchmark(tmp_path):
     try:
         module.save_classes(
             tmp_path / "pointcloud_classes.json",
-            [
-                *module.DEFAULT_CLASSES,
-                module.ClassDefinition(10, "Vehicle", "#6496F5"),
-            ],
+            {
+                "segmentation": [
+                    *module.DEFAULT_CLASSES,
+                    module.ClassDefinition(10, "Vehicle", "#6496F5"),
+                ]
+            },
         )
         for count in (100_000, 1_000_000):
             rng = np.random.default_rng(20260906)

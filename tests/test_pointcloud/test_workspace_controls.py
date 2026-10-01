@@ -193,7 +193,7 @@ def test_file_toolbar_exports_labels_and_preserves_edit_shortcut_scope(
     window = controls_window
     toolbar = window.findChild(QtWidgets.QToolBar, "pointcloudFileTools")
     assert window.save_as_action in toolbar.actions()
-    assert window.output_directory_action in toolbar.actions()
+    assert window.create_task_action in toolbar.actions()
     assert window.save_as_action.shortcut().isEmpty()
     for action in (
         window.undo_action,
@@ -241,7 +241,7 @@ def test_file_toolbar_exports_labels_and_preserves_edit_shortcut_scope(
         "getExistingDirectory",
         return_value=str(output_directory),
     ):
-        window.output_directory_action.trigger()
+        window._change_output_directory()
     target = output_directory / "controls.label"
     assert window.label_directory == output_directory
     assert window.document.frame.label_path == target
@@ -269,7 +269,7 @@ def test_loading_blocks_file_actions_and_restores_edit_controls(
 
     assert not window.centralWidget().isEnabled()
     for action in (
-        window.output_directory_action,
+        window.create_task_action,
         window.save_as_action,
         window.undo_action,
         window.redo_action,
@@ -284,7 +284,7 @@ def test_loading_blocks_file_actions_and_restores_edit_controls(
         ) as choose_directory,
     ):
         window.save_as_action.trigger()
-        window.output_directory_action.trigger()
+        window.create_task_action.trigger()
         window.undo_action.trigger()
         save.assert_not_called()
         load.assert_not_called()
@@ -298,7 +298,7 @@ def test_loading_blocks_file_actions_and_restores_edit_controls(
 
     assert window.centralWidget().isEnabled()
     assert window.save_as_action.isEnabled()
-    assert window.output_directory_action.isEnabled()
+    assert window.create_task_action.isEnabled()
     assert window.undo_action.isEnabled()
     assert window.locate_action.isEnabled()
     assert not window.redo_action.isEnabled()
@@ -348,7 +348,7 @@ def test_instance_second_click_clears_target_and_restores_point_colors(
         for row in range(listing.count())
         if listing.item(row).data(QtCore.Qt.ItemDataRole.UserRole) == (30, 7)
     )
-    window.sidebar_tabs.widget(0).ensureWidgetVisible(listing)
+    window.sidebar_tabs.currentWidget().ensureWidgetVisible(listing)
     listing.scrollToItem(item)
     app.processEvents()
     position = listing.visualItemRect(item).center()
@@ -531,7 +531,7 @@ def test_file_checkboxes_and_review_dots_track_saved_labels(
         assert not item.flags() & QtCore.Qt.ItemFlag.ItemIsUserCheckable
         assert not item.data(QtCore.Qt.ItemDataRole.UserRole)
         image = item.icon().pixmap(24, 24).toImage()
-        assert image.pixelColor(12, 12).alpha() == 0
+        assert image.pixelColor(image.rect().center()).alpha() == 0
 
     window.show()
     app.processEvents()
@@ -553,7 +553,7 @@ def test_file_checkboxes_and_review_dots_track_saved_labels(
 
     assert labeled_item.data(QtCore.Qt.ItemDataRole.UserRole)
     image = labeled_item.icon().pixmap(24, 24).toImage()
-    assert image.pixelColor(12, 12).alpha() > 0
+    assert image.pixelColor(image.rect().center()).alpha() > 0
     assert "Reviewed" in labeled_item.toolTip()
     np.testing.assert_array_equal(window.document.labels, original)
     np.testing.assert_array_equal(
