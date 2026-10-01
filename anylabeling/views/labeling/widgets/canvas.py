@@ -379,7 +379,21 @@ class Canvas(
         """Set create mode for canvas"""
         if value not in Shape.get_supported_shape():
             raise ValueError(f"Unsupported create_mode: {value}")
+        changed = self._create_mode != value
         self._create_mode = value
+        if changed:
+            self.cancel_drawing()
+
+    def cancel_drawing(self):
+        """Discard the unfinished shape and its drawing preview."""
+        if self.current is None:
+            return
+        self.current = None
+        self.line.points = []
+        self._brush_drawing = False
+        self.set_hiding(False)
+        self.drawing_polygon.emit(False)
+        self.update()
 
     def store_shapes(self):
         """Store shapes for restoring later (Undo feature)"""
@@ -1529,6 +1543,8 @@ class Canvas(
     def set_editing(self, value=True):
         """Set editing mode. Editing is set to False, user is drawing"""
         self.mode = self.EDIT if value else self.CREATE
+        if value:
+            self.cancel_drawing()
         if not value:  # Create
             self.un_highlight()
             self.deselect_shape()
@@ -5231,10 +5247,7 @@ class Canvas(
             return
         if self.drawing():
             if key == QtCore.Qt.Key.Key_Escape and self.current:
-                self.current = None
-                self._brush_drawing = False
-                self.drawing_polygon.emit(False)
-                self.update()
+                self.cancel_drawing()
             elif key == QtCore.Qt.Key.Key_Backspace and self.current:
                 if self.create_mode in ["polygon", "linestrip"]:
                     if len(self.current.points) > 1:
