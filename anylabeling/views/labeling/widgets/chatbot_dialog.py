@@ -47,6 +47,7 @@ from anylabeling.app_info import __version__
 from anylabeling.config import get_work_directory
 from anylabeling.views.labeling.chatbot import *
 from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.schema import create_xlabel_template
 from anylabeling.views.labeling.utils.general import open_url
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 from anylabeling.views.labeling.utils.theme import get_theme
@@ -1710,8 +1711,8 @@ class ChatbotDialog(QDialog):
                 self.progress_timer.stop()
             self.finish_batch_processing()
 
-    def finish_batch_processing(self):
-        """Finish batch processing and save results"""
+    def finish_batch_processing(self) -> None:
+        """Finish batch processing and save results."""
         if hasattr(self, "progress_timer"):
             self.progress_timer.stop()
             self.progress_timer.deleteLater()
@@ -1741,7 +1742,14 @@ class ChatbotDialog(QDialog):
                     with open(label_file, "r", encoding="utf-8") as f:
                         data = json.load(f)
                 else:
-                    data = {}
+                    # Initialize missing label files with the standard schema.
+                    with Image.open(filename) as image:
+                        width, height = image.size
+                    data = create_xlabel_template(
+                        image_path=os.path.basename(filename),
+                        image_height=height,
+                        image_width=width,
+                    )
 
                 # Update chat history
                 data["chat_history"] = [
