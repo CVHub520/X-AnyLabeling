@@ -49,6 +49,7 @@ from anylabeling.views.labeling.chatbot import *
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.schema import create_xlabel_template
 from anylabeling.views.labeling.utils.general import open_url
+from anylabeling.views.labeling.utils.image import get_pil_img_dim
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 from anylabeling.views.labeling.utils.theme import get_theme
 from anylabeling.views.labeling.widgets.model_dropdown_widget import (
@@ -1743,8 +1744,7 @@ class ChatbotDialog(QDialog):
                         data = json.load(f)
                 else:
                     # Initialize missing label files with the standard schema.
-                    with Image.open(filename) as image:
-                        width, height = image.size
+                    width, height = get_pil_img_dim(filename)
                     data = create_xlabel_template(
                         image_path=os.path.basename(filename),
                         image_height=height,
