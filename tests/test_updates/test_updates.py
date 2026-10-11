@@ -518,3 +518,26 @@ def test_intel_macos_updates_do_not_select_apple_silicon_packages(signing):
     assert (
         protocol.select_artifact(envelope, {**info, "arch": "arm64"}) is None
     )
+
+
+@pytest.mark.skipif(
+    sys.platform == "win32", reason="Requires symlink privileges"
+)
+def test_archive_allows_internal_links_under_an_aliased_destination(tmp_path):
+    actual = tmp_path / "actual"
+    actual.mkdir()
+    alias = tmp_path / "alias"
+    alias.symlink_to(actual, target_is_directory=True)
+    archive_path = tmp_path / "update.zip"
+    with zipfile.ZipFile(archive_path, "w") as archive:
+        archive.writestr(
+            "X-AnyLabeling.app/Contents/MacOS/X-AnyLabeling", "app"
+        )
+        link = zipfile.ZipInfo("X-AnyLabeling.app/Contents/MacOS/current")
+        link.external_attr = (stat.S_IFLNK | 0o777) << 16
+        archive.writestr(link, "X-AnyLabeling")
+    root = installer.extract_update(
+        archive_path, alias / "stage", "X-AnyLabeling.app"
+    )
+    assert root == actual / "stage/X-AnyLabeling.app"
+    assert (root / "Contents/MacOS/current").read_text() == "app"

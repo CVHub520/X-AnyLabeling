@@ -32,7 +32,7 @@ def write_json(path, value):
 
 
 def extract_update(archive, destination, root_name):
-    destination = Path(destination)
+    destination = Path(destination).resolve()
     links = []
     seen = set()
     with zipfile.ZipFile(archive) as package:
