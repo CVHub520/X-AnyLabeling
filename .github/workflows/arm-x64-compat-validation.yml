@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: arm-x64-compat-validation-${{ github.ref }}
@@ -74,9 +75,22 @@ jobs:
           with open(os.environ['GITHUB_ENV'], 'a') as stream:
               stream.write(f'X_ANYLABELING_UPDATE_PUBLIC_KEY={public}\n')
           PY
-      - name: Build native installation and update packages
-        shell: bash
-        run: bash scripts/build_executable.sh '${{ matrix.target }}'
+      - name: Reuse the verified x64 bundle for update and cleanup validation
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 38116389739 --repo $env:GITHUB_REPOSITORY --name native-validation-windows-arm-x64-compat --dir "$env:RUNNER_TEMP/reused-build"
+          if ($LASTEXITCODE) { throw 'Artifact download failed' }
+          $archive = Get-ChildItem "$env:RUNNER_TEMP/reused-build/dist/*-Update.zip" | Select-Object -First 1
+          python -m zipfile -e $archive.FullName dist
+          if ($LASTEXITCODE) { throw 'Bundle restoration failed' }
+          Copy-Item "$env:RUNNER_TEMP/reused-build/dist/*-Setup.exe" dist/
+          Copy-Item dist/X-AnyLabeling/xanylabeling-updater.exe "$env:RUNNER_TEMP/xanylabeling-updater.exe"
+          python scripts/package_updates.py prepare --bundle dist/X-AnyLabeling --variant CPU --helper "$env:RUNNER_TEMP/xanylabeling-updater.exe"
+          if ($LASTEXITCODE) { throw 'Bundle preparation failed' }
+          python scripts/package_updates.py package --bundle dist/X-AnyLabeling --output dist
+          if ($LASTEXITCODE) { throw 'Update archive packaging failed' }
       - name: Verify macOS bundle and DMG
         if: runner.os == 'macOS'
         shell: bash
