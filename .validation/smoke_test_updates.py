@@ -53,16 +53,10 @@ def interactive_update(root, directory, version):
     executable = root / (
         "Contents/MacOS/X-AnyLabeling"
         if sys.platform == "darwin"
-        else (
-            "X-AnyLabeling.exe" if sys.platform == "win32" else "X-AnyLabeling"
-        )
+        else ("X-AnyLabeling.exe" if sys.platform == "win32" else "X-AnyLabeling")
     )
     cache = (
-        Path(
-            env["LOCALAPPDATA"]
-            if sys.platform == "win32"
-            else env["XDG_CACHE_HOME"]
-        )
+        Path(env["LOCALAPPDATA"] if sys.platform == "win32" else env["XDG_CACHE_HOME"])
         / "X-AnyLabeling/updates"
     )
     with (directory / "gui.log").open("w") as log:
@@ -94,9 +88,7 @@ def interactive_update(root, directory, version):
                     )
                     return
             time.sleep(0.1)
-        raise TimeoutError(
-            "No successful interactive update within ten minutes."
-        )
+        raise TimeoutError("No successful interactive update within ten minutes.")
 
 
 def certificate(directory):
@@ -117,9 +109,7 @@ def certificate(directory):
             ),
             critical=False,
         )
-        .add_extension(
-            x509.BasicConstraints(ca=True, path_length=None), critical=True
-        )
+        .add_extension(x509.BasicConstraints(ca=True, path_length=None), critical=True)
         .sign(key, hashes.SHA256())
     )
     cert_path = directory / "tls.pem"
@@ -158,9 +148,7 @@ def main():
     )
 
     if sys.platform not in ("linux", "win32", "darwin"):
-        parser.error(
-            "This isolated GUI smoke test requires Linux, Windows, or macOS."
-        )
+        parser.error("This isolated GUI smoke test requires Linux, Windows, or macOS.")
     info = read_build_info(args.bundle)
     key = ed25519.Ed25519PrivateKey.from_private_bytes(
         base64.b64decode(args.signing_key.read_bytes(), validate=True)
@@ -171,17 +159,11 @@ def main():
         )
     ).decode()
     if public != info["public_key"]:
-        raise ValueError(
-            "The signing key does not match the built application."
-        )
-    with tempfile.TemporaryDirectory(
-        prefix="xanylabeling-update-smoke-"
-    ) as temporary:
+        raise ValueError("The signing key does not match the built application.")
+    with tempfile.TemporaryDirectory(prefix="xanylabeling-update-smoke-") as temporary:
         directory = Path(temporary)
         root = directory / (
-            "installed app.app"
-            if sys.platform == "darwin"
-            else "installed app"
+            "installed app.app" if sys.platform == "darwin" else "installed app"
         )
         shutil.copytree(args.bundle, root, symlinks=True)
         server = http.server.ThreadingHTTPServer(
@@ -222,9 +204,7 @@ def main():
         }
         envelope = {
             "payload": payload,
-            "signature": base64.b64encode(
-                key.sign(canonical_json(payload))
-            ).decode(),
+            "signature": base64.b64encode(key.sign(canonical_json(payload))).decode(),
         }
         (directory / "manifest.json").write_text(json.dumps(envelope))
         old_info = {
@@ -322,10 +302,7 @@ def main():
                     json.dumps(details, indent=2)
                 )
                 raise RuntimeError(json.dumps(details, indent=2))
-            assert (
-                json.loads(Path(plan["result"]).read_text())["status"]
-                == "success"
-            )
+            assert json.loads(Path(plan["result"]).read_text())["status"] == "success"
             assert read_build_info(root)["version"] == info["version"]
             assert Path(plan["ready"]).read_text() == token
             assert Path(plan["helper_ready"]).read_text() == token
@@ -338,16 +315,14 @@ def main():
         finally:
             for process in psutil.process_iter(["exe"]):
                 try:
-                    if process.info["exe"] and Path(
-                        process.info["exe"]
-                    ).is_relative_to(directory):
+                    if process.info["exe"] and Path(process.info["exe"]).is_relative_to(
+                        directory
+                    ):
                         children = process.children(recursive=True)
                         process.terminate()
                         for child in children:
                             child.terminate()
-                        _, alive = psutil.wait_procs(
-                            [process, *children], timeout=5
-                        )
+                        _, alive = psutil.wait_procs([process, *children], timeout=5)
                         for child in alive:
                             child.kill()
                 except (psutil.NoSuchProcess, psutil.AccessDenied):

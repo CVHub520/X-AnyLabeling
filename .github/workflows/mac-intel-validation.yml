@@ -113,6 +113,12 @@ jobs:
           python scripts/package_updates.py prepare --bundle dist/X-AnyLabeling.app --variant CPU --helper "${RUNNER_TEMP}/updater-dist/xanylabeling-updater"
           codesign --force --deep --sign - dist/X-AnyLabeling.app
           python scripts/package_updates.py package --bundle dist/X-AnyLabeling.app --output dist
+          stage=$(mktemp -d)
+          ditto dist/X-AnyLabeling.app "${stage}/X-AnyLabeling.app"
+          ln -s /Applications "${stage}/Applications"
+          dmg=$(find dist -maxdepth 1 -name '*-unsigned.dmg' -print -quit)
+          hdiutil create -ov -volname X-AnyLabeling -srcfolder "${stage}" -format UDZO "${dmg}"
+          rm -rf "${stage}"
       - name: Verify macOS bundle and DMG
         if: runner.os == 'macOS'
         shell: bash
