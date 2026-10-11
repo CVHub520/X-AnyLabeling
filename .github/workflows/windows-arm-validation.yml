@@ -23,7 +23,6 @@ jobs:
           - name: Windows ARM64
             os: windows-11-arm
             arch: arm64
-          vsversion: '2022'
             python_arch: arm64
             target: win-cpu-installer
             artifact: windows-arm64
@@ -48,6 +47,7 @@ jobs:
         if: runner.os == 'Windows'
         with:
           arch: arm64
+          vsversion: '2022'
       - uses: actions/cache@v5
         if: runner.os == 'Windows'
         id: native-wheels
