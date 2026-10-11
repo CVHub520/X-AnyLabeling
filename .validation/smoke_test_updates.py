@@ -305,7 +305,23 @@ def main():
                     timeout=180,
                 )
             if process.returncode != 0:
-                raise RuntimeError((directory / "updater.log").read_text())
+                result_path = Path(plan["result"])
+                details = {
+                    "exit_code": process.returncode,
+                    "helper_ready": Path(plan["helper_ready"]).exists(),
+                    "result": (
+                        json.loads(result_path.read_text())
+                        if result_path.exists()
+                        else None
+                    ),
+                    "log": (directory / "updater.log").read_text(),
+                }
+                output = args.repo / ".validation-output"
+                output.mkdir(exist_ok=True)
+                (output / "update-failure.json").write_text(
+                    json.dumps(details, indent=2)
+                )
+                raise RuntimeError(json.dumps(details, indent=2))
             assert (
                 json.loads(Path(plan["result"]).read_text())["status"]
                 == "success"

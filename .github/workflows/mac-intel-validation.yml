@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: mac-native-validation-${{ github.ref }}
@@ -98,9 +99,19 @@ jobs:
           with open(os.environ['GITHUB_ENV'], 'a') as stream:
               stream.write(f'X_ANYLABELING_UPDATE_PUBLIC_KEY={public}\n')
           PY
-      - name: Build native installation and update packages
+      - name: Reuse the compiled native bundle for updater diagnostics
         shell: bash
-        run: bash scripts/build_executable.sh '${{ matrix.target }}'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 38115380674 --repo "${GITHUB_REPOSITORY}" --name native-validation-macos-intel --dir "${RUNNER_TEMP}/reused-build"
+          mkdir -p dist
+          ditto -x -k "${RUNNER_TEMP}"/reused-build/dist/*-Update.zip dist
+          cp "${RUNNER_TEMP}"/reused-build/dist/*-unsigned.dmg dist/
+          cp dist/X-AnyLabeling.app/Contents/Helpers/xanylabeling-updater "${RUNNER_TEMP}/xanylabeling-updater"
+          python scripts/package_updates.py prepare --bundle dist/X-AnyLabeling.app --variant CPU --helper "${RUNNER_TEMP}/xanylabeling-updater"
+          codesign --force --deep --sign - dist/X-AnyLabeling.app
+          python scripts/package_updates.py package --bundle dist/X-AnyLabeling.app --output dist
       - name: Verify macOS bundle and DMG
         if: runner.os == 'macOS'
         shell: bash
