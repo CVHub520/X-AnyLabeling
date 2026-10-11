@@ -1,15 +1,15 @@
-name: macOS Intel native validation
+name: Windows ARM x64 compatibility validation
 
 on:
   push:
-    branches: ['codex/mac-native-validation-*']
+    branches: ['codex/arm-x64-compat-validation-*']
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: mac-native-validation-${{ github.ref }}
+  group: arm-x64-compat-validation-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -20,12 +20,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: macOS Intel
-            os: macos-15-intel
-            arch: x86_64
+          - name: Windows ARM with x64 Python
+            os: windows-11-arm
+            arch: amd64
             python_arch: x64
-            target: macos-installer
-            artifact: macos-intel
+            target: win-cpu-installer
+            artifact: windows-arm-x64-compat
     runs-on: ${{ matrix.os }}
     env:
       QT_QPA_PLATFORM: offscreen
@@ -42,37 +42,10 @@ jobs:
         env:
           EXPECTED_ARCH: ${{ matrix.arch }}
         run: |
-          python -c 'import os, platform, sysconfig; print(platform.machine(), sysconfig.get_platform()); actual = sysconfig.get_platform().removeprefix("win-") if platform.system() == "Windows" else platform.machine(); assert actual.lower() == os.environ["EXPECTED_ARCH"]'
-      - uses: ilammy/msvc-dev-cmd@v1
-        if: runner.os == 'Windows'
-        with:
-          arch: arm64
-      - uses: actions/cache@v5
-        if: runner.os == 'Windows'
-        id: native-wheels
-        with:
-          path: ${{ runner.temp }}/native-wheels
-          key: windows-arm64-py312-opencv-4.12.0.88-pyclipper-1.4.0-v1
-      - name: Compile missing Windows ARM dependencies
-        if: runner.os == 'Windows' && steps.native-wheels.outputs.cache-hit != 'true'
-        shell: pwsh
-        env:
-          ENABLE_CONTRIB: '1'
-          ENABLE_HEADLESS: '1'
-          CMAKE_GENERATOR: Ninja
-          CMAKE_BUILD_PARALLEL_LEVEL: '2'
-          CMAKE_ARGS: '-DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_EXAMPLES=OFF -DWITH_FFMPEG=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5'
-        run: |
-          New-Item -ItemType Directory -Force "$env:RUNNER_TEMP/native-wheels" | Out-Null
-          python -m pip wheel --no-binary=opencv-contrib-python-headless,pyclipper --no-deps --wheel-dir "$env:RUNNER_TEMP/native-wheels" opencv-contrib-python-headless==4.12.0.88 pyclipper==1.4.0
-          if ($LASTEXITCODE) { throw 'Native dependency compilation failed' }
-      - name: Install native Windows wheels and Inno Setup
-        if: runner.os == 'Windows'
+          python -c 'import os, platform, sysconfig; print(platform.machine(), sysconfig.get_platform()); actual = sysconfig.get_platform().removeprefix("win-") if platform.system() == "Windows" else platform.machine(); assert actual.lower() == os.environ["EXPECTED_ARCH"]; assert platform.machine().lower() == "arm64"'
+      - name: Install Inno Setup
         shell: pwsh
         run: |
-          $wheels = Get-ChildItem "$env:RUNNER_TEMP/native-wheels/*.whl" | Select-Object -ExpandProperty FullName
-          python -m pip install $wheels
-          if ($LASTEXITCODE) { throw 'Native wheel installation failed' }
           choco install innosetup --version=6.4.3 --yes --no-progress
           if ($LASTEXITCODE) { throw 'Inno Setup installation failed' }
       - name: Install CPU application and development dependencies
