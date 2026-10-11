@@ -299,8 +299,8 @@ def main():
         finally:
             for process in psutil.process_iter(["exe"]):
                 try:
-                    if process.info["exe"] and Path(process.info["exe"]).is_relative_to(
-                        directory
+                    if process.info["exe"] and Path(process.info["exe"]).resolve().is_relative_to(
+                        directory.resolve()
                     ):
                         children = process.children(recursive=True)
                         process.terminate()
@@ -309,6 +309,7 @@ def main():
                         _, alive = psutil.wait_procs([process, *children], timeout=5)
                         for child in alive:
                             child.kill()
+                        psutil.wait_procs(alive, timeout=5)
                 except (psutil.NoSuchProcess, psutil.AccessDenied):
                     pass
             server.shutdown()
