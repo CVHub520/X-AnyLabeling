@@ -1,0 +1,486 @@
+import argparse
+import json
+import os
+import shutil
+import stat
+import subprocess
+import sys
+import tempfile
+import time
+import uuid
+import zipfile
+from pathlib import Path, PurePosixPath
+
+import psutil
+
+from protocol import (
+    child_environment,
+    file_digest,
+    read_build_info,
+    select_artifact,
+)
+
+
+def write_json(path, value):
+    path = Path(path)
+    temporary = path.with_suffix(".tmp")
+    with temporary.open("w", encoding="utf-8") as stream:
+        json.dump(value, stream)
+        stream.flush()
+        os.fsync(stream.fileno())
+    temporary.replace(path)
+
+
+def extract_update(archive, destination, root_name):
+    destination = Path(destination)
+    links = []
+    seen = set()
+    with zipfile.ZipFile(archive) as package:
+        for member in package.infolist():
+            path = PurePosixPath(member.orig_filename)
+            if (
+                not path.parts
+                or path.is_absolute()
+                or ".." in path.parts
+                or "\\" in member.orig_filename
+                or ":" in member.orig_filename
+                or path.parts[0] != root_name
+                or path in seen
+            ):
+                raise ValueError("The update archive contains an unsafe path.")
+            seen.add(path)
+            target = destination.joinpath(*path.parts)
+            mode = member.external_attr >> 16
+            if stat.S_ISLNK(mode):
+                link = package.read(member).decode("utf-8")
+                resolved = (target.parent / link).resolve()
+                if Path(link).is_absolute() or not resolved.is_relative_to(
+                    destination / root_name
+                ):
+                    raise ValueError(
+                        "The update archive contains an unsafe symbolic link."
+                    )
+                links.append((target, link))
+            elif member.is_dir():
+                target.mkdir(parents=True, exist_ok=True)
+            elif mode and stat.S_IFMT(mode) not in (0, stat.S_IFREG):
+                raise ValueError("The update archive contains a special file.")
+            else:
+                target.parent.mkdir(parents=True, exist_ok=True)
+                with (
+                    package.open(member) as source,
+                    target.open("xb") as output,
+                ):
+                    shutil.copyfileobj(source, output, 1024 * 1024)
+                target.chmod((mode & 0o777) or 0o644)
+    for target, link in links:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if target.exists() or target.is_symlink():
+            raise ValueError(
+                "An update symbolic link overlaps another archive entry."
+            )
+        target.symlink_to(link)
+    for target, _ in links:
+        if not target.resolve().is_relative_to(destination / root_name):
+            raise ValueError(
+                "An update symbolic link escapes the application directory."
+            )
+    return destination / root_name
+
+
+def executable_in(root, system):
+    root = Path(root)
+    if system == "Darwin":
+        return root / "Contents/MacOS/X-AnyLabeling"
+    return root / (
+        "X-AnyLabeling.exe" if system == "Windows" else "X-AnyLabeling"
+    )
+
+
+def wait_for_exit(pid, root, timeout=120):
+    if pid > 0:
+        try:
+            psutil.Process(pid).wait(timeout=timeout)
+        except psutil.NoSuchProcess:
+            pass
+    deadline = time.monotonic() + timeout
+    root = Path(root).resolve()
+    while time.monotonic() < deadline:
+        running = False
+        for process in psutil.process_iter(["pid", "exe"]):
+            if process.pid == os.getpid():
+                continue
+            try:
+                if process.info["exe"] and Path(
+                    process.info["exe"]
+                ).resolve().is_relative_to(root):
+                    running = True
+                    break
+            except (psutil.AccessDenied, psutil.NoSuchProcess, OSError):
+                continue
+        if not running:
+            return
+        time.sleep(0.2)
+    raise TimeoutError("Close other X-AnyLabeling instances before updating.")
+
+
+def launch(
+    root,
+    system,
+    arguments,
+    ready_file=None,
+    token=None,
+    working_directory=None,
+):
+    env = child_environment()
+    if ready_file:
+        env["X_ANYLABELING_UPDATE_READY_FILE"] = str(ready_file)
+        env["X_ANYLABELING_UPDATE_TOKEN"] = token
+    directory = Path(working_directory) if working_directory else Path.home()
+    options = {
+        "env": env,
+        "cwd": str(directory if directory.is_dir() else Path.home()),
+    }
+    if sys.platform == "win32":
+        import ctypes
+
+        ctypes.windll.kernel32.SetDllDirectoryW(None)
+        options["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+    else:
+        options["start_new_session"] = True
+    return subprocess.Popen(
+        [str(executable_in(root, system)), *arguments], **options
+    )
+
+
+def wait_for_ready(process, ready_file, token, timeout=120):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if Path(ready_file).exists() and Path(ready_file).read_text() == token:
+            return
+        if process.poll() is not None:
+            raise RuntimeError(
+                "The new application exited before startup completed."
+            )
+        time.sleep(0.2)
+    raise TimeoutError(
+        "The new application did not confirm a successful startup."
+    )
+
+
+def stop_application(process):
+    if process is None or process.poll() is not None:
+        return
+    children = []
+    try:
+        children = psutil.Process(process.pid).children(recursive=True)
+    except psutil.NoSuchProcess:
+        pass
+    process.terminate()
+    for child in children:
+        try:
+            child.terminate()
+        except psutil.NoSuchProcess:
+            pass
+    try:
+        process.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait(timeout=10)
+    _, alive = psutil.wait_procs(children, timeout=10)
+    for child in alive:
+        child.kill()
+    psutil.wait_procs(alive, timeout=10)
+
+
+class Replacement:
+    def __init__(self, target, staged, token):
+        self.target = Path(target)
+        self.staged = Path(staged)
+        self.backup = self.target.with_name(
+            f".{self.target.name}-backup-{token}"
+        )
+        self.previous_link = None
+        self.moved_old = False
+        self.switched = False
+
+    def apply(self):
+        if self.target.is_symlink():
+            self.previous_link = os.readlink(self.target)
+            versions = self.target.parent / "versions"
+            versions.mkdir(exist_ok=True)
+            final = versions / self.staged.parent.name
+            self.staged.rename(final)
+            temporary = self.target.with_name(f".current-{uuid.uuid4().hex}")
+            temporary.symlink_to(final)
+            temporary.replace(self.target)
+            self.switched = True
+            return
+        managed = set(read_build_info(self.target)["managed_paths"])
+        for item in self.target.iterdir():
+            if (
+                item.name not in managed
+                and not (self.staged / item.name).exists()
+            ):
+                if item.is_dir() and not item.is_symlink():
+                    shutil.copytree(
+                        item, self.staged / item.name, symlinks=True
+                    )
+                elif item.is_symlink():
+                    (self.staged / item.name).symlink_to(os.readlink(item))
+                else:
+                    shutil.copy2(item, self.staged / item.name)
+        deadline = time.monotonic() + 10
+        while True:
+            try:
+                self.target.rename(self.backup)
+                break
+            except PermissionError:
+                if time.monotonic() >= deadline:
+                    raise
+                time.sleep(0.2)
+        self.moved_old = True
+        self.staged.rename(self.target)
+        self.switched = True
+
+    def rollback(self):
+        if self.previous_link is not None and self.switched:
+            temporary = self.target.with_name(f".rollback-{uuid.uuid4().hex}")
+            temporary.symlink_to(self.previous_link)
+            temporary.replace(self.target)
+        elif self.moved_old:
+            if self.switched:
+                failed = self.target.with_name(
+                    f".{self.target.name}-failed-{uuid.uuid4().hex}"
+                )
+                self.target.rename(failed)
+            self.backup.rename(self.target)
+
+    def finish(self):
+        if self.backup.exists():
+            shutil.rmtree(self.backup)
+
+
+def recover_interrupted(result_path):
+    journal = json.loads(Path(result_path).read_text())
+    if journal.get("status") != "installing":
+        raise ValueError("There is no interrupted installation to recover.")
+    target = Path(journal["target"])
+    wait_for_exit(0, target)
+    previous = journal.get("previous_link")
+    if previous:
+        old = Path(previous).resolve()
+        if not old.is_relative_to(target.parent / "versions"):
+            raise ValueError(
+                "The previous installation is outside the version directory."
+            )
+        read_build_info(old)
+        temporary = target.with_name(f".recover-{uuid.uuid4().hex}")
+        temporary.symlink_to(previous)
+        temporary.replace(target)
+    else:
+        backup = Path(journal["backup"])
+        if (
+            backup.parent != target.parent
+            or not backup.name.startswith(f".{target.name}-backup-")
+            or backup.is_symlink()
+        ):
+            raise ValueError("The recovery backup path is invalid.")
+        read_build_info(backup)
+        if target.exists():
+            target.rename(
+                target.with_name(
+                    f".{target.name}-interrupted-{uuid.uuid4().hex}"
+                )
+            )
+        backup.rename(target)
+    write_json(
+        result_path,
+        {
+            "status": "failed",
+            "error": "An interrupted update was recovered. The previous version is restored.",
+        },
+    )
+
+
+def update_windows_version(info):
+    if sys.platform != "win32":
+        return
+    import winreg
+
+    path = f"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\X-AnyLabeling-{info['variant']}_is1"
+    try:
+        with winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER, path, 0, winreg.KEY_SET_VALUE
+        ) as key:
+            winreg.SetValueEx(
+                key, "DisplayVersion", 0, winreg.REG_SZ, info["version"]
+            )
+    except OSError:
+        pass
+
+
+def run_update(plan):
+    root = Path(plan["root"])
+    target = Path(plan["target"])
+    info = read_build_info(root)
+    artifact = select_artifact(plan["manifest"], info)
+    if artifact is None:
+        raise ValueError(
+            "The update is no longer newer than the installed version."
+        )
+    archive = Path(plan["archive"])
+    if (
+        archive.stat().st_size != artifact["size"]
+        or file_digest(archive) != artifact["sha256"]
+    ):
+        raise ValueError("The downloaded update changed after verification.")
+    if target.resolve() != root.resolve():
+        raise ValueError("The installed application changed before updating.")
+    wait_for_exit(plan["pid"], root)
+    lock_path = target.parent / f".{target.name}-update.lock"
+    if lock_path.exists():
+        owner = int(lock_path.read_text())
+        if psutil.pid_exists(owner):
+            raise RuntimeError("Another update is already in progress.")
+        lock_path.unlink()
+    with lock_path.open("x") as lock:
+        lock.write(str(os.getpid()))
+    transaction = None
+    process = None
+    try:
+        with tempfile.TemporaryDirectory(
+            prefix=f".update-{artifact['version']}-", dir=target.parent
+        ) as stage:
+            staged = extract_update(archive, stage, artifact["root"])
+            new_info = read_build_info(staged)
+            for key in ("platform", "arch", "variant", "public_key"):
+                if new_info[key] != info[key]:
+                    raise ValueError(
+                        f"The update does not match the installed {key}."
+                    )
+            if new_info["version"] != artifact["version"]:
+                raise ValueError(
+                    "The update version does not match its signed manifest."
+                )
+            if not executable_in(staged, info["platform"]).is_file():
+                raise ValueError(
+                    "The update does not contain an application executable."
+                )
+            transaction = Replacement(target, staged, plan["token"])
+            journal = {
+                "target": str(target),
+                "backup": str(transaction.backup),
+                "previous_link": (
+                    os.readlink(target) if target.is_symlink() else None
+                ),
+                "version": artifact["version"],
+                "status": "installing",
+            }
+            write_json(plan["result"], journal)
+            transaction.apply()
+            process = launch(
+                target,
+                info["platform"],
+                plan["arguments"],
+                plan["ready"],
+                plan["token"],
+                working_directory=plan.get("cwd"),
+            )
+            wait_for_ready(process, plan["ready"], plan["token"])
+            write_json(
+                plan["result"],
+                {
+                    **journal,
+                    "status": "success",
+                    "directory": str(archive.parent),
+                },
+            )
+            update_windows_version(new_info)
+            try:
+                transaction.finish()
+            except OSError:
+                pass
+            try:
+                archive.unlink(missing_ok=True)
+            except OSError:
+                pass
+    except Exception as error:
+        stop_application(process)
+        if transaction is not None:
+            transaction.rollback()
+        write_json(
+            plan["result"],
+            {
+                "status": "failed",
+                "error": str(error),
+                "version": artifact["version"],
+                "restarted": True,
+            },
+        )
+        launch(
+            target,
+            info["platform"],
+            plan["arguments"],
+            working_directory=plan.get("cwd"),
+        )
+        raise
+    finally:
+        lock_path.unlink(missing_ok=True)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("plan", type=Path, nargs="?")
+    parser.add_argument("--recover", type=Path)
+    args = parser.parse_args()
+    if args.recover:
+        recover_interrupted(args.recover)
+        return
+    if args.plan is None:
+        parser.error("Specify an update plan or --recover.")
+    plan = json.loads(args.plan.read_text())
+    if plan.get("helper_ready"):
+        ready = Path(plan["helper_ready"])
+        temporary = ready.with_suffix(".tmp")
+        temporary.write_text(plan["token"])
+        temporary.replace(ready)
+    try:
+        parent = psutil.Process(plan["pid"]) if plan["pid"] > 0 else None
+    except psutil.NoSuchProcess:
+        parent = None
+    while not Path(plan["armed"]).exists():
+        if (
+            Path(plan["cancelled"]).exists()
+            or parent is None
+            or not parent.is_running()
+        ):
+            return
+        time.sleep(0.1)
+    try:
+        run_update(plan)
+    except Exception as error:
+        result = Path(plan["result"])
+        previous = json.loads(result.read_text()) if result.exists() else {}
+        if previous.get("status") == "installing":
+            write_json(result, {**previous, "error": str(error)})
+            sys.exit(1)
+        if previous.get("status") != "failed" or not previous.get("restarted"):
+            write_json(
+                result, {**previous, "status": "failed", "error": str(error)}
+            )
+            target = Path(plan["target"])
+            if executable_in(
+                target, read_build_info(target)["platform"]
+            ).is_file():
+                launch(
+                    target,
+                    read_build_info(target)["platform"],
+                    plan["arguments"],
+                    working_directory=plan.get("cwd"),
+                )
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,155 @@
+name: Native update validation
+
+on:
+  push:
+    branches: ['codex/native-update-validation-*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native:
+    name: ${{ matrix.name }}
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS Intel
+            os: macos-15-intel
+            arch: x86_64
+            python_arch: x64
+            target: macos-installer
+            artifact: macos-intel
+          - name: Windows ARM64
+            os: windows-11-arm
+            arch: arm64
+            python_arch: arm64
+            target: win-cpu-installer
+            artifact: windows-arm64
+    runs-on: ${{ matrix.os }}
+    env:
+      QT_QPA_PLATFORM: offscreen
+      X_ANYLABELING_VARIANT: CPU
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          architecture: ${{ matrix.python_arch }}
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
+      - name: Verify native interpreter
+        shell: bash
+        env:
+          EXPECTED_ARCH: ${{ matrix.arch }}
+        run: |
+          python -c 'import os, platform, sysconfig; print(platform.machine(), sysconfig.get_platform()); actual = sysconfig.get_platform().removeprefix("win-") if platform.system() == "Windows" else platform.machine(); assert actual.lower() == os.environ["EXPECTED_ARCH"]'
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+        with:
+          arch: arm64
+      - uses: actions/cache@v5
+        if: runner.os == 'Windows'
+        id: native-wheels
+        with:
+          path: ${{ runner.temp }}/native-wheels
+          key: windows-arm64-py312-opencv-4.13.0.92-pyclipper-1.4.0-v1
+      - name: Compile missing Windows ARM dependencies
+        if: runner.os == 'Windows' && steps.native-wheels.outputs.cache-hit != 'true'
+        shell: pwsh
+        env:
+          ENABLE_CONTRIB: '1'
+          ENABLE_HEADLESS: '1'
+          CMAKE_GENERATOR: Ninja
+          CMAKE_BUILD_PARALLEL_LEVEL: '2'
+          CMAKE_ARGS: '-DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_EXAMPLES=OFF -DWITH_FFMPEG=OFF'
+        run: |
+          New-Item -ItemType Directory -Force "$env:RUNNER_TEMP/native-wheels" | Out-Null
+          python -m pip wheel --no-binary=opencv-contrib-python-headless,pyclipper --no-deps --wheel-dir "$env:RUNNER_TEMP/native-wheels" opencv-contrib-python-headless==4.13.0.92 pyclipper==1.4.0
+          if ($LASTEXITCODE) { throw 'Native dependency compilation failed' }
+      - name: Install native Windows wheels and Inno Setup
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $wheels = Get-ChildItem "$env:RUNNER_TEMP/native-wheels/*.whl" | Select-Object -ExpandProperty FullName
+          python -m pip install $wheels
+          if ($LASTEXITCODE) { throw 'Native wheel installation failed' }
+          choco install innosetup --version=6.4.3 --yes --no-progress
+          if ($LASTEXITCODE) { throw 'Inno Setup installation failed' }
+      - name: Install CPU application and development dependencies
+        shell: bash
+        run: uv pip install --system -e '.[cpu,dev]'
+      - name: Validate native dependencies and rendering
+        shell: bash
+        run: python .validation/native_checks.py
+      - name: Run update regression and rollback tests
+        shell: bash
+        run: python -m pytest -q tests/test_updates
+      - name: Prepare ephemeral validation key
+        shell: bash
+        run: |
+          python scripts/generate_update_key.py --output "${RUNNER_TEMP}/signing.key"
+          python - <<'PY'
+          import base64, os
+          from pathlib import Path
+          from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+          from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
+          key = Ed25519PrivateKey.from_private_bytes(base64.b64decode((Path(os.environ['RUNNER_TEMP']) / 'signing.key').read_bytes()))
+          public = base64.b64encode(key.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)).decode()
+          with open(os.environ['GITHUB_ENV'], 'a') as stream:
+              stream.write(f'X_ANYLABELING_UPDATE_PUBLIC_KEY={public}\n')
+          PY
+      - name: Build native installation and update packages
+        shell: bash
+        run: bash scripts/build_executable.sh '${{ matrix.target }}'
+      - name: Verify macOS bundle and DMG
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          codesign --verify --deep --strict dist/X-AnyLabeling.app
+          mkdir -p "${RUNNER_TEMP}/dmg-volume"
+          hdiutil attach -nobrowse -readonly -mountpoint "${RUNNER_TEMP}/dmg-volume" dist/*-unsigned.dmg
+          trap 'hdiutil detach "${RUNNER_TEMP}/dmg-volume"' EXIT
+          test -x "${RUNNER_TEMP}/dmg-volume/X-AnyLabeling.app/Contents/MacOS/X-AnyLabeling"
+          "${RUNNER_TEMP}/dmg-volume/X-AnyLabeling.app/Contents/MacOS/X-AnyLabeling" version
+      - name: Verify Windows install and uninstall
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem dist/*-Setup.exe | Select-Object -First 1
+          $destination = Join-Path $env:RUNNER_TEMP 'native install space'
+          $process = Start-Process $setup.FullName -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=`"$destination`"", '/TASKS=') -Wait -PassThru
+          if ($process.ExitCode) { throw "Installation failed: $($process.ExitCode)" }
+          if (-not (Test-Path "$destination/X-AnyLabeling.exe")) { throw 'Installed application missing' }
+          $process = Start-Process "$destination/X-AnyLabeling.exe" -ArgumentList 'version' -Wait -PassThru
+          if ($process.ExitCode) { throw 'Installed application could not start' }
+          $process = Start-Process "$destination/unins000.exe" -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART') -Wait -PassThru
+          if ($process.ExitCode) { throw 'Uninstall failed' }
+          if (Test-Path "$destination/X-AnyLabeling.exe") { throw 'Uninstall left the application executable' }
+      - name: Validate signed HTTPS update and real GUI restart
+        shell: bash
+        env:
+          BUILD_PLATFORM: ${{ runner.os }}
+        run: |
+          bundle=dist/X-AnyLabeling
+          if [ "${BUILD_PLATFORM}" = macOS ]; then bundle=dist/X-AnyLabeling.app; fi
+          python .validation/smoke_test_updates.py --repo . --bundle "${bundle}" --archive dist/*-Update.zip --signing-key "${RUNNER_TEMP}/signing.key"
+      - name: Preserve test reports and packages
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: native-validation-${{ matrix.artifact }}
+          path: |
+            .validation-output/
+            dist/*-Setup.exe
+            dist/*-unsigned.dmg
+            dist/*-Update.zip
+            dist/*-Update.zip.sha256
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 0

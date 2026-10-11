@@ -300,6 +300,10 @@ def main():
     from anylabeling.views.labeling.utils.update_checker import (
         check_for_updates_async,
     )
+    from anylabeling.views.labeling.utils.update_controller import (
+        UpdateController,
+        acknowledge_update,
+    )
 
     # NOTE: Do not remove this import, it is required for loading translations
     from anylabeling.resources import resources  # noqa: F401
@@ -427,11 +431,16 @@ def main():
         output_file=output_file,
         output_dir=output_dir,
     )
+    win.update_controller = UpdateController(win)
+    QtCore.QTimer.singleShot(1000, acknowledge_update)
 
     if not no_auto_update_check:
 
         def delayed_update_check():
-            check_for_updates_async(timeout=5)
+            if win.update_controller.enabled:
+                win.update_controller.check()
+            else:
+                check_for_updates_async(timeout=5)
 
         QtCore.QTimer.singleShot(2000, delayed_update_check)
 

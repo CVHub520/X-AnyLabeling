@@ -281,6 +281,15 @@ def _draw_confirm(painter, accent):
     painter.drawPolyline(_polygon([(5, 12), (10, 17), (20, 7)]))
 
 
+def _draw_circle_arrow_up(painter, accent):
+    pen = painter.pen()
+    pen.setWidthF(2)
+    painter.setPen(pen)
+    painter.drawEllipse(QtCore.QPointF(12, 12), 10, 10)
+    painter.drawPolyline(_polygon([(8, 12), (12, 8), (16, 12)]))
+    painter.drawLine(QtCore.QPointF(12, 16), QtCore.QPointF(12, 8))
+
+
 def get_icon(name, color, accent):
     if name in (
         "panel-left",
@@ -337,6 +346,7 @@ def get_icon(name, color, accent):
         painter.end()
         return QtGui.QIcon(center_pixmap(pixmap))
     drawers = {
+        "circle-arrow-up": _draw_circle_arrow_up,
         "confirm": _draw_confirm,
         "draw-cuboid": lambda p, a: _draw_fit(p, a, create=True),
         "lock": lambda p, a: _draw_lock(p, True),

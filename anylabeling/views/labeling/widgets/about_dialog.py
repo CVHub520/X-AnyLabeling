@@ -211,13 +211,7 @@ class AboutDialog(QDialog):
             lambda: self._open_url_and_close(self.changelog_url)
         )
 
-        check_update_btn = QPushButton(self.tr("Check for Updates"))
-        check_update_btn.setObjectName("link-btn")
-        check_update_btn.clicked.connect(self.check_for_updates)
-
         update_layout.addWidget(changelog_btn)
-        update_layout.addWidget(QLabel("·"))
-        update_layout.addWidget(check_update_btn)
         layout.addLayout(update_layout)
 
         # Add stretch to push everything to the top
@@ -234,8 +228,6 @@ class AboutDialog(QDialog):
         layout.addWidget(copyright_label)
 
         self.move_to_center()
-
-        QTimer.singleShot(0, self.check_updates_in_background)
 
     def move_to_center(self):
         """Move dialog to center of the screen"""
@@ -288,6 +280,13 @@ class AboutDialog(QDialog):
 
     def check_for_updates(self):
         """Handle user-initiated update check"""
+        controller = getattr(self.window(), "update_controller", None)
+        if controller is None and self.parent is not None:
+            controller = getattr(self.parent.window(), "update_controller", None)
+        if controller is not None and controller.enabled:
+            self.accept()
+            QTimer.singleShot(0, lambda: controller.check(manual=True))
+            return
         if self._cached_update_info:
             if self._cached_update_info["has_update"]:
                 self.show_update_dialog(self._cached_update_info)
@@ -323,6 +322,9 @@ class AboutDialog(QDialog):
 
     def check_updates_in_background(self):
         """Check for updates in background when dialog opens"""
+        controller = getattr(self.parent.window(), "update_controller", None) if self.parent is not None else None
+        if controller is not None and controller.enabled:
+            return
 
         def update_check_thread():
             update_info = check_for_updates_sync(timeout=5)
