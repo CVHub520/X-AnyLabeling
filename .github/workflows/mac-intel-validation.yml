@@ -1,16 +1,15 @@
-name: Native update validation
+name: macOS Intel native validation
 
 on:
   push:
-    branches: ['codex/native-update-validation-*']
-    paths: ['anylabeling/**', 'packaging/**', 'scripts/**', 'pyproject.toml', '.validation/**']
+    branches: ['codex/mac-native-validation-*']
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: native-validation-${{ github.ref }}
+  group: mac-native-validation-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -27,12 +26,6 @@ jobs:
             python_arch: x64
             target: macos-installer
             artifact: macos-intel
-          - name: Windows ARM64
-            os: windows-11-arm
-            arch: arm64
-            python_arch: arm64
-            target: win-cpu-installer
-            artifact: windows-arm64
     runs-on: ${{ matrix.os }}
     env:
       QT_QPA_PLATFORM: offscreen

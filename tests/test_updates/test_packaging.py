@@ -36,9 +36,16 @@ def test_packaged_archive_and_signed_manifest_round_trip(
     monkeypatch.setenv("X_ANYLABELING_UPDATE_PUBLIC_KEY", public)
     monkeypatch.setenv("X_ANYLABELING_UPDATE_SIGNING_KEY", private)
     monkeypatch.setattr(packaging, "app_version", lambda: "2.0.0")
-    bundle = tmp_path / "X-AnyLabeling"
+    is_macos = packaging.platform.system() == "Darwin"
+    bundle = tmp_path / ("X-AnyLabeling.app" if is_macos else "X-AnyLabeling")
     bundle.mkdir()
-    (bundle / "X-AnyLabeling").write_text("application")
+    if is_macos:
+        (bundle / "Contents/Resources").mkdir(parents=True)
+        (bundle / "Contents/MacOS").mkdir()
+    executable = bundle / (
+        "Contents/MacOS/X-AnyLabeling" if is_macos else "X-AnyLabeling"
+    )
+    executable.write_text("application")
     helper = tmp_path / "xanylabeling-updater"
     helper.write_text("helper")
     packaging.prepare(bundle, "CPU", helper)
@@ -48,7 +55,7 @@ def test_packaged_archive_and_signed_manifest_round_trip(
     notes = tmp_path / "notes.md"
     notes.write_text("Release notes")
     packaging.manifest(output, "2.0.0", notes, [identity])
-    info = json.loads((bundle / "build-info.json").read_text())
+    info = json.loads(packaging.metadata_path(bundle).read_text())
     envelope = json.loads((output / "update-manifest.json").read_text())
     selected = select_artifact(envelope, {**info, "version": "1.0.0"})
     assert selected["version"] == "2.0.0"
