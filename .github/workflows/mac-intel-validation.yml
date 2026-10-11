@@ -117,7 +117,15 @@ jobs:
           ditto dist/X-AnyLabeling.app "${stage}/X-AnyLabeling.app"
           ln -s /Applications "${stage}/Applications"
           dmg=$(find dist -maxdepth 1 -name '*-unsigned.dmg' -print -quit)
-          hdiutil create -ov -volname X-AnyLabeling -srcfolder "${stage}" -format UDZO "${dmg}"
+          rm -f "${dmg}"
+          for attempt in 1 2 3; do
+            if hdiutil create -fs HFS+ -volname X-AnyLabeling -srcfolder "${stage}" -format UDZO "${dmg}"; then
+              break
+            fi
+            rm -f "${dmg}"
+            sleep 5
+          done
+          test -s "${dmg}"
           rm -rf "${stage}"
       - name: Verify macOS bundle and DMG
         if: runner.os == 'macOS'
