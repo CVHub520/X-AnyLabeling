@@ -3,6 +3,7 @@ name: Native update validation
 on:
   push:
     branches: ['codex/native-update-validation-*']
+    paths: ['anylabeling/**', 'packaging/**', 'scripts/**', 'pyproject.toml', '.validation/**']
   workflow_dispatch:
 
 permissions:
@@ -58,7 +59,7 @@ jobs:
         id: native-wheels
         with:
           path: ${{ runner.temp }}/native-wheels
-          key: windows-arm64-py312-opencv-4.13.0.92-pyclipper-1.4.0-v1
+          key: windows-arm64-py312-opencv-4.12.0.88-pyclipper-1.4.0-v1
       - name: Compile missing Windows ARM dependencies
         if: runner.os == 'Windows' && steps.native-wheels.outputs.cache-hit != 'true'
         shell: pwsh
@@ -67,10 +68,10 @@ jobs:
           ENABLE_HEADLESS: '1'
           CMAKE_GENERATOR: Ninja
           CMAKE_BUILD_PARALLEL_LEVEL: '2'
-          CMAKE_ARGS: '-DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_EXAMPLES=OFF -DWITH_FFMPEG=OFF'
+          CMAKE_ARGS: '-DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_EXAMPLES=OFF -DWITH_FFMPEG=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5'
         run: |
           New-Item -ItemType Directory -Force "$env:RUNNER_TEMP/native-wheels" | Out-Null
-          python -m pip wheel --no-binary=opencv-contrib-python-headless,pyclipper --no-deps --wheel-dir "$env:RUNNER_TEMP/native-wheels" opencv-contrib-python-headless==4.13.0.92 pyclipper==1.4.0
+          python -m pip wheel --no-binary=opencv-contrib-python-headless,pyclipper --no-deps --wheel-dir "$env:RUNNER_TEMP/native-wheels" opencv-contrib-python-headless==4.12.0.88 pyclipper==1.4.0
           if ($LASTEXITCODE) { throw 'Native dependency compilation failed' }
       - name: Install native Windows wheels and Inno Setup
         if: runner.os == 'Windows'
