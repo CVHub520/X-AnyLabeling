@@ -326,16 +326,19 @@ def main():
                         "powershell.exe",
                         "-NoProfile",
                         "-Command",
-                        "$marker = $args[0]; "
+                        "$marker = $env:X_ANYLABELING_VALIDATION_MARKER; "
                         "Get-CimInstance Win32_Process | "
                         "Where-Object { $_.Name -eq 'X-AnyLabeling.exe' -and "
                         "$_.CommandLine.Contains($marker) } | "
                         "ForEach-Object { "
                         "Write-Host ('Stopping validation GUI PID ' + $_.ProcessId); "
                         "Stop-Process -Id $_.ProcessId -Force; "
-                        "Wait-Process -Id $_.ProcessId -Timeout 10 -ErrorAction SilentlyContinue }",
-                        directory.name,
+                        "Wait-Process -Id $_.ProcessId -Timeout 10 -ErrorAction SilentlyContinue }; exit 0",
                     ],
+                    env={
+                        **os.environ,
+                        "X_ANYLABELING_VALIDATION_MARKER": directory.name,
+                    },
                     check=True,
                     timeout=30,
                 )
