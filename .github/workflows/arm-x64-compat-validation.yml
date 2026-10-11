@@ -46,8 +46,11 @@ jobs:
       - name: Install Inno Setup
         shell: pwsh
         run: |
-          choco install innosetup --version=6.4.3 --yes --no-progress
-          if ($LASTEXITCODE) { throw 'Inno Setup installation failed' }
+          $compiler = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6/ISCC.exe'
+          if (-not (Test-Path $compiler)) {
+            choco install innosetup --yes --no-progress
+            if ($LASTEXITCODE) { throw 'Inno Setup installation failed' }
+          }
       - name: Install CPU application and development dependencies
         shell: bash
         run: uv pip install --system --only-binary cryptography -e '.[cpu,dev]'
