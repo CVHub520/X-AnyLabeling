@@ -77,7 +77,7 @@ jobs:
           if ($LASTEXITCODE) { throw 'Inno Setup installation failed' }
       - name: Install CPU application and development dependencies
         shell: bash
-        run: uv pip install --system -e '.[cpu,dev]'
+        run: uv pip install --system --only-binary cryptography -e '.[cpu,dev]'
       - name: Validate native dependencies and rendering
         shell: bash
         run: python .validation/native_checks.py
@@ -138,6 +138,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: native-validation-${{ matrix.artifact }}
+          include-hidden-files: true
           path: |
             .validation-output/
             dist/*-Setup.exe
