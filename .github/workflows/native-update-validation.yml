@@ -59,7 +59,7 @@ jobs:
         id: native-wheels
         with:
           path: ${{ runner.temp }}/native-wheels
-          key: windows-arm64-py312-opencv-4.14.0.94-pyclipper-1.4.0-v1
+          key: windows-arm64-py312-opencv-4.14.0.94-pyclipper-1.4.0-noffmpeg-v2
       - name: Compile missing Windows ARM dependencies
         if: runner.os == 'Windows' && steps.native-wheels.outputs.cache-hit != 'true'
         shell: pwsh
@@ -79,8 +79,16 @@ jobs:
           if ($LASTEXITCODE) { throw 'Native NumPy wheel installation failed' }
           python -m pip install setuptools wheel scikit-build cmake ninja Cython setuptools_scm
           if ($LASTEXITCODE) { throw 'Native build tooling installation failed' }
-          python -m pip wheel --no-build-isolation --no-binary=opencv-contrib-python-headless,pyclipper --no-deps --wheel-dir "$env:RUNNER_TEMP/native-wheels" opencv-contrib-python-headless==4.14.0.94 pyclipper==1.4.0
+          python .validation/prepare_native_opencv.py
+          if ($LASTEXITCODE) { throw 'Native OpenCV source preparation failed' }
+          python -m pip wheel --no-build-isolation --no-binary=pyclipper --no-deps --wheel-dir "$env:RUNNER_TEMP/native-wheels" C:/b/opencv pyclipper==1.4.0
           if ($LASTEXITCODE) { throw 'Native dependency compilation failed' }
+      - name: Save compiled native dependency wheels
+        if: runner.os == 'Windows' && steps.native-wheels.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ runner.temp }}/native-wheels
+          key: windows-arm64-py312-opencv-4.14.0.94-pyclipper-1.4.0-noffmpeg-v2
       - name: Install native Windows wheels and Inno Setup
         if: runner.os == 'Windows'
         shell: pwsh
@@ -88,8 +96,11 @@ jobs:
           $wheels = Get-ChildItem "$env:RUNNER_TEMP/native-wheels/*.whl" | Select-Object -ExpandProperty FullName
           python -m pip install $wheels
           if ($LASTEXITCODE) { throw 'Native wheel installation failed' }
-          choco install innosetup --version=6.4.3 --yes --no-progress
-          if ($LASTEXITCODE) { throw 'Inno Setup installation failed' }
+          $compiler = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6/ISCC.exe'
+          if (-not (Test-Path $compiler)) {
+            choco install innosetup --yes --no-progress
+            if ($LASTEXITCODE) { throw 'Inno Setup installation failed' }
+          }
       - name: Install CPU application and development dependencies
         shell: bash
         run: uv pip install --system --only-binary cryptography -e '.[cpu,dev]'
