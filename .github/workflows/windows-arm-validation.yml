@@ -47,7 +47,6 @@ jobs:
         if: runner.os == 'Windows'
         with:
           arch: arm64
-          vsversion: '2022'
       - uses: actions/cache@v5
         if: runner.os == 'Windows'
         id: native-wheels
@@ -60,7 +59,7 @@ jobs:
         env:
           ENABLE_CONTRIB: '1'
           ENABLE_HEADLESS: '1'
-          CMAKE_GENERATOR: Visual Studio 17 2022
+          CMAKE_GENERATOR: Visual Studio 18 2026
           CMAKE_GENERATOR_PLATFORM: ARM64
           CMAKE_BUILD_PARALLEL_LEVEL: '2'
           CMAKE_ARGS: '-DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_EXAMPLES=OFF -DWITH_FFMPEG=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DBUILD_LIST=core,imgproc,imgcodecs,videoio,highgui,calib3d,features2d,flann,dnn,photo,video,stitching,objdetect,ximgproc,python3'
