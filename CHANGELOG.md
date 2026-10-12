@@ -1,5 +1,26 @@
 # X-AnyLabeling Changelog
 
+## `v4.1.1` (Oct 13, 2026)
+
+X-AnyLabeling 4.1.1 adds installation packages and signed in-app updates while preserving the existing update workflow for source checkouts and single-file builds.
+
+### 🚀 New Features
+
+- Add Windows installers, Linux installation bundles, and macOS DMG packages.
+- Add signed update manifests, verified downloads, update progress, and automatic restart with rollback on startup failure.
+- Connect Check for Updates to the in-app updater for supported installations and add Chinese, Japanese, and Korean translations.
+
+### 🛠️ Improvements
+
+- Validate Qt XCB dependencies before running graphical release tests.
+- List point cloud annotation first in the workflow documentation.
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v4.1.0` (Oct 01, 2026)
 
 X-AnyLabeling 4.1.0 introduces a dedicated 3D point cloud annotation workspace, expands classification workflows, and improves everyday annotation and model management.
