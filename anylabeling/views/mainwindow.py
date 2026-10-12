@@ -71,6 +71,8 @@ class MainWindow(QMainWindow):
         self.labeling_widget.closeEvent(event)
         if not event.isAccepted():
             return
+        if hasattr(self, "update_controller"):
+            self.update_controller.prepare_for_close()
         if self._is_wsl_environment:
             self.settings.remove("window/size")
             self.settings.remove("window/position")

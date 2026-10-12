@@ -288,6 +288,20 @@ class AboutDialog(QDialog):
 
     def check_for_updates(self):
         """Handle user-initiated update check"""
+        controller = getattr(self.window(), "update_controller", None)
+        if controller is None and self.parent is not None:
+            controller = getattr(
+                self.parent.window(), "update_controller", None
+            )
+        if controller is not None and controller.enabled:
+            self.accept()
+            if controller.artifact is not None or (
+                controller.busy and controller.dialog is not None
+            ):
+                QTimer.singleShot(0, controller.show_panel)
+            else:
+                QTimer.singleShot(0, lambda: controller.check(manual=True))
+            return
         if self._cached_update_info:
             if self._cached_update_info["has_update"]:
                 self.show_update_dialog(self._cached_update_info)
@@ -323,6 +337,13 @@ class AboutDialog(QDialog):
 
     def check_updates_in_background(self):
         """Check for updates in background when dialog opens"""
+        controller = (
+            getattr(self.parent.window(), "update_controller", None)
+            if self.parent is not None
+            else None
+        )
+        if controller is not None and controller.enabled:
+            return
 
         def update_check_thread():
             update_info = check_for_updates_sync(timeout=5)

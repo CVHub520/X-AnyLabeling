@@ -44,6 +44,25 @@ jobs:
             --repository "${GITHUB_REPOSITORY}" \
             --output release-notes.md
 
+      - name: Validate update signing configuration
+        if: vars.AUTO_UPDATE_ENABLED == 'true'
+        env:
+          X_ANYLABELING_UPDATE_SIGNING_KEY: ${{ secrets.UPDATE_SIGNING_KEY }}
+          X_ANYLABELING_UPDATE_PUBLIC_KEY: ${{ vars.UPDATE_PUBLIC_KEY }}
+        run: |
+          python -m pip install "cryptography>=41"
+          python - <<'PY'
+          import base64
+          import os
+          from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+          from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
+
+          key = Ed25519PrivateKey.from_private_bytes(base64.b64decode(os.environ["X_ANYLABELING_UPDATE_SIGNING_KEY"], validate=True))
+          public_key = base64.b64encode(key.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)).decode()
+          if public_key != os.environ["X_ANYLABELING_UPDATE_PUBLIC_KEY"]:
+              raise RuntimeError("The public update key does not match the signing key.")
+          PY
+
       - name: Show release notes
         run: cat release-notes.md
 
@@ -175,12 +194,22 @@ jobs:
             files: dist/X-AnyLabeling-v*-Windows-CUDA13.exe
           - name: macOS Apple Silicon
             os: macos-15
+            arch: arm64
             target: macos
             extra: cpu
             artifact: macos-arm64
             files: |
               dist/*-arm64-unsigned.zip
               dist/*-arm64-unsigned.zip.sha256
+          - name: macOS Intel
+            os: macos-15-intel
+            arch: x86_64
+            target: macos
+            extra: cpu
+            artifact: macos-x86_64
+            files: |
+              dist/*-x86_64-unsigned.zip
+              dist/*-x86_64-unsigned.zip.sha256
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out release tag
@@ -212,7 +241,32 @@ jobs:
             libxcb-xinerama0
 
       - name: Install dependencies
-        run: uv pip install --system -e ".[${{ matrix.extra }},dev]"
+        run: uv pip install --system --only-binary cryptography -e ".[${{ matrix.extra }},dev]"
+
+      - name: Validate macOS architecture
+        if: runner.os == 'macOS'
+        env:
+          EXPECTED_ARCH: ${{ matrix.arch }}
+        run: |
+          python -c 'import os, platform; assert platform.machine() == os.environ["EXPECTED_ARCH"], "The Python architecture does not match the macOS release target."'
+
+      - name: Install Windows installer compiler
+        if: runner.os == 'Windows' && vars.AUTO_UPDATE_ENABLED == 'true'
+        shell: pwsh
+        run: |
+          $compiler = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6/ISCC.exe'
+          if (-not (Test-Path $compiler)) {
+            choco install innosetup --yes --no-progress
+            if ($LASTEXITCODE) { throw 'Inno Setup installation failed' }
+          }
+
+      - name: Test Windows installer rollback
+        if: runner.os == 'Windows' && matrix.extra == 'cpu' && vars.AUTO_UPDATE_ENABLED == 'true'
+        shell: pwsh
+        run: |
+          $env:INNO_SETUP_COMPILER = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6/ISCC.exe'
+          python -m pytest tests/test_updates/test_windows_installer.py
+          if ($LASTEXITCODE) { throw 'Windows installer regression tests failed' }
 
       - name: Verify CUDA dependencies
         if: matrix.cuda != ''
@@ -276,11 +330,44 @@ jobs:
               "dist/X-AnyLabeling-v${version}-Windows-CUDA${{ matrix.cuda }}.exe"
           fi
 
+      - name: Build installation and update packages
+        if: vars.AUTO_UPDATE_ENABLED == 'true'
+        shell: bash
+        env:
+          LEGACY_TARGET: ${{ matrix.target }}
+          CUDA_MAJOR: ${{ matrix.cuda }}
+          X_ANYLABELING_UPDATE_PUBLIC_KEY: ${{ vars.UPDATE_PUBLIC_KEY }}
+          X_ANYLABELING_UPDATE_FEED_URL: ${{ vars.UPDATE_FEED_URL }}
+        run: |
+          test -n "${X_ANYLABELING_UPDATE_PUBLIC_KEY}"
+          export X_ANYLABELING_VARIANT=CPU
+          if [ -n "${CUDA_MAJOR}" ]; then
+            export X_ANYLABELING_VARIANT="CUDA${CUDA_MAJOR}"
+          fi
+          case "${LEGACY_TARGET}" in
+            win-*) target="${LEGACY_TARGET}-installer" ;;
+            linux-*) target="${LEGACY_TARGET}-bundle" ;;
+            macos) target=macos-installer ;;
+          esac
+          bash scripts/build_executable.sh "${target}"
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
-          path: ${{ matrix.files }}
+          path: |
+            ${{ matrix.files }}
+            dist/*-Setup.exe
+            dist/*-Setup.exe.sha256
+            dist/*-Portable.zip
+            dist/*-Portable.zip.sha256
+            dist/*-Portable.tar.gz
+            dist/*-Portable.tar.gz.sha256
+            dist/*-unsigned.dmg
+            dist/*-unsigned.dmg.sha256
+            dist/*-Update.zip
+            dist/*-Update.zip.sha256
+            dist/update-artifact-*.json
           if-no-files-found: error
           retention-days: 7
           compression-level: 0
@@ -369,6 +456,18 @@ jobs:
           path: release-assets
           merge-multiple: true
 
+      - name: Sign the complete update manifest
+        if: vars.AUTO_UPDATE_ENABLED == 'true'
+        env:
+          X_ANYLABELING_UPDATE_SIGNING_KEY: ${{ secrets.UPDATE_SIGNING_KEY }}
+        run: |
+          python -m pip install "cryptography>=41" requests packaging
+          python scripts/package_updates.py manifest \
+            --directory release-assets --version "${RELEASE_TAG#v}" --notes release-notes.md \
+            --expected Linux-x86_64-CPU Linux-x86_64-CUDA11 Linux-x86_64-CUDA12 Linux-x86_64-CUDA13 \
+            Windows-x86_64-CPU Windows-x86_64-CUDA11 Windows-x86_64-CUDA12 Windows-x86_64-CUDA13 Darwin-arm64-CPU Darwin-x86_64-CPU
+          rm release-assets/update-artifact-*.json
+
       - name: Publish release
         uses: softprops/action-gh-release@v3
         with:
@@ -377,5 +476,17 @@ jobs:
           body_path: release-notes.md
           files: release-assets/*
           prerelease: false
-          make_latest: true
+          draft: true
           fail_on_unmatched_files: true
+
+      - name: Publish the assembled release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "${RELEASE_TAG}" --draft=false --latest
+
+  sync-website:
+    name: Refresh website downloads
+    needs: release
+    if: vars.WEBSITE_SYNC_ENABLED == 'true'
+    uses: ./.github/workflows/sync-website-content.yml
+    secrets: inherit
