@@ -47,7 +47,9 @@ from anylabeling.app_info import __version__
 from anylabeling.config import get_work_directory
 from anylabeling.views.labeling.chatbot import *
 from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.schema import create_xlabel_template
 from anylabeling.views.labeling.utils.general import open_url
+from anylabeling.views.labeling.utils.image import get_pil_img_dim
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 from anylabeling.views.labeling.utils.theme import get_theme
 from anylabeling.views.labeling.widgets.model_dropdown_widget import (
@@ -1741,7 +1743,12 @@ class ChatbotDialog(QDialog):
                     with open(label_file, "r", encoding="utf-8") as f:
                         data = json.load(f)
                 else:
-                    data = {}
+                    width, height = get_pil_img_dim(filename)
+                    data = create_xlabel_template(
+                        image_path=os.path.basename(filename),
+                        image_height=height,
+                        image_width=width,
+                    )
 
                 # Update chat history
                 data["chat_history"] = [
