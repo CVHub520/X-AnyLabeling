@@ -10218,4 +10218,11 @@ Response preview:
       <translation>OpenGL 디스플레이 컨텍스트를 생성할 수 없습니다.</translation>
     </message>
   </context>
+  <context>
+    <name>LabelFile</name>
+    <message>
+      <source>Failed opening image file: %s</source>
+      <translation>이미지 파일을 열 수 없습니다: %s</translation>
+    </message>
+  </context>
 </TS>

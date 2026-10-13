@@ -10216,4 +10216,11 @@ Response preview:
       <translation>OpenGL表示コンテキストを作成できません。</translation>
     </message>
   </context>
+  <context>
+    <name>LabelFile</name>
+    <message>
+      <source>Failed opening image file: %s</source>
+      <translation>画像ファイルを開けませんでした：%s</translation>
+    </message>
+  </context>
 </TS>

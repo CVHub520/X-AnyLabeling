@@ -10175,4 +10175,11 @@ Response preview:
       <translation>Could not create an OpenGL display context.</translation>
     </message>
   </context>
+  <context>
+    <name>LabelFile</name>
+    <message>
+      <source>Failed opening image file: %s</source>
+      <translation>Failed opening image file: %s</translation>
+    </message>
+  </context>
 </TS>

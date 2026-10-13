@@ -6129,7 +6129,13 @@ class LabelingWidget(LabelDialog):
             label_file
         ):
             try:
-                self.label_file = LabelFile(label_file, image_dir)
+                self.label_file = LabelFile(
+                    label_file,
+                    image_dir,
+                    image_path=(
+                        None if LabelFile.is_label_file(filename) else filename
+                    ),
+                )
             except LabelFileError as e:
                 self.error_message(
                     self.tr("Error opening file"),
@@ -6142,10 +6148,7 @@ class LabelingWidget(LabelDialog):
                 self.status(self.tr("Error reading %s") % label_file)
                 return False
             self.image_data = self.label_file.image_data
-            self.image_path = osp.join(
-                osp.dirname(label_file),
-                self.label_file.image_path,
-            )
+            self.image_path = self.label_file.resolved_image_path
             self.other_data = self.label_file.other_data
             self.other_data[CHECKED_FIELD] = self._annotation_checked()
             with QtCore.QSignalBlocker(self.shape_text_edit):

@@ -10216,4 +10216,11 @@ Response preview:
       <translation>无法创建 OpenGL 显示上下文。</translation>
     </message>
   </context>
+  <context>
+    <name>LabelFile</name>
+    <message>
+      <source>Failed opening image file: %s</source>
+      <translation>无法打开图片文件：%s</translation>
+    </message>
+  </context>
 </TS>
