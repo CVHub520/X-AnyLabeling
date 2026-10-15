@@ -69,6 +69,10 @@ def installation():
         return None
     executable = Path(sys.executable).resolve()
     root = executable.parent
+    resources = root
+    single_file = sys.platform.startswith("linux") and hasattr(sys, "_MEIPASS")
+    if single_file:
+        resources = Path(sys._MEIPASS)
     if sys.platform == "darwin":
         root = next(
             (p for p in executable.parents if p.suffix == ".app"), None
@@ -76,7 +80,7 @@ def installation():
         if root is None:
             return None
     try:
-        info = read_build_info(root)
+        info = read_build_info(resources if single_file else root)
     except (OSError, ValueError):
         return None
     if info.get("schema") != PROTOCOL_VERSION or not info.get("public_key"):
@@ -86,6 +90,8 @@ def installation():
         or info.get("arch") != architecture()
     ):
         return None
+    if single_file:
+        root = executable
     target = root
     if sys.platform.startswith("linux") and root.parent.name == "versions":
         link = root.parent.parent / "current"
@@ -95,7 +101,9 @@ def installation():
         root / "Contents/Helpers/xanylabeling-updater"
         if sys.platform == "darwin"
         else (
-            build_info_path(root).parent if sys.platform == "win32" else root
+            build_info_path(root).parent
+            if sys.platform == "win32"
+            else resources
         )
         / (
             "xanylabeling-updater.exe"
@@ -166,6 +174,13 @@ def select_artifact(envelope, info):
         if info["platform"] == "Darwin"
         else "X-AnyLabeling"
     )
+    expected_kind = {
+        "Windows": "installer",
+        "Darwin": "zip",
+        "Linux": "executable",
+    }[info["platform"]]
+    if artifact.get("kind") != expected_kind:
+        raise ValueError("Unexpected update package format.")
     if artifact["root"] != expected_root:
         raise ValueError("Unexpected update archive layout.")
     if type(artifact["size"]) is not int or artifact["size"] <= 0:
@@ -257,4 +272,5 @@ def child_environment():
             env.pop(name)
     env.pop("X_ANYLABELING_UPDATE_READY_FILE", None)
     env.pop("X_ANYLABELING_UPDATE_TOKEN", None)
+    env.pop("X_ANYLABELING_UPDATE_VERSION", None)
     return env

@@ -248,3 +248,19 @@ def test_about_has_changelog_and_update_entry(controller):
     assert "Changelog" in labels
     assert "Check for Updates" in labels
     about.close()
+
+
+def test_startup_acknowledgement_rejects_wrong_signed_target_version(
+    tmp_path, monkeypatch
+):
+    path = tmp_path / "ready"
+    monkeypatch.setenv("X_ANYLABELING_UPDATE_READY_FILE", str(path))
+    monkeypatch.setenv("X_ANYLABELING_UPDATE_TOKEN", "token")
+    monkeypatch.setenv("X_ANYLABELING_UPDATE_VERSION", "99.0.0")
+    monkeypatch.setattr(
+        update_controller,
+        "installation",
+        lambda: {"info": {"version": update_controller.__version__}},
+    )
+    update_controller.acknowledge_update()
+    assert not path.exists()

@@ -1,9 +1,7 @@
 import base64
 import hashlib
-import importlib.util
 import json
 import os
-import shutil
 import stat
 import subprocess
 import sys
@@ -65,6 +63,7 @@ def artifact(data=b"update"):
         "sha256": hashlib.sha256(data).hexdigest(),
         "size": len(data),
         "root": "X-AnyLabeling",
+        "kind": "executable",
     }
 
 
@@ -227,6 +226,8 @@ def test_invalid_release_notes_are_rejected_before_reaching_qt(signing):
         {"root": "../app"},
         {"sha256": "x" * 64},
         {"size": 0},
+        {"kind": "installer"},
+        {"kind": "unknown"},
     ],
 )
 def test_invalid_signed_artifact_is_rejected(signing, changes):
@@ -429,14 +430,19 @@ def test_second_rename_failure_restores_original(
     assert (old / "build-info.json").exists()
 
 
+@pytest.mark.skipif(
+    os.name == "nt", reason="Requires POSIX executable fixtures"
+)
 @pytest.mark.parametrize("fail_startup", [False, True])
+@pytest.mark.parametrize("system", ["Linux", "Darwin"])
 def test_real_helper_process_updates_or_restores_old_app(
-    tmp_path, signing, fail_startup, monkeypatch
+    tmp_path, signing, fail_startup, system
 ):
     info, sign = signing
-    root = tmp_path / "installed app"
-    root.mkdir()
-    (root / "build-info.json").write_text(json.dumps(info))
+    info["platform"] = system
+    root = tmp_path / (
+        "installed app" if system == "Linux" else "Installed.app"
+    )
     pid_file = tmp_path / "app.pid"
     script = f"""#!{sys.executable}
 import os, time
@@ -448,49 +454,49 @@ if ready:
 while True:
     time.sleep(0.1)
 """
-    arguments = []
-    executable_name = "X-AnyLabeling"
-    executable_data = script.encode()
-    if sys.platform == "win32":
-        info["platform"] = "Windows"
-        executable_name += ".exe"
-        executable_data = Path(sys.executable).read_bytes()
-        shutil.copy2(Path(sys.base_prefix) / "python312.dll", root)
-        monkeypatch.setenv("PYTHONHOME", sys.base_prefix)
-        native_script = script.split("\n", 1)[1]
-        if fail_startup:
-            native_script = (
-                f"import json\nfrom pathlib import Path\n"
-                f"if json.loads(Path({str(root / 'build-info.json')!r}).read_text())['version'] == '2.0.0': raise SystemExit(1)\n"
-                + native_script
+    new_script = (
+        f"#!{sys.executable}\nraise SystemExit(1)\n"
+        if fail_startup
+        else script + "\nversion = '2.0.0'\n"
+    )
+    archive = tmp_path / "release-package"
+    if system == "Linux":
+        root.write_text(script)
+        root.chmod(0o755)
+        archive.write_text(new_script)
+        package_info = artifact(archive.read_bytes())
+        executable = root
+    else:
+        executable = root / "Contents/MacOS/X-AnyLabeling"
+        executable.parent.mkdir(parents=True)
+        executable.write_text(script)
+        executable.chmod(0o755)
+        metadata = root / "Contents/Resources/build-info.json"
+        metadata.parent.mkdir()
+        metadata.write_text(json.dumps(info))
+        with zipfile.ZipFile(archive, "w") as package:
+            package.writestr(
+                "X-AnyLabeling.app/Contents/Resources/build-info.json",
+                json.dumps({**info, "version": "2.0.0"}),
             )
-        arguments = ["-c", native_script]
-        (root / "build-info.json").write_text(json.dumps(info))
-    (root / executable_name).write_bytes(executable_data)
-    (root / executable_name).chmod(0o755)
-    archive = tmp_path / "update.zip"
-    with zipfile.ZipFile(archive, "w") as package:
-        package.writestr(
-            "X-AnyLabeling/build-info.json",
-            json.dumps({**info, "version": "2.0.0"}),
-        )
-        entry = zipfile.ZipInfo(f"X-AnyLabeling/{executable_name}")
-        entry.external_attr = (stat.S_IFREG | 0o755) << 16
-        package.writestr(
-            entry,
-            (
-                f"#!{sys.executable}\nraise SystemExit(1)\n"
-                if fail_startup and sys.platform != "win32"
-                else executable_data
-            ),
-        )
+            entry = zipfile.ZipInfo(
+                "X-AnyLabeling.app/Contents/MacOS/X-AnyLabeling"
+            )
+            entry.external_attr = (stat.S_IFREG | 0o755) << 16
+            package.writestr(entry, new_script)
+        package_info = {
+            **artifact(archive.read_bytes()),
+            "root": "X-AnyLabeling.app",
+            "kind": "zip",
+        }
     plan = {
         "root": str(root),
         "target": str(root),
-        "manifest": sign(artifact(archive.read_bytes())),
+        "info": info,
+        "manifest": sign(package_info),
         "archive": str(archive),
         "pid": 999999,
-        "arguments": arguments,
+        "arguments": [],
         "token": "test-token",
         "ready": str(tmp_path / "ready"),
         "armed": str(tmp_path / "armed"),
@@ -515,13 +521,13 @@ while True:
         assert result.returncode == (1 if fail_startup else 0), (
             tmp_path / "helper.log"
         ).read_text()
-        assert json.loads((root / "build-info.json").read_text())[
-            "version"
-        ] == ("1.0.0" if fail_startup else "2.0.0")
+        assert executable.read_text() == (
+            script if fail_startup else new_script
+        )
         assert json.loads(Path(plan["result"]).read_text())["status"] == (
             "failed" if fail_startup else "success"
         )
-        assert not (tmp_path / ".installed app-update.lock").exists()
+        assert not list(tmp_path.glob(".*-update.lock"))
         deadline = time.monotonic() + 5
         while not pid_file.exists() and time.monotonic() < deadline:
             time.sleep(0.05)
@@ -628,7 +634,7 @@ def test_windows_update_architecture_matches_interpreter_on_arm_hardware(
 def test_intel_macos_updates_do_not_select_apple_silicon_packages(signing):
     info, sign = signing
     info["platform"] = "Darwin"
-    envelope = sign({**artifact(), "root": "X-AnyLabeling.app"})
+    envelope = sign({**artifact(), "root": "X-AnyLabeling.app", "kind": "zip"})
     assert protocol.select_artifact(envelope, info)["version"] == "2.0.0"
     assert (
         protocol.select_artifact(envelope, {**info, "arch": "arm64"}) is None
@@ -656,3 +662,50 @@ def test_archive_allows_internal_links_under_an_aliased_destination(tmp_path):
     )
     assert root == actual / "stage/X-AnyLabeling.app"
     assert (root / "Contents/MacOS/current").read_text() == "app"
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux single-file layout")
+def test_linux_single_file_uses_embedded_metadata_and_helper(
+    tmp_path, signing, monkeypatch
+):
+    info, _ = signing
+    resources = tmp_path / "_MEI123"
+    resources.mkdir()
+    (resources / "build-info.json").write_text(json.dumps(info))
+    helper = resources / "xanylabeling-updater"
+    helper.write_bytes(b"helper")
+    executable = tmp_path / "custom application name"
+    executable.touch()
+    alias = tmp_path / "application-link"
+    alias.symlink_to(executable)
+    monkeypatch.setattr(protocol.sys, "frozen", True, raising=False)
+    monkeypatch.setattr(
+        protocol.sys, "_MEIPASS", str(resources), raising=False
+    )
+    monkeypatch.setattr(protocol.sys, "executable", str(alias))
+    monkeypatch.setattr(protocol, "architecture", lambda: "x86_64")
+    context = protocol.installation()
+    assert context["root"] == context["target"] == str(executable)
+    assert context["helper"] == str(helper)
+    assert context["info"] == info
+
+
+def test_interrupted_single_file_update_can_be_recovered(tmp_path):
+    target = tmp_path / "application"
+    target.write_bytes(b"new")
+    backup = tmp_path / ".application-backup-test"
+    backup.write_bytes(b"old")
+    result = tmp_path / "result.json"
+    result.write_text(
+        json.dumps(
+            {
+                "status": "installing",
+                "target": str(target),
+                "backup": str(backup),
+                "previous_link": None,
+            }
+        )
+    )
+    installer.recover_interrupted(result)
+    assert target.read_bytes() == b"old"
+    assert json.loads(result.read_text())["status"] == "failed"

@@ -88,8 +88,44 @@ def extract_update(archive, destination, root_name):
     return destination / root_name
 
 
+def stage_update(archive, destination, artifact):
+    destination = Path(destination)
+    if artifact["kind"] == "zip":
+        return extract_update(archive, destination, artifact["root"])
+    staged = destination / artifact["root"]
+    if artifact["kind"] == "executable":
+        shutil.copy2(archive, staged)
+        staged.chmod(0o755)
+        return staged
+    if artifact["kind"] != "installer" or sys.platform != "win32":
+        raise ValueError("Unsupported update package format.")
+    import ctypes
+
+    ctypes.windll.kernel32.SetDllDirectoryW(None)
+    subprocess.run(
+        [
+            str(archive),
+            "/UPDATESTAGE=1",
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART",
+            "/NOCANCEL",
+            "/SP-",
+            "/NOCLOSEAPPLICATIONS",
+            "/NORESTARTAPPLICATIONS",
+            f"/DIR={staged}",
+            f"/LOG={archive.parent / 'setup.log'}",
+        ],
+        check=True,
+        env=child_environment(),
+    )
+    return staged
+
+
 def executable_in(root, system):
     root = Path(root)
+    if root.is_file():
+        return root
     if system == "Darwin":
         return root / "Contents/MacOS/X-AnyLabeling"
     return root / (
@@ -131,11 +167,14 @@ def launch(
     ready_file=None,
     token=None,
     working_directory=None,
+    expected_version=None,
 ):
     env = child_environment()
     if ready_file:
         env["X_ANYLABELING_UPDATE_READY_FILE"] = str(ready_file)
         env["X_ANYLABELING_UPDATE_TOKEN"] = token
+        if expected_version:
+            env["X_ANYLABELING_UPDATE_VERSION"] = expected_version
     directory = Path(working_directory) if working_directory else Path.home()
     options = {
         "env": env,
@@ -216,20 +255,21 @@ class Replacement:
             temporary.replace(self.target)
             self.switched = True
             return
-        managed = set(read_build_info(self.target)["managed_paths"])
-        for item in self.target.iterdir():
-            if (
-                item.name not in managed
-                and not (self.staged / item.name).exists()
-            ):
-                if item.is_dir() and not item.is_symlink():
-                    shutil.copytree(
-                        item, self.staged / item.name, symlinks=True
-                    )
-                elif item.is_symlink():
-                    (self.staged / item.name).symlink_to(os.readlink(item))
-                else:
-                    shutil.copy2(item, self.staged / item.name)
+        if self.target.is_dir():
+            managed = set(read_build_info(self.target)["managed_paths"])
+            for item in self.target.iterdir():
+                if (
+                    item.name not in managed
+                    and not (self.staged / item.name).exists()
+                ):
+                    if item.is_dir() and not item.is_symlink():
+                        shutil.copytree(
+                            item, self.staged / item.name, symlinks=True
+                        )
+                    elif item.is_symlink():
+                        (self.staged / item.name).symlink_to(os.readlink(item))
+                    else:
+                        shutil.copy2(item, self.staged / item.name)
         deadline = time.monotonic() + 10
         while True:
             try:
@@ -258,7 +298,10 @@ class Replacement:
 
     def finish(self):
         if self.backup.exists():
-            shutil.rmtree(self.backup)
+            if self.backup.is_dir():
+                shutil.rmtree(self.backup)
+            else:
+                self.backup.unlink()
 
 
 def recover_interrupted(result_path):
@@ -286,7 +329,8 @@ def recover_interrupted(result_path):
             or backup.is_symlink()
         ):
             raise ValueError("The recovery backup path is invalid.")
-        read_build_info(backup)
+        if backup.is_dir():
+            read_build_info(backup)
         if target.exists():
             target.rename(
                 target.with_name(
@@ -331,7 +375,7 @@ def update_windows_version(info, root):
 def run_update(plan):
     root = Path(plan["root"])
     target = Path(plan["target"])
-    info = read_build_info(root)
+    info = plan["info"] if root.is_file() else read_build_info(root)
     artifact = select_artifact(plan["manifest"], info)
     if artifact is None:
         raise ValueError(
@@ -360,8 +404,12 @@ def run_update(plan):
         with tempfile.TemporaryDirectory(
             prefix=f".update-{artifact['version']}-", dir=target.parent
         ) as stage:
-            staged = extract_update(archive, stage, artifact["root"])
-            new_info = read_build_info(staged)
+            staged = stage_update(archive, stage, artifact)
+            new_info = (
+                {**info, "version": artifact["version"]}
+                if artifact["kind"] == "executable"
+                else read_build_info(staged)
+            )
             for key in ("platform", "arch", "variant", "public_key"):
                 if new_info[key] != info[key]:
                     raise ValueError(
@@ -394,6 +442,7 @@ def run_update(plan):
                 plan["ready"],
                 plan["token"],
                 working_directory=plan.get("cwd"),
+                expected_version=artifact["version"],
             )
             wait_for_ready(process, plan["ready"], plan["token"])
             write_json(
@@ -478,12 +527,13 @@ def main():
                 result, {**previous, "status": "failed", "error": str(error)}
             )
             target = Path(plan["target"])
-            if executable_in(
-                target, read_build_info(target)["platform"]
-            ).is_file():
+            info = (
+                plan["info"] if target.is_file() else read_build_info(target)
+            )
+            if executable_in(target, info["platform"]).is_file():
                 launch(
                     target,
-                    read_build_info(target)["platform"],
+                    info["platform"],
                     plan["arguments"],
                     working_directory=plan.get("cwd"),
                 )

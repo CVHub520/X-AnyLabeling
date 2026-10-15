@@ -46,6 +46,8 @@ a = Analysis(
     pathex=[_p('anylabeling')],
     binaries=expat_binaries,
     datas=[
+        *([(os.environ['X_ANYLABELING_UPDATE_RESOURCES'], '.')]
+          if os.environ.get('X_ANYLABELING_UPDATE_RESOURCES') else []),
         (_p('anylabeling', 'services', 'auto_labeling', 'osam', 'clip', 'bpe_simple_vocab_16e6.txt.gz'), 'anylabeling/services/auto_labeling/osam/clip'),
         (_p('anylabeling', 'configs', 'auto_labeling', '*.yaml'), 'anylabeling/configs/auto_labeling'),
         (_p('anylabeling', 'configs', '*.yaml'), 'anylabeling/configs'),

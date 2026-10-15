@@ -23,9 +23,18 @@ packaging = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(packaging)
 
 
-def test_packaged_archive_and_signed_manifest_round_trip(
-    tmp_path, monkeypatch
+@pytest.mark.parametrize(
+    "system,kind,name",
+    [
+        ("Windows", "installer", "X-AnyLabeling-Setup.exe"),
+        ("Darwin", "zip", "X-AnyLabeling-macOS-unsigned.zip"),
+        ("Linux", "executable", "X-AnyLabeling-Linux-CPU"),
+    ],
+)
+def test_release_artifact_and_signed_manifest_round_trip(
+    tmp_path, monkeypatch, system, kind, name
 ):
+    monkeypatch.setattr(packaging.platform, "system", lambda: system)
     key = Ed25519PrivateKey.generate()
     public = base64.b64encode(
         key.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)
@@ -50,7 +59,12 @@ def test_packaged_archive_and_signed_manifest_round_trip(
     helper.write_text("helper")
     packaging.prepare(bundle, "CPU", helper)
     output = tmp_path / "release"
-    packaging.package(bundle, output)
+    output.mkdir()
+    archive = output / name
+    archive.write_bytes(b"existing release package")
+    packaging.package(bundle, output, archive)
+    assert archive.read_bytes() == b"existing release package"
+    assert not list(output.glob("*-Update.zip"))
     identity = f"{packaging.platform.system()}-{packaging.architecture()}-CPU"
     notes = tmp_path / "notes.md"
     notes.write_text("Release notes")
@@ -58,13 +72,14 @@ def test_packaged_archive_and_signed_manifest_round_trip(
     info = json.loads(packaging.metadata_path(bundle).read_text())
     envelope = json.loads((output / "update-manifest.json").read_text())
     selected = select_artifact(envelope, {**info, "version": "1.0.0"})
+    assert selected["kind"] == kind
+    assert selected["url"].endswith("/" + name)
     assert selected["version"] == "2.0.0"
     assert selected["release_notes"] == "Release notes"
     with pytest.raises(ValueError, match="required"):
         packaging.manifest(
             output, "2.0.0", notes, [identity, "missing-platform"]
         )
-    archive = next(output.glob("*-Update.zip"))
     archive.write_bytes(b"damaged")
     with pytest.raises(ValueError, match="changed"):
         packaging.manifest(output, "2.0.0", notes, [identity])
@@ -106,4 +121,6 @@ def test_windows_packaging_keeps_update_files_in_version_directory(
     assert (resources / helper.name).read_text() == "helper"
     info = json.loads(packaging.metadata_path(bundle).read_text())
     assert info["managed_paths"] == ["4.1.0", "X-AnyLabeling.exe"]
-    packaging.package(bundle, tmp_path / "release")
+    setup = tmp_path / "Setup.exe"
+    setup.write_bytes(b"installer")
+    packaging.package(bundle, tmp_path / "release", setup)

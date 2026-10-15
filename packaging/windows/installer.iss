@@ -29,6 +29,8 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputDir={#OutputDir}
 OutputBaseFilename=X-AnyLabeling-v{#AppVersion}-Windows-{#Variant}-Setup
+Uninstallable=not IsUpdateStage
+CreateUninstallRegKey=not IsUpdateStage
 UninstallDisplayIcon={app}\X-AnyLabeling.exe
 UninstallDisplayName=X-AnyLabeling
 Compression=lzma2/fast
@@ -50,8 +52,8 @@ SetupWindowTitle=X-AnyLabeling
 UninstallAppFullTitle=X-AnyLabeling
 
 [Icons]
-Name: "{group}\X-AnyLabeling"; Filename: "{app}\X-AnyLabeling.exe"; WorkingDir: "{%USERPROFILE}"; Flags: uninsneveruninstall
-Name: "{userdesktop}\X-AnyLabeling"; Filename: "{app}\X-AnyLabeling.exe"; WorkingDir: "{%USERPROFILE}"; Check: ShouldCreateDesktopShortcut; Flags: uninsneveruninstall
+Name: "{group}\X-AnyLabeling"; Filename: "{app}\X-AnyLabeling.exe"; WorkingDir: "{%USERPROFILE}"; Flags: uninsneveruninstall; Check: not IsUpdateStage
+Name: "{userdesktop}\X-AnyLabeling"; Filename: "{app}\X-AnyLabeling.exe"; WorkingDir: "{%USERPROFILE}"; Check: ShouldCreateDesktopShortcut and not IsUpdateStage; Flags: uninsneveruninstall
 
 [Run]
 Filename: "{app}\X-AnyLabeling.exe"; Description: "Launch X-AnyLabeling"; WorkingDir: "{%USERPROFILE}"; Flags: nowait postinstall skipifsilent
@@ -60,9 +62,9 @@ Filename: "{app}\X-AnyLabeling.exe"; Description: "Launch X-AnyLabeling"; Workin
 Type: filesandordirs; Name: "{app}\_internal"
 
 [InstallDelete]
-Type: files; Name: "{userdesktop}\X-AnyLabeling ({#Variant}).lnk"
-Type: files; Name: "{userprograms}\X-AnyLabeling ({#Variant})\X-AnyLabeling ({#Variant}).lnk"
-Type: dirifempty; Name: "{userprograms}\X-AnyLabeling ({#Variant})"
+Type: files; Name: "{userdesktop}\X-AnyLabeling ({#Variant}).lnk"; Check: not IsUpdateStage
+Type: files; Name: "{userprograms}\X-AnyLabeling ({#Variant})\X-AnyLabeling ({#Variant}).lnk"; Check: not IsUpdateStage
+Type: dirifempty; Name: "{userprograms}\X-AnyLabeling ({#Variant})"; Check: not IsUpdateStage
 
 [Code]
 function GetWizardSystemMenu(Window: HWND; Revert: Integer): HWND;
@@ -79,6 +81,11 @@ var
   BackupDirectory: String;
   BackupPaths: TStringList;
   InstallationCommitted: Boolean;
+
+function IsUpdateStage: Boolean;
+begin
+  Result := ExpandConstant('{param:UPDATESTAGE|0}') = '1';
+end;
 
 procedure WizardCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin

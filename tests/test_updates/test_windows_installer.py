@@ -189,3 +189,51 @@ def test_setup_preserves_backup_from_interrupted_install(installers, tmp_path):
     previous = snapshot(target)
     assert run_setup(installers["4.1.1", "CPU", ""], target) != 0
     assert snapshot(target) == previous
+
+
+@pytest.mark.parametrize("failure", ["", "error"])
+def test_update_staging_preserves_installed_application_and_registration(
+    installers, tmp_path, monkeypatch, failure
+):
+    import winreg
+
+    monkeypatch.syspath_prepend(str(ROOT / "anylabeling/services/updates"))
+    import installer
+
+    target = tmp_path / "installed app"
+    assert run_setup(installers["4.1.0", "CPU", ""], target) == 0
+    previous = snapshot(target)
+    uninstall = r"Software\Microsoft\Windows\CurrentVersion\Uninstall"
+
+    def registrations():
+        values = {}
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, uninstall) as parent:
+            for index in range(winreg.QueryInfoKey(parent)[0]):
+                name = winreg.EnumKey(parent, index)
+                if not name.startswith("X-AnyLabeling-Test-"):
+                    continue
+                with winreg.OpenKey(parent, name) as key:
+                    values[name] = [
+                        winreg.EnumValue(key, i)
+                        for i in range(winreg.QueryInfoKey(key)[1])
+                    ]
+        return values
+
+    before = registrations()
+    stage = tmp_path / "staged update"
+    stage.mkdir()
+    setup = installers["4.1.1", "CPU", failure]
+    if failure:
+        with pytest.raises(subprocess.CalledProcessError):
+            installer.stage_update(
+                setup, stage, {"kind": "installer", "root": "X-AnyLabeling"}
+            )
+    else:
+        staged = installer.stage_update(
+            setup, stage, {"kind": "installer", "root": "X-AnyLabeling"}
+        )
+        assert (staged / "4.1.1/payload.bin").is_file()
+        assert not list(staged.glob("unins*"))
+        assert not (staged / "shortcuts").exists()
+    assert snapshot(target) == previous
+    assert registrations() == before

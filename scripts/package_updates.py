@@ -5,9 +5,7 @@ import json
 import os
 import platform
 import shutil
-import stat
 import sys
-import zipfile
 from pathlib import Path
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -83,34 +81,14 @@ def prepare(bundle, variant, helper):
     path.write_text(json.dumps(info, indent=2), encoding="utf-8")
 
 
-def make_archive(bundle, destination):
-    with zipfile.ZipFile(
-        destination,
-        "w",
-        compression=zipfile.ZIP_DEFLATED,
-        compresslevel=6,
-        allowZip64=True,
-    ) as archive:
-        for path in sorted(bundle.rglob("*")):
-            name = bundle.name + "/" + path.relative_to(bundle).as_posix()
-            if path.is_symlink():
-                entry = zipfile.ZipInfo(name)
-                entry.create_system = 3
-                entry.external_attr = (stat.S_IFLNK | 0o777) << 16
-                archive.writestr(entry, os.readlink(path).encode())
-            elif path.is_file():
-                archive.write(path, name)
-            elif path.is_dir():
-                archive.write(path, name + "/")
-
-
-def package(bundle, output):
+def package(bundle, output, path):
     info = json.loads(metadata_path(bundle).read_text())
     identity = f"{info['platform']}-{info['arch']}-{info['variant']}"
-    name = f"X-AnyLabeling-v{info['version']}-{identity}-Update.zip"
+    kind = {"Windows": "installer", "Darwin": "zip", "Linux": "executable"}[
+        info["platform"]
+    ]
     output.mkdir(parents=True, exist_ok=True)
-    path = output / name
-    make_archive(bundle, path)
+    name = path.name
     repository = os.environ.get("GITHUB_REPOSITORY", "CVHub520/X-AnyLabeling")
     base = (
         os.environ.get("X_ANYLABELING_RELEASE_BASE_URL")
@@ -126,14 +104,19 @@ def package(bundle, output):
             "url": base.rstrip("/") + "/" + name,
             "sha256": digest,
             "size": path.stat().st_size,
-            "root": bundle.name,
+            "root": (
+                "X-AnyLabeling.app"
+                if info["platform"] == "Darwin"
+                else "X-AnyLabeling"
+            ),
+            "kind": kind,
         },
     }
     (output / f"update-artifact-{identity}.json").write_text(
         json.dumps(descriptor, indent=2)
     )
     path.with_suffix(path.suffix + ".sha256").write_text(f"{digest}  {name}\n")
-    print(f"Created update archive: {path}")
+    print(f"Registered release artifact: {path}")
 
 
 def manifest(directory, version, notes, expected):
@@ -153,11 +136,11 @@ def manifest(directory, version, notes, expected):
             or descriptor["public_key"] != public_key
         ):
             raise ValueError(
-                "The update archive version or signing key does not match this release."
+                "The release artifact version or signing key does not match this release."
             )
         identity = descriptor["identity"]
         if identity in artifacts:
-            raise ValueError("Duplicate update archive identity.")
+            raise ValueError("Duplicate release artifact identity.")
         artifact = descriptor["artifact"]
         archive = directory / artifact["url"].rsplit("/", 1)[-1]
         if (
@@ -165,12 +148,12 @@ def manifest(directory, version, notes, expected):
             or file_digest(archive) != artifact["sha256"]
         ):
             raise ValueError(
-                "An update archive changed during release assembly."
+                "A release artifact changed during release assembly."
             )
         artifacts[identity] = artifact
     if not artifacts or (expected and set(artifacts) != set(expected)):
         raise ValueError(
-            "The release does not contain all required update archives."
+            "The release does not contain all required release artifacts."
         )
     payload = {
         "schema": 1,
@@ -202,6 +185,7 @@ def main():
     )
     archive = commands.add_parser("package")
     archive.add_argument("--bundle", type=Path, required=True)
+    archive.add_argument("--artifact", type=Path, required=True)
     archive.add_argument("--output", type=Path, default=ROOT / "dist")
     signing = commands.add_parser("manifest")
     signing.add_argument("--directory", type=Path, required=True)
@@ -212,7 +196,7 @@ def main():
     if args.command == "prepare":
         prepare(args.bundle, args.variant, args.helper)
     elif args.command == "package":
-        package(args.bundle, args.output)
+        package(args.bundle, args.output, args.artifact)
     else:
         manifest(args.directory, args.version, args.notes, args.expected)
 

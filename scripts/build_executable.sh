@@ -141,7 +141,7 @@ prepare_update_bundle() {
 }
 
 package_update_bundle() {
-    python "${SCRIPT_DIR}/package_updates.py" package --bundle "$1" --output "${DIST_DIR}"
+    python "${SCRIPT_DIR}/package_updates.py" package --bundle "$1" --artifact "$2" --output "${DIST_DIR}"
 }
 
 package_macos_dmg() {
@@ -156,8 +156,8 @@ package_macos_dmg() {
     ln -s /Applications "${stage}/Applications"
     hdiutil create -ov -fs HFS+ -volname X-AnyLabeling -srcfolder "${stage}" -format UDZO "${DIST_DIR}/${name}.dmg"
     rm -rf "${stage}"
-    ditto -c -k --norsrc --keepParent "${DIST_DIR}/X-AnyLabeling.app" "${DIST_DIR}/${name}-Portable.zip"
-    (cd "${DIST_DIR}" && shasum -a 256 "${name}.dmg" > "${name}.dmg.sha256" && shasum -a 256 "${name}-Portable.zip" > "${name}-Portable.zip.sha256")
+    ditto -c -k --norsrc --keepParent "${DIST_DIR}/X-AnyLabeling.app" "${DIST_DIR}/${name}.zip"
+    (cd "${DIST_DIR}" && shasum -a 256 "${name}.dmg" > "${name}.dmg.sha256" && shasum -a 256 "${name}.zip" > "${name}.zip.sha256")
 }
 
 case "${system}" in
@@ -175,7 +175,8 @@ case "${system}" in
         prepare_update_bundle "${DIST_DIR}/X-AnyLabeling" "${variant}"
         require_command powershell.exe
         powershell.exe -NoProfile -ExecutionPolicy Bypass -File "${SCRIPT_DIR}/package_windows.ps1" -Variant "${variant}"
-        package_update_bundle "${DIST_DIR}/X-AnyLabeling"
+        version=$(sed -n 's/^__version__ = "\([^"]*\)"/\1/p' "${ROOT_DIR}/anylabeling/app_info.py")
+        package_update_bundle "${DIST_DIR}/X-AnyLabeling" "${DIST_DIR}/X-AnyLabeling-v${version}-Windows-${variant}-Setup.exe"
         ;;
     linux-cpu-bundle|linux-gpu-bundle)
         export X_ANYLABELING_PACKAGE_MODE=onedir
@@ -189,14 +190,14 @@ case "${system}" in
             build_with_spec "Linux CPU folder" "CPU" "${SPEC_DIR}/x-anylabeling-linux-cpu.spec"
         fi
         package_linux_bundle
-        package_update_bundle "${DIST_DIR}/X-AnyLabeling"
         ;;
     macos-installer)
         export X_ANYLABELING_PACKAGE_MODE=onedir
         build_with_spec "macOS app folder" "CPU" "${SPEC_DIR}/x-anylabeling-macos.spec"
         prepare_update_bundle "${DIST_DIR}/X-AnyLabeling.app" CPU
         package_macos_dmg
-        package_update_bundle "${DIST_DIR}/X-AnyLabeling.app"
+        version=$(sed -n 's/^__version__ = "\([^"]*\)"/\1/p' "${ROOT_DIR}/anylabeling/app_info.py")
+        package_update_bundle "${DIST_DIR}/X-AnyLabeling.app" "${DIST_DIR}/X-AnyLabeling-v${version}-macOS-$(uname -m)-unsigned.zip"
         ;;
     win-cpu)
         build_with_spec "Windows CPU" "CPU" "${SPEC_DIR}/x-anylabeling-win-cpu.spec"
@@ -204,11 +205,27 @@ case "${system}" in
     win-gpu)
         build_with_spec "Windows GPU" "GPU" "${SPEC_DIR}/x-anylabeling-win-gpu.spec"
         ;;
-    linux-cpu)
-        build_with_spec "Linux CPU" "CPU" "${SPEC_DIR}/x-anylabeling-linux-cpu.spec"
-        ;;
-    linux-gpu)
-        build_with_spec "Linux GPU" "GPU" "${SPEC_DIR}/x-anylabeling-linux-gpu.spec"
+    linux-cpu|linux-gpu)
+        export X_ANYLABELING_PACKAGE_MODE=onefile
+        variant=${X_ANYLABELING_VARIANT:-CPU}
+        device=CPU
+        if [ "${system}" = linux-gpu ]; then
+            variant=${X_ANYLABELING_VARIANT:-CUDA12}
+            [[ "${variant}" =~ ^CUDA(11|12|13)$ ]] || fail "GPU builds require a CUDA variant."
+            device=GPU
+        else
+            [ "${variant}" = CPU ] || fail "CPU builds require the CPU variant."
+        fi
+        export X_ANYLABELING_UPDATE_RESOURCES="${ROOT_DIR}/build/linux-update-resources"
+        mkdir -p "${X_ANYLABELING_UPDATE_RESOURCES}"
+        prepare_update_bundle "${X_ANYLABELING_UPDATE_RESOURCES}" "${variant}"
+        build_with_spec "Linux ${variant}" "${device}" "${SPEC_DIR}/x-anylabeling-${system}.spec"
+        version=$(sed -n 's/^__version__ = "\([^"]*\)"/\1/p' "${ROOT_DIR}/anylabeling/app_info.py")
+        artifact="${DIST_DIR}/X-AnyLabeling-v${version}-Linux-${variant}"
+        if [ "${device}" = GPU ]; then
+            mv "${DIST_DIR}/X-AnyLabeling-v${version}-Linux-GPU" "${artifact}"
+        fi
+        package_update_bundle "${X_ANYLABELING_UPDATE_RESOURCES}" "${artifact}"
         ;;
     macos)
         build_with_spec "macOS" "CPU" "${SPEC_DIR}/x-anylabeling-macos.spec"

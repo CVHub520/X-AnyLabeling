@@ -6,11 +6,11 @@ Build from the repository root on the target operating system with the matching 
 
 ```bash
 bash scripts/build_executable.sh win-cpu-installer
-bash scripts/build_executable.sh linux-cpu-bundle
+bash scripts/build_executable.sh linux-cpu
 bash scripts/build_executable.sh macos-installer
 ```
 
-Windows requires PowerShell and Inno Setup 6.7.3 or later. For Windows and Linux GPU builds, use `win-gpu-installer` or `linux-gpu-bundle` and set `X_ANYLABELING_VARIANT` to `CUDA11`, `CUDA12`, or `CUDA13`. Install the corresponding dependency extra: `gpu-cu11`, `gpu`, or `gpu-cu13`.
+Windows requires PowerShell and Inno Setup 6.7.3 or later. For Windows and Linux GPU builds, use `win-gpu-installer` or `linux-gpu` and set `X_ANYLABELING_VARIANT` to `CUDA11`, `CUDA12`, or `CUDA13`. Install the corresponding dependency extra: `gpu-cu11`, `gpu`, or `gpu-cu13`.
 
 Build outputs go to `dist/`. PyInstaller specifications are in `packaging/pyinstaller/specs`; platform installers are in `packaging/windows` and `packaging/linux`.
 
@@ -33,7 +33,11 @@ Configure these GitHub Actions settings:
 | `UPDATE_FEED_URL` | Variable | Optional HTTPS manifest URL for forks or custom hosting |
 | `AUTO_UPDATE_ENABLED` | Variable | Set to `true` after testing installation and updates on each target platform |
 
-Keep a secure backup of the signing key and reuse it for future releases; key rotation is not supported. Builds without `UPDATE_PUBLIC_KEY` cannot install updates automatically. Source checkouts and older single-file builds retain their existing update behavior.
+Keep a secure backup of the signing key and reuse it for future releases; key rotation is not supported. Builds without `UPDATE_PUBLIC_KEY` cannot install updates automatically. Linux single-file builds embed their update metadata and helper. Source checkouts do not install updates automatically.
+
+Updates reuse the published Windows `Setup.exe`, macOS application ZIP, and Linux executable. No separate `Update.zip` is generated or uploaded. The signed manifest records the format, size, and SHA-256 digest of each release artifact.
+
+The Windows installer supports `/UPDATESTAGE=1` for extracting into an isolated staging directory without changing shortcuts or uninstall registration. The updater verifies the staged application, replaces the installation, and restores the previous version if startup fails. Linux replaces the existing executable in place, preserving its filename; macOS replaces the application bundle.
 
 Update signatures do not replace Windows code signing or macOS signing and notarization.
 

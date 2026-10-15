@@ -157,7 +157,12 @@ class UpdateController(QObject):
             try:
                 archive = download_update(
                     self.artifact,
-                    directory / "update.zip",
+                    directory
+                    / (
+                        "setup.exe"
+                        if self.artifact["kind"] == "installer"
+                        else "update.bin"
+                    ),
                     self.cancel,
                     self.progress.emit,
                 )
@@ -197,6 +202,7 @@ class UpdateController(QObject):
             "root": self.context["root"],
             "target": self.context["target"],
             "manifest": self.manifest,
+            "info": self.context["info"],
             "archive": archive,
             "pid": os.getpid(),
             "arguments": sys.argv[1:],
@@ -214,6 +220,8 @@ class UpdateController(QObject):
         self.busy = True
         try:
             shutil.copy2(self.context["helper"], helper)
+            if sys.platform != "win32":
+                helper.chmod(0o700)
             path = directory / "plan.json"
             path.write_text(json.dumps(plan), encoding="utf-8")
             prepared = directory / "prepared"
@@ -341,9 +349,14 @@ class UpdateController(QObject):
 def acknowledge_update():
     path = os.environ.pop("X_ANYLABELING_UPDATE_READY_FILE", None)
     token = os.environ.pop("X_ANYLABELING_UPDATE_TOKEN", None)
+    expected = os.environ.pop("X_ANYLABELING_UPDATE_VERSION", None)
     if path and token:
         context = installation()
-        if context is None or context["info"]["version"] != __version__:
+        if (
+            context is None
+            or context["info"]["version"] != __version__
+            or (expected is not None and expected != __version__)
+        ):
             logger.error(
                 "The installed update does not match the running application version."
             )

@@ -306,21 +306,16 @@ jobs:
           PY
 
       - name: Build executable
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux' || (runner.os == 'macOS' && vars.AUTO_UPDATE_ENABLED != 'true')
         shell: bash
+        env:
+          X_ANYLABELING_VARIANT: ${{ matrix.cuda && format('CUDA{0}', matrix.cuda) || 'CPU' }}
+          X_ANYLABELING_UPDATE_PUBLIC_KEY: ${{ vars.UPDATE_PUBLIC_KEY }}
+          X_ANYLABELING_UPDATE_FEED_URL: ${{ vars.UPDATE_FEED_URL }}
         run: bash scripts/build_executable.sh "${{ matrix.target }}"
 
-      - name: Name CUDA artifact
-        if: runner.os == 'Linux' && matrix.cuda != ''
-        shell: bash
-        run: |
-          version="${RELEASE_TAG#v}"
-          mv \
-            "dist/X-AnyLabeling-v${version}-Linux-GPU" \
-            "dist/X-AnyLabeling-v${version}-Linux-CUDA${{ matrix.cuda }}"
-
       - name: Build installation and update packages
-        if: runner.os == 'Windows' || vars.AUTO_UPDATE_ENABLED == 'true'
+        if: runner.os == 'Windows' || (runner.os == 'macOS' && vars.AUTO_UPDATE_ENABLED == 'true')
         shell: bash
         env:
           LEGACY_TARGET: ${{ matrix.target }}
@@ -350,9 +345,7 @@ jobs:
           path: |
             ${{ matrix.files }}
             dist/*-Setup.exe
-            dist/*-macOS-*-Portable.zip
             dist/*-unsigned.dmg
-            dist/*-Update.zip
             dist/update-artifact-*.json
           if-no-files-found: error
           retention-days: 7
