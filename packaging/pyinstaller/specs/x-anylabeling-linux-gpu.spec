@@ -53,7 +53,6 @@ a = Analysis(
     pathex=[_p('anylabeling')],
     binaries=expat_binaries,
     datas=[
-        (_p('anylabeling', 'services', 'auto_labeling', 'osam', 'clip', 'bpe_simple_vocab_16e6.txt.gz'), 'anylabeling/services/auto_labeling/osam/clip'),
         (_p('anylabeling', 'configs', 'auto_labeling', '*.yaml'), 'anylabeling/configs/auto_labeling'),
         (_p('anylabeling', 'configs', '*.yaml'), 'anylabeling/configs'),
         (_p('anylabeling', 'services', 'auto_training', 'ultralytics', 'worker.py'), 'anylabeling/services/auto_training/ultralytics'),
