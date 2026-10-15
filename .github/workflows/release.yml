@@ -170,28 +170,24 @@ jobs:
             target: win-cpu
             extra: cpu
             artifact: windows-cpu
-            files: dist/X-AnyLabeling-v*-CPU.exe
           - name: Windows CUDA 12
             os: windows-2022
             target: win-gpu
             extra: gpu
             cuda: "12"
             artifact: windows-cuda12
-            files: dist/X-AnyLabeling-v*-Windows-CUDA12.exe
           - name: Windows CUDA 11
             os: windows-2022
             target: win-gpu
             extra: gpu-cu11
             cuda: "11"
             artifact: windows-cuda11
-            files: dist/X-AnyLabeling-v*-Windows-CUDA11.exe
           - name: Windows CUDA 13
             os: windows-2022
             target: win-gpu
             extra: gpu-cu13
             cuda: "13"
             artifact: windows-cuda13
-            files: dist/X-AnyLabeling-v*-Windows-CUDA13.exe
           - name: macOS Apple Silicon
             os: macos-15
             arch: arm64
@@ -200,7 +196,6 @@ jobs:
             artifact: macos-arm64
             files: |
               dist/*-arm64-unsigned.zip
-              dist/*-arm64-unsigned.zip.sha256
           - name: macOS Intel
             os: macos-15-intel
             arch: x86_64
@@ -209,7 +204,6 @@ jobs:
             artifact: macos-x86_64
             files: |
               dist/*-x86_64-unsigned.zip
-              dist/*-x86_64-unsigned.zip.sha256
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out release tag
@@ -251,7 +245,7 @@ jobs:
           python -c 'import os, platform; assert platform.machine() == os.environ["EXPECTED_ARCH"], "The Python architecture does not match the macOS release target."'
 
       - name: Install Windows installer compiler
-        if: runner.os == 'Windows' && vars.AUTO_UPDATE_ENABLED == 'true'
+        if: runner.os == 'Windows'
         shell: pwsh
         run: |
           $compiler = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6/ISCC.exe'
@@ -261,7 +255,7 @@ jobs:
           }
 
       - name: Test Windows installer rollback
-        if: runner.os == 'Windows' && matrix.extra == 'cpu' && vars.AUTO_UPDATE_ENABLED == 'true'
+        if: runner.os == 'Windows' && matrix.extra == 'cpu'
         shell: pwsh
         run: |
           $env:INNO_SETUP_COMPILER = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6/ISCC.exe'
@@ -312,34 +306,32 @@ jobs:
           PY
 
       - name: Build executable
+        if: runner.os != 'Windows'
         shell: bash
         run: bash scripts/build_executable.sh "${{ matrix.target }}"
 
       - name: Name CUDA artifact
-        if: matrix.cuda != ''
+        if: runner.os == 'Linux' && matrix.cuda != ''
         shell: bash
         run: |
           version="${RELEASE_TAG#v}"
-          if [ "${{ matrix.target }}" = "linux-gpu" ]; then
-            mv \
-              "dist/X-AnyLabeling-v${version}-Linux-GPU" \
-              "dist/X-AnyLabeling-v${version}-Linux-CUDA${{ matrix.cuda }}"
-          else
-            mv \
-              "dist/X-AnyLabeling-v${version}-GPU.exe" \
-              "dist/X-AnyLabeling-v${version}-Windows-CUDA${{ matrix.cuda }}.exe"
-          fi
+          mv \
+            "dist/X-AnyLabeling-v${version}-Linux-GPU" \
+            "dist/X-AnyLabeling-v${version}-Linux-CUDA${{ matrix.cuda }}"
 
       - name: Build installation and update packages
-        if: vars.AUTO_UPDATE_ENABLED == 'true'
+        if: runner.os == 'Windows' || vars.AUTO_UPDATE_ENABLED == 'true'
         shell: bash
         env:
           LEGACY_TARGET: ${{ matrix.target }}
           CUDA_MAJOR: ${{ matrix.cuda }}
           X_ANYLABELING_UPDATE_PUBLIC_KEY: ${{ vars.UPDATE_PUBLIC_KEY }}
           X_ANYLABELING_UPDATE_FEED_URL: ${{ vars.UPDATE_FEED_URL }}
+          AUTO_UPDATE_ENABLED: ${{ vars.AUTO_UPDATE_ENABLED }}
         run: |
-          test -n "${X_ANYLABELING_UPDATE_PUBLIC_KEY}"
+          if [ "${AUTO_UPDATE_ENABLED}" = true ]; then
+            test -n "${X_ANYLABELING_UPDATE_PUBLIC_KEY}"
+          fi
           export X_ANYLABELING_VARIANT=CPU
           if [ -n "${CUDA_MAJOR}" ]; then
             export X_ANYLABELING_VARIANT="CUDA${CUDA_MAJOR}"
@@ -358,15 +350,10 @@ jobs:
           path: |
             ${{ matrix.files }}
             dist/*-Setup.exe
-            dist/*-Setup.exe.sha256
-            dist/*-Portable.zip
-            dist/*-Portable.zip.sha256
+            dist/*-macOS-*-Portable.zip
             dist/*-Portable.tar.gz
-            dist/*-Portable.tar.gz.sha256
             dist/*-unsigned.dmg
-            dist/*-unsigned.dmg.sha256
             dist/*-Update.zip
-            dist/*-Update.zip.sha256
             dist/update-artifact-*.json
           if-no-files-found: error
           retention-days: 7
@@ -453,6 +440,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v8
         with:
+          pattern: '{linux,windows,macos}-*'
           path: release-assets
           merge-multiple: true
 
@@ -466,7 +454,16 @@ jobs:
             --directory release-assets --version "${RELEASE_TAG#v}" --notes release-notes.md \
             --expected Linux-x86_64-CPU Linux-x86_64-CUDA11 Linux-x86_64-CUDA12 Linux-x86_64-CUDA13 \
             Windows-x86_64-CPU Windows-x86_64-CUDA11 Windows-x86_64-CUDA12 Windows-x86_64-CUDA13 Darwin-arm64-CPU Darwin-x86_64-CPU
-          rm release-assets/update-artifact-*.json
+
+      - name: Remove intermediate update descriptors
+        run: rm -f release-assets/update-artifact-*.json
+
+      - name: Generate release checksums
+        working-directory: release-assets
+        run: |
+          find . -maxdepth 1 -type f ! -name SHA256SUMS.txt -printf '%f\0' \
+            | sort -z \
+            | xargs -0 sha256sum > SHA256SUMS.txt
 
       - name: Publish release
         uses: softprops/action-gh-release@v3

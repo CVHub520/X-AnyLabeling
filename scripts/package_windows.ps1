@@ -26,11 +26,6 @@ if (-not (Test-Path $compiler)) { throw 'Install Inno Setup 6 before packaging.'
 if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
 
 $baseName = "X-AnyLabeling-v$appVersion-Windows-$Variant"
-$archive = Join-Path $distDir "$baseName-Portable.zip"
-if (Test-Path $archive) { Remove-Item $archive }
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-[System.IO.Compression.ZipFile]::CreateFromDirectory($sourceDir, $archive)
-foreach ($artifact in @($archive, (Join-Path $distDir "$baseName-Setup.exe"))) {
-    $hash = (Get-FileHash $artifact -Algorithm SHA256).Hash.ToLowerInvariant()
-    "$hash  $(Split-Path $artifact -Leaf)" | Set-Content "$artifact.sha256" -Encoding ASCII
-}
+$artifact = Join-Path $distDir "$baseName-Setup.exe"
+$hash = (Get-FileHash $artifact -Algorithm SHA256).Hash.ToLowerInvariant()
+"$hash  $(Split-Path $artifact -Leaf)" | Set-Content "$artifact.sha256" -Encoding ASCII

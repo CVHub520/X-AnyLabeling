@@ -1,5 +1,27 @@
 # X-AnyLabeling Changelog
 
+## `v4.1.2` (Oct 15, 2026)
+
+X-AnyLabeling 4.1.2 fixes annotation loading and saving issues and simplifies release downloads.
+
+### 🐛 Bug Fixes
+
+- Preserve shape color settings when switching images. (#1465)
+- Resolve image paths correctly when loading annotations. (#1462)
+- Initialize missing label files with the standard schema during chatbot batch saving. (#1461)
+
+### 🛠️ Improvements
+
+- Distribute Windows installers and in-app update packages without standalone executables or portable archives.
+- Consolidate release checksums into a single SHA256SUMS.txt file.
+- Keep Python wheel and source distributions on PyPI instead of duplicating them in GitHub release assets.
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @BatmannLv, @CVHub520
+
 ## `v4.1.1` (Oct 13, 2026)
 
 X-AnyLabeling 4.1.1 adds installation packages and signed in-app updates while preserving the existing update workflow for source checkouts and single-file builds.
