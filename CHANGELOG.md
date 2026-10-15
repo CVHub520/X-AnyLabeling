@@ -1,5 +1,29 @@
 # X-AnyLabeling Changelog
 
+## `v4.1.3` (Oct 16, 2026)
+
+X-AnyLabeling 4.1.3 improves automatic updates and release packaging while fixing prompt interaction state handling.
+
+### 🚀 New Features
+
+- Reuse published release packages for automatic updates.
+- Reuse macOS disk images for automatic updates.
+
+### 🐛 Bug Fixes
+
+- Reset prompt interaction state when switching auto-labeling models.
+- Include the CLIP BPE vocabulary in Python distributions and executable builds.
+
+### 🛠️ Improvements
+
+- Stop uploading Linux portable tarballs from release workflows.
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v4.1.2` (Oct 15, 2026)
 
 X-AnyLabeling 4.1.2 fixes annotation loading and saving issues and simplifies release downloads.
