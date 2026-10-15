@@ -35,9 +35,9 @@ Configure these GitHub Actions settings:
 
 Keep a secure backup of the signing key and reuse it for future releases; key rotation is not supported. Builds without `UPDATE_PUBLIC_KEY` cannot install updates automatically. Linux single-file builds embed their update metadata and helper. Source checkouts do not install updates automatically.
 
-Updates reuse the published Windows `Setup.exe`, macOS application ZIP, and Linux executable. No separate `Update.zip` is generated or uploaded. The signed manifest records the format, size, and SHA-256 digest of each release artifact.
+Updates reuse the published Windows `Setup.exe`, macOS DMG, and Linux executable. No separate `Update.zip` is generated or uploaded. The signed manifest records the format, size, and SHA-256 digest of each release artifact.
 
-The Windows installer supports `/UPDATESTAGE=1` for extracting into an isolated staging directory without changing shortcuts or uninstall registration. The updater verifies the staged application, replaces the installation, and restores the previous version if startup fails. Linux replaces the existing executable in place, preserving its filename; macOS replaces the application bundle.
+The Windows installer supports `/UPDATESTAGE=1` for extracting into an isolated staging directory without changing shortcuts or uninstall registration. The updater verifies the staged application, replaces the installation, and restores the previous version if startup fails. Linux replaces the existing executable in place, preserving its filename; macOS mounts the DMG read-only, copies the application bundle to staging with `ditto`, and detaches the image before replacing the installed application.
 
 Update signatures do not replace Windows code signing or macOS signing and notarization.
 

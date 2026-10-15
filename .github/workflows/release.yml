@@ -194,16 +194,12 @@ jobs:
             target: macos
             extra: cpu
             artifact: macos-arm64
-            files: |
-              dist/*-arm64-unsigned.zip
           - name: macOS Intel
             os: macos-15-intel
             arch: x86_64
             target: macos
             extra: cpu
             artifact: macos-x86_64
-            files: |
-              dist/*-x86_64-unsigned.zip
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out release tag
@@ -262,6 +258,10 @@ jobs:
           python -m pytest tests/test_updates/test_windows_installer.py
           if ($LASTEXITCODE) { throw 'Windows installer regression tests failed' }
 
+      - name: Test macOS disk image updates
+        if: runner.os == 'macOS'
+        run: python -m pytest tests/test_updates/test_updates.py tests/test_updates/test_packaging.py
+
       - name: Verify CUDA dependencies
         if: matrix.cuda != ''
         shell: bash
@@ -306,7 +306,7 @@ jobs:
           PY
 
       - name: Build executable
-        if: runner.os == 'Linux' || (runner.os == 'macOS' && vars.AUTO_UPDATE_ENABLED != 'true')
+        if: runner.os == 'Linux'
         shell: bash
         env:
           X_ANYLABELING_VARIANT: ${{ matrix.cuda && format('CUDA{0}', matrix.cuda) || 'CPU' }}
@@ -315,7 +315,7 @@ jobs:
         run: bash scripts/build_executable.sh "${{ matrix.target }}"
 
       - name: Build installation and update packages
-        if: runner.os == 'Windows' || (runner.os == 'macOS' && vars.AUTO_UPDATE_ENABLED == 'true')
+        if: runner.os == 'Windows' || runner.os == 'macOS'
         shell: bash
         env:
           LEGACY_TARGET: ${{ matrix.target }}

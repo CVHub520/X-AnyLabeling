@@ -27,7 +27,7 @@ spec.loader.exec_module(packaging)
     "system,kind,name",
     [
         ("Windows", "installer", "X-AnyLabeling-Setup.exe"),
-        ("Darwin", "zip", "X-AnyLabeling-macOS-unsigned.zip"),
+        ("Darwin", "dmg", "X-AnyLabeling-macOS-unsigned.dmg"),
         ("Linux", "executable", "X-AnyLabeling-Linux-CPU"),
     ],
 )

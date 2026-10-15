@@ -176,7 +176,7 @@ def select_artifact(envelope, info):
     )
     expected_kind = {
         "Windows": "installer",
-        "Darwin": "zip",
+        "Darwin": "dmg",
         "Linux": "executable",
     }[info["platform"]]
     if artifact.get("kind") != expected_kind:

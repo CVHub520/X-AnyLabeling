@@ -2,12 +2,10 @@ import base64
 import hashlib
 import json
 import os
-import stat
 import subprocess
 import sys
 import threading
 import time
-import zipfile
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -309,63 +307,6 @@ def test_https_redirect_downgrade_is_rejected(tmp_path, monkeypatch):
         )
 
 
-@pytest.mark.parametrize(
-    "name",
-    [
-        "../escape",
-        "/absolute",
-        "OtherApp/file",
-        "X-AnyLabeling/../../escape",
-        "X-AnyLabeling/file:stream",
-        "X-AnyLabeling\\escape",
-    ],
-)
-def test_archive_path_traversal_is_rejected(tmp_path, name):
-    path = tmp_path / "update.zip"
-    with zipfile.ZipFile(path, "w") as archive:
-        entry = zipfile.ZipInfo(name)
-        entry.filename = name
-        archive.writestr(entry, "bad")
-    with pytest.raises(ValueError, match="unsafe"):
-        installer.extract_update(path, tmp_path / "stage", "X-AnyLabeling")
-    assert not (tmp_path / "escape").exists()
-
-
-@pytest.mark.skipif(
-    sys.platform == "win32", reason="Requires POSIX permissions and symlinks"
-)
-def test_archive_preserves_executable_and_safe_macos_symlinks(tmp_path):
-    path = tmp_path / "update.zip"
-    with zipfile.ZipFile(path, "w") as archive:
-        executable = zipfile.ZipInfo(
-            "X-AnyLabeling.app/Contents/MacOS/X-AnyLabeling"
-        )
-        executable.external_attr = (stat.S_IFREG | 0o755) << 16
-        archive.writestr(executable, "executable")
-        link = zipfile.ZipInfo("X-AnyLabeling.app/Contents/MacOS/current")
-        link.external_attr = (stat.S_IFLNK | 0o777) << 16
-        archive.writestr(link, "X-AnyLabeling")
-    root = installer.extract_update(
-        path, tmp_path / "stage", "X-AnyLabeling.app"
-    )
-    assert (
-        root / "Contents/MacOS/X-AnyLabeling"
-    ).stat().st_mode & stat.S_IXUSR
-    assert (
-        root / "Contents/MacOS/current"
-    ).resolve().read_text() == "executable"
-
-
-def test_archive_rejects_external_symlink(tmp_path):
-    path = tmp_path / "update.zip"
-    with zipfile.ZipFile(path, "w") as archive:
-        link = zipfile.ZipInfo("X-AnyLabeling/link")
-        link.external_attr = (stat.S_IFLNK | 0o777) << 16
-        archive.writestr(link, "../../escape")
-    with pytest.raises(ValueError, match="unsafe"):
-        installer.extract_update(path, tmp_path / "stage", "X-AnyLabeling")
-
-
 def test_directory_replacement_keeps_uninstaller_and_rolls_back(
     tmp_path, signing
 ):
@@ -438,6 +379,8 @@ def test_second_rename_failure_restores_original(
 def test_real_helper_process_updates_or_restores_old_app(
     tmp_path, signing, fail_startup, system
 ):
+    if system == "Darwin" and sys.platform != "darwin":
+        pytest.skip("Requires native macOS disk image tools")
     info, sign = signing
     info["platform"] = system
     root = tmp_path / (
@@ -474,20 +417,37 @@ while True:
         metadata = root / "Contents/Resources/build-info.json"
         metadata.parent.mkdir()
         metadata.write_text(json.dumps(info))
-        with zipfile.ZipFile(archive, "w") as package:
-            package.writestr(
-                "X-AnyLabeling.app/Contents/Resources/build-info.json",
-                json.dumps({**info, "version": "2.0.0"}),
-            )
-            entry = zipfile.ZipInfo(
-                "X-AnyLabeling.app/Contents/MacOS/X-AnyLabeling"
-            )
-            entry.external_attr = (stat.S_IFREG | 0o755) << 16
-            package.writestr(entry, new_script)
+        import shutil
+
+        image_root = tmp_path / "image-root"
+        bundle = image_root / "X-AnyLabeling.app"
+        shutil.copytree(root, bundle)
+        (bundle / "Contents/MacOS/X-AnyLabeling").write_text(new_script)
+        (bundle / "Contents/Resources/build-info.json").write_text(
+            json.dumps({**info, "version": "2.0.0"})
+        )
+        (bundle / "Contents/MacOS/current").symlink_to("X-AnyLabeling")
+        archive = archive.with_suffix(".dmg")
+        subprocess.run(
+            [
+                "/usr/bin/hdiutil",
+                "create",
+                "-ov",
+                "-fs",
+                "HFS+",
+                "-srcfolder",
+                str(image_root),
+                "-format",
+                "UDZO",
+                str(archive),
+            ],
+            check=True,
+            capture_output=True,
+        )
         package_info = {
             **artifact(archive.read_bytes()),
             "root": "X-AnyLabeling.app",
-            "kind": "zip",
+            "kind": "dmg",
         }
     plan = {
         "root": str(root),
@@ -516,11 +476,13 @@ while True:
                 ],
                 stdout=log,
                 stderr=log,
-                timeout=20,
+                timeout=120 if system == "Darwin" else 20,
             )
         assert result.returncode == (1 if fail_startup else 0), (
             tmp_path / "helper.log"
         ).read_text()
+        if system == "Darwin" and not fail_startup:
+            assert (executable.parent / "current").is_symlink()
         assert executable.read_text() == (
             script if fail_startup else new_script
         )
@@ -634,34 +596,11 @@ def test_windows_update_architecture_matches_interpreter_on_arm_hardware(
 def test_intel_macos_updates_do_not_select_apple_silicon_packages(signing):
     info, sign = signing
     info["platform"] = "Darwin"
-    envelope = sign({**artifact(), "root": "X-AnyLabeling.app", "kind": "zip"})
+    envelope = sign({**artifact(), "root": "X-AnyLabeling.app", "kind": "dmg"})
     assert protocol.select_artifact(envelope, info)["version"] == "2.0.0"
     assert (
         protocol.select_artifact(envelope, {**info, "arch": "arm64"}) is None
     )
-
-
-@pytest.mark.skipif(
-    sys.platform == "win32", reason="Requires symlink privileges"
-)
-def test_archive_allows_internal_links_under_an_aliased_destination(tmp_path):
-    actual = tmp_path / "actual"
-    actual.mkdir()
-    alias = tmp_path / "alias"
-    alias.symlink_to(actual, target_is_directory=True)
-    archive_path = tmp_path / "update.zip"
-    with zipfile.ZipFile(archive_path, "w") as archive:
-        archive.writestr(
-            "X-AnyLabeling.app/Contents/MacOS/X-AnyLabeling", "app"
-        )
-        link = zipfile.ZipInfo("X-AnyLabeling.app/Contents/MacOS/current")
-        link.external_attr = (stat.S_IFLNK | 0o777) << 16
-        archive.writestr(link, "X-AnyLabeling")
-    root = installer.extract_update(
-        archive_path, alias / "stage", "X-AnyLabeling.app"
-    )
-    assert root == actual / "stage/X-AnyLabeling.app"
-    assert (root / "Contents/MacOS/current").read_text() == "app"
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux single-file layout")
@@ -709,3 +648,80 @@ def test_interrupted_single_file_update_can_be_recovered(tmp_path):
     installer.recover_interrupted(result)
     assert target.read_bytes() == b"old"
     assert json.loads(result.read_text())["status"] == "failed"
+
+
+@pytest.mark.skipif(os.name == "nt", reason="Requires POSIX symlinks")
+@pytest.mark.parametrize(
+    "failure", [None, "attach", "missing", "symlink", "copy", "detach"]
+)
+def test_dmg_staging_detaches_and_preserves_existing_installation(
+    tmp_path, monkeypatch, failure
+):
+    import shutil
+
+    mount = tmp_path / "mount"
+    mount.mkdir()
+    destination = tmp_path / "staging"
+    destination.mkdir()
+    installed = tmp_path / "installed.app"
+    installed.mkdir()
+    (installed / "user-data").write_text("untouched")
+    image = tmp_path / "release.dmg"
+    image.touch()
+    calls = []
+    monkeypatch.setattr(installer.sys, "platform", "darwin")
+    monkeypatch.setattr(
+        installer.tempfile, "mkdtemp", lambda **kwargs: str(mount)
+    )
+
+    def run(args, **kwargs):
+        operation = "copy" if args[0].endswith("ditto") else args[1]
+        calls.append(operation)
+        assert kwargs["check"]
+        if operation == failure:
+            raise subprocess.CalledProcessError(1, args)
+        if operation == "attach":
+            assert "-readonly" in args and "-nobrowse" in args
+            if failure == "missing":
+                return
+            bundle = mount / "X-AnyLabeling.app"
+            if failure == "symlink":
+                bundle.symlink_to(installed, target_is_directory=True)
+                return
+            bundle.mkdir()
+            (bundle / "application").write_text("new")
+            (bundle / "current").symlink_to("application")
+        elif operation == "copy":
+            shutil.copytree(args[1], args[2], symlinks=True)
+        elif operation == "detach":
+            for child in mount.iterdir():
+                if child.is_symlink():
+                    child.unlink()
+                else:
+                    shutil.rmtree(child)
+
+    monkeypatch.setattr(installer.subprocess, "run", run)
+    if failure:
+        with pytest.raises((ValueError, subprocess.CalledProcessError)):
+            installer.stage_update(
+                image,
+                destination,
+                {"kind": "dmg", "root": "X-AnyLabeling.app"},
+            )
+    else:
+        staged = installer.stage_update(
+            image, destination, {"kind": "dmg", "root": "X-AnyLabeling.app"}
+        )
+        assert (staged / "application").read_text() == "new"
+        assert (staged / "current").is_symlink()
+    assert calls == (
+        ["attach"]
+        if failure == "attach"
+        else (
+            ["attach", "detach"]
+            if failure in ("missing", "symlink")
+            else ["attach", "copy", "detach"]
+        )
+    )
+    assert mount.exists() == (failure == "detach")
+    assert (installed / "user-data").read_text() == "untouched"

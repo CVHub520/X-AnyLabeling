@@ -2,14 +2,12 @@ import argparse
 import json
 import os
 import shutil
-import stat
 import subprocess
 import sys
 import tempfile
 import time
 import uuid
-import zipfile
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 
 import psutil
 
@@ -31,68 +29,50 @@ def write_json(path, value):
     temporary.replace(path)
 
 
-def extract_update(archive, destination, root_name):
-    destination = Path(destination).resolve()
-    links = []
-    seen = set()
-    with zipfile.ZipFile(archive) as package:
-        for member in package.infolist():
-            path = PurePosixPath(member.orig_filename)
-            if (
-                not path.parts
-                or path.is_absolute()
-                or ".." in path.parts
-                or "\\" in member.orig_filename
-                or ":" in member.orig_filename
-                or path.parts[0] != root_name
-                or path in seen
-            ):
-                raise ValueError("The update archive contains an unsafe path.")
-            seen.add(path)
-            target = destination.joinpath(*path.parts)
-            mode = member.external_attr >> 16
-            if stat.S_ISLNK(mode):
-                link = package.read(member).decode("utf-8")
-                resolved = (target.parent / link).resolve()
-                if Path(link).is_absolute() or not resolved.is_relative_to(
-                    destination / root_name
-                ):
-                    raise ValueError(
-                        "The update archive contains an unsafe symbolic link."
-                    )
-                links.append((target, link))
-            elif member.is_dir():
-                target.mkdir(parents=True, exist_ok=True)
-            elif mode and stat.S_IFMT(mode) not in (0, stat.S_IFREG):
-                raise ValueError("The update archive contains a special file.")
-            else:
-                target.parent.mkdir(parents=True, exist_ok=True)
-                with (
-                    package.open(member) as source,
-                    target.open("xb") as output,
-                ):
-                    shutil.copyfileobj(source, output, 1024 * 1024)
-                target.chmod((mode & 0o777) or 0o644)
-    for target, link in links:
-        target.parent.mkdir(parents=True, exist_ok=True)
-        if target.exists() or target.is_symlink():
-            raise ValueError(
-                "An update symbolic link overlaps another archive entry."
-            )
-        target.symlink_to(link)
-    for target, _ in links:
-        if not target.resolve().is_relative_to(destination / root_name):
-            raise ValueError(
-                "An update symbolic link escapes the application directory."
-            )
-    return destination / root_name
-
-
 def stage_update(archive, destination, artifact):
     destination = Path(destination)
-    if artifact["kind"] == "zip":
-        return extract_update(archive, destination, artifact["root"])
     staged = destination / artifact["root"]
+    if artifact["kind"] == "dmg":
+        if sys.platform != "darwin":
+            raise ValueError("DMG updates require macOS.")
+        mount = Path(tempfile.mkdtemp(prefix="xanylabeling-volume-"))
+        attached = False
+        try:
+            subprocess.run(
+                [
+                    "/usr/bin/hdiutil",
+                    "attach",
+                    str(archive),
+                    "-readonly",
+                    "-nobrowse",
+                    "-noautoopen",
+                    "-mountpoint",
+                    str(mount),
+                ],
+                check=True,
+                env=child_environment(),
+            )
+            attached = True
+            source = mount / artifact["root"]
+            if source.is_symlink() or not source.is_dir():
+                raise ValueError(
+                    "The disk image does not contain an application bundle."
+                )
+            subprocess.run(
+                ["/usr/bin/ditto", str(source), str(staged)],
+                check=True,
+                env=child_environment(),
+            )
+        finally:
+            if attached or os.path.ismount(mount):
+                subprocess.run(
+                    ["/usr/bin/hdiutil", "detach", str(mount)],
+                    check=True,
+                    env=child_environment(),
+                )
+            if mount.exists():
+                mount.rmdir()
+        return staged
     if artifact["kind"] == "executable":
         shutil.copy2(archive, staged)
         staged.chmod(0o755)

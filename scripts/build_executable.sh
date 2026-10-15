@@ -45,63 +45,6 @@ build_with_spec() {
     pyinstaller --noconfirm "${spec_path}"
 }
 
-package_macos_release_zip() {
-    local apps app_path latest_app app_name exe_name exe_path arch_info arch zip_name zip_path sha_path
-
-    apps=("${DIST_DIR}"/X-AnyLabeling-v*-macOS.app)
-    if [ ! -e "${apps[0]}" ]; then
-        fail "No macOS .app bundle found in ${DIST_DIR}."
-    fi
-
-    latest_app=${apps[0]}
-    for app_path in "${apps[@]}"; do
-        if [ "${app_path}" -nt "${latest_app}" ]; then
-            latest_app=${app_path}
-        fi
-    done
-
-    app_path=${latest_app}
-    app_name=$(basename "${app_path}" .app)
-
-    require_command ditto
-    require_command file
-    require_command shasum
-    [ -x /usr/libexec/PlistBuddy ] || fail "Required command '/usr/libexec/PlistBuddy' was not found."
-
-    exe_name=$(/usr/libexec/PlistBuddy -c "Print :CFBundleExecutable" "${app_path}/Contents/Info.plist" 2>/dev/null || true)
-    exe_path="${app_path}/Contents/MacOS/${exe_name}"
-    if [ -z "${exe_name}" ] || [ ! -f "${exe_path}" ]; then
-        fail "Failed to locate app executable in ${app_path}."
-    fi
-
-    arch_info=$(lipo -info "${exe_path}" 2>/dev/null || file "${exe_path}")
-    if [[ "${arch_info}" == *"arm64"* && "${arch_info}" == *"x86_64"* ]]; then
-        arch="universal2"
-    elif [[ "${arch_info}" == *"arm64"* ]]; then
-        arch="arm64"
-    elif [[ "${arch_info}" == *"x86_64"* ]]; then
-        arch="x86_64"
-    else
-        arch=$(uname -m)
-    fi
-
-    zip_name="${app_name}-${arch}-unsigned.zip"
-    zip_path="${DIST_DIR}/${zip_name}"
-    sha_path="${zip_path}.sha256"
-
-    echo "Packaging macOS release artifact..."
-    rm -f "${zip_path}" "${sha_path}"
-    ditto -c -k --norsrc --keepParent "${app_path}" "${zip_path}"
-
-    (
-        cd "${DIST_DIR}"
-        shasum -a 256 "${zip_name}" > "${zip_name}.sha256"
-    )
-
-    echo "Created release zip: ${zip_path}"
-    echo "Created checksum: ${sha_path}"
-}
-
 package_linux_bundle() {
     local version variant name
     version=$(sed -n 's/^__version__ = "\([^"]*\)"/\1/p' "${ROOT_DIR}/anylabeling/app_info.py")
@@ -134,7 +77,7 @@ prepare_update_bundle() {
     "${ROOT_DIR}/build/updater-dist/${helper_name}" --help > /dev/null
     python "${SCRIPT_DIR}/package_updates.py" prepare --bundle "${bundle}" \
         --variant "${variant}" --helper "${ROOT_DIR}/build/updater-dist/${helper_name}"
-    if [ "${system}" = macos-installer ]; then
+    if [[ "${system}" = macos* ]]; then
         codesign --force --deep --sign "${X_ANYLABELING_MAC_SIGN_IDENTITY:--}" "${bundle}"
         codesign --verify --deep --strict "${bundle}"
     fi
@@ -156,8 +99,7 @@ package_macos_dmg() {
     ln -s /Applications "${stage}/Applications"
     hdiutil create -ov -fs HFS+ -volname X-AnyLabeling -srcfolder "${stage}" -format UDZO "${DIST_DIR}/${name}.dmg"
     rm -rf "${stage}"
-    ditto -c -k --norsrc --keepParent "${DIST_DIR}/X-AnyLabeling.app" "${DIST_DIR}/${name}.zip"
-    (cd "${DIST_DIR}" && shasum -a 256 "${name}.dmg" > "${name}.dmg.sha256" && shasum -a 256 "${name}.zip" > "${name}.zip.sha256")
+    (cd "${DIST_DIR}" && shasum -a 256 "${name}.dmg" > "${name}.dmg.sha256")
 }
 
 case "${system}" in
@@ -191,13 +133,13 @@ case "${system}" in
         fi
         package_linux_bundle
         ;;
-    macos-installer)
+    macos|macos-installer)
         export X_ANYLABELING_PACKAGE_MODE=onedir
         build_with_spec "macOS app folder" "CPU" "${SPEC_DIR}/x-anylabeling-macos.spec"
         prepare_update_bundle "${DIST_DIR}/X-AnyLabeling.app" CPU
         package_macos_dmg
         version=$(sed -n 's/^__version__ = "\([^"]*\)"/\1/p' "${ROOT_DIR}/anylabeling/app_info.py")
-        package_update_bundle "${DIST_DIR}/X-AnyLabeling.app" "${DIST_DIR}/X-AnyLabeling-v${version}-macOS-$(uname -m)-unsigned.zip"
+        package_update_bundle "${DIST_DIR}/X-AnyLabeling.app" "${DIST_DIR}/X-AnyLabeling-v${version}-macOS-$(uname -m)-unsigned.dmg"
         ;;
     win-cpu)
         build_with_spec "Windows CPU" "CPU" "${SPEC_DIR}/x-anylabeling-win-cpu.spec"
@@ -226,10 +168,6 @@ case "${system}" in
             mv "${DIST_DIR}/X-AnyLabeling-v${version}-Linux-GPU" "${artifact}"
         fi
         package_update_bundle "${X_ANYLABELING_UPDATE_RESOURCES}" "${artifact}"
-        ;;
-    macos)
-        build_with_spec "macOS" "CPU" "${SPEC_DIR}/x-anylabeling-macos.spec"
-        package_macos_release_zip
         ;;
     -h|--help|help)
         usage

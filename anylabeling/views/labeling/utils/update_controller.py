@@ -158,11 +158,11 @@ class UpdateController(QObject):
                 archive = download_update(
                     self.artifact,
                     directory
-                    / (
-                        "setup.exe"
-                        if self.artifact["kind"] == "installer"
-                        else "update.bin"
-                    ),
+                    / {
+                        "installer": "setup.exe",
+                        "dmg": "update.dmg",
+                        "executable": "update.bin",
+                    }[self.artifact["kind"]],
                     self.cancel,
                     self.progress.emit,
                 )

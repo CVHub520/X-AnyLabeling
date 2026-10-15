@@ -84,7 +84,7 @@ def prepare(bundle, variant, helper):
 def package(bundle, output, path):
     info = json.loads(metadata_path(bundle).read_text())
     identity = f"{info['platform']}-{info['arch']}-{info['variant']}"
-    kind = {"Windows": "installer", "Darwin": "zip", "Linux": "executable"}[
+    kind = {"Windows": "installer", "Darwin": "dmg", "Linux": "executable"}[
         info["platform"]
     ]
     output.mkdir(parents=True, exist_ok=True)
