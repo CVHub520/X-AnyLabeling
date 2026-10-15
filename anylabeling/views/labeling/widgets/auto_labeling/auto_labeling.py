@@ -694,13 +694,14 @@ class AutoLabelingWidget(QWidget):
                 for data in models.values():
                     data["selected"] = False
             self.model_dropdown.save_models_data()
-            self.clear_auto_labeling_action_requested.emit()
+            self.reset_auto_labeling_interaction()
             self.hide_labeling_widgets()
             self.model_selection_button.setText(self.tr("No Model"))
             self.model_selection_button.setEnabled(True)
         self.refresh_downloaded_models()
 
     def load_custom_model_config(self, config_file):
+        self.reset_auto_labeling_interaction()
         # Unload current model first
         self.model_manager.unload_model()
         self.hide_labeling_widgets()
@@ -730,7 +731,6 @@ class AutoLabelingWidget(QWidget):
         save_json({"models_data": models_data}, _get_models_config_path())
         self.model_dropdown.update_models_data(models_data)
 
-        self.clear_auto_labeling_action_requested.emit()
         self.model_selection_button.setText(config_info["display_name"])
         self.model_selection_button.setEnabled(False)
         return True
@@ -755,7 +755,7 @@ class AutoLabelingWidget(QWidget):
         self.model_dropdown.remove_model_item(model_name)
 
         if was_loaded or (was_selected and not loaded_model):
-            self.clear_auto_labeling_action_requested.emit()
+            self.reset_auto_labeling_interaction()
             self.hide_labeling_widgets()
             self.model_selection_button.setText(self.tr("No Model"))
             self.model_selection_button.setEnabled(True)
@@ -848,7 +848,7 @@ class AutoLabelingWidget(QWidget):
 
             return
 
-        self.clear_auto_labeling_action_requested.emit()
+        self.reset_auto_labeling_interaction()
         self.model_selection_button.setText(
             self.model_info[model_name]["display_name"]
         )
@@ -957,6 +957,16 @@ class AutoLabelingWidget(QWidget):
                 self.add_neg_rect.setStyleSheet(
                     get_toggle_button_style(button_color="#FFB6C1")
                 )
+
+    def reset_auto_labeling_interaction(self):
+        self.skip_auto_prediction = False
+        self.button_auto_decode.setChecked(False)
+        self.on_auto_decode_toggled()
+        self.clear_auto_decode_requested.emit()
+        if self.auto_labeling_mode != AutoLabelingMode.NONE:
+            self.parent.set_edit_mode()
+        else:
+            self.clear_auto_labeling_action_requested.emit()
 
     def set_auto_labeling_mode(self, edit_mode, shape_type=None):
         """Set auto labeling mode"""
@@ -1590,6 +1600,7 @@ class AutoLabelingWidget(QWidget):
         self._set_combobox_tooltip(self.remote_server_select_combobox)
         model_id = self.remote_server_select_combobox.currentData()
         if model_id:
+            self.reset_auto_labeling_interaction()
             self.model_manager.set_remote_server_model(model_id)
             self.update_remote_server_widgets(model_id)
 

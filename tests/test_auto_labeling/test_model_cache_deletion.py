@@ -124,7 +124,7 @@ def test_confirm_deletion_resets_active_selection(
         model_info={"demo": {"display_name": "Demo"}},
         model_dropdown=dropdown,
         refresh_downloaded_models=Mock(),
-        clear_auto_labeling_action_requested=Mock(),
+        reset_auto_labeling_interaction=Mock(),
         hide_labeling_widgets=Mock(),
         model_selection_button=Mock(),
         tr=lambda text: text,
