@@ -60,7 +60,11 @@ from .logger import logger
 from .schema import IMAGE_TAGS_FIELD
 from .settings import SettingsController, SettingsDialog
 from .settings.runtime_applier import SettingsRuntimeApplier
-from .settings.schema import SETTINGS_SHORTCUT_SECTIONS, fields_for_page
+from .settings.schema import (
+    SETTINGS_SHORTCUT_SECTIONS,
+    fields_for_page,
+    load_template_config,
+)
 from .shape import Shape
 from .utils.file_search import (
     parse_search_pattern,
@@ -4372,7 +4376,7 @@ class LabelingWidget(LabelDialog):
             item = self.label_list.find_item_by_shape(shape)
             if item is not None:
                 if shape.group_id is None:
-                    color = shape.fill_color.getRgb()[:3]
+                    color = self._get_rgb_by_label(shape.label)
                     item.setText(
                         _format_label_list_text(shape.label, shape.group_id)
                     )
@@ -4473,7 +4477,7 @@ class LabelingWidget(LabelDialog):
 
         self._update_shape_color(shape)
         if shape.group_id is None:
-            color = shape.fill_color.getRgb()[:3]
+            color = self._get_rgb_by_label(shape.label)
             item.setText(_format_label_list_text(shape.label, shape.group_id))
             item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
         else:
@@ -5114,7 +5118,7 @@ class LabelingWidget(LabelDialog):
             action.setEnabled(True)
 
         self._update_shape_color(shape)
-        color = shape.fill_color.getRgb()[:3]
+        color = self._get_rgb_by_label(shape.label)
         label_list_item.setText(
             _format_label_list_text(shape.label, shape.group_id)
         )
@@ -5149,12 +5153,20 @@ class LabelingWidget(LabelDialog):
 
     def _update_shape_color(self, shape):
         r, g, b = self._get_rgb_by_label(shape.label)
-        shape.line_color = QtGui.QColor(r, g, b)
-        shape.vertex_fill_color = QtGui.QColor(r, g, b)
-        shape.hvertex_fill_color = QtGui.QColor(255, 255, 255)
-        shape.fill_color = QtGui.QColor(r, g, b, 128)
-        shape.select_line_color = QtGui.QColor(255, 255, 255)
-        shape.select_fill_color = QtGui.QColor(r, g, b, 155)
+        shape_config = self._config["shape"]
+        defaults = load_template_config()["shape"]
+        colors = {
+            "line_color": (r, g, b, 255),
+            "vertex_fill_color": (r, g, b, 255),
+            "hvertex_fill_color": (255, 255, 255, 255),
+            "fill_color": (r, g, b, 128),
+            "select_line_color": (255, 255, 255, 255),
+            "select_fill_color": (r, g, b, 155),
+        }
+        for key, color in colors.items():
+            if shape_config[key] != defaults[key]:
+                color = shape_config[key]
+            setattr(shape, key, QtGui.QColor(*color))
 
     def _get_rgb_by_label(self, label, skip_label_info=False):
         if label == "AUTOLABEL_ADD":
@@ -7352,7 +7364,7 @@ class LabelingWidget(LabelDialog):
                 self._update_shape_color(shape)
                 item = self.label_list.find_item_by_shape(shape)
                 if shape.group_id is None:
-                    color = shape.fill_color.getRgb()[:3]
+                    color = self._get_rgb_by_label(shape.label)
                     item.setText(
                         '{} <font color="#{:02x}{:02x}{:02x}">●</font>'.format(
                             html.escape(shape.label), *color
@@ -7369,7 +7381,7 @@ class LabelingWidget(LabelDialog):
         # Update shape colors
         for shape in self.canvas.shapes:
             self._update_shape_color(shape)
-            color = shape.fill_color.getRgb()[:3]
+            color = self._get_rgb_by_label(shape.label)
             item = self.label_list.find_item_by_shape(shape)
             item.setText(_format_label_list_text(shape.label, shape.group_id))
             item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))

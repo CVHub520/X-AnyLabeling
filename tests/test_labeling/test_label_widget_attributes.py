@@ -158,6 +158,7 @@ class TestLabelWidgetAttributes(unittest.TestCase):
             unique_label_list=SimpleNamespace(
                 find_items_by_label=Mock(return_value=[object()])
             ),
+            _get_rgb_by_label=Mock(return_value=(0, 255, 0)),
             _update_shape_color=Mock(),
             set_dirty=Mock(),
             _refresh_shape_filters=Mock(),
@@ -168,6 +169,9 @@ class TestLabelWidgetAttributes(unittest.TestCase):
 
         self.assertEqual(shape.attributes, {"color": "blue"})
         widget.reset_attribute.assert_not_called()
+        self.assertEqual(
+            item.setBackground.call_args.args[0].getRgb(), (0, 255, 0, 128)
+        )
 
     def test_batch_edit_resets_only_shapes_with_changed_labels(self):
         unchanged_shape = SimpleNamespace(

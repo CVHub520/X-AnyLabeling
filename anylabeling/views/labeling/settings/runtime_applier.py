@@ -459,18 +459,16 @@ class SettingsRuntimeApplier:
             self._widget.canvas.update()
             return
 
-        color_key_map = {
-            "shape.line_color": "line_color",
-            "shape.fill_color": "fill_color",
-            "shape.vertex_fill_color": "vertex_fill_color",
-            "shape.select_line_color": "select_line_color",
-            "shape.select_fill_color": "select_fill_color",
-            "shape.hvertex_fill_color": "hvertex_fill_color",
-        }
-        if key in color_key_map:
-            color_value = shape_config[key.split(".", 1)[1]]
+        if key in {
+            "shape.line_color",
+            "shape.fill_color",
+            "shape.vertex_fill_color",
+            "shape.select_line_color",
+            "shape.select_fill_color",
+            "shape.hvertex_fill_color",
+        }:
             for shape in self._widget.canvas.shapes:
-                setattr(shape, color_key_map[key], QtGui.QColor(*color_value))
+                self._widget._update_shape_color(shape)
         self._widget.canvas.update()
 
     def apply_dock_features(self) -> None:
@@ -602,7 +600,7 @@ class SettingsRuntimeApplier:
             shape = item.shape()
             if shape is None:
                 continue
-            color = shape.fill_color.getRgb()[:3]
+            color = self._widget._get_rgb_by_label(shape.label)
             item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
             self._widget.unique_label_list.update_item_color(
                 shape.label, color, LABEL_OPACITY
