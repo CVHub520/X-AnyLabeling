@@ -178,6 +178,9 @@ conflicts = [
 [tool.setuptools]  # configuration specific to the `setuptools` build backend.
 packages = { find = { where = ["."], include = ["anylabeling*"], exclude = ["resources*"] } }
 
+[tool.setuptools.package-data]
+"anylabeling.services.auto_labeling.osam.clip" = ["bpe_simple_vocab_16e6.txt.gz"]
+
 [tool.setuptools.dynamic]
 version = {attr = "anylabeling.app_info.__version__"}
 
