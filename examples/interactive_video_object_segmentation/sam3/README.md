@@ -14,7 +14,7 @@ You'll need to get X-AnyLabeling-Server up and running first. Check out the [ins
 
 Once that's done, head over to `configs/models.yaml` and enable `segment_anything_3_video`. There's an [example config](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/configs/models.yaml) you can reference if you're not sure how to set it up.
 
-Now for the model files. For users in China, the easiest way is to grab everything from [ModelScope](https://modelscope.cn/models/facebook/sam3/files) - they host both the main SAM3 model and the `bpe_simple_vocab_16e6.txt.gz` file (that's the text encoding vocabulary). If you're outside China or prefer GitHub, you can get the BPE file from [here](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/bpe_simple_vocab_16e6.txt.gz), though the download might be slower. Once you've got both files, update `bpe_path` and `model_path` in `configs/auto_labeling/segment_anything_3_video.yaml` to point to where you saved them.
+Download the SAM3 model checkpoint from [ModelScope](https://modelscope.cn/models/facebook/sam3/files), then update `model_path` in `configs/auto_labeling/segment_anything_3_video.yaml` to point to the downloaded file.
 
 You can tweak the settings in [segment_anything_3_video.yaml](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/configs/auto_labeling/segment_anything_3_video.yaml) to fit your needs. By default, detection boxes are shown, which works fine for most cases. If you want to see the actual masks instead, flip `show_masks` to `true`. Just keep in mind that rendering masks can slow things down a bit, so boxes are usually the safer bet.
 
