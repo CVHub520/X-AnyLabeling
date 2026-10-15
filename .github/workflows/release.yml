@@ -351,7 +351,6 @@ jobs:
             ${{ matrix.files }}
             dist/*-Setup.exe
             dist/*-macOS-*-Portable.zip
-            dist/*-Portable.tar.gz
             dist/*-unsigned.dmg
             dist/*-Update.zip
             dist/update-artifact-*.json
