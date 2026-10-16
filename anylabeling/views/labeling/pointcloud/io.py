@@ -29,6 +29,19 @@ _PLY_TYPES = {
     "float64": "f8",
 }
 
+_PCD_TYPES = {
+    ("F", 4): "f4",
+    ("F", 8): "f8",
+    ("I", 1): "i1",
+    ("I", 2): "i2",
+    ("I", 4): "i4",
+    ("I", 8): "i8",
+    ("U", 1): "u1",
+    ("U", 2): "u2",
+    ("U", 4): "u4",
+    ("U", 8): "u8",
+}
+
 
 def _natural_key(path):
     parts = re.split(r"(\d+)", path.name.casefold())
@@ -50,13 +63,14 @@ def discover_frames(directory):
         (
             path
             for path in directory.iterdir()
-            if path.is_file() and path.suffix.lower() in (".bin", ".ply")
+            if path.is_file()
+            and path.suffix.lower() in (".bin", ".ply", ".pcd")
         ),
         key=_natural_key,
     )
     if not frames:
         raise ValueError(
-            f"{directory}: no BIN or PLY point cloud files found."
+            f"{directory}: no BIN, PLY, or PCD point cloud files found."
         )
     return frames
 
@@ -315,6 +329,235 @@ def _read_ply(stream):
     return points, has_intensity, rgb
 
 
+def _pcd_header(stream):
+    entries = {}
+    while stream.tell() < 1024 * 1024:
+        line = stream.readline(65536)
+        if not line:
+            raise ValueError("Incomplete PCD header.")
+        try:
+            fields = line.decode("ascii").split()
+        except UnicodeDecodeError as error:
+            raise ValueError("PCD header is not ASCII encoded.") from error
+        if not fields or fields[0].startswith("#"):
+            continue
+        key = fields[0].upper()
+        if key == "DATA":
+            if len(fields) != 2 or fields[1].lower() not in (
+                "ascii",
+                "binary",
+                "binary_compressed",
+            ):
+                raise ValueError("Unsupported or missing PCD data encoding.")
+            encoding = fields[1].lower()
+            break
+        if key in entries:
+            raise ValueError(f"Duplicate PCD header field: {key}.")
+        entries[key] = fields[1:]
+    else:
+        raise ValueError("PCD header exceeds 1 MiB.")
+    try:
+        names = entries["FIELDS"]
+        sizes = [int(value) for value in entries["SIZE"]]
+        types = [value.upper() for value in entries["TYPE"]]
+        counts = [
+            int(value) for value in entries.get("COUNT", ["1"] * len(names))
+        ]
+        width = int(entries["WIDTH"][0])
+        height = int(entries["HEIGHT"][0])
+        point_count = int(entries.get("POINTS", [width * height])[0])
+    except (KeyError, ValueError, IndexError) as error:
+        raise ValueError("Invalid PCD header fields.") from error
+    if (
+        not names
+        or len(set(names)) != len(names)
+        or len(sizes) != len(names)
+        or len(types) != len(names)
+        or len(counts) != len(names)
+        or width <= 0
+        or height <= 0
+        or point_count <= 0
+        or point_count != width * height
+        or any(size <= 0 or count <= 0 for size, count in zip(sizes, counts))
+        or any(
+            (type_, size) not in _PCD_TYPES
+            for type_, size in zip(types, sizes)
+        )
+    ):
+        raise ValueError("Invalid PCD point layout.")
+    return (
+        tuple(zip(names, types, sizes, counts)),
+        point_count,
+        encoding,
+    )
+
+
+def _lzf_decompress(data, expected_size):
+    output = bytearray()
+    position = 0
+    while position < len(data):
+        control = data[position]
+        position += 1
+        if control < 32:
+            length = control + 1
+            end = position + length
+            if end > len(data):
+                raise ValueError("Truncated PCD LZF literal run.")
+            output.extend(data[position:end])
+            position = end
+            continue
+        length = control >> 5
+        reference = (control & 0x1F) << 8
+        if length == 7:
+            if position >= len(data):
+                raise ValueError("Truncated PCD LZF back reference.")
+            length += data[position]
+            position += 1
+        if position >= len(data):
+            raise ValueError("Truncated PCD LZF back reference.")
+        reference += data[position]
+        position += 1
+        reference = len(output) - reference - 1
+        length += 2
+        if reference < 0:
+            raise ValueError("Invalid PCD LZF back reference.")
+        for _ in range(length):
+            if reference >= len(output):
+                raise ValueError("Invalid PCD LZF back reference.")
+            output.append(output[reference])
+            reference += 1
+    if len(output) != expected_size:
+        raise ValueError("PCD LZF data size does not match its header.")
+    return bytes(output)
+
+
+def _pcd_columns(fields, point_count, stream, encoding):
+    if encoding == "ascii":
+        values = np.loadtxt(
+            stream,
+            dtype=np.float64,
+            max_rows=point_count,
+            ndmin=2,
+            comments=None,
+        )
+        value_count = sum(item[3] for item in fields)
+        if values.shape != (point_count, value_count):
+            raise ValueError("PCD point count or field count mismatch.")
+        columns = {}
+        offset = 0
+        for name, _, _, count in fields:
+            values_for_field = values[:, offset : offset + count]
+            columns[name] = (
+                values_for_field[:, 0] if count == 1 else values_for_field
+            )
+            offset += count
+        if stream.read().strip():
+            raise ValueError("Unexpected data after declared PCD points.")
+        return columns
+
+    if encoding == "binary":
+        dtype_fields = []
+        for name, type_, size, count in fields:
+            dtype = "<" + _PCD_TYPES[(type_, size)]
+            dtype_fields.append(
+                (name, dtype, (count,)) if count > 1 else (name, dtype)
+            )
+        values = np.fromfile(
+            stream, dtype=np.dtype(dtype_fields), count=point_count
+        )
+        if len(values) != point_count:
+            raise ValueError("Truncated PCD binary points.")
+        if stream.read(1):
+            raise ValueError("Unexpected data after declared PCD points.")
+        return {name: values[name] for name, _, _, _ in fields}
+
+    sizes = stream.read(8)
+    if len(sizes) != 8:
+        raise ValueError("Truncated PCD compressed data header.")
+    compressed_size = int.from_bytes(sizes[:4], "little")
+    uncompressed_size = int.from_bytes(sizes[4:], "little")
+    remaining = os.fstat(stream.fileno()).st_size - stream.tell()
+    if compressed_size > remaining:
+        raise ValueError("PCD compressed data size does not match its file.")
+    compressed = stream.read(compressed_size)
+    if len(compressed) != compressed_size:
+        raise ValueError("Truncated PCD compressed points.")
+    if stream.read().strip(b"\x00"):
+        raise ValueError("Unexpected data after declared PCD points.")
+    expected_size = sum(
+        np.dtype("<" + _PCD_TYPES[(type_, size)]).itemsize
+        * count
+        * point_count
+        for _, type_, size, count in fields
+    )
+    if uncompressed_size != expected_size:
+        raise ValueError(
+            "PCD uncompressed data size does not match its header."
+        )
+    raw = _lzf_decompress(compressed, uncompressed_size)
+    columns = {}
+    offset = 0
+    for name, type_, size, count in fields:
+        dtype = np.dtype("<" + _PCD_TYPES[(type_, size)])
+        item_count = count * point_count
+        values = np.frombuffer(
+            raw, dtype=dtype, count=item_count, offset=offset
+        )
+        if len(values) != item_count:
+            raise ValueError("Truncated PCD compressed field.")
+        columns[name] = (
+            values if count == 1 else values.reshape(point_count, count)
+        )
+        offset += values.nbytes
+    return columns
+
+
+def _pcd_rgb(values, type_):
+    if type_ == "F":
+        packed = np.asarray(values, dtype=np.float32).view(np.uint32)
+    else:
+        packed = np.asarray(values).astype(np.uint32, copy=False)
+    return np.column_stack(
+        (
+            (packed >> 16) & 0xFF,
+            (packed >> 8) & 0xFF,
+            packed & 0xFF,
+        )
+    ).astype(np.uint8)
+
+
+def _read_pcd(stream):
+    fields, point_count, encoding = _pcd_header(stream)
+    columns = _pcd_columns(fields, point_count, stream, encoding)
+    definitions = {name: (type_, count) for name, type_, _, count in fields}
+    if any(
+        name not in columns or count != 1
+        for name, count in (
+            ("x", 1),
+            ("y", 1),
+            ("z", 1),
+        )
+    ):
+        raise ValueError("PCD points require scalar x, y, and z fields.")
+    points = np.zeros((point_count, 4), dtype=np.float32)
+    for column, name in enumerate(("x", "y", "z")):
+        points[:, column] = columns[name]
+    has_intensity = "intensity" in columns
+    if has_intensity:
+        if definitions["intensity"][1] != 1:
+            raise ValueError("PCD intensity must be a scalar field.")
+        points[:, 3] = columns["intensity"]
+    rgb_name = next(
+        (name for name in ("rgb", "rgba") if name in columns), None
+    )
+    rgb = None
+    if rgb_name is not None:
+        if definitions[rgb_name][1] != 1:
+            raise ValueError(f"PCD {rgb_name} must be a scalar field.")
+        rgb = _pcd_rgb(columns[rgb_name], definitions[rgb_name][0])
+    return points, has_intensity, rgb
+
+
 def cuboid_source_path(path, label_path, cuboid_path=None):
     path = Path(path)
     target = Path(cuboid_path or Path(label_path).with_suffix(".cuboids.json"))
@@ -334,9 +577,9 @@ def cuboid_source_path(path, label_path, cuboid_path=None):
 
 def load_frame(path, label_path=None, cuboid_path=None):
     path = Path(path)
-    if path.suffix.lower() not in (".bin", ".ply"):
+    if path.suffix.lower() not in (".bin", ".ply", ".pcd"):
         raise ValueError(
-            f"{path}: supported point cloud formats are BIN and PLY."
+            f"{path}: supported point cloud formats are BIN, PLY, and PCD."
         )
     warnings = []
     has_intensity = True
@@ -355,11 +598,17 @@ def load_frame(path, label_path=None, cuboid_path=None):
                 if values.size * 4 != size:
                     raise ValueError("Incomplete BIN point records.")
                 points = values.reshape(-1, 4)
-            else:
+            elif path.suffix.lower() == ".ply":
                 points, has_intensity, rgb = _read_ply(stream)
                 if not has_intensity:
                     warnings.append(
                         "PLY has no intensity; intensity coloring is unavailable."
+                    )
+            else:
+                points, has_intensity, rgb = _read_pcd(stream)
+                if not has_intensity:
+                    warnings.append(
+                        "PCD has no intensity; intensity coloring is unavailable."
                     )
             _check_unchanged(stream, path, before, path_before)
         invalid = ~np.isfinite(points[:, :3]).all(axis=1)
@@ -526,6 +775,8 @@ def save_labels(path, labels, source_path):
             count = next(
                 count for name, count, _ in elements if name == "vertex"
             )
+        elif source_path.suffix.lower() == ".pcd":
+            _, count, _ = _pcd_header(stream)
         else:
             raise ValueError(f"{source_path}: unsupported point cloud format.")
     if len(labels) != count:

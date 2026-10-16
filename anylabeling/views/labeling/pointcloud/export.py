@@ -10,7 +10,13 @@ from zipfile import ZIP_DEFLATED, ZipFile
 import numpy as np
 
 from .cuboid import Cuboid
-from .io import _check_unchanged, _read_ply, _signature, load_cuboids
+from .io import (
+    _check_unchanged,
+    _read_pcd,
+    _read_ply,
+    _signature,
+    load_cuboids,
+)
 from .model import ClassDefinition
 
 EXPORT_FORMATS = {
@@ -52,8 +58,12 @@ def _write_pcd(archive, name, source, check_cancelled):
             intensity, rgb = True, None
         elif source.suffix.lower() == ".ply":
             points, intensity, rgb = _read_ply(stream)
+        elif source.suffix.lower() == ".pcd":
+            points, intensity, rgb = _read_pcd(stream)
         else:
-            raise ValueError(f"{source}: supported formats are BIN and PLY.")
+            raise ValueError(
+                f"{source}: supported formats are BIN, PLY, and PCD."
+            )
         _check_unchanged(stream, source, before, path_before)
     fields = [(axis, "<f4") for axis in "xyz"]
     if intensity:

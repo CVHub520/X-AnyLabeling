@@ -41,6 +41,7 @@ Both detection and segmentation tasks support the following point cloud formats:
 | --- | --- |
 | `.bin` | Each point consists of four little-endian float32 values: X, Y, Z, and intensity, for a total of 16 bytes. |
 | `.ply` | Must contain `x`, `y`, and `z` coordinates; color and intensity are optional. |
+| `.pcd` | Supports PCD v0.5/v0.7 with ASCII, binary, or binary-compressed data; `x`, `y`, and `z` are required. `intensity` and packed `rgb`/`rgba` are optional. |
 
 **Class files**
 

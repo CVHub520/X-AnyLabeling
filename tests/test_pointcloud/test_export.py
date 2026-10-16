@@ -164,6 +164,37 @@ def test_images_and_ply_colors_are_preserved(tmp_path, format_name):
         assert archive.read(media) == image.read_bytes()
 
 
+@pytest.mark.parametrize("format_name", EXPORT_FORMATS)
+def test_pcd_colors_are_preserved(tmp_path, format_name):
+    source = tmp_path / "cloud.pcd"
+    source.write_text(
+        "VERSION .7\n"
+        "FIELDS x y z rgb\n"
+        "SIZE 4 4 4 4\n"
+        "TYPE F F F U\n"
+        "COUNT 1 1 1 1\n"
+        "WIDTH 2\n"
+        "HEIGHT 1\n"
+        "POINTS 2\n"
+        "DATA ascii\n"
+        "1 2 3 16711680\n"
+        "4 5 6 65320\n",
+        encoding="ascii",
+    )
+    frame = ExportFrame(source, source.with_suffix(".cuboids.json"), ())
+    path = tmp_path / "export.zip"
+    export_dataset(path, format_name, [frame], [], True)
+    with ZipFile(path) as archive:
+        cloud = next(
+            name for name in archive.namelist() if name.endswith(".pcd")
+        )
+        header, binary = archive.read(cloud).split(b"DATA binary\n", 1)
+        assert b"FIELDS x y z rgb" in header
+        data = np.frombuffer(binary, dtype=[("xyz", "<f4", 3), ("rgb", "<u4")])
+        np.testing.assert_array_equal(data["xyz"], [[1, 2, 3], [4, 5, 6]])
+        np.testing.assert_array_equal(data["rgb"], [0xFF0000, 0x00FF28])
+
+
 def test_cancellation_and_failure_preserve_existing_zip(tmp_path, dataset):
     frames, classes = dataset
     target = tmp_path / "export.zip"

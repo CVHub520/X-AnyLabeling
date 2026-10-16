@@ -6407,8 +6407,8 @@ Results have been saved to:
     </message>
     <message>
       <location filename="../../views/labeling/widgets/pointcloud_dialog.py" line="1225" />
-      <source>Point clouds (*.bin *.ply)</source>
-      <translation>포인트 클라우드 (*.bin *.ply)</translation>
+      <source>Point clouds (*.bin *.ply *.pcd)</source>
+      <translation>포인트 클라우드 (*.bin *.ply *.pcd)</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/pointcloud_dialog.py" line="1238" />
@@ -7145,8 +7145,8 @@ Point segmentation and unmatched frames are preserved.</source>
     </message>
     <message>
       <location filename="../../views/labeling/pointcloud/viewport.py" line="1110" />
-      <source>Open a BIN or PLY point cloud to begin.</source>
-      <translation>시작하려면 BIN 또는 PLY 포인트 클라우드를 여세요.</translation>
+      <source>Open a BIN, PLY, or PCD point cloud to begin.</source>
+      <translation>시작하려면 BIN, PLY 또는 PCD 포인트 클라우드를 여세요.</translation>
     </message>
     <message>
       <location filename="../../views/labeling/pointcloud/viewport.py" line="1116" />

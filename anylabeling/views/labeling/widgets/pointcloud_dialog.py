@@ -1222,7 +1222,7 @@ class PointCloudDialog(QtWidgets.QMainWindow):
             self,
             self.tr("Open point cloud"),
             self._recent(),
-            self.tr("Point clouds (*.bin *.ply)"),
+            self.tr("Point clouds (*.bin *.ply *.pcd)"),
             options=QtWidgets.QFileDialog.Option.DontUseNativeDialog
             | QtWidgets.QFileDialog.Option.DontUseCustomDirectoryIcons,
         )

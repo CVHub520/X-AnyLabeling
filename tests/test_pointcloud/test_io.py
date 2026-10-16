@@ -52,6 +52,103 @@ def ply_file(path, encoding, intensity=True, mesh=False):
     return path
 
 
+def pcd_header(fields, data, count=2):
+    names = [field[0] for field in fields]
+    sizes = [str(field[1]) for field in fields]
+    types = [field[2] for field in fields]
+    counts = [str(field[3]) for field in fields]
+    return (
+        "VERSION .7\n"
+        f"FIELDS {' '.join(names)}\n"
+        f"SIZE {' '.join(sizes)}\n"
+        f"TYPE {' '.join(types)}\n"
+        f"COUNT {' '.join(counts)}\n"
+        f"WIDTH {count}\n"
+        "HEIGHT 1\n"
+        f"POINTS {count}\n"
+        f"DATA {data}\n"
+    )
+
+
+def lzf_literals(data):
+    return b"".join(
+        bytes([len(block) - 1]) + block
+        for block in (
+            data[index : index + 32] for index in range(0, len(data), 32)
+        )
+    )
+
+
+def test_pcd_ascii_preserves_order_and_optional_intensity(tmp_path):
+    source = tmp_path / "scan.pcd"
+    fields = [("x", 4, "F", 1), ("y", 4, "F", 1), ("z", 4, "F", 1)]
+    source.write_text(
+        pcd_header(fields, "ascii") + "1 2 3\n4 5 6\n", encoding="ascii"
+    )
+    frame = io.load_frame(source)
+    np.testing.assert_array_equal(frame.points[:, :3], [[1, 2, 3], [4, 5, 6]])
+    np.testing.assert_array_equal(frame.points[:, 3], [0, 0])
+    assert not frame.has_intensity
+    assert any("PCD has no intensity" in warning for warning in frame.warnings)
+
+
+def test_pcd_binary_preserves_packed_rgb(tmp_path):
+    source = tmp_path / "rgb.pcd"
+    fields = [
+        ("x", 4, "F", 1),
+        ("y", 4, "F", 1),
+        ("z", 4, "F", 1),
+        ("rgb", 4, "F", 1),
+    ]
+    colors = np.array([0xFF0011, 0x0080FF], dtype="<u4").view("<f4")
+    records = np.array(
+        [(1, 2, 3, colors[0]), (4, 5, 6, colors[1])],
+        dtype=[("x", "<f4"), ("y", "<f4"), ("z", "<f4"), ("rgb", "<f4")],
+    )
+    source.write_bytes(
+        pcd_header(fields, "binary").encode("ascii") + records.tobytes()
+    )
+    frame = io.load_frame(source)
+    np.testing.assert_array_equal(frame.points[:, :3], [[1, 2, 3], [4, 5, 6]])
+    np.testing.assert_array_equal(frame.rgb, [[255, 0, 17], [0, 128, 255]])
+
+
+def test_pcd_binary_compressed_preserves_field_order(tmp_path):
+    source = tmp_path / "compressed.pcd"
+    fields = [
+        ("x", 4, "F", 1),
+        ("y", 4, "F", 1),
+        ("z", 4, "F", 1),
+        ("intensity", 4, "F", 1),
+    ]
+    columns = [
+        np.array(values, dtype="<f4").tobytes()
+        for values in ([1, 4], [2, 5], [3, 6], [0.25, 0.5])
+    ]
+    raw = b"".join(columns)
+    compressed = lzf_literals(raw)
+    source.write_bytes(
+        pcd_header(fields, "binary_compressed").encode("ascii")
+        + struct.pack("<II", len(compressed), len(raw))
+        + compressed
+        + b"\x00" * 3
+    )
+    frame = io.load_frame(source)
+    np.testing.assert_array_equal(frame.points[:, :3], [[1, 2, 3], [4, 5, 6]])
+    np.testing.assert_allclose(frame.points[:, 3], [0.25, 0.5])
+
+
+def test_pcd_labels_use_header_point_count(tmp_path):
+    source = tmp_path / "scan.pcd"
+    fields = [("x", 4, "F", 1), ("y", 4, "F", 1), ("z", 4, "F", 1)]
+    source.write_text(
+        pcd_header(fields, "ascii") + "1 2 3\n4 5 6\n", encoding="ascii"
+    )
+    target = source.with_suffix(".label")
+    io.save_labels(target, np.array([10, 20], dtype=np.uint32), source)
+    np.testing.assert_array_equal(io.load_frame(source).labels, [10, 20])
+
+
 def test_bin_without_labels_and_unknown_label_exact_roundtrip(tmp_path):
     source = bin_file(tmp_path / "scan.bin")
     original = source.read_bytes()
@@ -147,11 +244,11 @@ def test_natural_discovery_is_stable_direct_only_and_supports_sequence(
 ):
     point_dir = tmp_path / "velodyne"
     point_dir.mkdir()
-    for name in ["10.bin", "2.bin", "02.bin", "1.PLY", "ignore.pcd"]:
+    for name in ["10.bin", "2.bin", "02.bin", "1.PLY", "3.pCd"]:
         (point_dir / name).touch()
     (point_dir / "nested").mkdir()
     (point_dir / "nested/0.bin").touch()
-    expected = ["1.PLY", "02.bin", "2.bin", "10.bin"]
+    expected = ["1.PLY", "02.bin", "2.bin", "3.pCd", "10.bin"]
     assert [path.name for path in io.discover_frames(tmp_path)] == expected
     assert [path.name for path in io.discover_frames(point_dir)] == expected
     assert (

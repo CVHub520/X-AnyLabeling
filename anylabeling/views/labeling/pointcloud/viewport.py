@@ -1107,7 +1107,7 @@ class PointCloudViewport(QtWidgets.QWidget):
             painter.drawText(
                 self.rect(),
                 QtCore.Qt.AlignmentFlag.AlignCenter,
-                self.tr("Open a BIN or PLY point cloud to begin."),
+                self.tr("Open a BIN, PLY, or PCD point cloud to begin."),
             )
         elif not self._visible_count and self._show_hidden_message:
             painter.drawText(
