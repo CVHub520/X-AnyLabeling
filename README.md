@@ -28,6 +28,7 @@
 
 ## 🥳 What's New
 
+- `2026-10-18`: Add support for the [GroundingPI](./examples/grounding/groundingpi/README.md) model with detection, grounding, pointing, and visual prompting.
 - `2026-10-01`: Add [3D point cloud annotation](./docs/en/point_cloud.md), supporting 3D point cloud detection and segmentation.
 - `2026-08-19`: Add support for [image tagging](https://xanylabeling.com/docs/x-anylabeling/user_guide#37-image-tags), with tag creation, editing, reordering, and batch deletion.
 - `2026-08-12`: Add support for [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg) instance segmentation models.
@@ -77,7 +78,7 @@
 | 👁️ Vision Language Models | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ Lane Detection | CLRNet |
 | 🔢 Object Counting | CountGD, GeCO, GeCo2 |
-| 📍 Grounding | Grounding DINO, YOLO-World, YOLOE, SAM 3, LocateAnything |
+| 📍 Grounding | Grounding DINO, YOLO-World, YOLOE, SAM 3, LocateAnything, GroundingPI |
 | 📚 Other | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |
 
 ## Docs
@@ -136,6 +137,7 @@
   - [YOLOE](./examples/grounding/yoloe/README.md)
   - [SAM 3](./examples/grounding/sam3/README.md)
   - [LocateAnything](./examples/grounding/locateanything/README.md)
+  - [GroundingPI](./examples/grounding/groundingpi/README.md)
 - [Training](./examples/training/)
   - [Ultralytics](./examples/training/ultralytics/README.md)
 
