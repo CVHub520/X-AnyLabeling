@@ -30,7 +30,7 @@
 
 ## 🥳 新功能
 
-- `2026-10-18`：新增支持 [GroundingPI](./examples/grounding/groundingpi/README.md) 模型，支持目标检测、描述定位、目标指点及参考框检测。
+- `2026-10-18`：新增支持 [GroundingPI、GroundAnything 和 GroundAnything-VLM](./examples/grounding/groundingpi/README.md) 模型，支持目标检测、描述定位、目标指点及参考框检测。
 - `2026-10-01`：新增 [3D 点云标注](./docs/zh_cn/point_cloud.md)功能，支持 3D 点云检测与分割。
 - `2026-08-19`：新增[图片标签](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#37-%E5%9B%BE%E7%89%87%E6%A0%87%E7%AD%BE)功能，支持标签新增、编辑、排序及批量删除。
 - `2026-08-12`：新增支持 [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg) 实例分割模型。
@@ -80,7 +80,7 @@
 | 👁️ **视觉语言模型** | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ **车道线检测** | CLRNet |
 | 🔢 **目标计数** | CountGD, GeCO, GeCo2 |
-| 📍 **视觉定位** | Grounding DINO, YOLO-World, YOLOE, SAM 3, LocateAnything, GroundingPI |
+| 📍 **视觉定位** | Grounding DINO, YOLO-World, YOLOE, SAM 3, LocateAnything, GroundingPI, GroundAnything, GroundAnything-VLM |
 | 📚 **其他** | 👉 [model_zoo](./docs/zh_cn/model_zoo.md) 👈 |
 
 ## 文档
@@ -140,7 +140,7 @@
   - [YOLOE](./examples/grounding/yoloe/README.md)
   - [SAM 3](./examples/grounding/sam3/README.md)
   - [LocateAnything](./examples/grounding/locateanything/README.md)
-  - [GroundingPI](./examples/grounding/groundingpi/README.md)
+  - [GroundingPI / GroundAnything / GroundAnything-VLM](./examples/grounding/groundingpi/README.md)
 - [Training](./examples/training/)
   - [Ultralytics](./examples/training/ultralytics/README.md)
 

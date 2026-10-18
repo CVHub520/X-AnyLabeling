@@ -1,58 +1,76 @@
-# GroundingPI
+# GroundingPI, GroundAnything, and GroundAnything-VLM
 
 ## Overview
 
-[GroundingPI](https://github.com/groundingpi/GroundingPI) is a 4B-parameter grounding foundation model designed to provide spatial perception for physical intelligence. It combines a visual encoder with a language backbone, using staged training on visual primitives and an autoregressive spatial-token format to represent object locations. The model localizes targets from category names, natural-language descriptions, or reference boxes, producing bounding boxes or points for detection, referring-expression grounding, point localization, and visual prompting.
+[GroundingPI](https://github.com/groundingpi/GroundingPI) is a 4B-parameter grounding foundation model designed to provide spatial perception for physical intelligence. It combines a visual encoder with a language backbone, using staged training on visual primitives and an autoregressive spatial-token format to represent object locations.
+
+[GroundAnything](https://huggingface.co/GroundingPI/GroundAnything) and [GroundAnything-VLM](https://huggingface.co/GroundingPI/GroundAnything-VLM) are variants of the same family. GroundAnything replaces autoregressive spatial-token decoding with blockwise diffusion decoding, while GroundAnything-VLM predicts spatial tokens sequentially. All three models localize objects using category names, natural-language descriptions, or reference boxes, and use the same 0–999 coordinate grid for bounding boxes and points.
 
 | Task | Input | Output |
 | --- | --- | --- |
-| Detection | Categories, for example `dog.cup.lamp` | Rectangle boxes with category labels |
-| Grounding | A description, for example `the dog on the sofa` | Rectangle boxes |
-| Pointing | A description, for example `the dog on the sofa` | Point annotations |
-| Visual Prompting | One or more positive reference boxes | Rectangle boxes around similar objects |
+| Detection | Categories such as `dog.cup.lamp` | Labeled rectangles |
+| Grounding | A description such as `the dog on the sofa` | Rectangles |
+| Pointing | A description such as `the dog on the sofa` | Points |
+| Visual Prompting | Positive reference boxes | Rectangles around similar objects |
+
+## Models
+
+| Model | Model ID | Configuration | Decoding |
+| --- | --- | --- | --- |
+| GroundingPI | `groundingpi` | `configs/auto_labeling/groundingpi.yaml` | Autoregressive spatial tokens |
+| GroundAnything | `groundanything` | `configs/auto_labeling/groundanything.yaml` | Blockwise diffusion with native self-speculation |
+| GroundAnything-VLM | `groundanything_vlm` | `configs/auto_labeling/groundanything_vlm.yaml` | Autoregressive spatial tokens |
 
 ## Installation
 
-Follow the X-AnyLabeling-Server installation guide ([English](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/docs/source/en/get_started.md) / [简体中文](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/docs/source/zh_cn/get_started.md)), including the GroundingPI requirements listed there.
+Follow the X-AnyLabeling-Server installation guide ([English](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/docs/source/en/get_started.md) / [简体中文](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/docs/source/zh_cn/get_started.md)), including the shared GroundingPI requirements. 
 
-Enable `groundingpi` in `configs/models.yaml`; its model settings are in `configs/auto_labeling/groundingpi.yaml`.
+Enable the desired models in `configs/models.yaml`:
+
+```yaml
+enabled_models:
+  - groundingpi
+  - groundanything
+  - groundanything_vlm
+```
+
+Set `model_path` to the corresponding Hub ID or a downloaded model directory, and select the device in the model configuration. Enable one model at a time if GPU memory is limited.
+
+GroundAnything uses the upstream native self-speculative decoder: diffusion drafts are verified by the same checkpoint's causal branch. GroundingPI and GroundAnything-VLM use standard autoregressive generation. No separate inference service is required. The SGLang entropy-guided decoder and its benchmark speedups are not part of this native integration.
 
 ## Usage
 
-Open an image in X-AnyLabeling, press `Ctrl+A` to open the AI panel, select **Remote-Server**, enter the Server URL, and choose **GroundingPI**.
+Open an image, press `Ctrl+A`, select **Remote-Server**, connect to your Server, and choose **GroundingPI**, **GroundAnything**, or **GroundAnything-VLM**. All three models use the same controls.
 
 ### Detection
 
-Select **Detection**, enter categories such as `dog.cup.lamp`, and click **Send**. Commas, periods, newlines, and mixed separators are supported; repeated categories are removed while preserving their order.
+Enter categories such as `dog.cup.lamp` and click **Send**. Periods, commas, newlines, and mixed separators are supported; duplicate categories are removed while preserving their order.
 
 ![Detection with category prompts](.data/detection.jpg)
 
 ### Grounding
 
-Select **Grounding**, enter `the dog on the sofa`, and click **Send**. The description is kept as one phrase, including its internal punctuation.
+Enter a complete description such as `the dog on the sofa` and click **Send**. The description is kept as one phrase, including its internal punctuation.
 
 ![Grounding with a description](.data/grounding.jpg)
 
 ### Pointing
 
-Select **Pointing**, enter `the dog on the sofa`, and click **Send**. This task returns point annotations instead of boxes.
+Enter a description and click **Send** to create point annotations instead of boxes.
 
 ![Pointing with a description](.data/pointing.jpg)
 
 ### Visual Prompting
 
-Select **Visual Prompting**, click **+Rect**, and draw a positive reference box around an example object. Click **Run Rect** to find similar objects, then click **Finish** and enter a label, such as `panda`, to name the results. **Clear** removes prompt marks and unfinished predictions while keeping finished annotations.
+Click **+Rect**, draw a positive reference box around an example object, and click **Run Rect** to find similar objects. Click **Finish** and enter a label, such as `panda`, to name the results. **Clear** removes unfinished prompt marks while retaining finished annotations.
 
 ![Visual prompting with a positive reference box](.data/visual_prompting.jpg)
 
-The screenshots use the Server's `assets/demo/images/demo.jpg` and `assets/demo/images/demo_pandas.jpg`.
-
-For all tasks, **Replace (On)** replaces existing annotations. Click it to switch to **Preserve (On)** and keep existing annotations when applying new results.
-
-Detection, Grounding, and Pointing support text-prompt batch processing: open an image folder, choose the task, click **Auto Run**, select the image range, and enter the prompt. Visual Prompting requires per-image reference boxes and disables batch processing.
+Use **Replace (On)** / **Preserve (On)** to control whether predictions replace existing annotations. Detection, Grounding, and Pointing support text-prompt batch processing: open an image folder, choose the task, click **Auto Run**, select the image range, and enter the prompt. Visual Prompting requires per-image reference boxes and does not support batch processing.
 
 ## Notes
 
-- GroundingPI generates coordinates on a 0–999 grid; the Server restores them to the original image size. It does not provide confidence scores or confidence/IoU controls.
-- The model can return false positives for absent targets. In the demo image, an `elephant` query returned a box even though no elephant was present, in both upstream inference and the adapter. Review predictions before accepting annotations.
-- Negative reference boxes, point prompts, segmentation, and video are not exposed by this adapter. Truncated or malformed model responses are rejected rather than applied as partial annotations.
+- Coordinates are converted from the shared 0–999 grid to original image pixels. Confidence scores and confidence/IoU controls are not provided.
+- All three models can return false positives for absent targets. In the demo image, an `elephant` query returned a box even though no elephant was present. Review predictions before accepting annotations.
+- These adapters expose only the four tasks above. OCR, document layout, segmentation, negative reference boxes, point prompts, and video are not exposed.
+- Truncated or malformed generations are rejected. Adjust `max_new_tokens` and available GPU memory for dense scenes.
