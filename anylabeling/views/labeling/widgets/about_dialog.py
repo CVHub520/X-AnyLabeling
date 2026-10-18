@@ -70,7 +70,7 @@ class AboutDialog(QDialog):
         self._bg_update_ready.connect(self.show_update_dialog)
 
         self.setWindowTitle(" ")
-        self.setFixedSize(350, 250)
+        self.setFixedSize(400, 250)
 
         t = get_theme()
         self.setStyleSheet(f"""
