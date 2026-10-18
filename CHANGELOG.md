@@ -1,5 +1,28 @@
 # X-AnyLabeling Changelog
 
+## `v4.2.0` (Oct 18, 2026)
+
+X-AnyLabeling 4.2.0 adds PCD point cloud support and expands remote grounding model workflows.
+
+### 🚀 New Features
+
+- Add PCD v0.5/v0.7 point cloud loading with ASCII, binary, and binary-compressed data, including optional intensity and packed RGB/RGBA colors. (#1468)
+
+### 🐛 Bug Fixes
+
+- Widen the About dialog so the copyright text is fully visible.
+
+### 🛠️ Improvements
+
+- Support PCD inputs in point cloud export workflows. (#1468)
+- Add Remote-Server setup guides and examples for GroundingPI, GroundAnything, and GroundAnything-VLM, covering detection, grounding, pointing, object points, OCR, document layout, GUI grounding, and visual prompting.
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v4.1.3` (Oct 16, 2026)
 
 X-AnyLabeling 4.1.3 improves automatic updates and release packaging while fixing prompt interaction state handling.
