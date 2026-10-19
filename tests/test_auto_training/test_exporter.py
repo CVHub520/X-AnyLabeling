@@ -208,3 +208,23 @@ def test_external_export_reports_process_without_terminal_event(
     assert events == [
         ("export_error", {"error": "Export process returned no result"})
     ]
+
+
+def test_validate_onnx_export_environment_without_onnx():
+    """Verify no crash when onnx is not installed."""
+    missing = exporter.validate_onnx_export_environment()
+    assert "onnx>=1.15.0" in missing
+
+
+def test_validate_onnx_export_environment_with_old_onnx(monkeypatch):
+    """Verify old onnx version is reported as missing."""
+
+    class _FakeOnnx:
+        __version__ = "1.14.0"
+
+    monkeypatch.setitem(__import__("sys").modules, "onnx", _FakeOnnx)
+    monkeypatch.setattr(exporter, "check_package_installed", lambda _p: True)
+
+    missing = exporter.validate_onnx_export_environment()
+
+    assert "onnx>=1.15.0" in missing

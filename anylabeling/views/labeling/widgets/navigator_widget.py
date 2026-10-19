@@ -134,7 +134,7 @@ class NavigatorWidget(QWidget):
         else:
             try:
                 self.original_image = QPixmap(str(image_data))
-            except:
+            except (TypeError, ValueError):
                 return
 
         self._update_thumbnail()
