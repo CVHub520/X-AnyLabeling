@@ -26,6 +26,62 @@ from anylabeling.views.labeling.utils.shape import rectangle_from_diagonal
 from anylabeling.views.labeling.utils.general import is_possible_rectangle
 
 
+def rle_to_polygons(rle: Dict[str, Any]) -> List[List[float]]:
+    """Decode a COCO RLE segmentation into polygon coordinates.
+
+    Supports both compressed (string) and uncompressed (list) RLE
+    ``counts`` fields. Requires pycocotools at runtime.
+
+    Args:
+        rle (Dict[str, Any]): RLE segmentation dict containing
+            "counts" and "size" ([height, width]) keys.
+
+    Returns:
+        List[List[float]]: A list of polygons, each represented as a
+            flat list [x1, y1, x2, y2, ...]. Returns an empty list if
+            no valid contour (at least 3 points) is found.
+
+    Raises:
+        ImportError: If pycocotools is not installed.
+
+    Examples:
+        >>> rle = {"counts": [8, 4, 4, 4, 4, 4], "size": [4, 4]}
+        >>> polygons = rle_to_polygons(rle)
+        >>> all(len(p) >= 6 and len(p) % 2 == 0 for p in polygons)
+        True
+    """
+    try:
+        from pycocotools import mask as mask_utils
+    except ImportError as e:
+        raise ImportError(
+            "pycocotools is required to import COCO RLE segmentations. "
+            "Please run 'pip install pycocotools' first."
+        ) from e
+
+    if isinstance(rle.get("counts"), list):
+        height, width = rle["size"]
+        rle = mask_utils.frPyObjects(rle, height, width)
+    elif isinstance(rle.get("counts"), str):
+        rle = dict(rle, counts=rle["counts"].encode("utf-8"))
+
+    mask = mask_utils.decode(rle)
+    if mask.ndim == 3:
+        mask = mask.any(axis=2)
+    mask = np.ascontiguousarray(mask.astype(np.uint8))
+
+    contours, _ = cv2.findContours(
+        mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+    )
+
+    polygons = []
+    for contour in contours:
+        contour = contour.reshape(-1, 2)
+        if len(contour) < 3:
+            continue
+        polygons.append([float(c) for point in contour for c in point])
+    return polygons
+
+
 class PoseGroupError(ValueError):
     pass
 
@@ -819,22 +875,28 @@ class LabelConverter:
 
             elif mode == "polygon":
                 shape_type = "polygon"
+                segmentation_data = dic_info["segmentation"]
                 segmentations_list = []
 
-                for segmentation in dic_info["segmentation"]:
-                    if (
-                        isinstance(segmentation, dict)
-                        and "counts" in segmentation
-                    ):
-                        # TODO: Handle RLE format segmentation
+                if (
+                    isinstance(segmentation_data, dict)
+                    and "counts" in segmentation_data
+                ):
+                    try:
+                        segmentations_list = rle_to_polygons(segmentation_data)
+                    except ImportError as e:
+                        logger.warning(
+                            f"Skipping RLE segmentation in {input_file}: {e}"
+                        )
                         continue
+                else:
+                    for segmentation in segmentation_data:
+                        if not isinstance(segmentation, list):
+                            continue
 
-                    if not isinstance(segmentation, list):
-                        continue
-
-                    if len(segmentation) < 6 or len(segmentation) % 2 != 0:
-                        continue
-                    segmentations_list.append(segmentation)
+                        if len(segmentation) < 6 or len(segmentation) % 2 != 0:
+                            continue
+                        segmentations_list.append(segmentation)
 
                 if len(segmentations_list) == 0:
                     continue
