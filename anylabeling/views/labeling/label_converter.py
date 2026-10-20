@@ -26,6 +26,82 @@ from anylabeling.views.labeling.utils.shape import rectangle_from_diagonal
 from anylabeling.views.labeling.utils.general import is_possible_rectangle
 
 
+def rle_to_polygons(rle: Dict[str, Any]) -> List[List[float]]:
+    """Decode a COCO RLE segmentation into polygon coordinates.
+
+    Supports both compressed (string) and uncompressed (list) RLE
+    ``counts`` fields. Requires pycocotools at runtime.
+
+    Args:
+        rle (Dict[str, Any]): RLE segmentation dict containing
+            "counts" and "size" ([height, width]) keys.
+
+    Returns:
+        List[List[float]]: A list of polygons, each represented as a
+            flat list [x1, y1, x2, y2, ...]. Returns an empty list if
+            no valid contour (at least 3 points) is found.
+
+    Raises:
+        ImportError: If pycocotools is not installed.
+        ValueError: If the RLE is invalid or conversion would change its mask.
+
+    """
+    try:
+        from pycocotools import mask as mask_utils
+    except ImportError as e:
+        raise ImportError(
+            "pycocotools is required to import COCO RLE segmentations. "
+            "Please run 'pip install pycocotools' first."
+        ) from e
+
+    size = rle.get("size")
+    if (
+        not isinstance(size, (list, tuple))
+        or len(size) != 2
+        or any(type(value) is not int or value <= 0 for value in size)
+    ):
+        raise ValueError("RLE size must contain positive height and width.")
+    height, width = size
+    counts = rle.get("counts")
+    if isinstance(counts, list):
+        if (
+            any(type(value) is not int or value < 0 for value in counts)
+            or sum(counts) != height * width
+        ):
+            raise ValueError(
+                "RLE counts must cover exactly height * width pixels."
+            )
+        rle = mask_utils.frPyObjects(rle, height, width)
+    elif isinstance(counts, str):
+        rle = dict(rle, counts=rle["counts"].encode("utf-8"))
+    elif not isinstance(counts, bytes):
+        raise ValueError("RLE counts must be a list or an encoded string.")
+
+    mask = mask_utils.decode(rle)
+    if mask.ndim == 3:
+        mask = mask.any(axis=2)
+    mask = np.ascontiguousarray(mask.astype(np.uint8))
+
+    contours, _ = cv2.findContours(
+        mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+    )
+
+    polygons = []
+    restored = np.zeros_like(mask)
+    for contour in contours:
+        contour = contour.reshape(-1, 2)
+        if len(contour) < 3:
+            continue
+        polygons.append([float(c) for point in contour for c in point])
+        cv2.fillPoly(restored, [contour], 1)
+    if not np.array_equal(mask, restored):
+        raise ValueError(
+            "RLE segmentation cannot be represented losslessly as polygons "
+            "(holes or thin regions). Import cancelled; no files were written."
+        )
+    return polygons
+
+
 class PoseGroupError(ValueError):
     pass
 
@@ -819,22 +895,36 @@ class LabelConverter:
 
             elif mode == "polygon":
                 shape_type = "polygon"
+                segmentation_data = dic_info["segmentation"]
                 segmentations_list = []
 
-                for segmentation in dic_info["segmentation"]:
-                    if (
-                        isinstance(segmentation, dict)
-                        and "counts" in segmentation
-                    ):
-                        # TODO: Handle RLE format segmentation
-                        continue
+                if (
+                    isinstance(segmentation_data, dict)
+                    and "counts" in segmentation_data
+                ):
+                    try:
+                        image = total_info[image_id]
+                        if segmentation_data.get("size") != [
+                            image["imageHeight"],
+                            image["imageWidth"],
+                        ]:
+                            raise ValueError(
+                                "RLE size does not match the image."
+                            )
+                        segmentations_list = rle_to_polygons(segmentation_data)
+                    except (ImportError, ValueError, TypeError, KeyError) as e:
+                        raise ValueError(
+                            f"Cannot import COCO annotation {dic_info.get('id')} "
+                            f"for image {image_id}: {e}"
+                        ) from e
+                else:
+                    for segmentation in segmentation_data:
+                        if not isinstance(segmentation, list):
+                            continue
 
-                    if not isinstance(segmentation, list):
-                        continue
-
-                    if len(segmentation) < 6 or len(segmentation) % 2 != 0:
-                        continue
-                    segmentations_list.append(segmentation)
+                        if len(segmentation) < 6 or len(segmentation) % 2 != 0:
+                            continue
+                        segmentations_list.append(segmentation)
 
                 if len(segmentations_list) == 0:
                     continue

@@ -522,3 +522,172 @@ class TestLabelConverterVocValidation(unittest.TestCase):
         self.assertEqual(data["shapes"], [])
         warning.assert_called_once()
         self.assertIn("bndbox/ymax", warning.call_args.args[0])
+
+
+try:
+    from pycocotools import mask as mask_utils
+
+    HAS_PYCOCOTOOLS = True
+except ImportError:
+    HAS_PYCOCOTOOLS = False
+
+
+def _uncompressed_rle(mask):
+    pixels = mask.flatten(order="F")
+    counts = []
+    run = 0
+    last = 0
+    for pixel in pixels:
+        if pixel == last:
+            run += 1
+        else:
+            counts.append(run)
+            run = 1
+            last = pixel
+    counts.append(run)
+    return {"counts": counts, "size": list(mask.shape)}
+
+
+@unittest.skipUnless(HAS_PYCOCOTOOLS, "pycocotools is not installed")
+class TestLabelConverterCocoRleImport(unittest.TestCase):
+
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp()
+        self.input_file = os.path.join(self.temp_dir, "coco.json")
+        self.converter = LabelConverter()
+
+    def tearDown(self):
+        import shutil
+
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
+
+    def _import(self, segmentation):
+        data = {
+            "images": [
+                {"id": 1, "file_name": "image.jpg", "width": 10, "height": 10}
+            ],
+            "categories": [{"id": 1, "name": "cat"}],
+            "annotations": [
+                {
+                    "id": 1,
+                    "image_id": 1,
+                    "category_id": 1,
+                    "segmentation": segmentation,
+                    "bbox": [3, 2, 4, 4],
+                    "area": 16,
+                    "iscrowd": 1,
+                }
+            ],
+        }
+        with open(self.input_file, "w", encoding="utf-8") as f:
+            json.dump(data, f)
+
+        self.converter.coco_to_custom(
+            self.input_file, self.temp_dir, "polygon"
+        )
+        output_file = os.path.join(self.temp_dir, "image.json")
+        with open(output_file, "r", encoding="utf-8") as f:
+            return json.load(f)["shapes"]
+
+    @staticmethod
+    def _rectangle_mask():
+        mask = np.zeros((10, 10), dtype=np.uint8)
+        mask[2:6, 3:7] = 1
+        return mask
+
+    def test_uncompressed_rle_counts_imported_as_polygon(self):
+        shapes = self._import(_uncompressed_rle(self._rectangle_mask()))
+
+        self.assertEqual(len(shapes), 1)
+        shape = shapes[0]
+        self.assertEqual(shape["label"], "cat")
+        self.assertEqual(shape["shape_type"], "polygon")
+        xs = [p[0] for p in shape["points"]]
+        ys = [p[1] for p in shape["points"]]
+        self.assertGreaterEqual(min(xs), 2)
+        self.assertLessEqual(max(xs), 7)
+        self.assertGreaterEqual(min(ys), 1)
+        self.assertLessEqual(max(ys), 6)
+
+    def test_compressed_rle_counts_imported_as_polygon(self):
+        mask = self._rectangle_mask()
+        rle = mask_utils.encode(np.asfortranarray(mask))
+        rle["counts"] = rle["counts"].decode("utf-8")
+
+        shapes = self._import(rle)
+
+        self.assertEqual(len(shapes), 1)
+        self.assertEqual(shapes[0]["shape_type"], "polygon")
+        self.assertEqual(shapes[0]["label"], "cat")
+
+    def test_disconnected_rle_regions_share_group_id(self):
+        mask = self._rectangle_mask()
+        mask[7:9, 7:9] = 1
+
+        shapes = self._import(_uncompressed_rle(mask))
+
+        self.assertEqual(len(shapes), 2)
+        self.assertIsNotNone(shapes[0]["group_id"])
+        self.assertEqual(shapes[0]["group_id"], shapes[1]["group_id"])
+
+    def test_polygon_list_segmentation_still_works(self):
+        shapes = self._import([[1.0, 1.0, 5.0, 1.0, 5.0, 5.0, 1.0, 5.0]])
+
+        self.assertEqual(len(shapes), 1)
+        self.assertEqual(shapes[0]["shape_type"], "polygon")
+        self.assertEqual(
+            shapes[0]["points"],
+            [[1.0, 1.0], [5.0, 1.0], [5.0, 5.0], [1.0, 5.0]],
+        )
+
+    def test_lossy_regions_fail_before_writing(self):
+        for region in ("hole", "pixel", "line"):
+            with self.subTest(region=region):
+                mask = np.zeros((10, 10), dtype=np.uint8)
+                if region == "hole":
+                    mask[1:9, 1:9] = 1
+                    mask[3:7, 3:7] = 0
+                elif region == "pixel":
+                    mask[4, 4] = 1
+                else:
+                    mask[2:7, 4] = 1
+                output = os.path.join(self.temp_dir, "image.json")
+                with open(output, "w", encoding="utf-8") as f:
+                    f.write("existing annotation")
+                with self.assertRaisesRegex(ValueError, "losslessly"):
+                    self._import(_uncompressed_rle(mask))
+                with open(output, encoding="utf-8") as f:
+                    self.assertEqual(f.read(), "existing annotation")
+
+    def test_missing_dependency_fails_before_writing(self):
+        with mock.patch.dict("sys.modules", {"pycocotools": None}):
+            with self.assertRaisesRegex(ValueError, "pip install pycocotools"):
+                self._import(_uncompressed_rle(self._rectangle_mask()))
+        self.assertFalse(
+            os.path.exists(os.path.join(self.temp_dir, "image.json"))
+        )
+
+    def test_rectangle_preserves_pixels(self):
+        mask = self._rectangle_mask()
+        shapes = self._import(_uncompressed_rle(mask))
+        restored = np.zeros_like(mask)
+        for shape in shapes:
+            cv2.fillPoly(
+                restored, [np.array(shape["points"], dtype=np.int32)], 1
+            )
+        np.testing.assert_array_equal(mask, restored)
+
+    def test_invalid_rle_fails_before_writing(self):
+        for segmentation in (
+            {"size": [10, 10], "counts": [22, 4, 6, 4, 6, 4, 6, 4, 36]},
+            {"size": [10, 10], "counts": [101]},
+            {"size": [10, 10], "counts": [-1, 101]},
+            {"size": [9, 10], "counts": [90]},
+        ):
+            with self.subTest(segmentation=segmentation):
+                with self.assertRaisesRegex(ValueError, "Cannot import COCO"):
+                    self._import(segmentation)
+                self.assertFalse(
+                    os.path.exists(os.path.join(self.temp_dir, "image.json"))
+                )
