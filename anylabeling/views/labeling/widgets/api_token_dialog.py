@@ -94,7 +94,7 @@ class ApiTokenDialog(QDialog):
                 )
                 self.toggle_visibility_btn.setText("")
                 self.toggle_visibility_btn.setToolTip(hide_text)
-            except:  # noqa
+            except Exception:  # noqa
                 self.toggle_visibility_btn.setIcon(QIcon())
                 self.toggle_visibility_btn.setText(hide_text)
                 self.toggle_visibility_btn.setToolTip("")
@@ -105,7 +105,7 @@ class ApiTokenDialog(QDialog):
                 )
                 self.toggle_visibility_btn.setText("")
                 self.toggle_visibility_btn.setToolTip(show_text)
-            except:  # noqa
+            except Exception:  # noqa
                 self.toggle_visibility_btn.setIcon(QIcon())
                 self.toggle_visibility_btn.setText(show_text)
                 self.toggle_visibility_btn.setToolTip("")

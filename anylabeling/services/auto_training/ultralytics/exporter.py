@@ -254,7 +254,7 @@ def validate_onnx_export_environment():
 
             if version.parse(onnx_version) < version.parse("1.15.0"):
                 missing_packages.append("onnx>=1.15.0")
-    except:
+    except Exception:
         pass
 
     return missing_packages

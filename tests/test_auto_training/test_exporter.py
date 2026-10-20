@@ -208,3 +208,28 @@ def test_external_export_reports_process_without_terminal_event(
     assert events == [
         ("export_error", {"error": "Export process returned no result"})
     ]
+
+
+def test_onnx_import_failure_preserves_fallback(monkeypatch):
+    import builtins
+    import pytest
+
+    original_import = builtins.__import__
+    monkeypatch.setattr(exporter, "check_package_installed", lambda _: True)
+
+    def fail_import(name, *args, **kwargs):
+        if name == "onnx":
+            raise RuntimeError("broken optional installation")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", fail_import)
+    assert exporter.validate_onnx_export_environment() == []
+
+    def interrupt_import(name, *args, **kwargs):
+        if name == "onnx":
+            raise KeyboardInterrupt()
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", interrupt_import)
+    with pytest.raises(KeyboardInterrupt):
+        exporter.validate_onnx_export_environment()
