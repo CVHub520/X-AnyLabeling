@@ -30,7 +30,7 @@
 
 ## 🥳 新功能
 
-- `2026-10-18`：新增支持 [GroundingPI、GroundAnything 和 GroundAnything-VLM](./examples/grounding/groundingpi/README.md) 模型，支持目标检测、描述定位、描述与类别指点、OCR、文档版面分析、GUI 定位及参考框检测。
+- `2026-10-18`：新增支持 [GroundingPI、GroundAnything 和 GroundAnything-VLM](./examples/vision_foundation/groundingpi/README.md) 模型，支持目标检测、描述定位、描述与类别指点、OCR、文档版面分析、GUI 定位及参考框检测。
 - `2026-10-01`：新增 [3D 点云标注](./docs/zh_cn/point_cloud.md)功能，支持 3D 点云检测与分割。
 - `2026-08-19`：新增[图片标签](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#37-%E5%9B%BE%E7%89%87%E6%A0%87%E7%AD%BE)功能，支持标签新增、编辑、排序及批量删除。
 - `2026-08-12`：新增支持 [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg) 实例分割模型。
@@ -76,11 +76,11 @@
 | 📄 **光学字符识别** | PP-OCRv4, PP-OCRv5, PP-OCRv6 |
 | 🧾 **综合版面分析** | PP-DocLayoutV3 |
 | 📑 **文档解析** | PaddleOCR-VL, PaddleOCR-VL-1.6 |
-| 🗣️ **视觉基础模型** | Rex-Omni, Florence2 |
+| 🗣️ **视觉基础模型** | Rex-Omni, Florence2, LocateAnything, GroundingPI, GroundAnything, GroundAnything-VLM |
 | 👁️ **视觉语言模型** | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ **车道线检测** | CLRNet |
 | 🔢 **目标计数** | CountGD, GeCO, GeCo2 |
-| 📍 **视觉定位** | Grounding DINO, YOLO-World, YOLOE, SAM 3, LocateAnything, GroundingPI, GroundAnything, GroundAnything-VLM |
+| 📍 **视觉定位** | Grounding DINO, YOLO-World, YOLOE, SAM 3 |
 | 📚 **其他** | 👉 [model_zoo](./docs/zh_cn/model_zoo.md) 👈 |
 
 ## 文档
@@ -130,17 +130,17 @@
   - [SAM3-Video](./examples/interactive_video_object_segmentation/sam3/README.md)
 - [Matting](./examples/matting/)
   - [Image Matting](./examples/matting/image_matting/README.md)
-- [Vision-Language](./examples/vision_language/)
-  - [Rex-Omni](./examples/vision_language/rexomni/README.md)
-  - [Florence 2](./examples/vision_language/florence2/README.md)
+- [视觉基础模型](./examples/vision_foundation/)
+  - [Rex-Omni](./examples/vision_foundation/rexomni/README.md)
+  - [Florence 2](./examples/vision_foundation/florence2/README.md)
+  - [LocateAnything](./examples/vision_foundation/locateanything/README.md)
+  - [GroundingPI / GroundAnything / GroundAnything-VLM](./examples/vision_foundation/groundingpi/README.md)
 - [Counting](./examples/counting/)
   - [GeCo](./examples/counting/geco/README.md)
   - [GeCo2](./examples/counting/geco2/README.md)
 - [Grounding](./examples/grounding/)
   - [YOLOE](./examples/grounding/yoloe/README.md)
   - [SAM 3](./examples/grounding/sam3/README.md)
-  - [LocateAnything](./examples/grounding/locateanything/README.md)
-  - [GroundingPI / GroundAnything / GroundAnything-VLM](./examples/grounding/groundingpi/README.md)
 - [Training](./examples/training/)
   - [Ultralytics](./examples/training/ultralytics/README.md)
 

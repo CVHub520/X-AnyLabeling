@@ -28,7 +28,7 @@
 
 ## 🥳 What's New
 
-- `2026-10-18`: Add support for [GroundingPI, GroundAnything, and GroundAnything-VLM](./examples/grounding/groundingpi/README.md) with detection, grounding, referring and category-based pointing, OCR, document layout, GUI grounding, and visual prompting.
+- `2026-10-18`: Add support for [GroundingPI, GroundAnything, and GroundAnything-VLM](./examples/vision_foundation/groundingpi/README.md) with detection, grounding, referring and category-based pointing, OCR, document layout, GUI grounding, and visual prompting.
 - `2026-10-01`: Add [3D point cloud annotation](./docs/en/point_cloud.md), supporting 3D point cloud detection and segmentation.
 - `2026-08-19`: Add support for [image tagging](https://xanylabeling.com/docs/x-anylabeling/user_guide#37-image-tags), with tag creation, editing, reordering, and batch deletion.
 - `2026-08-12`: Add support for [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg) instance segmentation models.
@@ -74,11 +74,11 @@
 | 📄 OCR | PP-OCRv4, PP-OCRv5, PP-OCRv6 |
 | 🧾 Layout Analysis | PP-DocLayoutV3 |
 | 📑 Document Parsing | PaddleOCR-VL, PaddleOCR-VL-1.6 |
-| 🗣️ Vision Foundation Models | Rex-Omni, Florence2 |
+| 🗣️ Vision Foundation Models | Rex-Omni, Florence2, LocateAnything, GroundingPI, GroundAnything, GroundAnything-VLM |
 | 👁️ Vision Language Models | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ Lane Detection | CLRNet |
 | 🔢 Object Counting | CountGD, GeCO, GeCo2 |
-| 📍 Grounding | Grounding DINO, YOLO-World, YOLOE, SAM 3, LocateAnything, GroundingPI, GroundAnything, GroundAnything-VLM |
+| 📍 Grounding | Grounding DINO, YOLO-World, YOLOE, SAM 3 |
 | 📚 Other | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |
 
 ## Docs
@@ -127,17 +127,17 @@
   - [SAM3-Video](./examples/interactive_video_object_segmentation/sam3/README.md)
 - [Matting](./examples/matting/)
   - [Image Matting](./examples/matting/image_matting/README.md)
-- [Vision-Language](./examples/vision_language/)
-  - [Rex-Omni](./examples/vision_language/rexomni/README.md)
-  - [Florence 2](./examples/vision_language/florence2/README.md)
+- [Vision Foundation Models](./examples/vision_foundation/)
+  - [Rex-Omni](./examples/vision_foundation/rexomni/README.md)
+  - [Florence 2](./examples/vision_foundation/florence2/README.md)
+  - [LocateAnything](./examples/vision_foundation/locateanything/README.md)
+  - [GroundingPI / GroundAnything / GroundAnything-VLM](./examples/vision_foundation/groundingpi/README.md)
 - [Counting](./examples/counting/)
   - [GeCo](./examples/counting/geco/README.md)
   - [GeCo2](./examples/counting/geco2/README.md)
 - [Grounding](./examples/grounding/)
   - [YOLOE](./examples/grounding/yoloe/README.md)
   - [SAM 3](./examples/grounding/sam3/README.md)
-  - [LocateAnything](./examples/grounding/locateanything/README.md)
-  - [GroundingPI / GroundAnything / GroundAnything-VLM](./examples/grounding/groundingpi/README.md)
 - [Training](./examples/training/)
   - [Ultralytics](./examples/training/ultralytics/README.md)
 

@@ -67,7 +67,7 @@
   - [8.8 光学字符识别](#88-光学字符识别)
   - [8.9 交互式视频目标分割](#89-交互式视频目标分割)
   - [8.10 抠图](#810-抠图)
-  - [8.11 视觉-语言](#811-视觉-语言)
+  - [8.11 视觉基础模型](#811-视觉基础模型)
   - [8.12 目标计数](#812-目标计数)
   - [8.13 视觉定位](#813-视觉定位)
 - [9. 模型](#9-模型)
@@ -1200,10 +1200,12 @@ font_family: null  # null 表示使用系统默认字体，也可填写字体名
 
 - 图像抠图：[链接](../../examples/matting/image_matting/README.md)
 
-### 8.11 视觉-语言
+### 8.11 视觉基础模型
 
-- Rex-Omni: [链接](../../examples/vision_language/rexomni/README.md)
-- Florence 2：[链接](../../examples/vision_language/florence2/README.md)
+- Rex-Omni: [链接](../../examples/vision_foundation/rexomni/README.md)
+- Florence 2：[链接](../../examples/vision_foundation/florence2/README.md)
+- LocateAnything：[链接](../../examples/vision_foundation/locateanything/README.md)
+- GroundingPI / GroundAnything / GroundAnything-VLM: [链接](../../examples/vision_foundation/groundingpi/README.md)
 
 ### 8.12 目标计数
 
@@ -1214,7 +1216,6 @@ font_family: null  # null 表示使用系统默认字体，也可填写字体名
 
 - YOLOE：[链接](../../examples/grounding/yoloe/README.md)
 - SAM 3：[链接](../../examples/grounding/sam3/README.md)
-- LocateAnything：[链接](../../examples/grounding/locateanything/README.md)
 
 ## 9. 模型
 

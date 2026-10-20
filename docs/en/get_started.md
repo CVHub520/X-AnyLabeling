@@ -11,9 +11,9 @@ X-AnyLabeling provides multiple installation methods. You can install the offici
 > 1. **Video Object Tracking**: Segment Anything video object tracking ([SAM 2](../../examples/interactive_video_object_segmentation/sam2/README.md) | [SAM 3](../../examples/interactive_video_object_segmentation/sam3/README.md))
 > 2. **Bounding Box Generation**: UPN-based bounding box generation - [Installation Guide](../../examples/detection/hbb/README.md)
 > 3. **Interactive Detection & Segmentation**: Interactive object detection and segmentation with visual and text prompts - [Installation Guide](../../examples/detection/hbb/README.md)
-> 4. **Smart Detection & Segmentation**: Detection and segmentation with visual prompts, text prompts, or prompt-free modes ([YOLOE](../../examples/grounding/yoloe/README.md) | [SAM 3](../../examples/grounding/sam3/README.md) | [LocateAnything](../../examples/grounding/locateanything/README.md))
+> 4. **Smart Detection & Segmentation**: Detection and segmentation with visual prompts, text prompts, or prompt-free modes ([YOLOE](../../examples/grounding/yoloe/README.md) | [SAM 3](../../examples/grounding/sam3/README.md) | [LocateAnything](../../examples/vision_foundation/locateanything/README.md))
 > 5. **One-Click Training Platform**: Ultralytics framework-based training platform - [Installation Guide](../../examples/training/ultralytics/README.md)
-> 6. **Multimodal Vision Model**: Rex-Omni based object detection, keypoint detection (person/hand/animal), OCR, Pointing, visual prompt localization - [Installation Guide](../../examples/vision_language/rexomni/README.md)
+> 6. **Multimodal Vision Model**: Rex-Omni based object detection, keypoint detection (person/hand/animal), OCR, Pointing, visual prompt localization - [Installation Guide](../../examples/vision_foundation/rexomni/README.md)
 
 ### 1.1 Prerequisites
 

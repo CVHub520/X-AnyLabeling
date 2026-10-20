@@ -66,7 +66,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [8.8 Optical Character Recognition (OCR)](#88-optical-character-recognition-ocr)
       * [8.9 Interactive Video Object Segmentation (IVOS)](#89-interactive-video-object-segmentation-ivos)
       * [8.10 Matting](#810-matting)
-      * [8.11 Vision-Language Tasks](#811-vision-language-tasks)
+      * [8.11 Vision Foundation Models](#811-vision-foundation-models)
       * [8.12 Zero-Shot Counting](#812-zero-shot-counting)
       * [8.13 Grounding](#813-grounding)
    * [9. Custom Models](#9-custom-models)
@@ -1126,9 +1126,11 @@ X-AnyLabeling supports various annotation tasks. Follow the links below for spec
 ### 8.10 Matting
   - Image Matting (Alpha Masks): [Link](../../examples/matting/image_matting/README.md)
 
-### 8.11 Vision-Language Tasks
-  - Rex-Omni: [Link](../../examples/vision_language/rexomni/README.md)
-  - Florence 2: [Link](../../examples/vision_language/florence2/README.md)
+### 8.11 Vision Foundation Models
+  - Rex-Omni: [Link](../../examples/vision_foundation/rexomni/README.md)
+  - Florence 2: [Link](../../examples/vision_foundation/florence2/README.md)
+  - LocateAnything: [Link](../../examples/vision_foundation/locateanything/README.md)
+  - GroundingPI / GroundAnything / GroundAnything-VLM: [Link](../../examples/vision_foundation/groundingpi/README.md)
 
 ### 8.12 Zero-Shot Counting
   - GeCo Counting by Detection/Segmentation: [Link](../../examples/counting/geco/README.md)
@@ -1137,7 +1139,6 @@ X-AnyLabeling supports various annotation tasks. Follow the links below for spec
 ### 8.13 Grounding
   - YOLOE: [Link](../../examples/grounding/yoloe/README.md)
   - SAM 3: [Link](../../examples/grounding/sam3/README.md)
-  - LocateAnything: [Link](../../examples/grounding/locateanything/README.md)
 
 ## 9. Custom Models
 

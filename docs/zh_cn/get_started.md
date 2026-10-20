@@ -11,9 +11,9 @@ X-AnyLabeling 提供了多种安装方法，您可以通过 `pip` 直接安装�
 > 1. **视频目标追踪**：基于 Segment Anything 的视频目标追踪（[SAM 2](../../examples/interactive_video_object_segmentation/sam2/README.md) | [SAM 3](../../examples/interactive_video_object_segmentation/sam3/README.md)）
 > 2. **目标候选框生成**：基于 UPN 的目标候选框生成 - [安装指南](../../examples/detection/hbb/README.md)
 > 3. **交互式检测分割**：基于视觉和文本提示的交互式目标检测和分割 - [安装指南](../../examples/detection/hbb/README.md)
-> 4. **智能检测分割**：基于视觉提示、文本提示或免提示模式的目标检测与分割（[YOLOE](../../examples/grounding/yoloe/README.md) | [SAM 3](../../examples/grounding/sam3/README.md) | [LocateAnything](../../examples/grounding/locateanything/README.md)）
+> 4. **智能检测分割**：基于视觉提示、文本提示或免提示模式的目标检测与分割（[YOLOE](../../examples/grounding/yoloe/README.md) | [SAM 3](../../examples/grounding/sam3/README.md) | [LocateAnything](../../examples/vision_foundation/locateanything/README.md)）
 > 5. **一键训练平台**：基于 Ultralytics 框架的一键训练平台 - [安装指南](../../examples/training/ultralytics/README.md)
-> 6. **全模态视觉推理**：基于 Rex-Omni 的目标检测、关键点检测（人、手、动物）、OCR、指向理解和视觉提示定位（[安装指南](../../examples/vision_language/rexomni/README.md)）
+> 6. **全模态视觉推理**：基于 Rex-Omni 的目标检测、关键点检测（人、手、动物）、OCR、指向理解和视觉提示定位（[安装指南](../../examples/vision_foundation/rexomni/README.md)）
 
 ### 1.1 前置条件
 
