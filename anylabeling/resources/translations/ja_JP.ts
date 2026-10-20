@@ -10033,9 +10033,61 @@ Response preview:
       <translation>説明を生成しました。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2637" />
-      <source>片段{n}</source>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2609" />
+      <source>Segment {n}</source>
       <translation>セグメント{n}</translation>
+    </message>
+    <message>
+      <source>Show shortcuts</source>
+      <translation>ショートカットを表示</translation>
+    </message>
+    <message>
+      <source>Previous/Next frame</source>
+      <translation>前/次のフレーム</translation>
+    </message>
+    <message>
+      <source>Back/Forward 1 second</source>
+      <translation>1秒戻る/進む</translation>
+    </message>
+    <message>
+      <source>Previous/Next segment</source>
+      <translation>前/次のセグメント</translation>
+    </message>
+    <message>
+      <source>Mark in/out</source>
+      <translation>イン/アウトをマーク</translation>
+    </message>
+    <message>
+      <source>Create segment from marks</source>
+      <translation>マークからセグメントを作成</translation>
+    </message>
+    <message>
+      <source>Delete selected segment</source>
+      <translation>選択したセグメントを削除</translation>
+    </message>
+    <message>
+      <source>Save annotations</source>
+      <translation>アノテーションを保存</translation>
+    </message>
+    <message>
+      <source>Select label by number</source>
+      <translation>番号でラベルを選択</translation>
+    </message>
+    <message>
+      <source>Shortcuts</source>
+      <translation>ショートカット</translation>
+    </message>
+    <message>
+      <source>Key</source>
+      <translation>キー</translation>
+    </message>
+    <message>
+      <source>Action</source>
+      <translation>機能</translation>
+    </message>
+    <message>
+      <source>Open tutorial</source>
+      <translation>チュートリアルを開く</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2760" />

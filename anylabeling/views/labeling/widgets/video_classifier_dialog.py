@@ -1228,39 +1228,21 @@ class VideoClassifierDialog(QDialog):
         return button
 
     def _shortcuts_tip_text(self):
-        return (
-            "查看快捷键"
-            if self._tutorial_language() == "zh_cn"
-            else "Show shortcuts"
-        )
+        return self.tr("Show shortcuts")
 
     def _shortcut_rows(self):
-        if self._tutorial_language() == "zh_cn":
-            return [
-                ("Space", "播放/暂停"),
-                ("Left/Right", "上一帧/下一帧"),
-                ("Shift+Left/Right", "后退/前进 1 秒"),
-                (",/.", "上一个/下一个片段"),
-                ("I/O", "标记入点/出点"),
-                ("Enter", "根据入点和出点创建片段"),
-                ("Delete/Backspace", "删除选中片段"),
-                ("Ctrl+S", "保存标注"),
-                ("Ctrl+Z", "撤销"),
-                ("Ctrl+Shift+Z", "重做"),
-                ("0-9", "选择对应序号的标签"),
-            ]
         return [
-            ("Space", "Play/Pause"),
-            ("Left/Right", "Previous/Next frame"),
-            ("Shift+Left/Right", "Back/Forward 1 second"),
-            (",/.", "Previous/Next segment"),
-            ("I/O", "Mark in/out"),
-            ("Enter", "Create segment from marks"),
-            ("Delete/Backspace", "Delete selected segment"),
-            ("Ctrl+S", "Save annotations"),
-            ("Ctrl+Z", "Undo"),
-            ("Ctrl+Shift+Z", "Redo"),
-            ("0-9", "Select label by number"),
+            ("Space", self.tr("Play/Pause")),
+            ("Left/Right", self.tr("Previous/Next frame")),
+            ("Shift+Left/Right", self.tr("Back/Forward 1 second")),
+            (",/.", self.tr("Previous/Next segment")),
+            ("I/O", self.tr("Mark in/out")),
+            ("Enter", self.tr("Create segment from marks")),
+            ("Delete/Backspace", self.tr("Delete selected segment")),
+            ("Ctrl+S", self.tr("Save annotations")),
+            ("Ctrl+Z", self.tr("Undo")),
+            ("Ctrl+Shift+Z", self.tr("Redo")),
+            ("0-9", self.tr("Select label by number")),
         ]
 
     def _show_shortcuts_menu(self):
@@ -1274,19 +1256,13 @@ class VideoClassifierDialog(QDialog):
         grid.setHorizontalSpacing(18)
         grid.setVerticalSpacing(8)
 
-        title = QLabel(
-            "快捷键" if self._tutorial_language() == "zh_cn" else "Shortcuts"
-        )
+        title = QLabel(self.tr("Shortcuts"))
         title.setObjectName("XvaShortcutTitle")
         grid.addWidget(title, 0, 0, 1, 2)
 
-        key_header = QLabel(
-            "按键" if self._tutorial_language() == "zh_cn" else "Key"
-        )
+        key_header = QLabel(self.tr("Key"))
         key_header.setObjectName("XvaShortcutHeader")
-        action_header = QLabel(
-            "功能" if self._tutorial_language() == "zh_cn" else "Action"
-        )
+        action_header = QLabel(self.tr("Action"))
         action_header.setObjectName("XvaShortcutHeader")
         grid.addWidget(key_header, 1, 0)
         grid.addWidget(action_header, 1, 1)
@@ -1316,11 +1292,7 @@ class VideoClassifierDialog(QDialog):
         return "zh_cn" if language == "zh_CN" else "en"
 
     def _tutorial_tip_text(self):
-        return (
-            "打开教程"
-            if self._tutorial_language() == "zh_cn"
-            else "Open tutorial"
-        )
+        return self.tr("Open tutorial")
 
     def _open_tutorial(self):
         language = self._tutorial_language()
@@ -2634,7 +2606,7 @@ class VideoClassifierDialog(QDialog):
                 end_ms = max(0, min(end_ms, max_ms))
             if end_ms <= start_ms:
                 continue
-            label = active_label or self.tr("片段{n}").format(
+            label = active_label or self.tr("Segment {n}").format(
                 n=len(segments) + 1
             )
             segments.append(

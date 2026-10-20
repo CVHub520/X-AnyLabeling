@@ -10033,9 +10033,61 @@ Response preview:
       <translation>描述已生成。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2637" />
-      <source>片段{n}</source>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2609" />
+      <source>Segment {n}</source>
       <translation>片段{n}</translation>
+    </message>
+    <message>
+      <source>Show shortcuts</source>
+      <translation>查看快捷键</translation>
+    </message>
+    <message>
+      <source>Previous/Next frame</source>
+      <translation>上一帧/下一帧</translation>
+    </message>
+    <message>
+      <source>Back/Forward 1 second</source>
+      <translation>后退/前进 1 秒</translation>
+    </message>
+    <message>
+      <source>Previous/Next segment</source>
+      <translation>上一个/下一个片段</translation>
+    </message>
+    <message>
+      <source>Mark in/out</source>
+      <translation>标记入点/出点</translation>
+    </message>
+    <message>
+      <source>Create segment from marks</source>
+      <translation>根据入点和出点创建片段</translation>
+    </message>
+    <message>
+      <source>Delete selected segment</source>
+      <translation>删除选中片段</translation>
+    </message>
+    <message>
+      <source>Save annotations</source>
+      <translation>保存标注</translation>
+    </message>
+    <message>
+      <source>Select label by number</source>
+      <translation>选择对应序号的标签</translation>
+    </message>
+    <message>
+      <source>Shortcuts</source>
+      <translation>快捷键</translation>
+    </message>
+    <message>
+      <source>Key</source>
+      <translation>按键</translation>
+    </message>
+    <message>
+      <source>Action</source>
+      <translation>功能</translation>
+    </message>
+    <message>
+      <source>Open tutorial</source>
+      <translation>打开教程</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2760" />

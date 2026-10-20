@@ -9992,9 +9992,61 @@ Response preview:
       <translation>Description generated.</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2637" />
-      <source>片段{n}</source>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2609" />
+      <source>Segment {n}</source>
       <translation>Segment {n}</translation>
+    </message>
+    <message>
+      <source>Show shortcuts</source>
+      <translation>Show shortcuts</translation>
+    </message>
+    <message>
+      <source>Previous/Next frame</source>
+      <translation>Previous/Next frame</translation>
+    </message>
+    <message>
+      <source>Back/Forward 1 second</source>
+      <translation>Back/Forward 1 second</translation>
+    </message>
+    <message>
+      <source>Previous/Next segment</source>
+      <translation>Previous/Next segment</translation>
+    </message>
+    <message>
+      <source>Mark in/out</source>
+      <translation>Mark in/out</translation>
+    </message>
+    <message>
+      <source>Create segment from marks</source>
+      <translation>Create segment from marks</translation>
+    </message>
+    <message>
+      <source>Delete selected segment</source>
+      <translation>Delete selected segment</translation>
+    </message>
+    <message>
+      <source>Save annotations</source>
+      <translation>Save annotations</translation>
+    </message>
+    <message>
+      <source>Select label by number</source>
+      <translation>Select label by number</translation>
+    </message>
+    <message>
+      <source>Shortcuts</source>
+      <translation>Shortcuts</translation>
+    </message>
+    <message>
+      <source>Key</source>
+      <translation>Key</translation>
+    </message>
+    <message>
+      <source>Action</source>
+      <translation>Action</translation>
+    </message>
+    <message>
+      <source>Open tutorial</source>
+      <translation>Open tutorial</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2760" />
