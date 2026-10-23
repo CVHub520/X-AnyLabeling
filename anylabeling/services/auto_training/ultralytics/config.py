@@ -47,7 +47,7 @@ TASK_SHAPE_MAPPINGS = {
     "Classify": ["flags"],
     "Detect": ["rectangle"],
     "OBB": ["rotation"],
-    "Segment": ["polygon"],
+    "Segment": ["polygon", "quadrilateral", "ellipse"],
     "Pose": ["point"],
 }
 TASK_LABEL_MAPPINGS = {

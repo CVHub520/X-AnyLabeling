@@ -11,6 +11,7 @@ from anylabeling.views.labeling.utils.shape import (
     CONVERSION_TARGETS,
     _apply_shape_conversion,
     get_conversion_params,
+    convert_ellipse_files,
 )
 from anylabeling.views.labeling.utils.style import (
     get_cancel_btn_style,
@@ -24,6 +25,49 @@ from anylabeling.views.labeling.widgets.popup import Popup
 
 
 class ShapeConverterDialog(QDialog):
+    def _convert_ellipses(self, paths: list[str], count: int) -> None:
+        """Run the ellipse conversion with preflight and cooperative cancel.
+
+        Args:
+            paths: Native annotations selected by the existing dialog.
+            count: Current application sampling count.
+        """
+        from anylabeling.views.labeling.utils.ellipse_io import export_report
+
+        self.cancel_requested = False
+        self.is_processing = True
+        self._set_controls_enabled(False)
+        self.log_terminal.clear()
+
+        def progress(current: int, total: int) -> None:
+            """Refresh conversion progress and process cancellation events.
+
+            Args:
+                current: Number of files visited.
+                total: Number of selected files.
+            """
+            self._set_progress(current, total)
+            QtWidgets.QApplication.processEvents()
+
+        try:
+            outcomes = convert_ellipse_files(
+                paths,
+                count,
+                cancelled=lambda: self.cancel_requested,
+                progress=progress,
+            )
+            self.log_terminal.appendPlainText(export_report(outcomes))
+            if self.parent_widget.filename and any(
+                status == "success" for status, _ in outcomes.values()
+            ):
+                self.parent_widget.load_file(self.parent_widget.filename)
+        except (ValueError, OSError) as error:
+            self._append_error_log("ellipse", str(error))
+        finally:
+            self.is_processing = False
+            self.cancel_requested = False
+            self._set_controls_enabled(True)
+
     def __init__(self, parent):
         super().__init__(parent)
         self.parent_widget = parent
@@ -44,6 +88,9 @@ class ShapeConverterDialog(QDialog):
         type_layout = QtWidgets.QHBoxLayout()
         self.source_combo = QtWidgets.QComboBox(self)
         self.source_combo.addItems(list(CONVERSION_TARGETS.keys()))
+        ellipse_index = self.source_combo.findText("ellipse")
+        self.source_combo.setItemText(ellipse_index, self.tr("ellipse"))
+        self.source_combo.setItemData(ellipse_index, "ellipse")
         self.target_combo = QtWidgets.QComboBox(self)
         self._combo_style = get_settings_combo_style()
         self.source_combo.setStyleSheet(self._combo_style)
@@ -158,6 +205,7 @@ class ShapeConverterDialog(QDialog):
         return 0
 
     def _update_target_options(self, source_type):
+        source_type = self.source_combo.currentData() or source_type
         self.target_combo.clear()
         self.target_combo.addItems(CONVERSION_TARGETS.get(source_type, []))
         self.target_combo.setStyleSheet(self._combo_style)
@@ -233,7 +281,11 @@ class ShapeConverterDialog(QDialog):
             return
 
         mode = CONVERSION_MODE_MAP.get(
-            (self.source_combo.currentText(), self.target_combo.currentText())
+            (
+                self.source_combo.currentData()
+                or self.source_combo.currentText(),
+                self.target_combo.currentText(),
+            )
         )
         if mode is None:
             return
@@ -247,6 +299,9 @@ class ShapeConverterDialog(QDialog):
 
         params = get_conversion_params(self, mode)
         if params is None:
+            return
+        if mode == "ellipse_to_polygon":
+            self._convert_ellipses(label_file_list, params["num_sides"])
             return
 
         self.log_terminal.clear()

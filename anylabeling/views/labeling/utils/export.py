@@ -21,7 +21,117 @@ from anylabeling.views.labeling.label_converter import (
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.widgets import Popup
 from anylabeling.views.labeling.utils.qt import new_icon_path
+from anylabeling.views.labeling.utils.ellipse_io import (
+    atomic_bytes,
+    export_report,
+)
 from anylabeling.views.labeling.utils.style import *
+
+
+def _configured_converter(
+    widget: QtWidgets.QWidget, **kwargs: object
+) -> LabelConverter:
+    """Build a converter from the current effective application settings.
+
+    Args:
+        widget: Labeling widget with its loaded application configuration.
+        kwargs: Existing converter construction arguments.
+
+    Returns:
+        Converter using the same sampling count as the canvas and settings.
+    """
+    config = getattr(widget, "_config", {})
+    count = (
+        config.get("canvas", {}).get("ellipse", {}).get("polygon_points", 128)
+    )
+    return LabelConverter(ellipse_polygon_points=count, **kwargs)
+
+
+def _prepare_export_directory(
+    widget: QtWidgets.QWidget,
+    converter: LabelConverter,
+    save_path: str,
+    mode: str,
+    use_classes: bool = False,
+    mapping: dict | None = None,
+    checked_only: bool = False,
+    ignored_labels: tuple[str, ...] = (),
+) -> bool:
+    """Preflight a selected GUI batch before merging into an output folder.
+
+    Args:
+        widget: Labeling widget owning the selected images.
+        converter: Configured converter retaining input hashes and outcomes.
+        save_path: Output directory; it will never be emptied.
+        mode: Supported segmentation or descriptive unsupported mode.
+        use_classes: Whether the format requires class lookup.
+        mapping: Optional mask mapping.
+        checked_only: Exclude unchecked images using the existing mask rule.
+        ignored_labels: Existing format-specific ignored class names.
+
+    Returns:
+        Whether preflight and output-directory confirmation succeeded.
+    """
+    image_list = widget.image_list if widget.image_list else [widget.filename]
+    labels = []
+    try:
+        for image_file in image_list:
+            candidate = osp.join(
+                widget.output_dir or osp.dirname(image_file),
+                osp.splitext(osp.basename(image_file))[0] + ".json",
+            )
+            if (
+                checked_only
+                and osp.isfile(candidate)
+                and converter.read_json(candidate).get("checked", False)
+                is not True
+            ):
+                converter.export_results[str(candidate)] = (
+                    "skipped",
+                    "unchecked image",
+                )
+                continue
+            labels.append(candidate)
+        converter.prepare_export(
+            labels,
+            mode,
+            use_classes=use_classes,
+            mapping=mapping,
+            ignored_labels=ignored_labels,
+        )
+        for source in labels + list(image_list):
+            source_directory = osp.dirname(osp.abspath(source))
+            output = osp.abspath(save_path)
+            if (
+                osp.splitdrive(source_directory)[0].lower()
+                == osp.splitdrive(output)[0].lower()
+                and osp.commonpath([source_directory, output]) == output
+            ):
+                raise ValueError(
+                    "Export output must not contain the source annotation directory"
+                )
+        if osp.exists(save_path):
+            if not osp.isdir(save_path):
+                raise ValueError("Export destination is not a directory")
+            response = QtWidgets.QMessageBox.question(
+                widget,
+                widget.tr("Output Directory Exists!"),
+                widget.tr(
+                    "Merge exported files into this directory? Unrelated files will be retained."
+                ),
+                QtWidgets.QMessageBox.StandardButton.Yes
+                | QtWidgets.QMessageBox.StandardButton.Cancel,
+                QtWidgets.QMessageBox.StandardButton.Cancel,
+            )
+            if response != QtWidgets.QMessageBox.StandardButton.Yes:
+                return False
+        os.makedirs(save_path, exist_ok=True)
+        return True
+    except (ValueError, OSError) as error:
+        QtWidgets.QMessageBox.warning(
+            widget, widget.tr("Export preflight failed"), str(error)
+        )
+        return False
 
 
 class ExportThread(QThread):
@@ -74,9 +184,17 @@ class ExportThread(QThread):
                     self.save_path,
                     self.mode,
                 )
-            self.finished.emit(True, "")
+            report = export_report(self.converter.export_results)
+            logger.info(report)
+            if self.isInterruptionRequested():
+                raise InterruptedError(
+                    "Export canceled; completed outputs were retained"
+                )
+            self.finished.emit(True, report)
         except Exception as e:
-            self.finished.emit(False, str(e))
+            report = export_report(self.converter.export_results)
+            logger.error(report)
+            self.finished.emit(False, str(e) + "\n" + report)
 
 
 def _check_filename_exist(self):
@@ -231,7 +349,9 @@ def export_yolo_annotation(self, mode):
         if not self.yaml_file:
             return
         try:
-            converter = LabelConverter(pose_cfg_file=self.yaml_file)
+            converter = _configured_converter(
+                self, pose_cfg_file=self.yaml_file
+            )
         except Exception as e:
             logger.error(f"Failed to load pose config: {self.yaml_file}: {e}")
             popup = Popup(
@@ -259,7 +379,7 @@ def export_yolo_annotation(self, mode):
         )
         if not self.classes_file:
             return
-        converter = LabelConverter(classes_file=self.classes_file)
+        converter = _configured_converter(self, classes_file=self.classes_file)
 
     source_root = _get_yolo_source_root(
         self.filename, getattr(self, "last_open_dir", None)
@@ -429,52 +549,14 @@ def export_yolo_annotation(self, mode):
             if response == QtWidgets.QMessageBox.StandardButton.No:
                 obb_boundary_policy = "skip"
 
-    if osp.exists(save_path):
-        msg_box = QtWidgets.QMessageBox(self)
-        msg_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        msg_box.setWindowTitle(
-            QCoreApplication.translate(
-                "LabelingWidget", "Output Directory Exists!"
-            )
-        )
-        msg_box.setText(
-            QCoreApplication.translate(
-                "LabelingWidget",
-                "Directory already exists. Choose an action:",
-            )
-        )
-        msg_box.setInformativeText(
-            QCoreApplication.translate(
-                "LabelingWidget",
-                "• Yes    - Merge with existing files\n"
-                "• No     - Delete existing directory\n"
-                "• Cancel - Abort export",
-            )
-        )
-
-        msg_box.addButton(
-            QCoreApplication.translate("LabelingWidget", "Yes"),
-            QtWidgets.QMessageBox.ButtonRole.YesRole,
-        )
-        no_button = msg_box.addButton(
-            QCoreApplication.translate("LabelingWidget", "No"),
-            QtWidgets.QMessageBox.ButtonRole.NoRole,
-        )
-        cancel_button = msg_box.addButton(
-            QCoreApplication.translate("LabelingWidget", "Cancel"),
-            QtWidgets.QMessageBox.ButtonRole.RejectRole,
-        )
-        msg_box.setStyleSheet(get_msg_box_style())
-        msg_box.exec()
-
-        clicked_button = msg_box.clickedButton()
-        if clicked_button == no_button:
-            shutil.rmtree(save_path)
-            os.makedirs(save_path)
-        elif clicked_button == cancel_button:
-            return
-    else:
-        os.makedirs(save_path)
+    if not _prepare_export_directory(
+        self,
+        converter,
+        save_path,
+        "seg" if mode == "seg" else f"YOLO {mode}",
+        use_classes=(mode == "seg"),
+    ):
+        return
 
     progress_dialog = QProgressDialog(
         QCoreApplication.translate("LabelingWidget", "Exporting..."),
@@ -510,10 +592,11 @@ def export_yolo_annotation(self, mode):
 
             if save_images and not (skip_empty_files and is_empty_file):
                 os.makedirs(osp.dirname(image_dst), exist_ok=True)
-                shutil.copy(image_file, image_dst)
-
-            if skip_empty_files and is_empty_file and osp.exists(dst_file):
-                os.remove(dst_file)
+                atomic_bytes(
+                    image_dst,
+                    pathlib.Path(image_file).read_bytes(),
+                    converter._input_fingerprints(src_file),
+                )
 
             progress_dialog.setValue(i)
             if progress_dialog.wasCanceled():
@@ -528,6 +611,13 @@ def export_yolo_annotation(self, mode):
             "%s",
         )
         message_text = template % save_path
+        if progress_dialog.wasCanceled():
+            message_text = self.tr(
+                "Export canceled; completed outputs were retained."
+            )
+        report = export_report(converter.export_results)
+        logger.info(report)
+        message_text += "\n" + report.splitlines()[0]
         popup = Popup(
             message_text,
             self,
@@ -548,6 +638,7 @@ def export_yolo_annotation(self, mode):
         else:
             logger.error(f"Error occurred while exporting annotations: {e}")
 
+        logger.error(export_report(converter.export_results))
         _show_yolo_export_error(self, current_image_file, e)
 
 
@@ -636,41 +727,14 @@ def export_voc_annotation(self, mode):
     skip_empty_files = skip_empty_files_checkbox.isChecked()
     save_path = path_edit.text()
 
-    if osp.exists(save_path):
-        msg_box = QtWidgets.QMessageBox(self)
-        msg_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        msg_box.setWindowTitle(self.tr("Output Directory Exists!"))
-        msg_box.setText(self.tr("Directory already exists. Choose an action:"))
-        msg_box.setInformativeText(
-            self.tr(
-                "• Yes    - Merge with existing files\n"
-                "• No     - Delete existing directory\n"
-                "• Cancel - Abort export"
-            )
-        )
-
-        msg_box.addButton(
-            self.tr("Yes"), QtWidgets.QMessageBox.ButtonRole.YesRole
-        )
-        no_button = msg_box.addButton(
-            self.tr("No"), QtWidgets.QMessageBox.ButtonRole.NoRole
-        )
-        cancel_button = msg_box.addButton(
-            self.tr("Cancel"), QtWidgets.QMessageBox.ButtonRole.RejectRole
-        )
-        msg_box.setStyleSheet(get_msg_box_style())
-        msg_box.exec()
-
-        clicked_button = msg_box.clickedButton()
-        if clicked_button == no_button:
-            shutil.rmtree(save_path)
-            os.makedirs(save_path)
-        elif clicked_button == cancel_button:
-            return
-    else:
-        os.makedirs(save_path)
-
-    converter = LabelConverter()
+    converter = _configured_converter(self)
+    if not _prepare_export_directory(
+        self,
+        converter,
+        save_path,
+        "seg" if mode == "polygon" else f"VOC {mode}",
+    ):
+        return
 
     image_list = self.image_list if self.image_list else [self.filename]
 
@@ -705,9 +769,6 @@ def export_voc_annotation(self, mode):
                 image_dst = osp.join(save_path, image_file_name)
                 shutil.copy(image_file, image_dst)
 
-            if skip_empty_files and is_empty_file and osp.exists(dst_file):
-                os.remove(dst_file)
-
             progress_dialog.setValue(i)
             if progress_dialog.wasCanceled():
                 break
@@ -719,6 +780,18 @@ def export_voc_annotation(self, mode):
             "%s"
         )
         message_text = template % save_path
+        report = export_report(converter.export_results)
+        logger.info(report)
+        message_text += "\n" + report.splitlines()[0]
+        if any(
+            status == "unprocessed"
+            for status, _ in converter.export_results.values()
+        ):
+            message_text = (
+                self.tr("Export canceled; completed outputs were retained.")
+                + "\n"
+                + report.splitlines()[0]
+            )
         popup = Popup(
             message_text,
             self,
@@ -727,7 +800,10 @@ def export_voc_annotation(self, mode):
         popup.show_popup(self, popup_height=65, position="center")
 
     except Exception as e:
-        message = f"Error occurred while exporting annotations: {str(e)}"
+        message = (
+            f"Error occurred while exporting annotations: {str(e)}\n"
+            + export_report(converter.export_results)
+        )
         progress_dialog.close()
         logger.error(message)
         popup = Popup(
@@ -753,7 +829,9 @@ def export_coco_annotation(self, mode):
         if not self.yaml_file:
             return
         try:
-            converter = LabelConverter(pose_cfg_file=self.yaml_file)
+            converter = _configured_converter(
+                self, pose_cfg_file=self.yaml_file
+            )
         except Exception as e:
             logger.error(f"Failed to load pose config: {self.yaml_file}: {e}")
             popup = Popup(
@@ -773,7 +851,7 @@ def export_coco_annotation(self, mode):
         )
         if not self.classes_file:
             return
-        converter = LabelConverter(classes_file=self.classes_file)
+        converter = _configured_converter(self, classes_file=self.classes_file)
 
     dialog = QtWidgets.QDialog(self)
     dialog.setWindowTitle(self.tr("Export options"))
@@ -844,35 +922,15 @@ def export_coco_annotation(self, mode):
         return
 
     save_path = path_edit.text()
-    if osp.exists(save_path):
-        msg_box = QtWidgets.QMessageBox(self)
-        msg_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        msg_box.setWindowTitle(self.tr("Output Directory Exists!"))
-        msg_box.setText(self.tr("Directory already exists. Choose an action:"))
-        msg_box.setInformativeText(
-            self.tr(
-                "• Overwrite - Overwrite existing directory\n"
-                "• Cancel - Abort export"
-            )
-        )
-
-        msg_box.addButton(
-            self.tr("Overwrite"), QtWidgets.QMessageBox.ButtonRole.YesRole
-        )
-        cancel_button = msg_box.addButton(
-            self.tr("Cancel"), QtWidgets.QMessageBox.ButtonRole.RejectRole
-        )
-        msg_box.setStyleSheet(get_msg_box_style())
-        msg_box.exec()
-
-        clicked_button = msg_box.clickedButton()
-        if clicked_button == cancel_button:
-            return
-        else:
-            shutil.rmtree(save_path)
-            os.makedirs(save_path)
-    else:
-        os.makedirs(save_path)
+    if not _prepare_export_directory(
+        self,
+        converter,
+        save_path,
+        "seg" if mode == "polygon" else f"COCO {mode}",
+        use_classes=(mode == "polygon"),
+        ignored_labels=("__ignore__",) if mode == "polygon" else (),
+    ):
+        return
 
     image_list = self.image_list if self.image_list else [self.filename]
     progress_dialog = QProgressDialog(
@@ -898,6 +956,20 @@ def export_coco_annotation(self, mode):
                 "%s"
             )
             message_text = template % save_path
+            report = export_report(converter.export_results)
+            logger.info(report)
+            message_text += "\n" + report.splitlines()[0]
+            if any(
+                status == "unprocessed"
+                for status, _ in converter.export_results.values()
+            ):
+                message_text = (
+                    self.tr(
+                        "Export canceled; completed outputs were retained."
+                    )
+                    + "\n"
+                    + report.splitlines()[0]
+                )
             popup = Popup(
                 message_text,
                 self,
@@ -921,7 +993,7 @@ def export_coco_annotation(self, mode):
     progress_dialog.show()
     self.export_thread.start()
 
-    progress_dialog.canceled.connect(self.export_thread.terminate)
+    progress_dialog.canceled.connect(self.export_thread.requestInterruption)
 
 
 def export_dota_annotation(self):
@@ -1004,41 +1076,11 @@ def export_dota_annotation(self):
 
     save_path = path_edit.text()
 
-    if osp.exists(save_path):
-        msg_box = QtWidgets.QMessageBox(self)
-        msg_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        msg_box.setWindowTitle(self.tr("Output Directory Exists!"))
-        msg_box.setText(self.tr("Directory already exists. Choose an action:"))
-        msg_box.setInformativeText(
-            self.tr(
-                "• Yes    - Merge with existing files\n"
-                "• No     - Delete existing directory\n"
-                "• Cancel - Abort export"
-            )
-        )
-
-        msg_box.addButton(
-            self.tr("Yes"), QtWidgets.QMessageBox.ButtonRole.YesRole
-        )
-        no_button = msg_box.addButton(
-            self.tr("No"), QtWidgets.QMessageBox.ButtonRole.NoRole
-        )
-        cancel_button = msg_box.addButton(
-            self.tr("Cancel"), QtWidgets.QMessageBox.ButtonRole.RejectRole
-        )
-        msg_box.setStyleSheet(get_msg_box_style())
-        msg_box.exec()
-
-        clicked_button = msg_box.clickedButton()
-        if clicked_button == no_button:
-            shutil.rmtree(save_path)
-            os.makedirs(save_path)
-        elif clicked_button == cancel_button:
-            return
-    else:
-        os.makedirs(save_path)
-
-    converter = LabelConverter(classes_file=self.classes_file)
+    converter = _configured_converter(self, classes_file=self.classes_file)
+    if not _prepare_export_directory(
+        self, converter, save_path, "DOTA detection"
+    ):
+        return
 
     image_list = self.image_list if self.image_list else [self.filename]
 
@@ -1081,6 +1123,18 @@ def export_dota_annotation(self):
             "%s"
         )
         message_text = template % save_path
+        report = export_report(converter.export_results)
+        logger.info(report)
+        message_text += "\n" + report.splitlines()[0]
+        if any(
+            status == "unprocessed"
+            for status, _ in converter.export_results.values()
+        ):
+            message_text = (
+                self.tr("Export canceled; completed outputs were retained.")
+                + "\n"
+                + report.splitlines()[0]
+            )
         popup = Popup(
             message_text,
             self,
@@ -1089,7 +1143,10 @@ def export_dota_annotation(self):
         popup.show_popup(self, popup_height=65, position="center")
 
     except Exception as e:
-        message = f"Error occurred while exporting annotations: {str(e)}"
+        message = (
+            f"Error occurred while exporting annotations: {str(e)}\n"
+            + export_report(converter.export_results)
+        )
         progress_dialog.close()
         logger.error(message)
         popup = Popup(
@@ -1238,37 +1295,17 @@ def export_mask_annotation(self):
     save_path = path_edit.text()
     include_null_images = include_null_images_checkbox.isChecked()
     only_checked_images = only_checked_images_checkbox.isChecked()
-    if osp.exists(save_path):
-        msg_box = QtWidgets.QMessageBox(self)
-        msg_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        msg_box.setWindowTitle(self.tr("Output Directory Exists!"))
-        msg_box.setText(self.tr("Directory already exists. Choose an action:"))
-        msg_box.setInformativeText(
-            self.tr(
-                "• Overwrite - Overwrite existing directory\n"
-                "• Cancel - Abort export"
-            )
-        )
+    converter = _configured_converter(self)
+    if not _prepare_export_directory(
+        self,
+        converter,
+        save_path,
+        "seg",
+        mapping=mapping_table,
+        checked_only=only_checked_images,
+    ):
+        return
 
-        msg_box.addButton(
-            self.tr("Overwrite"), QtWidgets.QMessageBox.ButtonRole.YesRole
-        )
-        cancel_button = msg_box.addButton(
-            self.tr("Cancel"), QtWidgets.QMessageBox.ButtonRole.RejectRole
-        )
-        msg_box.setStyleSheet(get_msg_box_style())
-        msg_box.exec()
-
-        clicked_button = msg_box.clickedButton()
-        if clicked_button == cancel_button:
-            return
-        else:
-            shutil.rmtree(save_path)
-            os.makedirs(save_path)
-    else:
-        os.makedirs(save_path)
-
-    converter = LabelConverter()
     image_list = self.image_list if self.image_list else [self.filename]
 
     progress_dialog = QProgressDialog(
@@ -1302,6 +1339,18 @@ def export_mask_annotation(self):
             "%s"
         )
         message_text = template % save_path
+        report = export_report(converter.export_results)
+        logger.info(report)
+        message_text += "\n" + report.splitlines()[0]
+        if any(
+            status == "unprocessed"
+            for status, _ in converter.export_results.values()
+        ):
+            message_text = (
+                self.tr("Export canceled; completed outputs were retained.")
+                + "\n"
+                + report.splitlines()[0]
+            )
         popup = Popup(
             message_text,
             self,
@@ -1310,7 +1359,10 @@ def export_mask_annotation(self):
         popup.show_popup(self, popup_height=65, position="center")
 
     except Exception as e:
-        message = f"Error occurred while exporting annotations: {str(e)}"
+        message = (
+            f"Error occurred while exporting annotations: {str(e)}\n"
+            + export_report(converter.export_results)
+        )
         progress_dialog.close()
         logger.error(message)
         popup = Popup(
@@ -1325,7 +1377,9 @@ def export_mot_annotation(self, mode):
     if not _check_filename_exist(self):
         return
 
-    converter = LabelConverter()
+    converter = _configured_converter(
+        self,
+    )
     if mode in ["mot", "mots", "odvg"]:
         filter = "Classes Files (*.txt);;All Files (*)"
         self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -1336,7 +1390,7 @@ def export_mot_annotation(self, mode):
         )
         if not self.classes_file:
             return
-        converter = LabelConverter(classes_file=self.classes_file)
+        converter = _configured_converter(self, classes_file=self.classes_file)
 
     dialog = QtWidgets.QDialog(self)
     dialog.setWindowTitle(self.tr("Export options"))
@@ -1405,35 +1459,14 @@ def export_mot_annotation(self, mode):
         return
 
     save_path = path_edit.text()
-    if osp.exists(save_path):
-        msg_box = QtWidgets.QMessageBox(self)
-        msg_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        msg_box.setWindowTitle(self.tr("Output Directory Exists!"))
-        msg_box.setText(self.tr("Directory already exists. Choose an action:"))
-        msg_box.setInformativeText(
-            self.tr(
-                "• Overwrite - Overwrite existing directory\n"
-                "• Cancel - Abort export"
-            )
-        )
-
-        msg_box.addButton(
-            self.tr("Overwrite"), QtWidgets.QMessageBox.ButtonRole.YesRole
-        )
-        cancel_button = msg_box.addButton(
-            self.tr("Cancel"), QtWidgets.QMessageBox.ButtonRole.RejectRole
-        )
-        msg_box.setStyleSheet(get_msg_box_style())
-        msg_box.exec()
-
-        clicked_button = msg_box.clickedButton()
-        if clicked_button == cancel_button:
-            return
-        else:
-            shutil.rmtree(save_path)
-            os.makedirs(save_path)
-    else:
-        os.makedirs(save_path)
+    if not _prepare_export_directory(
+        self,
+        converter,
+        save_path,
+        "seg" if mode == "mots" else f"{mode.upper()} detection",
+        use_classes=(mode == "mots"),
+    ):
+        return
 
     image_list = self.image_list if self.image_list else [self.filename]
     progress_dialog = QProgressDialog(
@@ -1459,6 +1492,20 @@ def export_mot_annotation(self, mode):
                 "%s"
             )
             message_text = template % save_path
+            report = export_report(converter.export_results)
+            logger.info(report)
+            message_text += "\n" + report.splitlines()[0]
+            if any(
+                status == "unprocessed"
+                for status, _ in converter.export_results.values()
+            ):
+                message_text = (
+                    self.tr(
+                        "Export canceled; completed outputs were retained."
+                    )
+                    + "\n"
+                    + report.splitlines()[0]
+                )
             popup = Popup(
                 message_text,
                 self,
@@ -1482,7 +1529,7 @@ def export_mot_annotation(self, mode):
     progress_dialog.show()
     self.export_thread.start()
 
-    progress_dialog.canceled.connect(self.export_thread.terminate)
+    progress_dialog.canceled.connect(self.export_thread.requestInterruption)
 
 
 def export_odvg_annotation(self):
@@ -1562,40 +1609,14 @@ def export_pporc_annotation(self, mode):
         return
 
     save_path = path_edit.text()
-    if osp.exists(save_path):
-        msg_box = QtWidgets.QMessageBox(self)
-        msg_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        msg_box.setWindowTitle(self.tr("Output Directory Exists!"))
-        msg_box.setText(self.tr("Directory already exists. Choose an action:"))
-        msg_box.setInformativeText(
-            self.tr(
-                "• Overwrite - Overwrite existing directory\n"
-                "• Cancel - Abort export"
-            )
-        )
-
-        msg_box.addButton(
-            self.tr("Overwrite"), QtWidgets.QMessageBox.ButtonRole.YesRole
-        )
-        cancel_button = msg_box.addButton(
-            self.tr("Cancel"), QtWidgets.QMessageBox.ButtonRole.RejectRole
-        )
-        msg_box.setStyleSheet(get_msg_box_style())
-        msg_box.exec()
-
-        clicked_button = msg_box.clickedButton()
-        if clicked_button == cancel_button:
-            return
-        else:
-            shutil.rmtree(save_path)
-            os.makedirs(save_path)
-    else:
-        os.makedirs(save_path)
+    converter = _configured_converter(self)
+    if not _prepare_export_directory(
+        self, converter, save_path, f"PPOCR {mode}"
+    ):
+        return
 
     if mode == "rec":
         save_crop_img_path = osp.join(save_path, "crop_img")
-        if osp.exists(save_crop_img_path):
-            shutil.rmtree(save_crop_img_path)
         os.makedirs(save_crop_img_path, exist_ok=True)
         for fname in ("Label.txt", "rec_gt.txt"):
             fpath = osp.join(save_path, fname)
@@ -1607,8 +1628,6 @@ def export_pporc_annotation(self, mode):
         ppocr_kie_file = osp.join(save_path, "ppocr_kie.json")
         if osp.exists(ppocr_kie_file):
             os.remove(ppocr_kie_file)
-
-    converter = LabelConverter()
 
     image_list = self.image_list if self.image_list else [self.filename]
     progress_dialog = QProgressDialog(
@@ -1654,6 +1673,18 @@ def export_pporc_annotation(self, mode):
             "%s"
         )
         message_text = template % save_path
+        report = export_report(converter.export_results)
+        logger.info(report)
+        message_text += "\n" + report.splitlines()[0]
+        if any(
+            status == "unprocessed"
+            for status, _ in converter.export_results.values()
+        ):
+            message_text = (
+                self.tr("Export canceled; completed outputs were retained.")
+                + "\n"
+                + report.splitlines()[0]
+            )
         popup = Popup(
             message_text,
             self,
@@ -1662,7 +1693,10 @@ def export_pporc_annotation(self, mode):
         popup.show_popup(self, popup_height=65, position="center")
 
     except Exception as e:
-        message = f"Error occurred while exporting annotations: {str(e)}"
+        message = (
+            f"Error occurred while exporting annotations: {str(e)}\n"
+            + export_report(converter.export_results)
+        )
         progress_dialog.close()
         logger.error(message)
         popup = Popup(
@@ -1876,7 +1910,7 @@ def export_vlm_r1_ovd_annotation(self):
 
     # --- Attempt to create LabelConverter first ---
     try:
-        converter = LabelConverter(classes_file=self.classes_file)
+        converter = _configured_converter(self, classes_file=self.classes_file)
     except Exception as e:
         logger.error(f"Failed to initialize LabelConverter: {e}")
         template = self.tr("Error initializing export: %s")
@@ -1918,6 +1952,20 @@ def export_vlm_r1_ovd_annotation(self):
                     "%s"
                 )
                 message_text = template % save_path
+                report = export_report(converter.export_results)
+                logger.info(report)
+                message_text += "\n" + report.splitlines()[0]
+                if any(
+                    status == "unprocessed"
+                    for status, _ in converter.export_results.values()
+                ):
+                    message_text = (
+                        self.tr(
+                            "Export canceled; completed outputs were retained."
+                        )
+                        + "\n"
+                        + report.splitlines()[0]
+                    )
                 popup = Popup(
                     message_text,
                     self,
@@ -1939,10 +1987,15 @@ def export_vlm_r1_ovd_annotation(self):
         progress_dialog.show()
         self.export_thread.start()
 
-        progress_dialog.canceled.connect(self.export_thread.terminate)
+        progress_dialog.canceled.connect(
+            self.export_thread.requestInterruption
+        )
 
     except Exception as e:
-        message = f"Error occurred while exporting annotations: {str(e)}"
+        message = (
+            f"Error occurred while exporting annotations: {str(e)}\n"
+            + export_report(converter.export_results)
+        )
         progress_dialog.close()
         logger.error(message)
         popup = Popup(

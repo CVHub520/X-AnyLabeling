@@ -1,4 +1,5 @@
 import os
+import json
 import os.path as osp
 import sys
 from glob import glob
@@ -492,8 +493,15 @@ def handle_convert_command(args):
         show_task_help(task)
         return
 
+    from anylabeling.config import get_ellipse_config
+
+    config = get_ellipse_config(
+        getattr(args, "config", None),
+        getattr(args, "ellipse_polygon_points", None),
+    )
     run_conversion(
         task,
+        ellipse_polygon_points=config["canvas"]["ellipse"]["polygon_points"],
         images=args.images,
         labels=args.labels,
         output=args.output,
@@ -515,6 +523,7 @@ def run_conversion(
     mode=None,
     mapping_file=None,
     skip_empty_files=False,
+    ellipse_polygon_points=128,
 ):
     """Core conversion logic"""
     dota_ext = LABEL_EXTENSIONS["dota"]
@@ -527,7 +536,79 @@ def run_conversion(
         converter = LabelConverter(
             classes_file=classes_file,
             pose_cfg_file=pose_cfg_file,
+            ellipse_polygon_points=ellipse_polygon_points,
         )
+
+        if task.startswith("xlabel2"):
+            from anylabeling.views.labeling.utils.ellipse_io import (
+                export_report,
+            )
+
+            source_root = labels or images
+            if (
+                images
+                and osp.isdir(images)
+                and task not in ("xlabel2mot", "xlabel2mots")
+            ):
+                selected = []
+                for image_file in get_image_files(images):
+                    candidate = find_matching_file(
+                        image_file, source_root or images, xlabel_ext
+                    )
+                    if candidate:
+                        selected.append(candidate)
+                    elif task == "xlabel2coco":
+                        selected.append(
+                            osp.splitext(image_file)[0] + xlabel_ext
+                        )
+            elif source_root and osp.isdir(source_root):
+                selected = [str(p) for p in Path(source_root).glob("*.json")]
+            else:
+                selected = [source_root] if source_root else []
+            export_mode = (
+                "seg"
+                if task in ("xlabel2mask", "xlabel2mots")
+                or task == "xlabel2yolo"
+                and mode == "segment"
+                or task in ("xlabel2coco", "xlabel2voc")
+                and mode == "segment"
+                else f"{task} {mode}"
+            )
+            mapping = None
+            if task == "xlabel2mask" and mapping_file:
+                with open(mapping_file, encoding="utf-8") as stream:
+                    mapping = json.load(stream)
+            converter.prepare_export(
+                selected,
+                export_mode,
+                use_classes=(
+                    export_mode == "seg"
+                    and task in ("xlabel2yolo", "xlabel2coco", "xlabel2mots")
+                ),
+                mapping=mapping,
+                ignored_labels=(
+                    ("__ignore__",)
+                    if task == "xlabel2coco" and export_mode == "seg"
+                    else ()
+                ),
+            )
+            if task != "xlabel2vlmr1" and (output or images or labels):
+                destination = osp.normcase(
+                    osp.realpath(output or images or labels)
+                )
+                for source in (labels, images):
+                    if not source or not osp.isdir(source):
+                        continue
+                    source = osp.normcase(osp.realpath(source))
+                    if (
+                        osp.splitdrive(source)[0]
+                        == osp.splitdrive(destination)[0]
+                        and osp.commonpath([source, destination])
+                        == destination
+                    ):
+                        raise ValueError(
+                            "Export output must not contain source images or annotations; choose a separate output directory"
+                        )
 
         if "2xlabel" in task:
             if task == "yolo2xlabel":
@@ -1508,7 +1589,30 @@ def run_conversion(
                     )
                 )
 
+        if converter.export_results:
+            from anylabeling.views.labeling.utils.ellipse_io import (
+                export_report,
+            )
+
+            print(export_report(converter.export_results))
+
+    except KeyboardInterrupt:
+        from anylabeling.views.labeling.utils.ellipse_io import export_report
+
+        if "converter" in locals():
+            print(export_report(converter.export_results), file=sys.stderr)
+        print(
+            "Export canceled; completed outputs were retained.",
+            file=sys.stderr,
+        )
+        sys.exit(130)
     except Exception as e:
+        if "converter" in locals() and converter.export_results:
+            from anylabeling.views.labeling.utils.ellipse_io import (
+                export_report,
+            )
+
+            print(export_report(converter.export_results), file=sys.stderr)
         print(colored(f"✗ Error: {e}", "red"), file=sys.stderr)
         import traceback
 

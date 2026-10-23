@@ -65,7 +65,12 @@ def ellipse_frame(points: Sequence[Sequence[float]]) -> Frame:
     p = [(float(x), float(y)) for x, y in points]
     width = math.dist(p[0], p[1])
     height = math.dist(p[0], p[3])
-    if not math.isfinite(width) or not math.isfinite(height) or width < 1 - 1e-9 or height < 1 - 1e-9:
+    if (
+        not math.isfinite(width)
+        or not math.isfinite(height)
+        or width < 1 - 1e-9
+        or height < 1 - 1e-9
+    ):
         raise ValueError("Ellipse axes are too short")
     ux, uy = p[1][0] - p[0][0], p[1][1] - p[0][1]
     vx, vy = p[3][0] - p[0][0], p[3][1] - p[0][1]
@@ -397,12 +402,28 @@ def segmentation_points(
                 "Ellipse is outside image bounds or clips to zero area"
             )
         return result
-    points = [(float(x), float(y)) for x, y in shape["points"]]
+    points = list(shape["points"])
     if kind == "quadrilateral" and len(points) != 4:
         raise ValueError("Quadrilateral requires four vertices")
     if len(points) < 3 or not all(math.isfinite(c) for p in points for c in p):
         raise ValueError("Invalid polygon vertices")
-    return [
+    result = [
         (max(0, min(x, width - 1)), max(0, min(y, height - 1)))
         for x, y in points
     ]
+    if kind == "quadrilateral":
+        from shapely.geometry import Polygon
+
+        if any(
+            len(p) != 2 or not all(_finite_number(v) for v in p)
+            for p in points
+        ):
+            raise ValueError(
+                "Quadrilateral requires finite numeric coordinate pairs"
+            )
+        geometry = Polygon(result)
+        if not geometry.is_valid or geometry.area <= 1e-6:
+            raise ValueError(
+                "Quadrilateral is invalid or degenerates after boundary clamping"
+            )
+    return result

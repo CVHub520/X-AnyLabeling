@@ -30,6 +30,7 @@ from PyQt6.QtWidgets import (
     QFrame,
 )
 
+from anylabeling.config import get_config
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.qt import new_icon
 from anylabeling.views.labeling.utils.theme import get_theme
@@ -144,6 +145,7 @@ class UltralyticsDialog(QDialog):
         self.setMinimumSize(*DEFAULT_WINDOW_SIZE)
 
         self.image_list = list(parent.image_list)
+        self._annotation_config = getattr(parent, "_config", None)
         self.output_dir = parent.output_dir
         self.supported_shape = parent.supported_shape
         self.selected_task_type = None
@@ -2246,6 +2248,10 @@ class UltralyticsDialog(QDialog):
                     config["basic"].get("pose_config"),
                     config["checkpoint"].get("skip_empty_files", False),
                     config["checkpoint"].get("only_checked_files", False),
+                    (
+                        getattr(self, "_annotation_config", None)
+                        or get_config()
+                    )["canvas"]["ellipse"]["polygon_points"],
                 )
                 logger.info(f"Successfully created YOLO dataset at {temp_dir}")
                 self.append_training_log(f"Created dataset: {temp_dir}")
