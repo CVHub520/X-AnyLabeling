@@ -573,9 +573,9 @@ class Shape:
                 # may be desirable.
                 self.draw_vertex(vrtx_path, 0)
 
-                for i, p in enumerate(self.points):
-                    line_path.lineTo(p)
-                    if self.selected:
+                line_path.addPolygon(QtGui.QPolygonF(self.points))
+                if self.selected:
+                    for i in range(len(self.points)):
                         self.draw_vertex(vrtx_path, i)
                 if self.is_closed():
                     line_path.lineTo(self.points[0])
@@ -766,9 +766,8 @@ class Shape:
         if not self.points:
             return QtGui.QPainterPath()
         if self.shape_type == "rectangle":
-            path = QtGui.QPainterPath(self.points[0])
-            for p in self.points[1:]:
-                path.lineTo(p)
+            path = QtGui.QPainterPath()
+            path.addPolygon(QtGui.QPolygonF(self.points))
         elif self.shape_type == "cuboid":
             path = QtGui.QPainterPath(self.points[0])
             if len(self.points) >= 4:
@@ -787,9 +786,8 @@ class Shape:
                 rectangle = self.get_circle_rect_from_line(self.points)
                 path.addEllipse(rectangle)
         else:
-            path = QtGui.QPainterPath(self.points[0])
-            for p in self.points[1:]:
-                path.lineTo(p)
+            path = QtGui.QPainterPath()
+            path.addPolygon(QtGui.QPolygonF(self.points))
         return path
 
     def bounding_rect(self):
@@ -821,7 +819,12 @@ class Shape:
 
     def copy(self):
         """Copy shape"""
-        return copy.deepcopy(self)
+        memo = {id(point): QtCore.QPointF(point) for point in self.points}
+        memo[id(self.points)] = [memo[id(point)] for point in self.points]
+        for value in self.__dict__.values():
+            if isinstance(value, QtGui.QColor):
+                memo[id(value)] = QtGui.QColor(value)
+        return copy.deepcopy(self, memo)
 
     def __len__(self):
         return len(self.points)

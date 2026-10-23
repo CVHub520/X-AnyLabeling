@@ -20,7 +20,7 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
         super(HTMLDelegate, self).__init__()
 
     def _document_for_index(self, index, font):
-        doc = QtGui.QTextDocument(self)
+        doc = QtGui.QTextDocument()
         doc.setDefaultFont(font)
         if index is not None and index.isValid():
             doc.setHtml(index.data(Qt.ItemDataRole.DisplayRole) or "")
@@ -326,7 +326,7 @@ class LabelListWidget(QtWidgets.QListView):
     def add_iem(self, item):
         if not isinstance(item, LabelListWidgetItem):
             raise TypeError("item must be LabelListWidgetItem")
-        self.model().setItem(self.model().rowCount(), 0, item)
+        self.model().appendRow(item)
 
     def remove_item(self, item):
         index = self.model().indexFromItem(item)

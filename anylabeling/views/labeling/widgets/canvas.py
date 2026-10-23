@@ -4125,9 +4125,7 @@ class Canvas(
 
                 mask_path = QtGui.QPainterPath()
                 if shape.shape_type == "polygon":
-                    mask_path.moveTo(shape.points[0])
-                    for point in shape.points[1:]:
-                        mask_path.lineTo(point)
+                    mask_path.addPolygon(QtGui.QPolygonF(shape.points))
                     if shape.is_closed() or len(shape.points) >= 3:
                         mask_path.closeSubpath()
                 elif shape.shape_type == "rectangle":
@@ -5403,6 +5401,7 @@ class Canvas(
         self.pixmap = pixmap
         if clear_shapes:
             self.shapes = []
+            self.visible.clear()
         self.update()
 
     def load_shapes(self, shapes, replace=True):

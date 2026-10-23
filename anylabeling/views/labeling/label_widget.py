@@ -5083,7 +5083,6 @@ class LabelingWidget(LabelDialog):
         else:
             text = f"{shape.label} ({shape.group_id})"
         label_list_item = LabelListWidgetItem(text, shape)
-        self.label_list.add_iem(label_list_item)
         if not self.unique_label_list.find_items_by_label(shape.label):
             item = self.unique_label_list.create_item_from_label(shape.label)
             self.unique_label_list.addItem(item)
@@ -5124,6 +5123,7 @@ class LabelingWidget(LabelDialog):
         )
         _set_label_list_item_lock(label_list_item, shape.locked)
         label_list_item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
+        self.label_list.add_iem(label_list_item)
         if refresh_filters:
             self._refresh_shape_filters()
 
