@@ -182,7 +182,7 @@ def _settings_translation_markers() -> None:
     )
     QCoreApplication.translate(
         "SettingsDialog",
-        "Use the mouse wheel to adjust rectangle geometry while editing.",
+        "Use Ctrl+Wheel to adjust rectangle geometry while editing. Disabled by default.",
     )
     QCoreApplication.translate(
         "SettingsDialog",
@@ -944,7 +944,7 @@ def _non_shortcut_fields() -> list[SettingField]:
             "Basic",
             description=QT_TRANSLATE_NOOP(
                 SETTINGS_TRANSLATION_CONTEXT,
-                "Use the mouse wheel to adjust rectangle geometry while editing.",
+                "Use Ctrl+Wheel to adjust rectangle geometry while editing. Disabled by default.",
             ),
         ),
         SettingField(

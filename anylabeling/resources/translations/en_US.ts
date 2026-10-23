@@ -3309,8 +3309,8 @@ Press Enter to search.</source>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="929" />
-      <source>Select one polygon, then paint to add, hold Ctrl to erase, and scroll to resize the brush</source>
-      <translation type="unfinished" />
+      <source>Select one polygon, then paint to add, hold Ctrl to erase, and use Ctrl+Wheel to resize the brush</source>
+      <translation>Select one polygon, then paint to add, hold Ctrl to erase, and use Ctrl+Wheel to resize the brush</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="938" />
@@ -3670,8 +3670,8 @@ Press Enter to search.</source>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1222" />
-      <source>Ctrl+Wheel</source>
-      <translation>Ctrl+Wheel</translation>
+      <source>Wheel</source>
+      <translation>Wheel</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1228" />
@@ -4355,8 +4355,8 @@ Press Enter to search.</source>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="2929" />
-      <source>Tip: Hold Space and drag with the left mouse button to pan the canvas temporarily.</source>
-      <translation type="unfinished" />
+      <source>Tip: Hold Alt and drag with the left mouse button, or drag with the middle mouse button, to pan the canvas while drawing.</source>
+      <translation>Tip: Hold Alt and drag with the left mouse button, or drag with the middle mouse button, to pan the canvas while drawing.</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="3149" />
@@ -8021,8 +8021,8 @@ Changes will not be saved until you click Save.</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="183" />
-      <source>Use the mouse wheel to adjust rectangle geometry while editing.</source>
-      <translation type="unfinished" />
+      <source>Use Ctrl+Wheel to adjust rectangle geometry while editing. Disabled by default.</source>
+      <translation>Use Ctrl+Wheel to adjust rectangle geometry while editing. Disabled by default.</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="187" />
@@ -8589,8 +8589,8 @@ Changes will not be saved until you click Save.</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/runtime_applier.py" line="212" />
-      <source>Ctrl+Wheel</source>
-      <translation>Ctrl+Wheel</translation>
+      <source>Wheel</source>
+      <translation>Wheel</translation>
     </message>
   </context>
   <context>

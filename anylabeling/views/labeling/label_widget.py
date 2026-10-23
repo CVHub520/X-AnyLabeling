@@ -391,6 +391,10 @@ class LabelingWidget(LabelDialog):
         self.file_dock.setStyleSheet(get_dock_style())
 
         self.zoom_widget = ZoomWidget()
+        self._zoom_animation = QtCore.QVariantAnimation(self)
+        self._zoom_animation.setDuration(90)
+        self._zoom_animation.setEasingCurve(QtCore.QEasingCurve.Type.OutCubic)
+        self._zoom_animation.valueChanged.connect(self._animate_zoom)
 
         self.navigator_dialog = NavigatorDialog(self)
         self.navigator_dialog.navigator.navigation_requested.connect(
@@ -434,6 +438,8 @@ class LabelingWidget(LabelDialog):
             ),
         )
         self.canvas.zoom_request.connect(self.zoom_request)
+        self.canvas.pan_request.connect(self.pan_canvas)
+        self.canvas.interaction_started.connect(self._zoom_animation.stop)
 
         # Compare view support
         self.compare_view_manager = CompareViewManager(self.canvas, self)
@@ -932,7 +938,7 @@ class LabelingWidget(LabelDialog):
             "brush",
             self.tr(
                 "Select one polygon, then paint to add, hold Ctrl to erase, "
-                "and scroll to resize the brush"
+                "and use Ctrl+Wheel to resize the brush"
             ),
             enabled=False,
             checkable=True,
@@ -1223,7 +1229,7 @@ class LabelingWidget(LabelDialog):
                 utils.fmt_shortcut(
                     f"{shortcuts['zoom_in']},{shortcuts['zoom_out']}"
                 ),
-                utils.fmt_shortcut(self.tr("Ctrl+Wheel")),
+                self.tr("Wheel"),
             )
         )
         self.zoom_widget.setEnabled(False)
@@ -2663,6 +2669,7 @@ class LabelingWidget(LabelDialog):
         self.zoom_level = 100
         self.fit_window = False
         self.zoom_values = {}  # key=filename, value=(zoom_mode, zoom_value)
+        self.pan_values = {}
         self.brightness_contrast_values = {}
         self.scroll_values = {
             Qt.Orientation.Horizontal: {},
@@ -2693,7 +2700,7 @@ class LabelingWidget(LabelDialog):
             self.queue_event(functools.partial(self.load_file, self.filename))
 
         # Callbacks:
-        self.zoom_widget.valueChanged.connect(self.paint_canvas)
+        self.zoom_widget.valueChanged.connect(self.set_zoom)
 
         self.populate_mode_actions()
         self._settings_controller = SettingsController(
@@ -2933,7 +2940,7 @@ class LabelingWidget(LabelDialog):
 
     def _space_pan_tip_message(self):
         return self.tr(
-            "Tip: Hold Space and drag with the left mouse button to pan the canvas temporarily."
+            "Tip: Hold Alt and drag with the left mouse button, or drag with the middle mouse button, to pan the canvas while drawing."
         )
 
     def update_space_pan_tip(self):
@@ -3230,6 +3237,7 @@ class LabelingWidget(LabelDialog):
         self.statusBar().showMessage(message, delay)
 
     def reset_state(self):
+        self._zoom_animation.stop()
         self._reset_label_loop()
         self.select_loop_count = -1
         self.label_list.clear()
@@ -3739,7 +3747,7 @@ class LabelingWidget(LabelDialog):
             self._reset_label_loop()
             if not is_new_loop:
                 self.canvas.deselect_shape()
-                self.set_zoom(int(100 * self.scale_fit_window()))
+                self.set_fit_window()
             self._show_label_loop_popup(message)
             return
 
@@ -3769,6 +3777,8 @@ class LabelingWidget(LabelDialog):
         zoom = min(1000, zoom)
 
         self.set_zoom(zoom)
+        self.canvas.pan_offset = QtCore.QPointF()
+        self.pan_values[self.filename] = QtCore.QPointF()
 
         x_range = self.scroll_bars[Qt.Orientation.Horizontal].maximum()
         x_step = self.scroll_bars[Qt.Orientation.Horizontal].pageStep()
@@ -5657,17 +5667,18 @@ class LabelingWidget(LabelDialog):
         if not hasattr(self, "image") or self.image.isNull():
             return
 
-        scroll_area = self._central_widget
-        canvas_size = self.canvas.size()
-        scroll_area_size = scroll_area.viewport().size()
-
-        target_x = x_ratio * canvas_size.width() - scroll_area_size.width() / 2
-        target_y = (
-            y_ratio * canvas_size.height() - scroll_area_size.height() / 2
+        image_pos = QtCore.QPointF(
+            x_ratio * self.canvas.pixmap.width(),
+            y_ratio * self.canvas.pixmap.height(),
         )
-
-        self.set_scroll(Qt.Orientation.Horizontal, target_x)
-        self.set_scroll(Qt.Orientation.Vertical, target_y)
+        canvas_pos = (
+            image_pos + self.canvas.offset_to_center()
+        ) * self.canvas.scale
+        center = QtCore.QPointF(
+            self._canvas_scroll_area.viewport().rect().center()
+            - self.canvas.pos()
+        )
+        self.pan_canvas(center - canvas_pos)
 
     def update_navigator_viewport(self):
         """Update the viewport rectangle in the navigator."""
@@ -5681,19 +5692,16 @@ class LabelingWidget(LabelDialog):
             return
 
         scroll_area = self._central_widget
-        canvas_size = self.canvas.size()
+        canvas_size = self.canvas.pixmap.size() * self.canvas.scale
         scroll_area_size = scroll_area.viewport().size()
         if canvas_size.width() <= 0 or canvas_size.height() <= 0:
             return
 
-        h_scroll = self.scroll_bars[Qt.Orientation.Horizontal].value()
-        v_scroll = self.scroll_bars[Qt.Orientation.Vertical].value()
-        x_ratio = max(0.0, h_scroll / canvas_size.width())
-        y_ratio = max(0.0, v_scroll / canvas_size.height())
-        width_ratio = min(1.0, scroll_area_size.width() / canvas_size.width())
-        height_ratio = min(
-            1.0, scroll_area_size.height() / canvas_size.height()
-        )
+        origin = self.canvas.transform_pos(QtCore.QPointF(-self.canvas.pos()))
+        x_ratio = origin.x() / self.canvas.pixmap.width()
+        y_ratio = origin.y() / self.canvas.pixmap.height()
+        width_ratio = scroll_area_size.width() / canvas_size.width()
+        height_ratio = scroll_area_size.height() / canvas_size.height()
 
         self.navigator_dialog.set_viewport(
             x_ratio, y_ratio, width_ratio, height_ratio
@@ -5725,112 +5733,12 @@ class LabelingWidget(LabelDialog):
 
         if mouse_pos is not None:
             canvas_pos = self._convert_navigator_pos_to_canvas(mouse_pos)
-            if canvas_pos:
-                canvas_width_old = self.canvas.width()
-
-                self.zoom_widget.setValue(zoom_percentage)
-                self.zoom_mode = self.MANUAL_ZOOM
-                self.zoom_values[self.filename] = (
-                    self.zoom_mode,
-                    zoom_percentage,
-                )
-                self.paint_canvas()
-
-                canvas_width_new = self.canvas.width()
-                if canvas_width_old != canvas_width_new:
-                    canvas_scale_factor = canvas_width_new / canvas_width_old
-                    x_shift = round(
-                        canvas_pos.x() * canvas_scale_factor - canvas_pos.x()
-                    )
-                    y_shift = round(
-                        canvas_pos.y() * canvas_scale_factor - canvas_pos.y()
-                    )
-                    self.set_scroll(
-                        QtCore.Qt.Orientation.Horizontal,
-                        self.scroll_bars[
-                            QtCore.Qt.Orientation.Horizontal
-                        ].value()
-                        + x_shift,
-                    )
-                    self.set_scroll(
-                        QtCore.Qt.Orientation.Vertical,
-                        self.scroll_bars[
-                            QtCore.Qt.Orientation.Vertical
-                        ].value()
-                        + y_shift,
-                    )
-
+            if canvas_pos is not None:
+                self.set_zoom(zoom_percentage, pos=canvas_pos)
                 return
 
         # Handle direct zoom changes
-        if (
-            hasattr(self, "canvas")
-            and hasattr(self.canvas, "width")
-            and hasattr(self.canvas, "height")
-        ):
-            if hasattr(self.navigator_dialog, "navigator"):
-                nav_widget = self.navigator_dialog.navigator
-                if (
-                    hasattr(nav_widget, "viewport_rect")
-                    and not nav_widget.viewport_rect.isEmpty()
-                ):
-                    nav_rect_center_x = nav_widget.viewport_rect.center().x()
-                    nav_rect_center_y = nav_widget.viewport_rect.center().y()
-                    canvas_pos = self._convert_navigator_pos_to_canvas(
-                        QtCore.QPoint(
-                            int(nav_rect_center_x), int(nav_rect_center_y)
-                        )
-                    )
-
-                    if canvas_pos:
-                        canvas_width_old = self.canvas.width()
-
-                        self.zoom_widget.setValue(zoom_percentage)
-                        self.zoom_mode = self.MANUAL_ZOOM
-                        self.zoom_values[self.filename] = (
-                            self.zoom_mode,
-                            zoom_percentage,
-                        )
-                        self.paint_canvas()
-
-                        canvas_width_new = self.canvas.width()
-                        if canvas_width_old != canvas_width_new:
-                            canvas_scale_factor = (
-                                canvas_width_new / canvas_width_old
-                            )
-                            x_shift = round(
-                                canvas_pos.x() * canvas_scale_factor
-                                - canvas_pos.x()
-                            )
-                            y_shift = round(
-                                canvas_pos.y() * canvas_scale_factor
-                                - canvas_pos.y()
-                            )
-                            self.set_scroll(
-                                QtCore.Qt.Orientation.Horizontal,
-                                self.scroll_bars[
-                                    QtCore.Qt.Orientation.Horizontal
-                                ].value()
-                                + x_shift,
-                            )
-                            self.set_scroll(
-                                QtCore.Qt.Orientation.Vertical,
-                                self.scroll_bars[
-                                    QtCore.Qt.Orientation.Vertical
-                                ].value()
-                                + y_shift,
-                            )
-                        return
-
-            self.zoom_widget.setValue(zoom_percentage)
-            self.zoom_mode = self.MANUAL_ZOOM
-            self.zoom_values[self.filename] = (self.zoom_mode, zoom_percentage)
-            self.paint_canvas()
-        else:
-            self.zoom_widget.setValue(zoom_percentage)
-            self.zoom_mode = self.MANUAL_ZOOM
-            self.zoom_values[self.filename] = (self.zoom_mode, zoom_percentage)
-            self.paint_canvas()
+        self.set_zoom(zoom_percentage)
 
     def _convert_navigator_pos_to_canvas(
         self, navigator_pos: QtCore.QPoint
@@ -5864,8 +5772,15 @@ class LabelingWidget(LabelDialog):
         y_ratio = relative_y / navigator_widget.image_rect.height()
 
         # Convert to canvas coordinates
-        canvas_x = int(x_ratio * self.canvas.width())
-        canvas_y = int(y_ratio * self.canvas.height())
+        offset = self.canvas.offset_to_center()
+        canvas_x = round(
+            (x_ratio * self.canvas.pixmap.width() + offset.x())
+            * self.canvas.scale
+        )
+        canvas_y = round(
+            (y_ratio * self.canvas.pixmap.height() + offset.y())
+            * self.canvas.scale
+        )
 
         return QtCore.QPoint(canvas_x, canvas_y)
 
@@ -5905,17 +5820,22 @@ class LabelingWidget(LabelDialog):
         self.scroll_values[orientation][self.filename] = value
         self.update_navigator_viewport()
 
-    def set_zoom(self, value):
+    def set_zoom(self, value, *, pos=None):
+        self._zoom_animation.stop()
         self.actions.fit_width.setChecked(False)
         self.actions.fit_window.setChecked(False)
         self.zoom_mode = self.MANUAL_ZOOM
-        self.zoom_widget.setValue(value)
-        self.zoom_values[self.filename] = (self.zoom_mode, value)
-        if hasattr(self, "navigator_dialog"):
-            self.navigator_dialog.set_zoom_value(value)
+        if pos is None:
+            self._apply_zoom(value)
+        else:
+            self._apply_zoom(
+                value,
+                self.canvas.transform_pos(QtCore.QPointF(pos)),
+                QtCore.QPointF(pos) + QtCore.QPointF(self.canvas.pos()),
+            )
 
     def add_zoom(self, increment=1.1):
-        zoom_value = self.zoom_widget.value() * increment
+        zoom_value = self.canvas.scale * 100 * increment
         if increment > 1:
             zoom_value = math.ceil(zoom_value)
         else:
@@ -5923,27 +5843,80 @@ class LabelingWidget(LabelDialog):
         self.set_zoom(zoom_value)
 
     def zoom_request(self, delta, pos):
-        canvas_width_old = self.canvas.width()
-        units = 1.1
-        if delta < 0:
-            units = 0.9
-        self.add_zoom(units)
+        if not delta or self.image.isNull():
+            return
+        animation = self._zoom_animation
+        value = self.canvas.scale * 100
+        if animation.state() == QtCore.QAbstractAnimation.State.Running:
+            value = animation.endValue()
+        animation.stop()
+        value *= 1.1 ** (max(-12000, min(12000, delta)) / 120.0)
+        value = max(
+            self.zoom_widget.minimum(), min(self.zoom_widget.maximum(), value)
+        )
+        self.actions.fit_width.setChecked(False)
+        self.actions.fit_window.setChecked(False)
+        self.zoom_mode = self.MANUAL_ZOOM
+        self._zoom_anchor_image = self.canvas.transform_pos(
+            QtCore.QPointF(pos)
+        )
+        self._zoom_anchor_viewport = QtCore.QPointF(pos) + QtCore.QPointF(
+            self.canvas.pos()
+        )
+        with QtCore.QSignalBlocker(animation):
+            animation.setStartValue(self.canvas.scale * 100)
+            animation.setEndValue(float(value))
+        animation.start()
 
-        canvas_width_new = self.canvas.width()
-        if canvas_width_old != canvas_width_new:
-            canvas_scale_factor = canvas_width_new / canvas_width_old
+    def _animate_zoom(self, value):
+        self._apply_zoom(
+            value, self._zoom_anchor_image, self._zoom_anchor_viewport
+        )
 
-            x_shift = round(pos.x() * canvas_scale_factor - pos.x())
-            y_shift = round(pos.y() * canvas_scale_factor - pos.y())
-
-            self.set_scroll(
-                Qt.Orientation.Horizontal,
-                self.scroll_bars[Qt.Orientation.Horizontal].value() + x_shift,
+    def _apply_zoom(self, value, image_pos=None, viewport_pos=None):
+        if self.image.isNull():
+            return
+        value = max(
+            self.zoom_widget.minimum(), min(self.zoom_widget.maximum(), value)
+        )
+        if viewport_pos is None:
+            viewport_pos = QtCore.QPointF(
+                self._canvas_scroll_area.viewport().rect().center()
             )
-            self.set_scroll(
-                Qt.Orientation.Vertical,
-                self.scroll_bars[Qt.Orientation.Vertical].value() + y_shift,
+        if image_pos is None:
+            image_pos = self.canvas.transform_pos(
+                viewport_pos - QtCore.QPointF(self.canvas.pos())
             )
+        with QtCore.QSignalBlocker(self.zoom_widget):
+            self.zoom_widget.setValue(round(value))
+        self.canvas.scale = value / 100.0
+        self.canvas.adjustSize()
+        canvas_pos = (
+            image_pos + self.canvas.offset_to_center()
+        ) * self.canvas.scale
+        self.canvas.pan_offset += (
+            viewport_pos - QtCore.QPointF(self.canvas.pos()) - canvas_pos
+        )
+        self.zoom_values[self.filename] = (self.zoom_mode, value)
+        self.pan_values[self.filename] = QtCore.QPointF(self.canvas.pan_offset)
+        self.canvas.update()
+        if hasattr(self, "navigator_dialog"):
+            self.navigator_dialog.set_zoom_value(round(value))
+        self.update_navigator_viewport()
+
+    def pan_canvas(self, delta):
+        self._zoom_animation.stop()
+        self.actions.fit_width.setChecked(False)
+        self.actions.fit_window.setChecked(False)
+        self.zoom_mode = self.MANUAL_ZOOM
+        self.zoom_values[self.filename] = (
+            self.zoom_mode,
+            self.canvas.scale * 100,
+        )
+        self.canvas.pan_offset += delta
+        self.pan_values[self.filename] = QtCore.QPointF(self.canvas.pan_offset)
+        self.canvas.update()
+        self.update_navigator_viewport()
 
     def set_fit_window(self, value=True):
         if value:
@@ -6253,6 +6226,9 @@ class LabelingWidget(LabelDialog):
             self.set_clean()
         self.canvas.setEnabled(True)
 
+        saved_pan = QtCore.QPointF(
+            self.pan_values.get(self.filename, QtCore.QPointF())
+        )
         # set zoom values
         is_initial_load = not self.zoom_values
         if self.filename in self.zoom_values:
@@ -6266,6 +6242,8 @@ class LabelingWidget(LabelDialog):
                 self.set_scroll(
                     orientation, self.scroll_values[orientation][self.filename]
                 )
+        self.canvas.pan_offset = saved_pan
+        self.pan_values[self.filename] = QtCore.QPointF(saved_pan)
 
         # set brightness contrast values
         brightness, contrast = self.brightness_contrast_values.get(
@@ -6341,15 +6319,26 @@ class LabelingWidget(LabelDialog):
     def paint_canvas(self):
         if self.image.isNull():
             return
-        self.canvas.scale = 0.01 * self.zoom_widget.value()
+        self._zoom_animation.stop()
         self.canvas.adjustSize()
         self.canvas.update()
         self.update_navigator_viewport()
 
     def adjust_scale(self, initial=False):
+        self._zoom_animation.stop()
+        self.canvas.pan_offset = QtCore.QPointF()
+        self.pan_values[self.filename] = QtCore.QPointF()
         value = self.scalers[self.FIT_WINDOW if initial else self.zoom_mode]()
-        value = int(100 * value)
-        self.zoom_widget.setValue(value)
+        value = max(
+            self.zoom_widget.minimum(),
+            min(self.zoom_widget.maximum(), int(100 * value)),
+        )
+        with QtCore.QSignalBlocker(self.zoom_widget):
+            self.zoom_widget.setValue(value)
+        self.canvas.scale = 0.01 * self.zoom_widget.value()
+        for scroll_bar in self.scroll_bars.values():
+            scroll_bar.setValue(0)
+        self.paint_canvas()
         self.zoom_values[self.filename] = (self.zoom_mode, value)
         if hasattr(self, "navigator_dialog"):
             self.navigator_dialog.set_zoom_value(value)

@@ -566,7 +566,7 @@ class NavigatorDialog(QtWidgets.QDialog):
         """)
 
         self.zoom_slider = ClickableSlider(Qt.Orientation.Horizontal)
-        self.zoom_slider.setRange(1, 1000)
+        self.zoom_slider.setRange(10, 1000)
         self.zoom_slider.setValue(100)
         self.zoom_slider.setStyleSheet(ChatbotDialogStyle.get_slider_style())
         self.zoom_slider.valueChanged.connect(self.on_slider_changed)
@@ -617,6 +617,10 @@ class NavigatorDialog(QtWidgets.QDialog):
 
     def set_zoom_value(self, zoom_percentage: int) -> None:
         """Set zoom value and update UI elements"""
+        zoom_percentage = max(
+            self.zoom_slider.minimum(),
+            min(self.zoom_slider.maximum(), zoom_percentage),
+        )
         self.current_zoom = zoom_percentage
 
         self.zoom_slider.blockSignals(True)
@@ -638,7 +642,10 @@ class NavigatorDialog(QtWidgets.QDialog):
         """Handle zoom input text change event"""
         try:
             value = int(self.zoom_input.text())
-            value = max(1, min(1000, value))
+            value = max(
+                self.zoom_slider.minimum(),
+                min(self.zoom_slider.maximum(), value),
+            )
 
             self.current_zoom = value
             self.zoom_slider.setValue(value)
@@ -649,13 +656,13 @@ class NavigatorDialog(QtWidgets.QDialog):
 
     def zoom_in(self):
         """Increase zoom level by 1"""
-        new_zoom = min(1000, self.current_zoom + 1)
+        new_zoom = min(self.zoom_slider.maximum(), self.current_zoom + 1)
         self.set_zoom_value(new_zoom)
         self.zoom_changed[int].emit(new_zoom)
 
     def zoom_out(self):
         """Decrease zoom level by 1"""
-        new_zoom = max(1, self.current_zoom - 1)
+        new_zoom = max(self.zoom_slider.minimum(), self.current_zoom - 1)
         self.set_zoom_value(new_zoom)
         self.zoom_changed[int].emit(new_zoom)
 
@@ -671,7 +678,10 @@ class NavigatorDialog(QtWidgets.QDialog):
             zoom_increment = 0
 
         new_zoom = self.current_zoom + zoom_increment
-        new_zoom = max(1, min(1000, new_zoom))
+        new_zoom = max(
+            self.zoom_slider.minimum(),
+            min(self.zoom_slider.maximum(), new_zoom),
+        )
 
         self.set_zoom_value(new_zoom)
         self.zoom_changed[int, QPoint].emit(

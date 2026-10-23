@@ -209,7 +209,7 @@ class SettingsRuntimeApplier:
                 )
             ).format(
                 utils.fmt_shortcut(combo or "-"),
-                utils.fmt_shortcut(self._widget.tr("Ctrl+Wheel")),
+                self._widget.tr("Wheel"),
             )
         )
 

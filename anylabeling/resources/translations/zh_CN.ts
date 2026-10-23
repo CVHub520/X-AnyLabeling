@@ -3325,8 +3325,8 @@ Press Enter to search.</source>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="929" />
-      <source>Select one polygon, then paint to add, hold Ctrl to erase, and scroll to resize the brush</source>
-      <translation>选择一个多边形，然后绘制以添加区域，按住 Ctrl 绘制以擦除，滚动滚轮调整笔刷大小</translation>
+      <source>Select one polygon, then paint to add, hold Ctrl to erase, and use Ctrl+Wheel to resize the brush</source>
+      <translation>选择一个多边形，然后绘制以添加区域，按住 Ctrl 绘制以擦除，使用 Ctrl+滚轮调整笔刷大小</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="938" />
@@ -3686,8 +3686,8 @@ Press Enter to search.</source>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1222" />
-      <source>Ctrl+Wheel</source>
-      <translation>Ctrl + 滚轮</translation>
+      <source>Wheel</source>
+      <translation>滚轮</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1228" />
@@ -4371,8 +4371,8 @@ Press Enter to search.</source>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="2929" />
-      <source>Tip: Hold Space and drag with the left mouse button to pan the canvas temporarily.</source>
-      <translation>提示：按住空格键并用鼠标左键拖拽，可临时平移画布。</translation>
+      <source>Tip: Hold Alt and drag with the left mouse button, or drag with the middle mouse button, to pan the canvas while drawing.</source>
+      <translation>提示：绘制时，按住 Alt 并用鼠标左键拖动，或直接用中键拖动，可平移画布。</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="3149" />
@@ -8046,8 +8046,8 @@ Changes will not be saved until you click Save.</source>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="183" />
-      <source>Use the mouse wheel to adjust rectangle geometry while editing.</source>
-      <translation>编辑矩形时使用鼠标滚轮调整其几何形状。</translation>
+      <source>Use Ctrl+Wheel to adjust rectangle geometry while editing. Disabled by default.</source>
+      <translation>编辑矩形时使用 Ctrl+滚轮调整其几何形状。默认关闭。</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="187" />
@@ -8614,8 +8614,8 @@ Changes will not be saved until you click Save.</source>
     </message>
     <message>
       <location filename="../../views/labeling/settings/runtime_applier.py" line="212" />
-      <source>Ctrl+Wheel</source>
-      <translation>Ctrl + 滚轮</translation>
+      <source>Wheel</source>
+      <translation>滚轮</translation>
     </message>
   </context>
   <context>

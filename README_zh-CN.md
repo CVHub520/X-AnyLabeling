@@ -30,6 +30,7 @@
 
 ## 🥳 新功能
 
+- `2026-10-24`：支持画布上的平滑缩放、自由平移和边界裁剪。
 - `2026-10-18`：新增支持 [GroundingPI、GroundAnything 和 GroundAnything-VLM](./examples/vision_foundation/groundingpi/README.md) 模型，支持目标检测、描述定位、描述与类别指点、OCR、文档版面分析、GUI 定位及参考框检测。
 - `2026-10-01`：新增 [3D 点云标注](./docs/zh_cn/point_cloud.md)功能，支持 3D 点云检测与分割。
 - `2026-08-19`：新增[图片标签](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#37-%E5%9B%BE%E7%89%87%E6%A0%87%E7%AD%BE)功能，支持标签新增、编辑、排序及批量删除。
