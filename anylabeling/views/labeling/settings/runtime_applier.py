@@ -89,6 +89,7 @@ class SettingsRuntimeApplier:
             "shortcuts.create_rectangle": self._widget.actions.create_rectangle_mode,
             "shortcuts.create_cuboid": self._widget.actions.create_cuboid_mode,
             "shortcuts.create_rotation": self._widget.actions.create_rotation_mode,
+            "shortcuts.create_ellipse": self._widget.actions.create_ellipse_mode,
             "shortcuts.create_quadrilateral": self._widget.actions.create_quadrilateral_mode,
             "shortcuts.create_circle": self._widget.actions.create_circle_mode,
             "shortcuts.create_line": self._widget.actions.create_line_mode,
@@ -223,6 +224,7 @@ class SettingsRuntimeApplier:
             "canvas.double_click",
             "canvas.double_click_edit_label",
             "canvas.num_backups",
+            "canvas.ellipse.polygon_points",
         }:
             self.apply_canvas_basic()
             return
@@ -307,6 +309,15 @@ class SettingsRuntimeApplier:
         logger.debug("No runtime handler for settings key: %s", key)
 
     def apply_canvas_basic(self) -> None:
+        from anylabeling.views.labeling.utils.ellipse import (
+            validate_polygon_points,
+        )
+
+        self._widget.canvas.ellipse_polygon_points = validate_polygon_points(
+            self._widget._config["canvas"]
+            .get("ellipse", {})
+            .get("polygon_points", 128)
+        )
         self._widget.canvas.label_font_size = int(
             self._widget._config["canvas"]["label_font_size"]
         )

@@ -1,6 +1,7 @@
 import json
 import math
 import uuid
+from typing import Callable
 
 import numpy as np
 import PIL.Image
@@ -19,6 +20,8 @@ from anylabeling.views.labeling.widgets.popup import Popup
 from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import *
 from anylabeling.services.auto_labeling.utils import calculate_rotation_theta
+from .ellipse import ellipse_direction, ellipse_polygon, segmentation_points
+from .ellipse_io import atomic_open, preflight_files
 
 CONVERSION_TARGETS = {
     "polygon": ["rectangle", "rotation"],
@@ -27,6 +30,7 @@ CONVERSION_TARGETS = {
     "line": ["linestrip"],
     "circle": ["rectangle", "rotation", "quadrilateral", "polygon"],
     "quadrilateral": ["polygon"],
+    "ellipse": ["polygon"],
 }
 
 CONVERSION_MODE_MAP = {
@@ -104,6 +108,12 @@ def _apply_shape_conversion(data, mode, params):
             continue
         shape_type = shape.get("shape_type")
         points = shape.get("points", [])
+        if normalized_mode == "ellipse_to_polygon" and shape_type == "ellipse":
+            ellipse_direction(shape)
+            shape["points"] = ellipse_polygon(points, params["num_sides"])
+            shape["shape_type"] = "polygon"
+            shape.pop("direction", None)
+            continue
 
         if (
             normalized_mode == "rectangle_to_rotation"
@@ -326,6 +336,14 @@ def get_conversion_params(self, mode: str):
     Returns:
         dict: Parameters dictionary, or None if user cancelled
     """
+    if mode == "ellipse_to_polygon":
+        from anylabeling.config import get_ellipse_config
+
+        widget = getattr(self, "parent_widget", self)
+        config = getattr(widget, "_config", None)
+        if config is None:
+            config = get_ellipse_config()
+        return {"num_sides": config["canvas"]["ellipse"]["polygon_points"]}
     if mode == "circle_to_polygon":
         dialog = PolygonSidesDialog(self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
@@ -334,6 +352,57 @@ def get_conversion_params(self, mode: str):
             return None
 
     return {}
+
+
+def convert_ellipse_files(
+    paths: list[str],
+    count: int,
+    cancelled: Callable[[], bool] | None = None,
+    progress: Callable[[int, int], None] | None = None,
+) -> dict[str, tuple[str, str]]:
+    """Convert native ellipses after whole-batch preflight, one file at a time.
+
+    Args:
+        paths: Selected native JSON paths.
+        count: Current configured sampling count.
+        cancelled: Optional cooperative cancellation callback.
+        progress: Optional completed-file progress callback.
+
+    Returns:
+        Per-file success, failure, skip or unprocessed states and reasons.
+
+    Raises:
+        ValueError: If preflight fails; no files have been replaced.
+    """
+    fingerprints = preflight_files(paths, "native", count)
+    outcomes = {path: ("unprocessed", "") for path in paths}
+    for index, path in enumerate(paths):
+        if progress is not None:
+            progress(index, len(paths))
+        if cancelled is not None and cancelled():
+            break
+        try:
+            with open(path, encoding="utf-8") as stream:
+                data = json.load(stream)
+            if not any(
+                s.get("shape_type") == "ellipse" and not s.get("locked", False)
+                for s in data["shapes"]
+            ):
+                outcomes[path] = ("skipped", "no unlocked ellipses")
+                continue
+            _apply_shape_conversion(
+                data, "ellipse_to_polygon", {"num_sides": count}
+            )
+            with atomic_open(
+                path,
+                fingerprints={path: fingerprints[path]},
+                allow_source_replace=True,
+            ) as stream:
+                json.dump(data, stream, indent=2, ensure_ascii=False)
+            outcomes[path] = ("success", "")
+        except (ValueError, OSError, KeyError) as error:
+            outcomes[path] = ("failed", str(error))
+    return outcomes
 
 
 def shape_conversion(self, mode):
@@ -359,6 +428,15 @@ def shape_conversion(self, mode):
     response.setStyleSheet(get_msg_box_style())
 
     if response.exec() != QtWidgets.QMessageBox.StandardButton.Ok:
+        return
+
+    if mode == "ellipse_to_polygon":
+        from .ellipse_io import export_report
+
+        outcomes = convert_ellipse_files(label_file_list, params["num_sides"])
+        logger.info(export_report(outcomes))
+        if self.filename:
+            self.load_file(self.filename)
         return
 
     progress_dialog = QProgressDialog(
@@ -415,13 +493,26 @@ def polygons_to_mask(img_shape, polygons, shape_type=None):
 
 
 def shape_to_mask(
-    img_shape, points, shape_type=None, line_width=10, point_size=5
+    img_shape,
+    points,
+    shape_type=None,
+    line_width=10,
+    point_size=5,
+    ellipse_polygon_points=128,
 ):
     mask = np.zeros(img_shape[:2], dtype=np.uint8)
     mask = PIL.Image.fromarray(mask)
     draw = PIL.ImageDraw.Draw(mask)
     xy = [tuple(point) for point in points]
-    if shape_type == "circle":
+    if shape_type == "ellipse":
+        xy = segmentation_points(
+            {"shape_type": "ellipse", "points": points},
+            int(img_shape[1]),
+            int(img_shape[0]),
+            ellipse_polygon_points,
+        )
+        draw.polygon(xy=xy, outline=1, fill=1)
+    elif shape_type == "circle":
         assert len(xy) == 2, "Shape of shape_type=circle must have 2 points"
         (cx, cy), (px, py) = xy
         d = math.sqrt((cx - px) ** 2 + (cy - py) ** 2)
@@ -436,6 +527,12 @@ def shape_to_mask(
         assert (
             len(xy) == 4
         ), "Shape of shape_type=quadrilateral must have 4 points"
+        xy = segmentation_points(
+            {"shape_type": "quadrilateral", "points": points},
+            int(img_shape[1]),
+            int(img_shape[0]),
+            ellipse_polygon_points,
+        )
         draw.polygon(xy=xy, outline=1, fill=1)
     elif shape_type == "line":
         assert len(xy) == 2, "Shape of shape_type=line must have 2 points"
@@ -454,7 +551,9 @@ def shape_to_mask(
     return mask
 
 
-def shapes_to_label(img_shape, shapes, label_name_to_value):
+def shapes_to_label(
+    img_shape, shapes, label_name_to_value, ellipse_polygon_points=128
+):
     cls = np.zeros(img_shape[:2], dtype=np.int32)
     ins = np.zeros_like(cls)
     instances = []
@@ -474,7 +573,12 @@ def shapes_to_label(img_shape, shapes, label_name_to_value):
         ins_id = instances.index(instance) + 1
         cls_id = label_name_to_value[cls_name]
 
-        mask = shape_to_mask(img_shape[:2], points, shape_type)
+        mask = shape_to_mask(
+            img_shape[:2],
+            points,
+            shape_type,
+            ellipse_polygon_points=ellipse_polygon_points,
+        )
         cls[mask] = cls_id
         ins[mask] = ins_id
 

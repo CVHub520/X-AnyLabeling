@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/images">
+        <file>images/ellipse.png</file>
         <file>images/alibaba.png</file>
         <file>images/anthropic.png</file>
         <file>images/panel-left.svg</file>

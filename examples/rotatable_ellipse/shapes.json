@@ -1,0 +1,89 @@
+{
+  "version": "4.2.0",
+  "flags": {},
+  "checked": false,
+  "shapes": [
+    {
+      "label": "object",
+      "shape_type": "quadrilateral",
+      "points": [
+        [
+          60,
+          110
+        ],
+        [
+          275,
+          95
+        ],
+        [
+          300,
+          320
+        ],
+        [
+          40,
+          330
+        ]
+      ],
+      "group_id": 1,
+      "description": "Generic geometric example",
+      "flags": {},
+      "attributes": {},
+      "difficult": false
+    },
+    {
+      "label": "object",
+      "shape_type": "ellipse",
+      "points": [
+        [
+          447.0686223248607,
+          122.79425006021359
+        ],
+        [
+          673.6455690840231,
+          228.44881549538843
+        ],
+        [
+          622.9313776751393,
+          337.2057499397864
+        ],
+        [
+          396.35443091597676,
+          231.55118450461157
+        ]
+      ],
+      "group_id": 2,
+      "description": "Generic geometric example",
+      "flags": {},
+      "attributes": {},
+      "difficult": false,
+      "direction": 0.4363323129985824
+    },
+    {
+      "label": "object",
+      "shape_type": "polygon",
+      "points": [
+        [
+          360,
+          355
+        ],
+        [
+          450,
+          440
+        ],
+        [
+          330,
+          445
+        ]
+      ],
+      "group_id": 3,
+      "description": "Generic geometric example",
+      "flags": {},
+      "attributes": {},
+      "difficult": false
+    }
+  ],
+  "imagePath": "shapes.png",
+  "imageData": null,
+  "imageWidth": 800,
+  "imageHeight": 500
+}

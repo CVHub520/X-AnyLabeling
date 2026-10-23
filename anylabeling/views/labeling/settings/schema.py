@@ -1106,6 +1106,22 @@ def _non_shortcut_fields() -> list[SettingField]:
             ),
         ),
         SettingField(
+            "canvas.ellipse.polygon_points",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Ellipse Polygon Points"
+            ),
+            "int",
+            "Canvas",
+            "Ellipse",
+            "Export",
+            minimum=12,
+            maximum=512,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Number of vertices sampled from an ellipse before clipping.",
+            ),
+        ),
+        SettingField(
             "canvas.brush.point_distance",
             QT_TRANSLATE_NOOP(
                 SETTINGS_TRANSLATION_CONTEXT, "Brush Point Distance"
@@ -1408,6 +1424,7 @@ def _shortcut_category_map() -> dict[str, tuple[str, ...]]:
             "create_quadrilateral",
             "create_rectangle",
             "create_rotation",
+            "create_ellipse",
             "delete_polygon",
             "duplicate_polygon",
             "edit_brush_mode",

@@ -24,6 +24,18 @@ from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.schema import create_xlabel_template
 from anylabeling.views.labeling.utils.shape import rectangle_from_diagonal
 from anylabeling.views.labeling.utils.general import is_possible_rectangle
+from anylabeling.views.labeling.utils.ellipse import (
+    segmentation_points,
+    validate_polygon_points,
+)
+from anylabeling.views.labeling.utils.ellipse_io import (
+    atomic_open,
+    atomic_bytes,
+    preflight_files,
+    verify_inputs,
+    report_export,
+    ExportPreflightError,
+)
 
 
 def rle_to_polygons(rle: Dict[str, Any]) -> List[List[float]]:
@@ -111,7 +123,14 @@ class PoseClassError(ValueError):
 
 
 class LabelConverter:
-    def __init__(self, classes_file=None, pose_cfg_file=None):
+    def __init__(
+        self, classes_file=None, pose_cfg_file=None, ellipse_polygon_points=128
+    ):
+        self.ellipse_polygon_points = validate_polygon_points(
+            ellipse_polygon_points
+        )
+        self._export_inputs = {}
+        self.export_results = {}
         self.classes = []
         if classes_file:
             self.classes = self.read_lines(classes_file)
@@ -141,6 +160,84 @@ class LabelConverter:
     #################################################
     #                Helper Methods                 #
     #################################################
+    def prepare_export(
+        self,
+        paths: list[str],
+        mode: str,
+        use_classes: bool = False,
+        mapping: dict | None = None,
+        ignored_labels: tuple[str, ...] = (),
+    ) -> None:
+        """Preflight all selected labels before any destination is modified.
+
+        Args:
+            paths: Selected native annotation paths.
+            mode: 'seg', 'native', or an unsupported mode description.
+            use_classes: Validate new objects against the configured classes.
+            mapping: Optional mask color mapping.
+            ignored_labels: Existing format-specific ignored class names.
+
+        Raises:
+            ValueError: If an input is invalid or changed after preflight.
+        """
+        for path in paths:
+            self.export_results.setdefault(
+                str(path),
+                (
+                    ("unprocessed", "")
+                    if osp.isfile(path)
+                    else ("skipped", "no native annotation")
+                ),
+            )
+            if str(path) in self._export_inputs:
+                verify_inputs({str(path): self._export_inputs[str(path)]})
+        try:
+            self._export_inputs.update(
+                preflight_files(
+                    paths,
+                    mode,
+                    self.ellipse_polygon_points,
+                    self.classes if use_classes else None,
+                    mapping,
+                    ignored_labels,
+                )
+            )
+        except ExportPreflightError as error:
+            for path, reason in error.failures.items():
+                self.export_results[path] = ("failed", reason)
+            raise
+        for path in paths:
+            self.export_results.setdefault(str(path), ("unprocessed", ""))
+
+    def _check_export_cancelled(self) -> None:
+        """Abort cooperatively between files without terminating a writer.
+
+        Raises:
+            InterruptedError: If the GUI worker received a cancel request.
+        """
+        from PyQt6.QtCore import QThread
+
+        if QThread.currentThread().isInterruptionRequested():
+            raise InterruptedError(
+                "Export canceled; completed outputs were retained"
+            )
+
+    def _input_fingerprints(self, source: str) -> dict[str, str]:
+        """Get only the inputs relevant to one per-image output.
+
+        Args:
+            source: Native source annotation path.
+
+        Returns:
+            Its preflight digest, or an empty mapping for a missing label.
+        """
+        source = str(source)
+        return (
+            {source: self._export_inputs[source]}
+            if source in self._export_inputs
+            else {}
+        )
+
     def calculate_normalized_bbox(self, poly, img_w, img_h):
         """
         Calculate the minimum bounding box for a set of four points and return the YOLO format rectangle representation (normalized).
@@ -1321,6 +1418,7 @@ class LabelConverter:
     #################################################
     #                Export Methods                 #
     #################################################
+    @report_export("input_file")
     def custom_to_yolo(  # noqa: C901
         self,
         input_file,
@@ -1329,6 +1427,12 @@ class LabelConverter:
         skip_empty_files=False,
         obb_boundary_policy="skip",
     ):
+        self._check_export_cancelled()
+        self.prepare_export(
+            [input_file],
+            "seg" if mode == "seg" else f"YOLO {mode}",
+            use_classes=(mode == "seg"),
+        )
         is_empty_file = True
         if osp.exists(input_file):
             data = self.read_json(input_file)
@@ -1342,9 +1446,18 @@ class LabelConverter:
         image_size = np.array([[image_width, image_height]])
         if mode == "pose":
             pose_data = {}
-        with open(output_file, "w", encoding="utf-8") as f:
+        with atomic_open(
+            output_file,
+            fingerprints=self._input_fingerprints(input_file),
+            skip_empty=skip_empty_files,
+        ) as f:
             for shape in data["shapes"]:
                 shape_type = shape["shape_type"]
+                if shape_type == "ellipse" and mode != "seg":
+                    raise ValueError(
+                        f"{input_file}: ellipse cannot be exported in "
+                        f"YOLO {mode} mode"
+                    )
                 if mode == "hbb" and shape_type == "rectangle":
                     label = shape["label"]
                     points = self.clamp_points(
@@ -1375,17 +1488,38 @@ class LabelConverter:
                     )
 
                     is_empty_file = False
-                elif mode == "seg" and shape_type == "polygon":
+                elif mode == "seg" and shape_type in (
+                    "polygon",
+                    "quadrilateral",
+                    "ellipse",
+                ):
                     label = shape["label"]
-                    points = np.array(
-                        self.clamp_points(
-                            shape["points"], image_width, image_height
+                    try:
+                        vertices = segmentation_points(
+                            shape,
+                            image_width,
+                            image_height,
+                            self.ellipse_polygon_points,
                         )
-                    )
+                    except ValueError as error:
+                        raise ValueError(
+                            f"{input_file}: {label}: {error}"
+                        ) from error
+                    points = np.array(vertices)
                     if len(points) < 3:
-                        continue
+                        if shape_type == "polygon":
+                            continue
+                        raise ValueError(
+                            f"{input_file}: {label}: segmentation is outside "
+                            "the image or has zero area"
+                        )
                     if label not in self.classes:
-                        continue
+                        if shape_type == "polygon":
+                            continue
+                        raise ValueError(
+                            f"{input_file}: label '{label}' is missing "
+                            "from classes.txt"
+                        )
                     class_index = self.classes.index(label)
                     norm_points = points / image_size
                     f.write(
@@ -1539,9 +1673,14 @@ class LabelConverter:
                     f.write(f"{label}\n")
         return is_empty_file
 
+    @report_export("input_file")
     def custom_to_voc(
         self, image_file, input_file, output_dir, mode, skip_empty_files=False
     ):
+        self._check_export_cancelled()
+        self.prepare_export(
+            [input_file], "seg" if mode == "polygon" else f"VOC {mode}"
+        )
         is_emtpy_file = True
         image = self.imread_unicode(image_file, 1)[0]
         image_height, image_width, image_depth = image.shape
@@ -1567,10 +1706,37 @@ class LabelConverter:
             "https://github.com/CVHub520/X-AnyLabeling"
         )
         for shape in shapes:
+            kind = shape["shape_type"]
+            if not (
+                kind == "rectangle"
+                and mode in ("rectangle", "polygon")
+                or kind in ("polygon", "quadrilateral", "ellipse")
+                and mode == "polygon"
+            ):
+                continue
+            if kind == "polygon" and len(shape["points"]) < 3:
+                continue
             label = shape["label"]
+            if shape["shape_type"] == "ellipse" and mode != "polygon":
+                raise ValueError(
+                    f"{input_file}: ellipse requires VOC polygon mode"
+                )
             points = self.clamp_points(
                 shape["points"], image_width, image_height
             )
+            if mode == "polygon" and shape["shape_type"] in (
+                "polygon",
+                "quadrilateral",
+                "ellipse",
+            ):
+                points = segmentation_points(
+                    shape,
+                    image_width,
+                    image_height,
+                    self.ellipse_polygon_points,
+                )
+                if len(points) < 3:
+                    raise ValueError(f"{input_file}: {label}: empty polygon")
             difficult = shape.get("difficult", False)
             object_elem = ET.SubElement(root, "object")
             ET.SubElement(object_elem, "name").text = label
@@ -1595,7 +1761,10 @@ class LabelConverter:
                 ET.SubElement(bndbox, "ymin").text = str(int(ymin))
                 ET.SubElement(bndbox, "xmax").text = str(int(xmax))
                 ET.SubElement(bndbox, "ymax").text = str(int(ymax))
-            elif shape["shape_type"] == "polygon" and mode == "polygon":
+            elif (
+                shape["shape_type"] in ("polygon", "quadrilateral", "ellipse")
+                and mode == "polygon"
+            ):
                 if len(points) < 3:
                     continue
                 is_emtpy_file = False
@@ -1616,12 +1785,31 @@ class LabelConverter:
         dom = minidom.parseString(xml_string)
         formatted_xml = dom.toprettyxml(indent="  ")
 
-        with open(output_dir, "w", encoding="utf-8") as f:
-            f.write(formatted_xml)
+        if not (skip_empty_files and is_emtpy_file):
+            with atomic_open(
+                output_dir, fingerprints=self._input_fingerprints(input_file)
+            ) as f:
+                f.write(formatted_xml)
 
         return is_emtpy_file
 
+    @report_export(None)
     def custom_to_coco(self, image_list, input_path, output_path, mode):
+        selected_labels = []
+        for image_file in image_list:
+            label_name = osp.splitext(osp.basename(image_file))[0] + ".json"
+            candidate = osp.join(input_path, label_name)
+            selected_labels.append(
+                candidate
+                if osp.exists(candidate)
+                else osp.join(osp.dirname(image_file), label_name)
+            )
+        self.prepare_export(
+            selected_labels,
+            "seg" if mode == "polygon" else f"COCO {mode}",
+            use_classes=(mode == "polygon"),
+            ignored_labels=("__ignore__",) if mode == "polygon" else (),
+        )
         coco_data = self.get_coco_data(mode)
 
         if mode == "rectangle":
@@ -1656,6 +1844,7 @@ class LabelConverter:
         annotation_id = 0
 
         for image_file in image_list:
+            self._check_export_cancelled()
             # Reset pose_data for each new image when in pose mode
             if mode == "pose":
                 pose_data = {}
@@ -1685,6 +1874,10 @@ class LabelConverter:
                 }
             )
             for shape in data["shapes"]:
+                if shape["shape_type"] == "ellipse" and mode != "polygon":
+                    raise ValueError(
+                        f"{label_file}: ellipse requires COCO polygon mode"
+                    )
                 label = shape["label"]
                 points = self.clamp_points(
                     shape["points"], image_width, image_height
@@ -1761,8 +1954,22 @@ class LabelConverter:
                     annotation_id += 1
 
                 elif mode == "polygon":
-                    if shape_type != "polygon":
+                    if shape_type not in (
+                        "polygon",
+                        "quadrilateral",
+                        "ellipse",
+                    ):
                         continue
+                    points = segmentation_points(
+                        shape,
+                        image_width,
+                        image_height,
+                        self.ellipse_polygon_points,
+                    )
+                    if len(points) < 3:
+                        raise ValueError(
+                            f"{label_file}: {label}: empty polygon"
+                        )
 
                     if label == "__ignore__" or label not in class_name_to_id:
                         continue
@@ -1780,6 +1987,12 @@ class LabelConverter:
                     ]
                     polygon_data[instance]["segmentation"].append(
                         flattened_points
+                    )
+                    polygon_data[instance]["native_contour"] = polygon_data[
+                        instance
+                    ].get("native_contour", False) or shape_type in (
+                        "ellipse",
+                        "quadrilateral",
                     )
 
             if mode == "pose":
@@ -1841,8 +2054,27 @@ class LabelConverter:
 
             elif mode == "polygon":
                 for _, data in polygon_data.items():
-                    area = self.calculate_polygon_area(data["segmentation"])
-                    bbox = self.get_min_enclosing_bbox(data["segmentation"])
+                    if data.get("native_contour", False):
+                        from shapely.geometry import Polygon
+                        from shapely.ops import unary_union
+
+                        geometry = unary_union(
+                            [
+                                Polygon(np.asarray(p).reshape(-1, 2))
+                                for p in data["segmentation"]
+                            ]
+                        )
+                        area = geometry.area
+                        xmin, ymin, xmax, ymax = geometry.bounds
+                        bbox = [xmin, ymin, xmax - xmin, ymax - ymin]
+                    else:
+                        # Preserve upstream raster-area/bbox semantics for old polygons.
+                        area = self.calculate_polygon_area(
+                            data["segmentation"]
+                        )
+                        bbox = self.get_min_enclosing_bbox(
+                            data["segmentation"]
+                        )
 
                     annotation = {
                         "id": annotation_id,
@@ -1869,9 +2101,13 @@ class LabelConverter:
         elif mode == "pose":
             output_file = osp.join(output_path, "coco_keypoints.json")
 
-        self.save_json(coco_data, output_file, indent=4)
+        self._check_export_cancelled()
+        with atomic_open(output_file, fingerprints=self._export_inputs) as f:
+            json.dump(coco_data, f, ensure_ascii=False, indent=4)
 
+    @report_export("input_file")
     def custom_to_dota(self, input_file, output_file):
+        self.prepare_export([input_file], "DOTA detection")
         data = self.read_json(input_file)
         w, h = data["imageWidth"], data["imageHeight"]
         with open(output_file, "w", encoding="utf-8") as f:
@@ -1922,12 +2158,20 @@ class LabelConverter:
         output_format = mapping_table["type"]
         if output_format == "grayscale":
             empty_mask = np.zeros(image_shape, dtype=np.uint8)
-            cv2.imencode(".png", empty_mask)[1].tofile(output_file)
+            atomic_bytes(
+                output_file,
+                cv2.imencode(".png", empty_mask)[1].tobytes(),
+                {},
+            )
         elif output_format == "rgb":
             empty_mask = np.zeros(
                 (image_height, image_width, 3), dtype=np.uint8
             )
-            cv2.imencode(".png", empty_mask)[1].tofile(output_file)
+            atomic_bytes(
+                output_file,
+                cv2.imencode(".png", empty_mask)[1].tobytes(),
+                {},
+            )
         else:
             raise ValueError("Invalid output format specified")
 
@@ -1951,7 +2195,10 @@ class LabelConverter:
             output_file, mapping_table, image_width, image_height
         )
 
+    @report_export("input_file")
     def custom_to_mask(self, input_file, output_file, mapping_table):
+        self._check_export_cancelled()
+        self.prepare_export([input_file], "seg", mapping=mapping_table)
         data = self.read_json(input_file)
         image_width = data["imageWidth"]
         image_height = data["imageHeight"]
@@ -1960,11 +2207,15 @@ class LabelConverter:
         polygons = []
         for layer_index, shape in enumerate(data["shapes"]):
             shape_type = shape["shape_type"]
-            if shape_type != "polygon":
+            if shape_type not in ("polygon", "quadrilateral", "ellipse"):
                 continue
-            points = self.clamp_points(
-                shape["points"], image_width, image_height
+            points = segmentation_points(
+                shape, image_width, image_height, self.ellipse_polygon_points
             )
+            if len(points) < 3:
+                raise ValueError(
+                    f"{input_file}: {shape['label']}: empty polygon"
+                )
             polygon = []
             for point in points:
                 x, y = point
@@ -2013,7 +2264,11 @@ class LabelConverter:
                         mapping_color[label],
                     )
 
-            cv2.imencode(".png", binary_mask)[1].tofile(output_file)
+            atomic_bytes(
+                output_file,
+                cv2.imencode(".png", binary_mask)[1].tobytes(),
+                self._input_fingerprints(input_file),
+            )
 
         elif output_format == "rgb":
             # Initialize rgb_mask
@@ -2031,11 +2286,22 @@ class LabelConverter:
                         color,
                     )
 
-            cv2.imencode(".png", cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))[
-                1
-            ].tofile(output_file)
+            atomic_bytes(
+                output_file,
+                cv2.imencode(
+                    ".png", cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB)
+                )[1].tobytes(),
+                self._input_fingerprints(input_file),
+            )
 
+    @report_export(None)
     def custom_to_mot(self, input_path, save_path):
+        self.prepare_export(
+            [str(p) for p in pathlib.Path(input_path).glob("*.json")],
+            "MOT detection",
+            use_classes=False,
+        )
+        self._check_export_cancelled()
         mot_structure = {
             "sequence": dict(
                 name="MOT",
@@ -2064,6 +2330,7 @@ class LabelConverter:
             if not label_file_name.endswith("json"):
                 continue
             label_file = os.path.join(input_path, label_file_name)
+            self._check_export_cancelled()
             data = self.read_json(label_file)
 
             seg_len += 1
@@ -2128,18 +2395,32 @@ class LabelConverter:
         config.add_section("Sequence")
         for key, value in mot_structure["sequence"].items():
             config["Sequence"][key] = str(value)
-        with open(osp.join(save_path, "seqinfo.ini"), "w") as f:
+        with atomic_open(
+            osp.join(save_path, "seqinfo.ini"),
+            fingerprints=self._export_inputs,
+        ) as f:
             config.write(f)
         # Save det.txt
-        with open(osp.join(save_path, "det.txt"), "w", encoding="utf-8") as f:
+        with atomic_open(
+            osp.join(save_path, "det.txt"), fingerprints=self._export_inputs
+        ) as f:
             for row in mot_structure["det"]:
                 f.write(",".join(map(str, row)) + "\n")
         # Save gt.txt
-        with open(osp.join(save_path, "gt.txt"), "w", encoding="utf-8") as f:
+        with atomic_open(
+            osp.join(save_path, "gt.txt"), fingerprints=self._export_inputs
+        ) as f:
             for row in mot_structure["gt"]:
                 f.write(",".join(map(str, row)) + "\n")
 
+    @report_export(None)
     def custom_to_mots(self, input_path, save_path):
+        self.prepare_export(
+            [str(p) for p in pathlib.Path(input_path).glob("*.json")],
+            "seg",
+            use_classes=True,
+        )
+        self._check_export_cancelled()
         mots_structure = {
             "sequence": dict(
                 name="MOTS",
@@ -2167,6 +2448,7 @@ class LabelConverter:
             if not label_file_name.endswith("json"):
                 continue
             label_file = os.path.join(input_path, label_file_name)
+            self._check_export_cancelled()
             data = self.read_json(label_file)
 
             seg_len += 1
@@ -2185,15 +2467,24 @@ class LabelConverter:
                 frame_id = int(match.group()) if match else 0
 
             for shape in data["shapes"]:
-                if shape["shape_type"] != "polygon":
+                if shape["shape_type"] not in (
+                    "polygon",
+                    "quadrilateral",
+                    "ellipse",
+                ):
                     continue
                 if shape["label"] not in self.classes:
                     continue
                 class_id = int(self.classes.index(shape["label"]))
                 track_id = int(shape["group_id"]) if shape["group_id"] else -1
-                points = self.clamp_points(
-                    shape["points"], im_widht, im_height
+                points = segmentation_points(
+                    shape, im_widht, im_height, self.ellipse_polygon_points
                 )
+                points = [list(point) for point in points]
+                if len(points) < 3:
+                    raise ValueError(
+                        f"{label_file}: {shape['label']}: empty polygon"
+                    )
                 gt = [
                     frame_id,
                     track_id,
@@ -2213,17 +2504,26 @@ class LabelConverter:
         config.add_section("Sequence")
         for key, value in mots_structure["sequence"].items():
             config["Sequence"][key] = str(value)
-        with open(osp.join(save_path, "seqinfo.ini"), "w") as f:
+        with atomic_open(
+            osp.join(save_path, "seqinfo.ini"),
+            fingerprints=self._export_inputs,
+        ) as f:
             config.write(f)
         # Save gt.txt
-        with open(
-            osp.join(save_path, "custom_gt.txt"), "w", encoding="utf-8"
+        with atomic_open(
+            osp.join(save_path, "custom_gt.txt"),
+            fingerprints=self._export_inputs,
         ) as f:
             for row in mots_structure["gt"]:
                 f.write(" ".join(map(str, row)) + "\n")
 
+    @report_export(None)
     def custom_to_odvg(self, image_list, label_path, save_path):
         # Save label_map.json
+        self.prepare_export(
+            [str(p) for p in pathlib.Path(label_path).glob("*.json")],
+            "ODVG detection",
+        )
         label_map = {}
         for i, c in enumerate(self.classes):
             label_map[i] = c
@@ -2270,9 +2570,14 @@ class LabelConverter:
         with jsonlines.open(od_file, mode="w") as writer:
             writer.write_all(od_data)
 
+    @report_export(None)
     def custom_to_vlm_r1_ovd(
         self, image_list, label_path, save_path, prefix=""
     ):
+        self.prepare_export(
+            [str(p) for p in pathlib.Path(label_path).glob("*.json")],
+            "VLM detection",
+        )
         with jsonlines.open(save_path, mode="w") as writer:
             for i, image_file in enumerate(image_list):
                 image_name = osp.basename(image_file)
@@ -2348,7 +2653,9 @@ class LabelConverter:
 
                 writer.write(item)
 
+    @report_export("label_file")
     def custom_to_ppocr(self, image_file, label_file, save_path, mode):
+        self.prepare_export([label_file], f"PPOCR {mode}")
         if not osp.exists(label_file):
             return
         image_name = osp.basename(image_file)

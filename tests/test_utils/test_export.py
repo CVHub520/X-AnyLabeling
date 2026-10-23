@@ -36,6 +36,9 @@ def test_export_mask_files_only_accepts_checked_true(
     image_file.touch()
     label_file.touch()
     converter = mock.Mock()
+    converter.export_results = {}
+    converter._export_inputs = {}
+    converter._input_fingerprints.return_value = {}
     converter.read_json.return_value = {"checked": checked}
     progress_dialog = mock.Mock()
 
@@ -67,6 +70,9 @@ def test_export_mask_files_handles_images_without_labels(
     image_file = tmp_path / "image.png"
     image_file.touch()
     converter = mock.Mock()
+    converter.export_results = {}
+    converter._export_inputs = {}
+    converter._input_fingerprints.return_value = {}
     progress_dialog = mock.Mock()
 
     _export_mask_files(
@@ -88,6 +94,9 @@ def test_export_mask_files_stops_after_cancellation(tmp_path):
     for image_file in image_files:
         image_file.touch()
     converter = mock.Mock()
+    converter.export_results = {}
+    converter._export_inputs = {}
+    converter._input_fingerprints.return_value = {}
     progress_dialog = mock.Mock()
     progress_dialog.wasCanceled.return_value = True
 
@@ -121,6 +130,9 @@ def test_yolo_export_does_not_blame_last_image_for_popup_error(tmp_path):
     widget.output_dir = str(image_dir)
     widget.may_continue = mock.Mock(return_value=True)
     converter = mock.Mock()
+    converter.export_results = {}
+    converter._export_inputs = {}
+    converter._input_fingerprints.return_value = {}
     converter.custom_to_yolo.return_value = False
     popup = mock.Mock()
     popup.show_popup.side_effect = RuntimeError("Popup failed")
@@ -172,6 +184,9 @@ def test_yolo_export_reports_failed_image(tmp_path):
     widget.output_dir = str(image_dir)
     widget.may_continue = mock.Mock(return_value=True)
     converter = mock.Mock()
+    converter.export_results = {}
+    converter._export_inputs = {}
+    converter._input_fingerprints.return_value = {}
     converter.custom_to_yolo.side_effect = PoseGroupError(
         "group_id is None for pose annotation"
     )
@@ -223,12 +238,19 @@ def test_yolo_export_preserves_nested_directories(tmp_path, mode):
     widget.output_dir = None
     widget.may_continue = mock.Mock(return_value=True)
     converter = mock.Mock()
+    converter.export_results = {}
+    converter._export_inputs = {}
+    converter._input_fingerprints.return_value = {}
     converter.custom_to_yolo.return_value = False
     converter.read_json.return_value = {
         "imageWidth": 100,
         "imageHeight": 100,
         "shapes": [],
     }
+    progress_state = {"closed": False}
+    progress = mock.Mock()
+    progress.wasCanceled.side_effect = lambda: progress_state["closed"]
+    progress.close.side_effect = lambda: progress_state.update(closed=True)
 
     with (
         mock.patch.object(
@@ -244,7 +266,8 @@ def test_yolo_export_preserves_nested_directories(tmp_path, mode):
             "anylabeling.views.labeling.utils.export.LabelConverter",
             return_value=converter,
         ),
-        mock.patch("anylabeling.views.labeling.utils.export.Popup"),
+        mock.patch("anylabeling.views.labeling.utils.export.QProgressDialog", return_value=progress),
+        mock.patch("anylabeling.views.labeling.utils.export.Popup") as popup,
     ):
         export_yolo_annotation(widget, mode)
 
@@ -266,6 +289,7 @@ def test_yolo_export_preserves_nested_directories(tmp_path, mode):
         ),
     ]
     assert converter.custom_to_yolo.call_args_list == expected_calls
+    assert "Export canceled" not in popup.call_args.args[0]
     assert (save_path / "first").is_dir()
     assert (save_path / "second").is_dir()
     assert (save_path / "first" / "image.png").is_file()
@@ -292,6 +316,9 @@ def test_yolo_export_rejects_conflicting_label_paths(tmp_path):
     widget.output_dir = None
     widget.may_continue = mock.Mock(return_value=True)
     converter = mock.Mock()
+    converter.export_results = {}
+    converter._export_inputs = {}
+    converter._input_fingerprints.return_value = {}
 
     with (
         mock.patch.object(

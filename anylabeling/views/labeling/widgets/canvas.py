@@ -11,6 +11,13 @@ from PyQt6.QtGui import QWheelEvent
 
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
 from anylabeling.views.labeling.utils.colormap import label_colormap
+from anylabeling.views.labeling.utils.ellipse import (
+    ellipse_frame,
+    ellipse_frame_points,
+    ellipse_handle_positions,
+    resize_ellipse,
+    validate_polygon_points,
+)
 from anylabeling.views.labeling.utils.theme import get_theme
 
 from .. import utils
@@ -66,6 +73,7 @@ class Canvas(
     selection_changed = QtCore.pyqtSignal(list)
     shape_moved = QtCore.pyqtSignal()
     shape_rotated = QtCore.pyqtSignal()
+    ellipse_geometry_changed = QtCore.pyqtSignal()
     shapes_deleted = QtCore.pyqtSignal(list)
     drawing_polygon = QtCore.pyqtSignal(bool)
     vertex_selected = QtCore.pyqtSignal(bool)
@@ -117,6 +125,7 @@ class Canvas(
         self.brush_config = kwargs.pop("brush", {})
         self.magic_wand_config = kwargs.pop("magic_wand", {})
         self.cuboid_config = kwargs.pop("cuboid", {})
+        self.ellipse_config = kwargs.pop("ellipse", {})
         self.parent = kwargs.pop("parent")
         super().__init__(*args, **kwargs)
         self.setAutoFillBackground(True)
@@ -172,12 +181,22 @@ class Canvas(
         self.rotating_shape = False
         self._rotation_drag_shape = None
         self._rotation_drag_prev_angle = None
+        self._ellipse_edit_target = None
+        self.h_ellipse_handle = None
+        self._ellipse_resize = None
+        self._ellipse_rotation_original = None
+        self._ellipse_drag_moved = False
         self.snapping = True
         self.h_shape_is_selected = False
         self.h_shape_is_hovered = None
         self._selected_group_id = None
         self._hovered_group_id = None
-        self.allowed_oop_shape_types = ["rotation", "quadrilateral", "cuboid"]
+        self.allowed_oop_shape_types = [
+            "rotation",
+            "ellipse",
+            "quadrilateral",
+            "cuboid",
+        ]
         default_cuboid_depth_vector = self.cuboid_config.get(
             "default_depth_vector", [24.0, -24.0]
         )
@@ -232,6 +251,9 @@ class Canvas(
         )
         self.small_rotation_increment = math.radians(
             self.rotation_config.get("small_increment", 0.1)
+        )
+        self.ellipse_polygon_points = validate_polygon_points(
+            self.ellipse_config.get("polygon_points", 128)
         )
 
         # Set mask opacity options.
@@ -382,10 +404,15 @@ class Canvas(
         changed = self._create_mode != value
         self._create_mode = value
         if changed:
+            self._cancel_ellipse_edit()
+            self._ellipse_drag_moved = False
+            if self.line.shape_type == "ellipse":
+                self.line.points = []
             self.cancel_drawing()
 
     def cancel_drawing(self):
         """Discard the unfinished shape and its drawing preview."""
+        self._ellipse_drag_moved = False
         if self.current is None:
             return
         self.current = None
@@ -530,6 +557,7 @@ class Canvas(
         shapes_backup = self.shapes_backups.pop()
         self.shapes = shapes_backup
         self.selected_shapes = []
+        self._ellipse_edit_target = None
         self._selected_group_id = None
         self._hovered_group_id = None
         for shape in self.shapes:
@@ -551,6 +579,7 @@ class Canvas(
 
     def focusOutEvent(self, _):
         """Window out of focus event"""
+        self._cancel_ellipse_edit()
         self._clear_space_pan_state()
         self.restore_cursor()
 
@@ -1542,6 +1571,7 @@ class Canvas(
 
     def set_editing(self, value=True):
         """Set editing mode. Editing is set to False, user is drawing"""
+        self._cancel_ellipse_edit()
         self.mode = self.EDIT if value else self.CREATE
         if value:
             self.cancel_drawing()
@@ -1555,6 +1585,7 @@ class Canvas(
         """Unhighlight shape/vertex/edge"""
         if self.h_shape:
             self.h_shape.highlight_clear()
+            self.h_shape._ellipse_highlight_handle = None
             self.update()
         self.prev_h_shape = self.h_shape
         self.prev_h_vertex = self.h_vertex
@@ -1562,6 +1593,7 @@ class Canvas(
         self.prev_h_cuboid_face = self.h_cuboid_face
         self.prev_h_rotation_shape = self.h_rotation_shape
         self.h_shape = self.h_vertex = self.h_edge = self.h_cuboid_face = None
+        self.h_ellipse_handle = None
         self.h_rotation_shape = None
 
     def selected_vertex(self):
@@ -1727,7 +1759,7 @@ class Canvas(
     def _rotation_handle_geometry(self, shape):
         if (
             shape is None
-            or shape.shape_type != "rotation"
+            or shape.shape_type not in ("rotation", "ellipse")
             or len(shape.points) != 4
         ):
             return None
@@ -1766,7 +1798,7 @@ class Canvas(
                 and not shape.locked
                 and shape.visible
                 and self.is_visible(shape)
-                and shape.shape_type == "rotation"
+                and shape.shape_type in ("rotation", "ellipse")
                 and len(shape.points) == 4
             ],
             key=lambda shape: self.shapes.index(shape),
@@ -1785,6 +1817,204 @@ class Canvas(
             if utils.distance_to_line(pos, [edge_mid, handle]) <= hit_radius:
                 return shape
         return None
+
+    def _pinned_ellipse(self) -> Shape | None:
+        """Resolve the selected ellipse from live canvas objects.
+
+        Returns:
+            The current visible ellipse, or None after selection replacement.
+        """
+        shape = (
+            self.selected_shapes[0] if len(self.selected_shapes) == 1 else None
+        )
+        if (
+            shape is not None
+            and shape in self.shapes
+            and self.selected_shapes == [shape]
+            and shape.shape_type == "ellipse"
+            and len(shape.points) == 4
+            and shape.visible
+            and self.is_visible(shape)
+        ):
+            return shape
+        return None
+
+    def _editable_ellipse(self) -> Shape | None:
+        """Return the live selected ellipse when it is unlocked."""
+        shape = self._pinned_ellipse()
+        return shape if shape is not None and not shape.locked else None
+
+    def _ellipse_handle_at(
+        self, pos: QtCore.QPointF
+    ) -> tuple[Shape, int] | None:
+        """Hit-test visible resize handles.
+
+        Args:
+            pos: Mouse position in image coordinates.
+
+        Returns:
+            The target and handle index, or None.
+        """
+        shape = self._editable_ellipse()
+        if shape is None:
+            return None
+        radius = 12.0 / max(self.scale, 1e-6)
+        handles = ellipse_handle_positions(
+            [(p.x(), p.y()) for p in shape.points]
+        )
+        for index, (x, y) in enumerate(handles):
+            if utils.distance(pos - QtCore.QPointF(x, y)) <= radius:
+                return shape, index
+        return None
+
+    def _ellipse_resize_cursor(
+        self, shape: Shape, index: int
+    ) -> QtCore.Qt.CursorShape:
+        """Choose the nearest screen resize cursor for a local handle.
+
+        Args:
+            shape: The target ellipse.
+            index: Corner or edge midpoint index.
+
+        Returns:
+            A horizontal, vertical or diagonal resize cursor.
+        """
+        points = [(p.x(), p.y()) for p in shape.points]
+        cx, cy, _, _, _ = ellipse_frame(points)
+        x, y = ellipse_handle_positions(points)[index]
+        direction = round(math.atan2(y - cy, x - cx) / (math.pi / 4)) % 4
+        return (
+            QtCore.Qt.CursorShape.SizeHorCursor,
+            QtCore.Qt.CursorShape.SizeFDiagCursor,
+            QtCore.Qt.CursorShape.SizeVerCursor,
+            QtCore.Qt.CursorShape.SizeBDiagCursor,
+        )[direction]
+
+    def _cancel_ellipse_edit(self) -> None:
+        """Restore an unfinished ellipse drag without adding undo history."""
+        if self._ellipse_resize is not None:
+            shape, _, original = self._ellipse_resize
+            if shape in self.shapes:
+                shape.points = [QtCore.QPointF(*p) for p in original]
+                shape._ellipse_highlight_handle = None
+            self._ellipse_resize = None
+            self.moving_shape = False
+        if self._ellipse_rotation_original is not None:
+            shape, original, direction, _ = self._ellipse_rotation_original
+            if shape in self.shapes:
+                shape.points = [QtCore.QPointF(*p) for p in original]
+                shape.direction = direction
+            self._ellipse_rotation_original = None
+            self._rotation_drag_shape = None
+            self._rotation_drag_prev_angle = None
+            self.rotating_shape = False
+        self.h_ellipse_handle = None
+        self.ellipse_geometry_changed.emit()
+
+    def _start_ellipse_resize(
+        self, shape: Shape, index: int, pos: QtCore.QPointF
+    ) -> None:
+        """Begin one undoable resize.
+
+        Args:
+            shape: Live ellipse being edited.
+            index: Index of the dragged handle.
+            pos: Initial image-space mouse position.
+        """
+        self._ellipse_edit_target = shape
+        if self.selected_shapes != [shape]:
+            self.selection_changed.emit([shape])
+        self.h_shape = shape
+        self.h_vertex = None
+        self.h_edge = None
+        self.h_ellipse_handle = index
+        self._ellipse_resize = (
+            shape,
+            index,
+            [(point.x(), point.y()) for point in shape.points],
+        )
+        self.is_move_editing = False
+        self.moving_shape = False
+        self.prev_point = pos
+        self.override_cursor(self._ellipse_resize_cursor(shape, index))
+        self.update()
+
+    def _update_ellipse_resize(
+        self, pos: QtCore.QPointF, modifiers: QtCore.Qt.KeyboardModifier
+    ) -> None:
+        """Preview a resize from its initial snapshot.
+
+        Args:
+            pos: Current image-space mouse position.
+            modifiers: Current keyboard modifiers.
+        """
+        shape, index, original = self._ellipse_resize
+        if (
+            shape not in self.shapes
+            or shape.locked
+            or not shape.visible
+            or not self.is_visible(shape)
+        ):
+            self._cancel_ellipse_edit()
+            return
+        points = resize_ellipse(
+            original,
+            index,
+            (pos.x(), pos.y()),
+            bool(modifiers & QtCore.Qt.KeyboardModifier.ShiftModifier),
+        )
+        shape.points = [QtCore.QPointF(x, y) for x, y in points]
+        shape.close()
+        self.moving_shape = True
+        self.ellipse_geometry_changed.emit()
+        self.update()
+
+    def _finish_ellipse_resize(self) -> None:
+        """Commit a completed resize as one undo operation."""
+        shape, _, original = self._ellipse_resize
+        self._ellipse_resize = None
+        self.h_ellipse_handle = None
+        shape._ellipse_highlight_handle = None
+        self.moving_shape = False
+        if [(p.x(), p.y()) for p in shape.points] != original:
+            self.store_shapes()
+            self.shape_moved.emit()
+        self.update()
+
+    def apply_ellipse_parameters(
+        self, width: float, height: float, angle_degrees: float
+    ) -> bool:
+        """Commit numeric geometry as one undo operation.
+
+        Args:
+            width: Full width-axis length in pixels.
+            height: Full height-axis length in pixels.
+            angle_degrees: Clockwise width-axis angle in degrees.
+
+        Returns:
+            Whether a live unlocked ellipse changed.
+        """
+        shape = self._editable_ellipse()
+        if shape is None:
+            return False
+        cx, cy, _, _, _ = ellipse_frame(
+            [(point.x(), point.y()) for point in shape.points]
+        )
+        angle = math.radians(angle_degrees) % (2 * math.pi)
+        points = ellipse_frame_points(cx, cy, width, height, angle)
+        if all(
+            utils.distance(point - QtCore.QPointF(x, y)) < 1e-8
+            for point, (x, y) in zip(shape.points, points)
+        ):
+            return False
+        shape.points = [QtCore.QPointF(x, y) for x, y in points]
+        shape.direction = angle
+        shape.close()
+        self.store_shapes()
+        self.shape_moved.emit()
+        self.ellipse_geometry_changed.emit()
+        self.update()
+        return True
 
     def _set_rotation_handle_hover(self, shape):
         if self.h_shape is not None:
@@ -1819,6 +2049,9 @@ class Canvas(
     def _start_rotation_handle_drag(
         self, shape, pos, multiple_selection_mode, modifiers
     ):
+        self._ellipse_edit_target = (
+            shape if shape.shape_type == "ellipse" else None
+        )
         self.set_hiding()
         if shape not in self.selected_shapes:
             if multiple_selection_mode:
@@ -1836,7 +2069,15 @@ class Canvas(
         angle = self._rotation_mouse_angle(shape, pos)
         if angle is None:
             return
-        if modifiers & QtCore.Qt.KeyboardModifier.ShiftModifier:
+        if shape.shape_type == "ellipse":
+            original = [(p.x(), p.y()) for p in shape.points]
+            self._ellipse_rotation_original = (
+                shape,
+                original,
+                ellipse_frame(original)[4],
+                angle,
+            )
+        elif modifiers & QtCore.Qt.KeyboardModifier.ShiftModifier:
             angle = self._snap_rotation_angle(angle)
         self._rotation_drag_shape = shape
         self._rotation_drag_prev_angle = angle
@@ -1847,9 +2088,39 @@ class Canvas(
     def _update_rotation_handle_drag(self, pos, modifiers):
         shape = self._rotation_drag_shape
         if shape is None or shape.locked:
+            if shape is not None and shape.shape_type == "ellipse":
+                self._cancel_ellipse_edit()
             return
         angle = self._rotation_mouse_angle(shape, pos)
         if angle is None or self._rotation_drag_prev_angle is None:
+            return
+        if (
+            shape.shape_type == "ellipse"
+            and self._ellipse_rotation_original is not None
+        ):
+            if (
+                shape not in self.shapes
+                or not shape.visible
+                or not self.is_visible(shape)
+            ):
+                self._cancel_ellipse_edit()
+                return
+            _, original, axis_angle, start_angle = (
+                self._ellipse_rotation_original
+            )
+            target = axis_angle + math.remainder(angle - start_angle, math.tau)
+            if modifiers & QtCore.Qt.KeyboardModifier.ShiftModifier:
+                target = self._snap_rotation_angle(target)
+            cx, cy, width, height, _ = ellipse_frame(original)
+            shape.points = [
+                QtCore.QPointF(*p)
+                for p in ellipse_frame_points(cx, cy, width, height, target)
+            ]
+            shape.direction = target % math.tau
+            shape.close()
+            self.rotating_shape = True
+            self.ellipse_geometry_changed.emit()
+            self.update()
             return
         if modifiers & QtCore.Qt.KeyboardModifier.ShiftModifier:
             angle = self._snap_rotation_angle(angle)
@@ -1878,6 +2149,7 @@ class Canvas(
 
     def _finish_rotation_handle_drag(self):
         shape = self._rotation_drag_shape
+        self._ellipse_rotation_original = None
         self._rotation_drag_shape = None
         self._rotation_drag_prev_angle = None
         if self.rotating_shape:
@@ -1886,12 +2158,37 @@ class Canvas(
         self.override_cursor(CURSOR_POINT)
         self.update()
 
+    def _finish_ellipse(self, target: QtCore.QPointF) -> bool:
+        """Complete a creation gesture.
+
+        Args:
+            target: Opposite control-box corner.
+
+        Returns:
+            Whether a nondegenerate ellipse was created.
+        """
+        first = self.current.points[0]
+        left, right = sorted((first.x(), target.x()))
+        top, bottom = sorted((first.y(), target.y()))
+        if right - left < 1 or bottom - top < 1:
+            return False
+        self.current.points = [
+            QtCore.QPointF(left, top),
+            QtCore.QPointF(right, top),
+            QtCore.QPointF(right, bottom),
+            QtCore.QPointF(left, bottom),
+        ]
+        self._ellipse_drag_moved = False
+        self.finalise()
+        return True
+
     def _sync_drawing_line(self, pos, modifiers):
         if not self.drawing() or not self.current:
             return
         if self.out_off_pixmap(pos) and self.create_mode not in [
             "rectangle",
             "rotation",
+            "ellipse",
             "quadrilateral",
             "cuboid",
         ]:
@@ -1926,7 +2223,7 @@ class Canvas(
         elif self.create_mode == "rectangle":
             self.line.points = [self.current[0], pos]
             self.line.close()
-        elif self.create_mode == "rotation":
+        elif self.create_mode in ("rotation", "ellipse"):
             self.line[1] = pos
         elif self.create_mode == "circle":
             self.line.points = [self.current[0], pos]
@@ -1994,6 +2291,12 @@ class Canvas(
             ev.accept()
             return
 
+        if self._ellipse_resize is not None:
+            if self._left_button_pressed(ev):
+                self._update_ellipse_resize(pos, ev.modifiers())
+            ev.accept()
+            return
+
         if self.is_brush_mode and self.editing():
             self._brush_mouse_move(ev, pos)
             return
@@ -2056,6 +2359,7 @@ class Canvas(
             if self.out_off_pixmap(pos) and self.create_mode not in [
                 "rectangle",
                 "rotation",
+                "ellipse",
                 "quadrilateral",
                 "cuboid",
             ]:
@@ -2101,7 +2405,7 @@ class Canvas(
             elif self.create_mode == "rectangle":
                 self.line.points = [self.current[0], pos]
                 self.line.close()
-            elif self.create_mode == "rotation":
+            elif self.create_mode in ("rotation", "ellipse"):
                 self.line[1] = pos
                 self.line.line_color = color
             elif self.create_mode == "circle":
@@ -2125,6 +2429,15 @@ class Canvas(
                 if point_dist * self.scale >= self.brush_point_distance:
                     self.current.add_point(pos)
                     self.line[0] = self.current[-1]
+            if (
+                self.create_mode == "ellipse"
+                and self.current is not None
+                and len(self.current.points) == 1
+                and self._left_button_pressed(ev)
+                and utils.distance(pos - self.current.points[0]) * self.scale
+                >= 3
+            ):
+                self._ellipse_drag_moved = True
             self.repaint()
             self.current.highlight_clear()
             return
@@ -2293,6 +2606,29 @@ class Canvas(
         self.show_shape.emit(-1, -1, pos)
 
         self._hovered_group_id = None
+
+        ellipse_handle = self._ellipse_handle_at(pos)
+        if ellipse_handle is not None:
+            shape, index = ellipse_handle
+            if self.h_shape is not None and self.h_shape is not shape:
+                self.h_shape._ellipse_highlight_handle = None
+            self.h_shape = shape
+            self.h_vertex = None
+            self.h_edge = None
+            self.h_ellipse_handle = index
+            shape._ellipse_highlight_handle = index
+            self.override_cursor(self._ellipse_resize_cursor(shape, index))
+            self.setToolTip(
+                self.tr("Click & drag to resize ellipse '%s'") % shape.label
+            )
+            self.setStatusTip(self.toolTip())
+            self.vertex_selected.emit(True)
+            self.update()
+            return
+        if self.h_ellipse_handle is not None:
+            if self.h_shape is not None:
+                self.h_shape._ellipse_highlight_handle = None
+            self.h_ellipse_handle = None
 
         rotation_handle_shape = self._rotation_handle_shape_at(pos)
         if rotation_handle_shape is not None:
@@ -2489,9 +2825,12 @@ class Canvas(
                         ev.modifiers()
                         == QtCore.Qt.KeyboardModifier.ControlModifier
                     )
-                    self.select_shape_point(
-                        pos, multiple_selection_mode=group_mode
-                    )
+                    if self._pinned_ellipse() is None:
+                        self.select_shape_point(
+                            pos,
+                            multiple_selection_mode=group_mode,
+                            explicit=False,
+                        )
                 self.update()
 
                 if shape.shape_type == "rectangle":
@@ -2517,7 +2856,11 @@ class Canvas(
             self.override_cursor(CURSOR_DEFAULT)
             self.setToolTip("")
             self.setStatusTip("")
-            if self.h_shape_is_hovered and self.selected_shapes:
+            if (
+                self.h_shape_is_hovered
+                and self.selected_shapes
+                and self._pinned_ellipse() is None
+            ):
                 self.deselect_shape()
         self.vertex_selected.emit(self.h_vertex is not None)
 
@@ -2670,6 +3013,8 @@ class Canvas(
                                 self.current, front_points, depth_vector
                             )
                             self.finalise()
+                    elif self.create_mode == "ellipse":
+                        self._finish_ellipse(pos)
                     elif self.create_mode == "rotation":
                         initPos = self.current[0]
                         minX = initPos.x()
@@ -2704,6 +3049,7 @@ class Canvas(
                         in [
                             "rectangle",
                             "rotation",
+                            "ellipse",
                             "quadrilateral",
                             "cuboid",
                             "circle",
@@ -2729,6 +3075,8 @@ class Canvas(
                     # Create new shape.
                     self.current = Shape(shape_type=self.create_mode)
                     self.current.add_point(pos)
+                    if self.create_mode == "ellipse":
+                        self._ellipse_drag_moved = False
                     if self.create_mode == "point":
                         self.finalise()
                     else:
@@ -2758,12 +3106,15 @@ class Canvas(
                 elif self.out_off_pixmap(pos) and self.create_mode in [
                     "rectangle",
                     "rotation",
+                    "ellipse",
                     "quadrilateral",
                     "cuboid",
                 ]:
                     # Create new shape.
                     self.current = Shape(shape_type=self.create_mode)
                     self.current.add_point(pos)
+                    if self.create_mode == "ellipse":
+                        self._ellipse_drag_moved = False
                     self.line.points = [pos, pos]
                     self.set_hiding()
                     self.drawing_polygon.emit(True)
@@ -2780,6 +3131,13 @@ class Canvas(
                     self.prev_point = pos
                     self.prev_pan_point = ev.position()
                     self.repaint()
+                    ev.accept()
+                    return
+                ellipse_handle = self._ellipse_handle_at(pos)
+                if ellipse_handle is not None:
+                    self._start_ellipse_resize(
+                        ellipse_handle[0], ellipse_handle[1], pos
+                    )
                     ev.accept()
                     return
                 rotation_handle_shape = self._rotation_handle_shape_at(pos)
@@ -2809,6 +3167,7 @@ class Canvas(
                     not in [
                         "rectangle",
                         "rotation",
+                        "ellipse",
                         "quadrilateral",
                         "line",
                         "cuboid",
@@ -2896,6 +3255,24 @@ class Canvas(
                 self.selected_shapes_copy = []
                 self.repaint()
         elif ev.button() == QtCore.Qt.MouseButton.LeftButton:
+            if self._ellipse_resize is not None:
+                self._finish_ellipse_resize()
+                ev.accept()
+                return
+            if (
+                self.drawing()
+                and self.create_mode == "ellipse"
+                and self.current is not None
+                and self._ellipse_drag_moved
+            ):
+                finished = self._finish_ellipse(
+                    self.transform_pos(ev.position())
+                )
+                if finished and not self.is_auto_labeling:
+                    self.prev_pan_point = ev.position()
+                    self.mode_changed.emit()
+                ev.accept()
+                return
             if self._rotation_drag_shape is not None:
                 self._finish_rotation_handle_drag()
                 ev.accept()
@@ -2998,13 +3375,30 @@ class Canvas(
     def select_shapes(self, shapes):
         """Select some shapes"""
         self._selected_group_id = None
+        self._ellipse_edit_target = (
+            shapes[0]
+            if len(shapes) == 1 and shapes[0].shape_type == "ellipse"
+            else None
+        )
         self.set_hiding()
         self.selection_changed.emit(shapes)
         self.update()
 
-    def select_shape_point(self, point, multiple_selection_mode):  # noqa: C901
+    def select_shape_point(
+        self, point, multiple_selection_mode, explicit=True
+    ):  # noqa: C901
         """Select the first shape created which contains this point."""
         self._selected_group_id = None
+        if explicit:
+            candidates = self._shape_hit_candidates(point)
+            target = (
+                self.h_shape
+                if self.selected_vertex()
+                else candidates[0] if candidates else None
+            )
+            self._ellipse_edit_target = (
+                target if target and target.shape_type == "ellipse" else None
+            )
         if self.selected_vertex():  # A vertex is marked for selection.
             index, shape = self.h_vertex, self.h_shape
             if shape.shape_type == "cuboid":
@@ -3022,7 +3416,7 @@ class Canvas(
                 self.calculate_offsets(point)
                 return
             shape.highlight_vertex(index, shape.MOVE_VERTEX)
-            if shape.shape_type == "rotation":
+            if shape.shape_type in ("rotation", "ellipse"):
                 self.set_hiding()
                 if shape not in self.selected_shapes:
                     if multiple_selection_mode:
@@ -3676,12 +4070,28 @@ class Canvas(
         ):
             pos = self.intersection_point(point, pos)
 
-        if shape.shape_type == "rotation":
+        if shape.shape_type in ("rotation", "ellipse"):
             sindex = (index + 2) % 4
             # Get the other 3 points after transformed
             p2, p3, p4 = self.get_adjoint_points(
                 shape.direction, shape[sindex], pos, index
             )
+            if shape.shape_type == "ellipse":
+                candidate = list(shape.points)
+                candidate[index] = pos
+                candidate[(index + 1) % 4] = p2
+                candidate[(index + 3) % 4] = p4
+                old_u = shape[1] - shape[0]
+                old_v = shape[3] - shape[0]
+                new_u = candidate[1] - candidate[0]
+                new_v = candidate[3] - candidate[0]
+                if (
+                    utils.distance(new_u) < 1
+                    or utils.distance(new_v) < 1
+                    or old_u.x() * new_u.x() + old_u.y() * new_u.y() <= 0
+                    or old_v.x() * new_v.x() + old_v.y() * new_v.y() <= 0
+                ):
+                    return
             # if (
             #     self.out_off_pixmap(p2)
             #     or self.out_off_pixmap(p3)
@@ -3793,6 +4203,8 @@ class Canvas(
     def deselect_shape(self):
         """Deselect all shapes"""
         self._selected_group_id = None
+        self._ellipse_edit_target = None
+        self.h_ellipse_handle = None
         if self.selected_shapes:
             self.set_hiding(False)
             self.selection_changed.emit([])
@@ -3802,6 +4214,7 @@ class Canvas(
 
     def delete_selected(self):
         """Remove selected shapes"""
+        self._cancel_ellipse_edit()
         deleted_shapes = []
         if self.selected_shapes:
             for shape in self.selected_shapes:
@@ -3813,6 +4226,8 @@ class Canvas(
             self.selected_shapes = [
                 shape for shape in self.selected_shapes if shape.locked
             ]
+            if self._ellipse_edit_target in deleted_shapes:
+                self._ellipse_edit_target = None
             self.update()
         return deleted_shapes
 
@@ -4047,6 +4462,7 @@ class Canvas(
                     "rectangle",
                     "polygon",
                     "rotation",
+                    "ellipse",
                     "quadrilateral",
                     "cuboid",
                 ]:
@@ -4100,6 +4516,7 @@ class Canvas(
                     "polygon",
                     "rectangle",
                     "rotation",
+                    "ellipse",
                     "quadrilateral",
                     "circle",
                 ]:
@@ -4109,6 +4526,8 @@ class Canvas(
                 if shape.shape_type == "rectangle" and len(shape.points) < 2:
                     continue
                 if shape.shape_type == "rotation" and len(shape.points) < 2:
+                    continue
+                if shape.shape_type == "ellipse" and len(shape.points) != 4:
                     continue
                 if (
                     shape.shape_type == "quadrilateral"
@@ -4148,6 +4567,8 @@ class Canvas(
                         for point in shape.points[1:]:
                             mask_path.lineTo(point)
                         mask_path.closeSubpath()
+                elif shape.shape_type == "ellipse":
+                    mask_path = shape.make_path()
                 elif shape.shape_type == "quadrilateral":
                     if len(shape.points) == 4:
                         mask_path.moveTo(shape.points[0])
@@ -4204,10 +4625,11 @@ class Canvas(
                 )
                 # Brush-edited shapes are drawn from their mask instead.
                 if not getattr(shape, "_brush_using_mask", False):
+                    shape.ellipse_polygon_points = self.ellipse_polygon_points
                     shape.paint(p)
 
             if (
-                shape.shape_type == "rotation"
+                shape.shape_type in ("rotation", "ellipse")
                 and len(shape.points) == 4
                 and self.is_visible(shape)
             ):
@@ -4273,6 +4695,7 @@ class Canvas(
         self._paint_magic_wand_overlay(p)
 
         if self.current:
+            self.current.ellipse_polygon_points = self.ellipse_polygon_points
             self.current.paint(p)
             self.line.paint(p)
 
@@ -4428,6 +4851,7 @@ class Canvas(
                     "rectangle",
                     "polygon",
                     "rotation",
+                    "ellipse",
                     "quadrilateral",
                     "cuboid",
                 ]:
@@ -4577,6 +5001,7 @@ class Canvas(
                     "rectangle",
                     "polygon",
                     "rotation",
+                    "ellipse",
                     "quadrilateral",
                     "cuboid",
                 ]:
@@ -4854,11 +5279,17 @@ class Canvas(
         elif self.current.shape_type == "cuboid":
             self.current.sync_cuboid_depth_vector()
 
+        completed_shape = self.current
         self.shapes.append(self.current)
         self.store_shapes()
         self.current = None
         self.set_hiding(False)
         self.new_shape.emit()
+        if (
+            completed_shape.shape_type == "ellipse"
+            and completed_shape in self.shapes
+        ):
+            self.select_shapes([completed_shape])
         self.update()
         if self.is_auto_labeling:
             self.update_auto_labeling_marks()
@@ -5217,7 +5648,7 @@ class Canvas(
         if self.selected_shapes:
             rotating_shape = False
             for i, shape in enumerate(self.selected_shapes):
-                if shape._shape_type == "rotation":
+                if shape.shape_type in ("rotation", "ellipse"):
                     self.bounded_rotate_shapes(i, shape, theta)
                     rotating_shape = True
             if rotating_shape:
@@ -5229,6 +5660,27 @@ class Canvas(
         """Key press event"""
         modifiers = ev.modifiers()
         key = ev.key()
+        if key == QtCore.Qt.Key.Key_Escape and (
+            self._ellipse_resize is not None
+            or self._ellipse_rotation_original is not None
+        ):
+            self._cancel_ellipse_edit()
+            self.update()
+            return
+        if (
+            key == QtCore.Qt.Key.Key_Escape
+            and self._ellipse_resize is not None
+        ):
+            shape, _, original = self._ellipse_resize
+            shape.points = [QtCore.QPointF(x, y) for x, y in original]
+            shape.close()
+            self._ellipse_resize = None
+            self.moving_shape = False
+            self.h_ellipse_handle = None
+            self.ellipse_geometry_changed.emit()
+            self.update()
+            ev.accept()
+            return
         if key == QtCore.Qt.Key.Key_Space and not ev.isAutoRepeat():
             self._space_pressed = True
             self._clear_space_pan_hover_state()
@@ -5375,6 +5827,7 @@ class Canvas(
             "line",
             "circle",
             "rotation",
+            "ellipse",
             "cuboid",
         ]:
             self.current.points = self.current.points[0:1]
@@ -5407,10 +5860,12 @@ class Canvas(
 
     def load_shapes(self, shapes, replace=True):
         """Load shapes"""
+        self._cancel_ellipse_edit()
         self.cancel_brush_mode()
         self._clear_magic_wand_preview()
         if replace:
             self.shapes = list(shapes)
+            self._ellipse_edit_target = None
         else:
             self.shapes.extend(shapes)
         self.store_shapes()
@@ -5426,7 +5881,14 @@ class Canvas(
 
     def set_shape_visible(self, shape, value):
         """Set visibility for a shape"""
+        if not value and (
+            self._ellipse_resize is not None
+            or self._ellipse_rotation_original is not None
+        ):
+            self._cancel_ellipse_edit()
         self.visible[shape] = value
+        if not value and shape is self._ellipse_edit_target:
+            self.deselect_shape()
         self.update()
 
     def current_cursor(self):
@@ -5455,6 +5917,10 @@ class Canvas(
 
     def reset_state(self):
         """Clear shapes and pixmap"""
+        self._cancel_ellipse_edit()
+        self._ellipse_edit_target = None
+        self._ellipse_resize = None
+        self.h_ellipse_handle = None
         self._clear_space_pan_state()
         self.restore_cursor()
         self.pixmap = None

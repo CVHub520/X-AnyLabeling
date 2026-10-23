@@ -753,7 +753,11 @@ Review the prompt before generating.</translation>
       <source>Click &amp; drag to move %s</source>
       <translation type="unfinished" />
     </message>
-  </context>
+      <message>
+        <source>Click &amp; drag to resize ellipse '%s'</source>
+        <translation>Click &amp; drag to resize ellipse '%s'</translation>
+    </message>
+</context>
   <context>
     <name>CanvasAdjustmentWidget</name>
     <message>
@@ -4865,7 +4869,35 @@ Results have been saved to:
 Results have been saved to:
 %s</translation>
     </message>
-  </context>
+      <message>
+        <source>Create Rotatable Ellipse</source>
+        <translation>Create Rotatable Ellipse</translation>
+    </message>
+    <message>
+        <source>Draw an ellipse, then drag its handles to resize or rotate</source>
+        <translation>Draw an ellipse, then drag its handles to resize or rotate</translation>
+    </message>
+    <message>
+        <source>Rotatable Ellipse</source>
+        <translation>Rotatable Ellipse</translation>
+    </message>
+    <message>
+        <source>Convert the ellipse to a polygon before using this operation.</source>
+        <translation>Convert the ellipse to a polygon before using this operation.</translation>
+    </message>
+    <message>
+        <source>Merge exported files into this directory? Unrelated files will be retained.</source>
+        <translation>Merge exported files into this directory? Unrelated files will be retained.</translation>
+    </message>
+    <message>
+        <source>Export preflight failed</source>
+        <translation>Export preflight failed</translation>
+    </message>
+    <message>
+        <source>Export canceled; completed outputs were retained.</source>
+        <translation>Export canceled; completed outputs were retained.</translation>
+    </message>
+</context>
   <context>
     <name>Model</name>
     <message>
@@ -8539,7 +8571,19 @@ Changes will not be saved until you click Save.</translation>
       <source>Zoom To Original</source>
       <translation>Zoom To Original</translation>
     </message>
-  </context>
+      <message>
+        <source>Ellipse Polygon Points</source>
+        <translation>Ellipse Polygon Points</translation>
+    </message>
+    <message>
+        <source>Number of vertices sampled from an ellipse before clipping.</source>
+        <translation>Number of vertices sampled from an ellipse before clipping.</translation>
+    </message>
+    <message>
+        <source>Ellipse</source>
+        <translation>Ellipse</translation>
+    </message>
+</context>
   <context>
     <name>SettingsRuntimeApplier</name>
     <message>
@@ -8640,7 +8684,11 @@ Changes will not be saved until you click Save.</translation>
       <source>Conversion completed successfully!</source>
       <translation type="unfinished" />
     </message>
-  </context>
+      <message>
+        <source>ellipse</source>
+        <translation>ellipse</translation>
+    </message>
+</context>
   <context>
     <name>ShapeModifyDialog</name>
     <message>
@@ -10234,4 +10282,23 @@ Response preview:
       <translation>Failed opening image file: %s</translation>
     </message>
   </context>
+<context>
+    <name>EllipseParameterBar</name>
+    <message>
+        <source>Ellipse</source>
+        <translation>Ellipse</translation>
+    </message>
+    <message>
+        <source>Width (px)</source>
+        <translation>Width (px)</translation>
+    </message>
+    <message>
+        <source>Height (px)</source>
+        <translation>Height (px)</translation>
+    </message>
+    <message>
+        <source>Angle (°)</source>
+        <translation>Angle (°)</translation>
+    </message>
+</context>
 </TS>

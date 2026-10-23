@@ -136,6 +136,7 @@ def create_yolo_dataset(
     pose_cfg_file: str = None,
     skip_empty_files: bool = False,
     only_checked_files: bool = False,
+    ellipse_polygon_points: int = 128,
 ) -> str:
     """Create YOLO dataset from image list and annotations.
 
@@ -222,15 +223,38 @@ def create_yolo_dataset(
                     None,
                     "Pose configuration file is required for pose detection tasks",
                 )
-            converter = LabelConverter(pose_cfg_file=pose_cfg_file)
+            converter = LabelConverter(
+                pose_cfg_file=pose_cfg_file,
+                ellipse_polygon_points=ellipse_polygon_points,
+            )
         else:
-            converter = LabelConverter()
+            converter = LabelConverter(
+                ellipse_polygon_points=ellipse_polygon_points
+            )
         converter.classes = (
             [names[index] for index in sorted(names)]
             if isinstance(names, dict)
             else names
         )
         data_file_name = os.path.splitext(os.path.basename(data_file))[0]
+    if converter is not None:
+        selected_labels = []
+        for image_file in image_list:
+            candidate = os.path.join(
+                output_dir or os.path.dirname(image_file),
+                os.path.splitext(os.path.basename(image_file))[0] + ".json",
+            )
+            if os.path.isfile(candidate):
+                if only_checked_files:
+                    with open(candidate, encoding="utf-8") as stream:
+                        if json.load(stream).get("checked", False) is not True:
+                            continue
+                selected_labels.append(candidate)
+        converter.prepare_export(
+            selected_labels,
+            "seg" if task_type == "Segment" else f"{task_type} dataset",
+            use_classes=(task_type == "Segment"),
+        )
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     temp_dir = os.path.join(
         get_dataset_path(), task_type.lower(), f"{data_file_name}_{timestamp}"
