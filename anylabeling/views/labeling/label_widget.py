@@ -3478,11 +3478,14 @@ class LabelingWidget(LabelDialog):
             shape.shape_type == "ellipse"
             for shape in self.canvas.selected_shapes
         ):
-            self.canvas.setToolTip(
+            popup = Popup(
                 self.tr(
                     "Convert the ellipse to a polygon before using this operation."
-                )
+                ),
+                self,
+                icon=new_icon_path("warning", "svg"),
             )
+            popup.show_popup(self, position="center")
             return
         if any(shape.locked for shape in self.canvas.selected_shapes):
             return
@@ -5708,8 +5711,6 @@ class LabelingWidget(LabelDialog):
             shape.difficult = difficult
             shape.kie_linking = kie_linking
             self.add_label(shape)
-            if shape.shape_type == "ellipse":
-                self.canvas.select_shapes([shape])
             self.actions.edit_mode.setEnabled(True)
             self.actions.undo_last_point.setEnabled(False)
             self.actions.undo.setEnabled(True)

@@ -209,3 +209,17 @@ def test_widget_paste_selects_the_live_copy(
     assert canvas._editable_ellipse() is canvas.shapes[-1]
     assert canvas._editable_ellipse() is not original
     canvas.close()
+
+
+def test_numeric_edit_retains_undisplayed_precision(app: QtWidgets.QApplication) -> None:
+    """Changing one displayed field must not round the other native values."""
+    bar = EllipseParameterBar()
+    commits = []
+    bar.geometry_committed.connect(lambda *values: commits.append(values))
+    bar.show_geometry(200.123456, 80.654321, 25.123456)
+    bar.width_spin.setValue(220)
+    bar.width_spin.editingFinished.emit()
+    assert commits == [(220, 80.654321, 25.123456)]
+    bar.show_geometry(2_000_000, 80, 25)
+    assert bar.width_spin.value() == 2_000_000
+    bar.close()

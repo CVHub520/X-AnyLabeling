@@ -4,6 +4,8 @@ from PyQt6 import QtCore, QtWidgets
 
 
 class EllipseParameterBar(QtWidgets.QWidget):
+    """Edit full axis lengths and angle of the selected native ellipse."""
+
     geometry_committed = QtCore.pyqtSignal(float, float, float)
 
     def __init__(self, parent: QtWidgets.QWidget | None = None) -> None:
@@ -16,6 +18,7 @@ class EllipseParameterBar(QtWidgets.QWidget):
         self.setObjectName("ellipseParameterBar")
         self._updating = False
         self._displayed = None
+        self._geometry = None
         layout = QtWidgets.QHBoxLayout(self)
         layout.setContentsMargins(8, 3, 8, 3)
         layout.setSpacing(6)
@@ -92,7 +95,10 @@ class EllipseParameterBar(QtWidgets.QWidget):
                 (self.width_spin, self.height_spin, self.angle_spin),
                 (width, height, angle),
             ):
+                if spin is not self.angle_spin:
+                    spin.setMaximum(max(spin.maximum(), value))
                 spin.setValue(value)
+            self._geometry = (width, height, angle)
             self._displayed = self.values()
             self.setEnabled(editable)
             self.show()
@@ -101,12 +107,19 @@ class EllipseParameterBar(QtWidgets.QWidget):
 
     def _commit(self) -> None:
         """Emit one commit when a numeric editing session finishes."""
-        if self._updating or not self.isEnabled():
+        if self._updating or not self.isEnabled() or self._geometry is None:
             return
         values = self.values()
         if values != self._displayed:
+            geometry = tuple(
+                original if shown == updated else updated
+                for original, shown, updated in zip(
+                    self._geometry, self._displayed, values
+                )
+            )
             self._displayed = values
-            self.geometry_committed.emit(*values)
+            self._geometry = geometry
+            self.geometry_committed.emit(*geometry)
 
     def eventFilter(
         self, watched: QtCore.QObject, event: QtCore.QEvent
@@ -126,6 +139,6 @@ class EllipseParameterBar(QtWidgets.QWidget):
             and event.key() == QtCore.Qt.Key.Key_Escape
         ):
             if self._displayed is not None:
-                self.show_geometry(*self._displayed, editable=self.isEnabled())
+                self.show_geometry(*self._geometry, editable=self.isEnabled())
             return True
         return super().eventFilter(watched, event)

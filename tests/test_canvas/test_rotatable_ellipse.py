@@ -145,14 +145,14 @@ def test_selected_ellipse_survives_blank_space_and_resizes(
     canvas.shapes = [ellipse]
     canvas.store_shapes()
 
-    def select(shapes: object) -> None:
+    def select(shapes: list[Shape]) -> None:
         """Select."""
         ellipse.selected = ellipse in shapes
         canvas.selected_shapes = shapes
 
     canvas.selection_changed.connect(select)
 
-    def screen(point: tuple[float, float]) -> None:
+    def screen(point: tuple[float, float]) -> tuple[float, float]:
         """Screen."""
         return (point[0] * scale, point[1] * scale)
 

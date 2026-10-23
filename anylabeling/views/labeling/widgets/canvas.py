@@ -5279,11 +5279,17 @@ class Canvas(
         elif self.current.shape_type == "cuboid":
             self.current.sync_cuboid_depth_vector()
 
+        completed_shape = self.current
         self.shapes.append(self.current)
         self.store_shapes()
         self.current = None
         self.set_hiding(False)
         self.new_shape.emit()
+        if (
+            completed_shape.shape_type == "ellipse"
+            and completed_shape in self.shapes
+        ):
+            self.select_shapes([completed_shape])
         self.update()
         if self.is_auto_labeling:
             self.update_auto_labeling_marks()

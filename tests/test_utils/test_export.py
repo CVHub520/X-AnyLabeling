@@ -247,6 +247,10 @@ def test_yolo_export_preserves_nested_directories(tmp_path, mode):
         "imageHeight": 100,
         "shapes": [],
     }
+    progress_state = {"closed": False}
+    progress = mock.Mock()
+    progress.wasCanceled.side_effect = lambda: progress_state["closed"]
+    progress.close.side_effect = lambda: progress_state.update(closed=True)
 
     with (
         mock.patch.object(
@@ -262,7 +266,8 @@ def test_yolo_export_preserves_nested_directories(tmp_path, mode):
             "anylabeling.views.labeling.utils.export.LabelConverter",
             return_value=converter,
         ),
-        mock.patch("anylabeling.views.labeling.utils.export.Popup"),
+        mock.patch("anylabeling.views.labeling.utils.export.QProgressDialog", return_value=progress),
+        mock.patch("anylabeling.views.labeling.utils.export.Popup") as popup,
     ):
         export_yolo_annotation(widget, mode)
 
@@ -284,6 +289,7 @@ def test_yolo_export_preserves_nested_directories(tmp_path, mode):
         ),
     ]
     assert converter.custom_to_yolo.call_args_list == expected_calls
+    assert "Export canceled" not in popup.call_args.args[0]
     assert (save_path / "first").is_dir()
     assert (save_path / "second").is_dir()
     assert (save_path / "first" / "image.png").is_file()

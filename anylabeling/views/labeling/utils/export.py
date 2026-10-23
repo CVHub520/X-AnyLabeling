@@ -603,6 +603,7 @@ def export_yolo_annotation(self, mode):
                 break
 
         current_image_file = None
+        was_canceled = progress_dialog.wasCanceled()
         progress_dialog.close()
         template = QCoreApplication.translate(
             "LabelingWidget",
@@ -611,7 +612,7 @@ def export_yolo_annotation(self, mode):
             "%s",
         )
         message_text = template % save_path
-        if progress_dialog.wasCanceled():
+        if was_canceled:
             message_text = self.tr(
                 "Export canceled; completed outputs were retained."
             )
@@ -623,7 +624,7 @@ def export_yolo_annotation(self, mode):
             self,
             icon=new_icon_path("copy-green", "svg"),
         )
-        popup.show_popup(self, popup_height=65, position="center")
+        popup.show_popup(self, popup_height=100, position="center")
 
     except Exception as e:
         progress_dialog.close()
@@ -797,7 +798,7 @@ def export_voc_annotation(self, mode):
             self,
             icon=new_icon_path("copy-green", "svg"),
         )
-        popup.show_popup(self, popup_height=65, position="center")
+        popup.show_popup(self, popup_height=100, position="center")
 
     except Exception as e:
         message = (
@@ -975,7 +976,7 @@ def export_coco_annotation(self, mode):
                 self,
                 icon=new_icon_path("copy-green", "svg"),
             )
-            popup.show_popup(self, popup_height=65, position="center")
+            popup.show_popup(self, popup_height=100, position="center")
         else:
             message = (
                 f"Error occurred while exporting annotations: {str(error_msg)}"
@@ -1140,7 +1141,7 @@ def export_dota_annotation(self):
             self,
             icon=new_icon_path("copy-green", "svg"),
         )
-        popup.show_popup(self, popup_height=65, position="center")
+        popup.show_popup(self, popup_height=100, position="center")
 
     except Exception as e:
         message = (
@@ -1356,7 +1357,7 @@ def export_mask_annotation(self):
             self,
             icon=new_icon_path("copy-green", "svg"),
         )
-        popup.show_popup(self, popup_height=65, position="center")
+        popup.show_popup(self, popup_height=100, position="center")
 
     except Exception as e:
         message = (
@@ -1511,7 +1512,7 @@ def export_mot_annotation(self, mode):
                 self,
                 icon=new_icon_path("copy-green", "svg"),
             )
-            popup.show_popup(self, popup_height=65, position="center")
+            popup.show_popup(self, popup_height=100, position="center")
         else:
             message = (
                 f"Error occurred while exporting annotations: {str(error_msg)}"
@@ -1690,7 +1691,7 @@ def export_pporc_annotation(self, mode):
             self,
             icon=new_icon_path("copy-green", "svg"),
         )
-        popup.show_popup(self, popup_height=65, position="center")
+        popup.show_popup(self, popup_height=100, position="center")
 
     except Exception as e:
         message = (
@@ -1971,7 +1972,7 @@ def export_vlm_r1_ovd_annotation(self):
                     self,
                     icon=new_icon_path("copy-green", "svg"),
                 )
-                popup.show_popup(self, popup_height=65, position="center")
+                popup.show_popup(self, popup_height=100, position="center")
             else:
                 message = f"Error occurred while exporting annotations: {str(error_msg)}"
                 logger.error(message)

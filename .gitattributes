@@ -8,7 +8,8 @@
 *.rst text eol=lf
 *.txt text eol=lf
 *.json text eol=lf
-tests/fixtures/ellipse/r4.json -text
+tests/fixtures/ellipse/r4.json -text whitespace=cr-at-eol
+tests/fixtures/ellipse/r4_gui_saved.json -text whitespace=cr-at-eol
 *.yaml text eol=lf
 *.yml text eol=lf
 *.toml text eol=lf

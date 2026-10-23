@@ -100,9 +100,10 @@ def test_clipped_area_against_independent_integral(
         assert all(0 <= x <= 10 and 0 <= y <= 10 for x, y in contour)
 
 
-def test_r4_native_roundtrip() -> None:
+@pytest.mark.parametrize("filename", ["r4.json", "r4_gui_saved.json"])
+def test_r4_native_roundtrip(filename: str) -> None:
     """Read the untouched archived r4 sample and retain geometry/metadata."""
-    path = Path(__file__).parents[1] / "fixtures/ellipse/r4.json"
+    path = Path(__file__).parents[1] / "fixtures/ellipse" / filename
     raw = path.read_bytes()
     data = json.loads(raw)
     original = next(s for s in data["shapes"] if s["shape_type"] == "ellipse")
@@ -188,3 +189,42 @@ def test_continuous_clipping_and_legacy_quad() -> None:
             10,
             10,
         )
+
+
+@pytest.mark.parametrize("ratio", [1, 2, 100, 1000])
+@pytest.mark.parametrize("center", [(0, 0), (0, 5), (5, 5)])
+def test_nested_clipped_samples_converge(
+    ratio: int, center: tuple[int, int]
+) -> None:
+    """Nested inscribed contours increase toward the clipped analytic area."""
+    frame = ellipse_frame_points(*center, 2 * ratio, 2, 0.43)
+    previous = Polygon()
+    for count in (64, 128, 256, 512):
+        contour = clip_polygon(ellipse_polygon(frame, count), 10, 10)
+        current = Polygon(contour) if contour else Polygon()
+        assert current.area + 1e-9 >= previous.area
+        assert previous.difference(current).area <= 1e-9
+        previous = current
+
+
+def test_frame_tolerance_inside_and_outside() -> None:
+    """Test positional and orthogonality tolerances on both sides."""
+    frame = [(0, 0), (100, 0), (100, 50), (0, 50)]
+    tolerance = 1e-6 + 1e-6 * 100
+    for factor, valid in ((0.5, True), (2, False)):
+        diagonal = list(frame)
+        diagonal[2] = (100 + factor * tolerance, 50)
+        skew = [(0, 0), (100, 0), (100 + factor * 50e-6, 50), (factor * 50e-6, 50)]
+        for candidate in (diagonal, skew):
+            if valid:
+                ellipse_frame(candidate)
+            else:
+                with pytest.raises(ValueError):
+                    ellipse_frame(candidate)
+
+
+def test_tangent_ellipse_is_not_an_exportable_polygon() -> None:
+    """An ellipse merely touching the image has no exportable area."""
+    shape = {"shape_type": "ellipse", "points": ellipse_frame_points(-2, 5, 4, 2, 0)}
+    with pytest.raises(ValueError, match="zero area"):
+        segmentation_points(shape, 10, 10)

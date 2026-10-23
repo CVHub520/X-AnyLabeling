@@ -1,0 +1,71 @@
+{
+  "version": "4.0.6",
+  "flags": {},
+  "checked": false,
+  "shapes": [
+    {
+      "label": "table",
+      "score": null,
+      "points": [
+        [
+          50.0,
+          110.0
+        ],
+        [
+          260.0,
+          100.0
+        ],
+        [
+          295.0,
+          270.0
+        ],
+        [
+          35.0,
+          280.0
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "quadrilateral",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "direction": 0.4363323129985824,
+      "label": "table",
+      "score": null,
+      "points": [
+        [
+          401.17999562201555,
+          105.24228274028825
+        ],
+        [
+          582.4415530293455,
+          189.76593508842814
+        ],
+        [
+          533.6546290931486,
+          294.3898310999757
+        ],
+        [
+          352.39307168581865,
+          209.86617875183583
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "ellipse",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "桌面示例.png",
+  "imageData": null,
+  "imageHeight": 480,
+  "imageWidth": 640,
+  "description": ""
+}

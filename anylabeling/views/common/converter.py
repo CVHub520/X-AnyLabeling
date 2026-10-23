@@ -11,6 +11,7 @@ sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 
 from anylabeling.views.labeling.label_converter import LabelConverter
 from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.utils.ellipse_io import export_report
 
 IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".bmp", ".webp", ".tif", ".tiff"]
 LABEL_EXTENSIONS = {
@@ -540,10 +541,6 @@ def run_conversion(
         )
 
         if task.startswith("xlabel2"):
-            from anylabeling.views.labeling.utils.ellipse_io import (
-                export_report,
-            )
-
             source_root = labels or images
             if (
                 images
@@ -1590,15 +1587,9 @@ def run_conversion(
                 )
 
         if converter.export_results:
-            from anylabeling.views.labeling.utils.ellipse_io import (
-                export_report,
-            )
-
             print(export_report(converter.export_results))
 
     except KeyboardInterrupt:
-        from anylabeling.views.labeling.utils.ellipse_io import export_report
-
         if "converter" in locals():
             print(export_report(converter.export_results), file=sys.stderr)
         print(
@@ -1608,10 +1599,6 @@ def run_conversion(
         sys.exit(130)
     except Exception as e:
         if "converter" in locals() and converter.export_results:
-            from anylabeling.views.labeling.utils.ellipse_io import (
-                export_report,
-            )
-
             print(export_report(converter.export_results), file=sys.stderr)
         print(colored(f"✗ Error: {e}", "red"), file=sys.stderr)
         import traceback

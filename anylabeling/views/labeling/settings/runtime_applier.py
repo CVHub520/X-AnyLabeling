@@ -224,6 +224,7 @@ class SettingsRuntimeApplier:
             "canvas.double_click",
             "canvas.double_click_edit_label",
             "canvas.num_backups",
+            "canvas.ellipse.polygon_points",
         }:
             self.apply_canvas_basic()
             return
@@ -244,15 +245,6 @@ class SettingsRuntimeApplier:
             return
         if key.startswith("canvas.rotation."):
             self.apply_canvas_rotation()
-            return
-        if key == "canvas.ellipse.polygon_points":
-            from anylabeling.views.labeling.utils.ellipse import (
-                validate_polygon_points,
-            )
-
-            count = validate_polygon_points(value)
-            self._widget.canvas.ellipse_polygon_points = count
-            self._widget.canvas.update()
             return
         if key.startswith("canvas.cuboid."):
             self.apply_canvas_cuboid()
@@ -317,6 +309,15 @@ class SettingsRuntimeApplier:
         logger.debug("No runtime handler for settings key: %s", key)
 
     def apply_canvas_basic(self) -> None:
+        from anylabeling.views.labeling.utils.ellipse import (
+            validate_polygon_points,
+        )
+
+        self._widget.canvas.ellipse_polygon_points = validate_polygon_points(
+            self._widget._config["canvas"]
+            .get("ellipse", {})
+            .get("polygon_points", 128)
+        )
         self._widget.canvas.label_font_size = int(
             self._widget._config["canvas"]["label_font_size"]
         )
