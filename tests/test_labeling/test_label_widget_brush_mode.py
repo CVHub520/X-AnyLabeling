@@ -170,6 +170,7 @@ class TestLabelWidgetBrushMode(unittest.TestCase):
             "create_rectangle_mode",
             "create_cuboid_mode",
             "create_rotation_mode",
+            "create_ellipse_mode",
             "create_quadrilateral_mode",
             "create_circle_mode",
             "create_line_mode",

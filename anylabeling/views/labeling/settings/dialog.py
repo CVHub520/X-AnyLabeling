@@ -1395,6 +1395,8 @@ class SettingsDialog(QtWidgets.QDialog):
     def _display_field_title(
         self, field: SettingField, strip_prefix: str | None
     ) -> str:
+        if field.key == "canvas.ellipse.polygon_points":
+            return self.tr(field.label)
         return field.label
 
     def _shortcut_usage_hint(self, key: str) -> str | None:

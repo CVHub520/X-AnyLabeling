@@ -89,6 +89,7 @@ class SettingsRuntimeApplier:
             "shortcuts.create_rectangle": self._widget.actions.create_rectangle_mode,
             "shortcuts.create_cuboid": self._widget.actions.create_cuboid_mode,
             "shortcuts.create_rotation": self._widget.actions.create_rotation_mode,
+            "shortcuts.create_ellipse": self._widget.actions.create_ellipse_mode,
             "shortcuts.create_quadrilateral": self._widget.actions.create_quadrilateral_mode,
             "shortcuts.create_circle": self._widget.actions.create_circle_mode,
             "shortcuts.create_line": self._widget.actions.create_line_mode,
@@ -243,6 +244,15 @@ class SettingsRuntimeApplier:
             return
         if key.startswith("canvas.rotation."):
             self.apply_canvas_rotation()
+            return
+        if key == "canvas.ellipse.polygon_points":
+            from anylabeling.views.labeling.utils.ellipse import (
+                validate_polygon_points,
+            )
+
+            count = validate_polygon_points(value)
+            self._widget.canvas.ellipse_polygon_points = count
+            self._widget.canvas.update()
             return
         if key.startswith("canvas.cuboid."):
             self.apply_canvas_cuboid()

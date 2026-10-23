@@ -160,6 +160,12 @@ def get_default_config():
 
 
 def validate_config_item(key, value):
+    if key == "polygon_points":
+        from anylabeling.views.labeling.utils.ellipse import (
+            validate_polygon_points,
+        )
+
+        validate_polygon_points(value)
     if (
         key == "font_family"
         and value is not None
@@ -220,4 +226,44 @@ def get_config(
                 f"🔄 Updated config from CLI arguments: {config_from_args}"
             )
 
+    return config
+
+
+def get_ellipse_config(
+    config_file: str | None = None, polygon_points: int | None = None
+) -> dict:
+    """Load application configuration for early conversion entrypoints.
+
+    Args:
+        config_file: Explicit YAML file or the normal selected user config.
+        polygon_points: Explicit CLI override; None means no override.
+
+    Returns:
+        The normal merged application config with validated ellipse settings.
+
+    Raises:
+        ValueError: If the configured approximation size is invalid.
+    """
+    from anylabeling.views.labeling.utils.ellipse import (
+        validate_polygon_points,
+    )
+
+    selected = (
+        config_file
+        or current_config_file
+        or osp.join(get_work_directory(), ".xanylabelingrc")
+    )
+    overrides = (
+        None
+        if polygon_points is None
+        else {
+            "canvas": {
+                "ellipse": {
+                    "polygon_points": validate_polygon_points(polygon_points)
+                }
+            }
+        }
+    )
+    config = get_config(selected, overrides)
+    validate_polygon_points(config["canvas"]["ellipse"]["polygon_points"])
     return config

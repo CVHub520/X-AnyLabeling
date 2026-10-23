@@ -117,6 +117,8 @@ canvas:
   rotation:
     large_increment: 1.0  # degrees, corresponds to Z/V keys
     small_increment: 0.1  # degrees, corresponds to X/C keys
+  ellipse:
+    polygon_points: 128  # vertices sampled before image-boundary clipping
   brush:
     point_distance: 25.0  # minimum screen pixel distance between auto-added points in brush drawing mode
     simplify_epsilon: 2.0
@@ -172,6 +174,7 @@ shortcuts:
   create_rectangle: R
   create_cuboid: Ctrl+R
   create_rotation: O
+  create_ellipse: Shift+E
   create_quadrilateral: T
   create_circle: Shift+C
   create_line: Shift+L

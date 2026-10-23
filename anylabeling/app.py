@@ -142,6 +142,23 @@ def main():
         action="store_true",
         help="skip creating empty output files, only support `xlabel2yolo` and `xlabel2voc` tasks",
     )
+    for argument_parser in (parser, convert_parser):
+        argument_parser.add_argument(
+            "--ellipse-polygon-points",
+            type=int,
+            default=argparse.SUPPRESS,
+            help="ellipse approximation vertices (integer, 12-512; default: configured value or 128)",
+        )
+    convert_parser.add_argument(
+        "--config",
+        default=argparse.SUPPRESS,
+        help="application YAML configuration",
+    )
+    convert_parser.add_argument(
+        "--work-dir",
+        default=argparse.SUPPRESS,
+        help="application configuration directory",
+    )
 
     parser.add_argument(
         "--reset-config", action="store_true", help="reset qt config"
@@ -330,6 +347,11 @@ def main():
             args.label_flags = yaml.safe_load(args.label_flags)
 
     config_from_args = args.__dict__
+    ellipse_count = config_from_args.pop("ellipse_polygon_points", None)
+    if ellipse_count is not None:
+        config_from_args["canvas"] = {
+            "ellipse": {"polygon_points": ellipse_count}
+        }
     config_from_args.pop("command", None)
     config_from_args.pop("work_dir")
     reset_config = config_from_args.pop("reset_config")

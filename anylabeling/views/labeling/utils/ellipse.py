@@ -65,7 +65,7 @@ def ellipse_frame(points: Sequence[Sequence[float]]) -> Frame:
     p = [(float(x), float(y)) for x, y in points]
     width = math.dist(p[0], p[1])
     height = math.dist(p[0], p[3])
-    if width < 1 or height < 1:
+    if not math.isfinite(width) or not math.isfinite(height) or width < 1 - 1e-9 or height < 1 - 1e-9:
         raise ValueError("Ellipse axes are too short")
     ux, uy = p[1][0] - p[0][0], p[1][1] - p[0][1]
     vx, vy = p[3][0] - p[0][0], p[3][1] - p[0][1]
@@ -257,20 +257,9 @@ def ellipse_polygon(
         ValueError: If the frame or vertex count is invalid.
     """
     validate_polygon_points(count)
-    cx, cy, _, _, _ = ellipse_frame(points)
-    p = [(float(x), float(y)) for x, y in points]
-    if not all(math.isfinite(c) for point in p for c in point):
-        raise ValueError("Ellipse has non-finite coordinates")
-    cx = (p[0][0] + p[2][0]) / 2
-    cy = (p[0][1] + p[2][1]) / 2
-    ux = (p[1][0] - p[0][0]) / 2
-    uy = (p[1][1] - p[0][1]) / 2
-    vx = (p[3][0] - p[0][0]) / 2
-    vy = (p[3][1] - p[0][1]) / 2
-    if math.hypot(ux, uy) < 0.5 or math.hypot(vx, vy) < 0.5:
-        raise ValueError("Ellipse axes are too short")
-    if abs(ux * vy - uy * vx) < 0.25:
-        raise ValueError("Ellipse axes are degenerate")
+    cx, cy, width, height, angle = ellipse_frame(points)
+    ux, uy = math.cos(angle) * width / 2, math.sin(angle) * width / 2
+    vx, vy = -math.sin(angle) * height / 2, math.cos(angle) * height / 2
     return [
         (
             cx

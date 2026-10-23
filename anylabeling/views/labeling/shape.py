@@ -169,6 +169,12 @@ class Shape:
         return dictData
 
     def load_from_dict(self, data: dict, close=True, source: str = "shape"):
+        derived_direction = None
+        if data.get("shape_type") == "ellipse":
+            try:
+                derived_direction = ellipse_direction(data, source)
+            except (ValueError, TypeError, KeyError, OverflowError) as error:
+                raise ValueError(f"{source}: {error}") from error
         self.label = data["label"]
         self.score = data.get("score")
         self.points = [QtCore.QPointF(p[0], p[1]) for p in data["points"]]
@@ -189,10 +195,7 @@ class Shape:
         self.kie_linking = kie_linking
         self.locked = data.get("locked", False)
         if self.shape_type == "ellipse":
-            try:
-                self.direction = ellipse_direction(data, source)
-            except (ValueError, TypeError, KeyError) as error:
-                raise ValueError(f"{source}: {error}") from error
+            self.direction = derived_direction
         elif self.shape_type == "rotation":
             self.direction = data.get("direction", 0)
         self.other_data = {k: v for k, v in data.items() if k not in self.KEYS}

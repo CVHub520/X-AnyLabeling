@@ -43,6 +43,8 @@ from ...app_info import (
     __preferred_device__,
 )
 from . import utils
+from .utils.ellipse import ellipse_frame
+from .widgets.ellipse_parameters import EllipseParameterBar
 from .utils.style import (
     get_cancel_btn_style,
     get_checkbox_indicator_style,
@@ -425,6 +427,7 @@ class LabelingWidget(LabelDialog):
             ),
             attributes=self._config["canvas"].get("attributes", {}),
             rotation=self._config["canvas"].get("rotation", {}),
+            ellipse=self._config["canvas"].get("ellipse", {}),
             mask=self._config["canvas"].get("mask", {}),
             brush=self._config["canvas"].get("brush", {}),
             magic_wand=self._config["canvas"].get("magic_wand", {}),
@@ -797,6 +800,16 @@ class LabelingWidget(LabelDialog):
             shortcuts["create_rotation"],
             "rotation",
             self.tr("Start drawing rotations"),
+            enabled=False,
+        )
+        create_ellipse_mode = action(
+            self.tr("Create Rotatable Ellipse"),
+            lambda: self.toggle_draw_mode(False, create_mode="ellipse"),
+            shortcuts["create_ellipse"],
+            "ellipse",
+            self.tr(
+                "Draw an ellipse, then drag its handles to resize or rotate"
+            ),
             enabled=False,
         )
         create_quadrilateral_mode = action(
@@ -1844,6 +1857,7 @@ class LabelingWidget(LabelDialog):
             create_rectangle_mode=create_rectangle_mode,
             create_cuboid_mode=create_cuboid_mode,
             create_rotation_mode=create_rotation_mode,
+            create_ellipse_mode=create_ellipse_mode,
             create_quadrilateral_mode=create_quadrilateral_mode,
             create_circle_mode=create_circle_mode,
             create_line_mode=create_line_mode,
@@ -1974,6 +1988,7 @@ class LabelingWidget(LabelDialog):
                 create_rectangle_mode,
                 create_cuboid_mode,
                 create_rotation_mode,
+                create_ellipse_mode,
                 create_quadrilateral_mode,
                 create_circle_mode,
                 create_line_mode,
@@ -2004,6 +2019,7 @@ class LabelingWidget(LabelDialog):
                 create_rectangle_mode,
                 create_cuboid_mode,
                 create_rotation_mode,
+                create_ellipse_mode,
                 create_quadrilateral_mode,
                 create_circle_mode,
                 create_line_mode,
@@ -2270,6 +2286,7 @@ class LabelingWidget(LabelDialog):
             self.actions.create_rectangle_mode,
             self.actions.create_cuboid_mode,
             self.actions.create_rotation_mode,
+            self.actions.create_ellipse_mode,
             self.actions.create_quadrilateral_mode,
             self.actions.create_circle_mode,
             self.actions.create_line_mode,
@@ -2306,6 +2323,18 @@ class LabelingWidget(LabelDialog):
         central_layout.setContentsMargins(0, 0, 0, 0)
         self.label_instruction = QLabel(self.get_labeling_instruction())
         self.label_instruction.setContentsMargins(0, 0, 0, 0)
+        self.ellipse_parameter_bar = EllipseParameterBar(self)
+        self.ellipse_parameter_bar.geometry_committed.connect(
+            self._commit_ellipse_parameters
+        )
+        self.canvas.selection_changed.connect(
+            lambda _: self._update_ellipse_parameter_bar()
+        )
+        self.canvas.shape_moved.connect(self._update_ellipse_parameter_bar)
+        self.canvas.shape_rotated.connect(self._update_ellipse_parameter_bar)
+        self.canvas.ellipse_geometry_changed.connect(
+            self._update_ellipse_parameter_bar
+        )
         self.auto_labeling_widget = AutoLabelingWidget(self)
         self.auto_labeling_widget.auto_segmentation_requested.connect(
             self.on_auto_segmentation_requested
@@ -2443,6 +2472,7 @@ class LabelingWidget(LabelDialog):
         instruction_layout.addWidget(self.shortcuts_button)
         instruction_layout.addWidget(self.sidebar_toggle_button)
         central_layout.addLayout(instruction_layout)
+        central_layout.addWidget(self.ellipse_parameter_bar)
         central_layout.addWidget(self.auto_labeling_widget)
         central_layout.addWidget(scroll_area)
         central_layout.addWidget(self.compare_view_slider)
@@ -2910,6 +2940,7 @@ class LabelingWidget(LabelDialog):
         text_polygon = self.tr("Polygon")
         text_rotation = self.tr("Rotation")
         text_quadrilateral = self.tr("Quadrilateral")
+        text_ellipse = self.tr("Rotatable Ellipse")
         shortcuts = self._config.get("shortcuts", {})
         return (
             f"<b>{text_mode}</b> {self.canvas.get_mode()} | "
@@ -2919,6 +2950,7 @@ class LabelingWidget(LabelDialog):
             f" {text_rectangle}({self._format_instruction_shortcut(shortcuts.get('create_rectangle'))}),"
             f" {text_polygon}({self._format_instruction_shortcut(shortcuts.get('create_polygon'))}),"
             f" {text_rotation}({self._format_instruction_shortcut(shortcuts.get('create_rotation'))}),"
+            f" {text_ellipse}({self._format_instruction_shortcut(shortcuts.get('create_ellipse'))}),"
             f" {text_quadrilateral}({self._format_instruction_shortcut(shortcuts.get('create_quadrilateral'))}),"
             f" {text_settings}({self._format_instruction_shortcut(shortcuts.get('open_settings'))})"
         )
@@ -3077,6 +3109,7 @@ class LabelingWidget(LabelDialog):
             self.actions.create_rectangle_mode,
             self.actions.create_cuboid_mode,
             self.actions.create_rotation_mode,
+            self.actions.create_ellipse_mode,
             self.actions.create_quadrilateral_mode,
             self.actions.create_circle_mode,
             self.actions.create_line_mode,
@@ -3179,6 +3212,7 @@ class LabelingWidget(LabelDialog):
         self.actions.create_rectangle_mode.setEnabled(True)
         self.actions.create_cuboid_mode.setEnabled(True)
         self.actions.create_rotation_mode.setEnabled(True)
+        self.actions.create_ellipse_mode.setEnabled(True)
         self.actions.create_quadrilateral_mode.setEnabled(True)
         self.actions.create_circle_mode.setEnabled(True)
         self.actions.create_line_mode.setEnabled(True)
@@ -3242,6 +3276,8 @@ class LabelingWidget(LabelDialog):
             self.image_tags_widget.set_interactions_enabled(False)
             self.image_tags_widget.set_tags([])
         self.canvas.reset_state()
+        if hasattr(self, "ellipse_parameter_bar"):
+            self.ellipse_parameter_bar.hide()
         self.brightness_contrast_processor.clear_image()
         if hasattr(self, "canvas_adjustment"):
             self.canvas_adjustment.hide()
@@ -3365,9 +3401,25 @@ class LabelingWidget(LabelDialog):
             self.canvas.brush_undo()
             self.actions.undo.setEnabled(self.canvas.brush_can_undo())
             return
+        ellipse_index = None
+        selected = self.canvas.selected_shapes
+        if (
+            len(selected) == 1
+            and selected[0].shape_type == "ellipse"
+            and selected[0] in self.canvas.shapes
+        ):
+            ellipse_index = self.canvas.shapes.index(selected[0])
         self.canvas.restore_shape()
         self.label_list.clear()
         self.load_shapes(self.canvas.shapes, update_last_label=False)
+        if (
+            ellipse_index is not None
+            and ellipse_index < len(self.canvas.shapes)
+            and self.canvas.shapes[ellipse_index].shape_type == "ellipse"
+        ):
+            self.canvas.select_shapes([self.canvas.shapes[ellipse_index]])
+        if hasattr(self, "ellipse_parameter_bar"):
+            self._update_ellipse_parameter_bar()
         self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
         self.set_dirty()
 
@@ -3422,6 +3474,16 @@ class LabelingWidget(LabelDialog):
         clipboard.setText(coordinates_str)
 
     def union_selection(self):
+        if any(
+            shape.shape_type == "ellipse"
+            for shape in self.canvas.selected_shapes
+        ):
+            self.canvas.setToolTip(
+                self.tr(
+                    "Convert the ellipse to a polygon before using this operation."
+                )
+            )
+            return
         if any(shape.locked for shape in self.canvas.selected_shapes):
             return
         rectangle_shapes, polygon_shapes = [], []
@@ -3902,6 +3964,7 @@ class LabelingWidget(LabelDialog):
             self.actions.create_rectangle_mode.setEnabled(True)
             self.actions.create_cuboid_mode.setEnabled(True)
             self.actions.create_rotation_mode.setEnabled(True)
+            self.actions.create_ellipse_mode.setEnabled(True)
             self.actions.create_quadrilateral_mode.setEnabled(True)
             self.actions.create_circle_mode.setEnabled(True)
             self.actions.create_line_mode.setEnabled(True)
@@ -3929,6 +3992,7 @@ class LabelingWidget(LabelDialog):
                 "circle": self.actions.create_circle_mode,
                 "linestrip": self.actions.create_line_strip_mode,
                 "rotation": self.actions.create_rotation_mode,
+                "ellipse": self.actions.create_ellipse_mode,
                 "quadrilateral": self.actions.create_quadrilateral_mode,
             }
             if create_mode not in create_actions:
@@ -3939,6 +4003,7 @@ class LabelingWidget(LabelDialog):
             self.actions.create_rectangle_mode.setEnabled(True)
             self.actions.create_cuboid_mode.setEnabled(True)
             self.actions.create_rotation_mode.setEnabled(True)
+            self.actions.create_ellipse_mode.setEnabled(True)
             self.actions.create_quadrilateral_mode.setEnabled(True)
             self.actions.create_circle_mode.setEnabled(True)
             self.actions.create_line_mode.setEnabled(True)
@@ -5077,6 +5142,53 @@ class LabelingWidget(LabelDialog):
         else:
             self.hide_attributes_panel()
 
+        if hasattr(self, "ellipse_parameter_bar"):
+            self._update_ellipse_parameter_bar()
+
+    def _update_ellipse_parameter_bar(self) -> None:
+        """Display parameters of the live visible ellipse selection."""
+        bar = getattr(self, "ellipse_parameter_bar", None)
+        if bar is None:
+            return
+        shapes = self.canvas.selected_shapes
+        if len(shapes) != 1 or shapes[0].shape_type != "ellipse":
+            bar.hide()
+            return
+        shape = shapes[0]
+        if (
+            shape not in self.canvas.shapes
+            or not shape.visible
+            or not self.canvas.is_visible(shape)
+        ):
+            bar.hide()
+            return
+        try:
+            _, _, width, height, angle = ellipse_frame(
+                [(point.x(), point.y()) for point in shape.points]
+            )
+        except ValueError:
+            bar.hide()
+            return
+        bar.show_geometry(
+            width,
+            height,
+            math.degrees(angle) % 360.0,
+            editable=not shape.locked,
+        )
+
+    def _commit_ellipse_parameters(
+        self, width: float, height: float, angle: float
+    ) -> None:
+        """Commit one parameter edit to the current selected ellipse.
+
+        Args:
+            width: Full width in pixels.
+            height: Full height in pixels.
+            angle: Clockwise angle in degrees.
+        """
+        self.canvas.apply_ellipse_parameters(width, height, angle)
+        self._update_ellipse_parameter_bar()
+
     def add_label(self, shape, update_last_label=True, refresh_filters=True):
         if shape.group_id is None:
             text = shape.label
@@ -5406,6 +5518,11 @@ class LabelingWidget(LabelDialog):
             self.label_list.setUpdatesEnabled(True)
         if added_shapes:
             self._refresh_shape_filters()
+            if (
+                len(added_shapes) == 1
+                and added_shapes[0].shape_type == "ellipse"
+            ):
+                self.canvas.select_shapes(added_shapes)
         self.set_dirty()
 
     def paste_selected_shape(self):
@@ -5415,9 +5532,13 @@ class LabelingWidget(LabelDialog):
             shapes = []
             try:
                 shapeDicts = json.loads(json_str)
-                for shapeDict in shapeDicts:
-                    shapes.append(Shape().load_from_dict(shapeDict))
-            except json.JSONDecodeError as e:
+                for index, shapeDict in enumerate(shapeDicts):
+                    shapes.append(
+                        Shape().load_from_dict(
+                            shapeDict, source=f"clipboard: object {index}"
+                        )
+                    )
+            except (ValueError, TypeError, KeyError) as e:
                 self.error_message(
                     self.tr("Error pasting shapes"),
                     self.tr("Error decoding shapes: %s") % str(e),
@@ -5429,6 +5550,8 @@ class LabelingWidget(LabelDialog):
             shapes, self._copied_group_id
         )
         self.load_shapes(shapes, replace=False)
+        if len(shapes) == 1 and shapes[0].shape_type == "ellipse":
+            self.canvas.select_shapes(shapes)
         self.set_dirty()
 
     def toggle_system_clipboard(self, system_clipboard):
@@ -5585,6 +5708,8 @@ class LabelingWidget(LabelDialog):
             shape.difficult = difficult
             shape.kie_linking = kie_linking
             self.add_label(shape)
+            if shape.shape_type == "ellipse":
+                self.canvas.select_shapes([shape])
             self.actions.edit_mode.setEnabled(True)
             self.actions.undo_last_point.setEnabled(False)
             self.actions.undo.setEnabled(True)
