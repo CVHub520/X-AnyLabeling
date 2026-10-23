@@ -8,6 +8,7 @@
 *.rst text eol=lf
 *.txt text eol=lf
 *.json text eol=lf
+tests/fixtures/ellipse/r4.json -text
 *.yaml text eol=lf
 *.yml text eol=lf
 *.toml text eol=lf

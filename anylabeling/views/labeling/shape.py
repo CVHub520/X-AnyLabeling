@@ -4,6 +4,12 @@ import math
 from PyQt6 import QtCore, QtGui
 
 from . import utils
+from .utils.ellipse import (
+    ellipse_direction,
+    ellipse_frame,
+    ellipse_handle_positions,
+    ellipse_polygon,
+)
 from ..labeling.logger import logger
 
 # TODO(unknown):
@@ -114,6 +120,8 @@ class Shape:
         self.show_degrees = True
 
         self._highlight_index = None
+        self._ellipse_highlight_handle = None
+        self.ellipse_polygon_points = 128
         self._highlight_mode = self.NEAR_VERTEX
         self._highlight_settings = {
             self.NEAR_VERTEX: (4, self.P_ROUND),
@@ -132,6 +140,10 @@ class Shape:
         self.shape_type = shape_type
 
     def to_dict(self):
+        if self.shape_type == "ellipse":
+            self.direction = ellipse_direction(
+                {"points": [(p.x(), p.y()) for p in self.points]}
+            )
         if self.shape_type == "cuboid" and len(self.points) >= 8:
             self.sync_cuboid_depth_vector()
         dictData = {
@@ -146,7 +158,7 @@ class Shape:
             "attributes": self.attributes,
             "kie_linking": self.kie_linking,
         }
-        if self.shape_type == "rotation":
+        if self.shape_type in ("rotation", "ellipse"):
             dictData["direction"] = self.direction
         if self.locked:
             dictData["locked"] = True
@@ -156,7 +168,7 @@ class Shape:
         }
         return dictData
 
-    def load_from_dict(self, data: dict, close=True):
+    def load_from_dict(self, data: dict, close=True, source: str = "shape"):
         self.label = data["label"]
         self.score = data.get("score")
         self.points = [QtCore.QPointF(p[0], p[1]) for p in data["points"]]
@@ -176,9 +188,16 @@ class Shape:
             raise ValueError("kie_linking must be a list of integer pairs")
         self.kie_linking = kie_linking
         self.locked = data.get("locked", False)
-        if self.shape_type == "rotation":
+        if self.shape_type == "ellipse":
+            try:
+                self.direction = ellipse_direction(data, source)
+            except (ValueError, TypeError, KeyError) as error:
+                raise ValueError(f"{source}: {error}") from error
+        elif self.shape_type == "rotation":
             self.direction = data.get("direction", 0)
         self.other_data = {k: v for k, v in data.items() if k not in self.KEYS}
+        if self.shape_type in ("rotation", "ellipse"):
+            self.other_data.pop("direction", None)
         if self.shape_type == "cuboid" and "cuboid3d" not in self.other_data:
             self.sync_cuboid_depth_vector()
         if close:
@@ -205,6 +224,7 @@ class Shape:
             "polygon",
             "rectangle",
             "rotation",
+            "ellipse",
             "quadrilateral",
             "point",
             "line",
@@ -215,7 +235,10 @@ class Shape:
 
     def close(self):
         """Close the shape"""
-        if self.shape_type == "rotation" and len(self.points) == 4:
+        if (
+            self.shape_type in ("rotation", "ellipse")
+            and len(self.points) == 4
+        ):
             cx = (self.points[0].x() + self.points[2].x()) / 2
             cy = (self.points[0].y() + self.points[2].y()) / 2
             self.center = QtCore.QPointF(cx, cy)
@@ -464,6 +487,39 @@ class Shape:
                             self.draw_vertex(vrtx_path, i)
                     if self.is_closed() or self.label is not None:
                         line_path.lineTo(self.points[0])
+            elif self.shape_type == "ellipse":
+                line_path = self.make_path()
+                if self.selected and len(self.points) == 4:
+                    frame = QtGui.QPainterPath(self.points[0])
+                    for point in self.points[1:]:
+                        frame.lineTo(point)
+                    frame.closeSubpath()
+                    frame_pen = QtGui.QPen(self.select_line_color)
+                    frame_pen.setWidthF(1.0)
+                    frame_pen.setCosmetic(True)
+                    frame_pen.setStyle(QtCore.Qt.PenStyle.DashLine)
+                    painter.setPen(frame_pen)
+                    painter.drawPath(frame)
+                    painter.setPen(pen)
+                    try:
+                        sampled = ellipse_polygon(
+                            [(p.x(), p.y()) for p in self.points],
+                            self.ellipse_polygon_points,
+                        )
+                    except ValueError:
+                        sampled = []
+                    if sampled:
+                        preview = QtGui.QPainterPath(
+                            QtCore.QPointF(*sampled[0])
+                        )
+                        for point in sampled[1:]:
+                            preview.lineTo(QtCore.QPointF(*point))
+                        preview.closeSubpath()
+                        preview_pen = QtGui.QPen(pen)
+                        preview_pen.setStyle(QtCore.Qt.PenStyle.DotLine)
+                        painter.setPen(preview_pen)
+                        painter.drawPath(preview)
+                        painter.setPen(pen)
             elif self.shape_type == "rotation":
                 if len(self.points) not in [1, 2, 4]:
                     logger.error(
@@ -612,6 +668,38 @@ class Shape:
                     else self.fill_color
                 )
                 painter.fillPath(line_path, color)
+
+            if (
+                self.shape_type == "ellipse"
+                and self.selected
+                and len(self.points) == 4
+            ):
+                size = 10.0 / max(self.scale, 1e-6)
+                handle_pen = QtGui.QPen(self.select_line_color)
+                handle_pen.setWidthF(1.0)
+                handle_pen.setCosmetic(True)
+                painter.setPen(handle_pen)
+                for i, (x, y) in enumerate(
+                    ellipse_handle_positions(
+                        [(p.x(), p.y()) for p in self.points]
+                    )
+                ):
+                    rect = QtCore.QRectF(
+                        x - size / 2, y - size / 2, size, size
+                    )
+                    painter.fillRect(
+                        rect,
+                        (
+                            QtGui.QColor(150, 150, 150, 150)
+                            if self.locked
+                            else (
+                                self.hvertex_fill_color
+                                if i == self._ellipse_highlight_handle
+                                else self.vertex_fill_color
+                            )
+                        ),
+                    )
+                    painter.drawRect(rect)
 
             if (
                 self.shape_type == "quadrilateral"
@@ -765,6 +853,28 @@ class Shape:
         """Create a path from shape"""
         if not self.points:
             return QtGui.QPainterPath()
+        if self.shape_type == "ellipse":
+            path = QtGui.QPainterPath()
+            if len(self.points) == 2:
+                path.addEllipse(
+                    self.get_rect_from_line(*self.points).normalized()
+                )
+            elif len(self.points) == 4:
+                cx, cy, width, height, angle = ellipse_frame(
+                    [(p.x(), p.y()) for p in self.points]
+                )
+                ux, uy = (
+                    math.cos(angle) * width / 2,
+                    math.sin(angle) * width / 2,
+                )
+                vx, vy = (
+                    -math.sin(angle) * height / 2,
+                    math.cos(angle) * height / 2,
+                )
+                unit = QtGui.QPainterPath()
+                unit.addEllipse(QtCore.QRectF(-1, -1, 2, 2))
+                return QtGui.QTransform(ux, uy, vx, vy, cx, cy).map(unit)
+            return path
         if self.shape_type == "rectangle":
             path = QtGui.QPainterPath(self.points[0])
             for p in self.points[1:]:

@@ -127,7 +127,13 @@ class LabelFile:
 
             utils.get_pil_img_dim(image_data)
 
-            shapes = [Shape().load_from_dict(s) for s in data["shapes"]]
+            shapes = [
+                Shape().load_from_dict(
+                    s,
+                    source=f"{filename}: object {index} ({s.get('label', '')})",
+                )
+                for index, s in enumerate(data["shapes"])
+            ]
 
         except Exception as e:  # noqa
             raise LabelFileError(e) from e
