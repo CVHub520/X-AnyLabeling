@@ -4448,74 +4448,17 @@ class Canvas(
         p.setOpacity(1.0)
 
         # Draw texts
-        if self.show_texts:
-            text_color = "#FFFFFF"
-            background_color = "#007BFF"
-            p.setFont(
-                QtGui.QFont(
-                    "Arial", int(max(6.0, int(round(8.0 / Shape.scale))))
-                )
-            )
-            pen = QtGui.QPen(
-                QtGui.QColor(background_color), 8, Qt.PenStyle.SolidLine
-            )
-            p.setPen(pen)
-            for shape in self.shapes:
-                if not shape.visible:
-                    continue
-                description = shape.description
-                if description:
-                    bbox = shape.bounding_rect()
-                    fm = QtGui.QFontMetrics(p.font())
-                    text_rect = fm.tightBoundingRect(description)
-
-                    padding_x = 4
-                    padding_y = 2
-                    rect_width = text_rect.width() + 2 * padding_x
-                    rect_height = fm.height() + 2 * padding_y
-
-                    bg_x = int(bbox.x())
-                    bg_y = int(bbox.y() - rect_height)
-
-                    p.fillRect(
-                        bg_x,
-                        bg_y,
-                        rect_width,
-                        rect_height,
-                        QtGui.QColor(background_color),
-                    )
-
-            pen = QtGui.QPen(
-                QtGui.QColor(text_color), 8, Qt.PenStyle.SolidLine
-            )
-            p.setPen(pen)
-            for shape in self.shapes:
-                if not shape.visible:
-                    continue
-                description = shape.description
-                if description:
-                    bbox = shape.bounding_rect()
-                    fm = QtGui.QFontMetrics(p.font())
-
-                    padding_x = 4
-                    padding_y = 2
-
-                    text_x = int(bbox.x() + padding_x)
-                    text_y = int(bbox.y() - padding_y - fm.descent())
-
-                    p.drawText(
-                        text_x,
-                        text_y,
-                        description,
-                    )
-
         # Draw labels
-        if self.show_labels:
+        if self.show_labels or self.show_texts:
             label_transform = p.transform()
             p.save()
             p.resetTransform()
             p.setFont(QtGui.QFont("Arial", self.label_font_size))
             labels = []
+            leaders = []
+            label_bounds = self.visibleRegion().boundingRect()
+            if label_bounds.isEmpty():
+                label_bounds = self.rect()
             for shape in self.shapes:
                 if not shape.visible:
                     continue
@@ -4525,19 +4468,18 @@ class Canvas(
                     "AUTOLABEL_REMOVE",
                 ]:
                     continue
-                label_text = (
-                    (
-                        f"id:{shape.group_id} "
-                        if shape.group_id is not None
-                        else ""
-                    )
-                    + (f"{shape.label}")
-                    + (
-                        f" {float(shape.score):.2f}"
-                        if (shape.score is not None and self.show_scores)
-                        else ""
-                    )
-                )
+                fields = []
+                if self.show_labels:
+                    label = shape.label or ""
+                    if shape.group_id is not None:
+                        label = f"{label} ({shape.group_id})".strip()
+                    if label:
+                        fields.append(label)
+                    if shape.score is not None and self.show_scores:
+                        fields.append(f"{float(shape.score):.2f}")
+                if self.show_texts and shape.description:
+                    fields.append(shape.description)
+                label_text = " · ".join(fields)
                 if not label_text:
                     continue
                 fm = QtGui.QFontMetrics(p.font())
@@ -4549,16 +4491,15 @@ class Canvas(
 
                 if shape.shape_type in [
                     "rectangle",
-                    "polygon",
                     "rotation",
-                    "quadrilateral",
-                    "cuboid",
                 ]:
                     try:
                         bbox = shape.bounding_rect()
                     except IndexError:
                         continue
                     point = label_transform.map(bbox.topLeft())
+                    if shape.shape_type == "rectangle":
+                        point.setY(point.y() - rect_height)
                     rect = QtCore.QRect(
                         int(point.x()),
                         int(point.y()),
@@ -4571,54 +4512,69 @@ class Canvas(
                             point.y() + rect_height - padding_y - fm.descent()
                         ),
                     )
-                elif shape.shape_type == "circle":
-                    points = shape.points
-                    if not points:
-                        continue
-                    point = label_transform.map(points[0])
-                    rect = QtCore.QRect(
-                        int(point.x() - rect_width / 2),
-                        int(point.y() - rect_height / 2),
-                        rect_width,
-                        rect_height,
-                    )
-                    text_pos = QtCore.QPoint(
-                        int(point.x() - rect_width / 2 + padding_x),
-                        int(
-                            point.y()
-                            + rect_height / 2
-                            - padding_y
-                            - fm.descent()
-                        ),
-                    )
                 elif shape.shape_type in [
+                    "polygon",
+                    "quadrilateral",
+                    "cuboid",
+                    "circle",
                     "line",
                     "linestrip",
                     "point",
                 ]:
-                    points = shape.points
-                    if not points:
+                    if not shape.points:
                         continue
-                    point = label_transform.map(points[0])
+                    anchor = min(shape.points, key=lambda pt: (pt.y(), pt.x()))
+                    if shape.shape_type == "circle":
+                        if len(shape.points) < 2:
+                            continue
+                        center = shape.points[0]
+                        radius = QtCore.QLineF(center, shape.points[1]).length()
+                        anchor = QtCore.QPointF(center.x(), center.y() - radius)
+                    point = label_transform.map(anchor)
+                    gap = 24
+                    left = point.x() + gap
+                    if left + rect_width > label_bounds.right():
+                        left = point.x() - gap - rect_width
+                    top = point.y() - gap - rect_height
+                    if top < label_bounds.top():
+                        top = point.y() + gap
+                    left = max(
+                        label_bounds.left(),
+                        min(left, label_bounds.right() - rect_width + 1),
+                    )
+                    top = max(
+                        label_bounds.top(),
+                        min(top, label_bounds.bottom() - rect_height + 1),
+                    )
                     rect = QtCore.QRect(
-                        int(point.x() + shape.point_size),
-                        int(point.y() - 15),
-                        rect_width,
-                        rect_height,
+                        int(left), int(top), rect_width, rect_height
                     )
                     text_pos = QtCore.QPoint(
-                        int(point.x() + shape.point_size + padding_x),
-                        int(
-                            point.y()
-                            - 15
-                            + rect_height
-                            - padding_y
-                            - fm.descent()
-                        ),
+                        rect.left() + padding_x,
+                        rect.bottom() + 1 - padding_y - fm.descent(),
                     )
+                    end_x = (
+                        rect.left()
+                        if point.x() <= rect.center().x()
+                        else rect.right()
+                    )
+                    end = QtCore.QPointF(end_x, rect.center().y())
+                    elbow = QtCore.QPointF(
+                        end.x() - 8 if end_x == rect.left() else end.x() + 8,
+                        end.y(),
+                    )
+                    leaders.append((shape, point, elbow, end))
                 else:
                     continue
                 labels.append((shape, rect, text_pos, label_text))
+
+            for shape, start, elbow, end in leaders:
+                color = QtGui.QColor(shape.line_color)
+                color.setAlphaF(0.5)
+                pen = QtGui.QPen(color, 1, Qt.PenStyle.DashLine)
+                pen.setCosmetic(True)
+                p.setPen(pen)
+                p.drawPolyline(QtGui.QPolygonF([start, elbow, end]))
 
             pen = QtGui.QPen(QtGui.QColor("#FFA500"), 8, Qt.PenStyle.SolidLine)
             p.setPen(pen)
