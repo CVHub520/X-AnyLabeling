@@ -10,8 +10,9 @@ LOCKED_ROLE = Qt.ItemDataRole.UserRole.value + 1
 
 # https://stackoverflow.com/a/2039745/4158863
 class HTMLDelegate(QtWidgets.QStyledItemDelegate):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, highlight_selected_check=True):
         self.parent = parent
+        self.highlight_selected_check = highlight_selected_check
         self._lock_icon = QtGui.QIcon(":/images/images/lock.svg")
         self._selected_check_icon = QtGui.QIcon(
             ":/images/images/checkmark-white.svg"
@@ -71,6 +72,7 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
         )
         if (
             selected
+            and self.highlight_selected_check
             and options.features
             & QtWidgets.QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator
         ):

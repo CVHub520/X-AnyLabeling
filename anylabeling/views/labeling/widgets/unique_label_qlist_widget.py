@@ -16,7 +16,9 @@ class UniqueLabelQListWidget(EscapableQListWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.lock_states = {}
-        self.setItemDelegate(HTMLDelegate(self))
+        self.setItemDelegate(
+            HTMLDelegate(self, highlight_selected_check=False)
+        )
         self.setMouseTracking(True)
         self.model().dataChanged.connect(self._on_data_changed)
 
