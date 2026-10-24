@@ -26,7 +26,10 @@ class DescriptionEditor(QtWidgets.QPlainTextEdit):
 
     def setStyleSheet(self, style):
         super().setStyleSheet(
-            style + get_scrollbar_style() + "QPlainTextEdit { padding: 4px; }"
+            style
+            + get_scrollbar_style()
+            + "QPlainTextEdit { padding: 4px; }"
+            + "QPlainTextEdit:focus { border: none; }"
         )
         theme = get_theme()
         self.expand_button.setStyleSheet(f"""

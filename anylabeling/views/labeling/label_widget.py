@@ -157,6 +157,35 @@ def _create_file_status_icon(color, filled=True):
     return QtGui.QIcon(pixmap)
 
 
+class FileNameDelegate(QtWidgets.QStyledItemDelegate):
+    def displayText(self, value, locale):
+        return osp.basename(super().displayText(value, locale))
+
+
+class FileListWidget(QtWidgets.QListWidget):
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.RightButton:
+            event.accept()
+            return
+        super().mousePressEvent(event)
+
+
+class SidebarSplitterHandle(QtWidgets.QSplitterHandle):
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QtGui.QColor(get_theme()["text_secondary"]))
+        center = QtCore.QPointF(self.width() / 2, self.height() / 2)
+        for offset in (-5, 0, 5):
+            painter.drawEllipse(center + QtCore.QPointF(0, offset), 1, 1)
+
+
+class SidebarSplitter(QtWidgets.QSplitter):
+    def createHandle(self):
+        return SidebarSplitterHandle(self.orientation(), self)
+
+
 class LabelingWidget(LabelDialog):
     """The main widget for labeling images"""
 
@@ -359,8 +388,11 @@ class LabelingWidget(LabelDialog):
         self.settings_button.setIconSize(QtCore.QSize(28, 28))
         self.settings_button.setStyleSheet(get_settings_button_style())
         self.settings_button.clicked.connect(self.open_settings_dialog)
-        self.file_list_widget = QtWidgets.QListWidget()
+        self.file_list_widget = FileListWidget()
         self.file_list_widget.setObjectName("FileList")
+        self.file_list_widget.setItemDelegate(
+            FileNameDelegate(self.file_list_widget)
+        )
         self.file_list_widget.setIconSize(QtCore.QSize(10, 12))
         self.file_list_widget.setStyleSheet(
             "QListWidget#FileList::indicator { margin-right: 0; }"
@@ -2464,7 +2496,16 @@ class LabelingWidget(LabelDialog):
         central_layout.addWidget(self.image_tags_widget)
         central_widget = QWidget()
         central_widget.setLayout(central_layout)
-        self.sidebar_splitter = QtWidgets.QSplitter(Qt.Orientation.Horizontal)
+        self.sidebar_splitter = SidebarSplitter(Qt.Orientation.Horizontal)
+        self.sidebar_splitter.setObjectName("SidebarSplitter")
+        self.sidebar_splitter.setHandleWidth(9)
+        self.sidebar_splitter.setStyleSheet("""
+            QSplitter#SidebarSplitter::handle:horizontal {
+                background-color: transparent;
+                width: 9px;
+                border: none;
+            }
+        """)
         self.sidebar_splitter.setChildrenCollapsible(False)
         self.sidebar_splitter.addWidget(central_widget)
         layout.addWidget(self.sidebar_splitter)
@@ -3172,7 +3213,7 @@ class LabelingWidget(LabelDialog):
         title = __appname__
         if self.filename is not None:
             current_index, total_count = self.get_image_progress_info()
-            basename = osp.basename(str(self.filename))
+            file_path = osp.abspath(str(self.filename))
             dirty_marker = "*" if self.dirty else ""
             checked_status = (
                 self.tr("Checked")
@@ -3183,7 +3224,7 @@ class LabelingWidget(LabelDialog):
             if hasattr(self, "image") and not self.image.isNull():
                 image_size = f" [{self.image.width()}x{self.image.height()}]"
             title = (
-                f"{title} - {basename}{dirty_marker} [{checked_status}]"
+                f"{title} - {file_path}{dirty_marker} [{checked_status}]"
                 f"{image_size} "
                 f"[{current_index}/{total_count}]"
             )
@@ -4133,7 +4174,7 @@ class LabelingWidget(LabelDialog):
         copy_path_action = menu.addAction(
             utils.new_icon("copy", "svg"), self.tr("Copy File Path")
         )
-        action = menu.exec(self.file_list_widget.mapToGlobal(point))
+        action = menu.exec(self.file_list_widget.viewport().mapToGlobal(point))
         if action == copy_name_action:
             self.copy_file_path(osp.basename(item.text()))
         elif action == copy_path_action:
@@ -4176,6 +4217,7 @@ class LabelingWidget(LabelDialog):
 
     def _create_file_list_item(self, file, label_file):
         item = QtWidgets.QListWidgetItem(file)
+        item.setToolTip(file)
         flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
         if self._config.get("file_list_checkbox_editable", False):
             flags |= Qt.ItemFlag.ItemIsUserCheckable
