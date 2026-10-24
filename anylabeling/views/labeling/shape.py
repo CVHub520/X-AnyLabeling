@@ -571,7 +571,12 @@ class Shape:
                 # Uncommenting the following line will draw 2 paths
                 # for the 1st vertex, and make it non-filled, which
                 # may be desirable.
-                self.draw_vertex(vrtx_path, 0)
+                if (
+                    self.shape_type != "polygon"
+                    or not self.is_closed()
+                    or self._highlight_index == 0
+                ):
+                    self.draw_vertex(vrtx_path, 0)
 
                 line_path.addPolygon(QtGui.QPolygonF(self.points))
                 if self.selected:
