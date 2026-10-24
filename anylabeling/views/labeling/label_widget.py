@@ -73,9 +73,7 @@ from .utils.qt import new_icon_path
 from .utils.theme import get_theme
 from .pointcloud.icons import get_icon
 from .widgets.description_editor import DescriptionEditor
-from .widgets.hover_control import HoverControl
-from .widgets.hover_scrollbars import HoverScrollBars
-from .widgets.rounded_panel import RoundedPanel
+from .widgets.panel import HoverControl, HoverScrollBars, RoundedPanel
 from .widgets import (
     AboutDialog,
     AutoLabelingWidget,

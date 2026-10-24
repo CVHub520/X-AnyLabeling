@@ -18,7 +18,7 @@ from anylabeling.views.labeling import utils
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.widgets.popup import Popup
-from anylabeling.views.labeling.widgets.rounded_panel import RoundedPanel
+from anylabeling.views.labeling.widgets.panel import RoundedPanel
 from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import (
     get_cancel_btn_style,
