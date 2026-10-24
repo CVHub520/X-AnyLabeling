@@ -155,7 +155,7 @@ def distance_to_line(point, line):
     if np.dot((p3 - p2), (p1 - p2)) < 0:
         return np.linalg.norm(p3 - p2)
     if np.linalg.norm(p2 - p1) == 0:
-        return 0
+        return np.linalg.norm(p3 - p1)
     line_vector = p2 - p1
     point_vector = p1 - p3
     cross_product = (

@@ -65,6 +65,32 @@ class TestCanvasShapeSelection(unittest.TestCase):
         shape.close()
         return shape
 
+    def test_blank_click_does_not_extend_polygon_with_duplicate_points(self):
+        for points in (
+            [(20, 20), (80, 20), (80, 20), (80, 80), (20, 80)],
+            [(20, 20), (80, 20), (80, 80), (20, 80), (20, 20)],
+        ):
+            with self.subTest(points=points):
+                shape = Shape(label="polygon", shape_type="polygon")
+                shape.points = [QtCore.QPointF(x, y) for x, y in points]
+                shape.close()
+                original_points = list(shape.points)
+                self.canvas.load_shapes([shape])
+
+                self._move_mouse(150, 150)
+                self.assertIsNone(self.canvas.h_edge)
+                QtTest.QTest.mouseClick(
+                    self.canvas,
+                    QtCore.Qt.MouseButton.LeftButton,
+                    pos=QtCore.QPoint(150, 150),
+                )
+                self.assertEqual(shape.points, original_points)
+                self.assertEqual(self.canvas.selected_shapes, [])
+
+                self._move_mouse(50, 20)
+                self.assertIs(self.canvas.h_shape, shape)
+                self.assertIsNotNone(self.canvas.h_edge)
+
     def test_click_selects_nested_shape_below_larger_shape(self):
         inner = self.make_rectangle("inner", 40, 40, 80, 80)
         outer = self.make_rectangle("outer", 10, 10, 150, 150)
