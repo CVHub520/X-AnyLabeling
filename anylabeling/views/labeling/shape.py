@@ -572,7 +572,7 @@ class Shape:
                 # Uncommenting the following line will draw 2 paths
                 # for the 1st vertex, and make it non-filled, which
                 # may be desirable.
-                if (
+                if not self.selected and (
                     self.shape_type != "polygon"
                     or not self.is_closed()
                     or self._highlight_index == 0
@@ -587,9 +587,34 @@ class Shape:
                     line_path.lineTo(self.points[0])
 
             painter.drawPath(line_path)
-            painter.drawPath(vrtx_path)
-            if self._vertex_fill_color is not None:
-                painter.fillPath(vrtx_path, self._vertex_fill_color)
+            if self.fill:
+                color = (
+                    self.select_fill_color
+                    if self.selected
+                    else self.fill_color
+                )
+                painter.fillPath(line_path, color)
+            if self.selected:
+                vertex_color = QtGui.QColor(self.vertex_fill_color)
+                vertex_color.setAlpha(255)
+                vertex_pen = QtGui.QPen(QtCore.Qt.GlobalColor.black)
+                vertex_pen.setWidthF(1.0)
+                vertex_pen.setCosmetic(True)
+                painter.fillPath(vrtx_path, vertex_color)
+                painter.strokePath(vrtx_path, vertex_pen)
+                if self._highlight_index is not None:
+                    highlighted_path = QtGui.QPainterPath()
+                    self.draw_vertex(
+                        highlighted_path,
+                        self._highlight_index,
+                        self.shape_type == "point",
+                    )
+                    vertex_pen.setWidthF(4.0)
+                    painter.strokePath(highlighted_path, vertex_pen)
+            else:
+                painter.drawPath(vrtx_path)
+                if self._vertex_fill_color is not None:
+                    painter.fillPath(vrtx_path, self._vertex_fill_color)
             # Quadrilateral selected: first vertex as outline-only (transparent, no fill)
             if (
                 self.shape_type == "quadrilateral"
@@ -598,27 +623,14 @@ class Shape:
             ):
                 d = self.point_size / self.scale
                 p0 = self.points[0]
-                outline_color = (
-                    self.select_line_color
-                    if self.selected
-                    else self.line_color
-                )
-                pen = QtGui.QPen(outline_color)
-                pen.setWidthF(float(self.line_width))
+                pen = QtGui.QPen(QtCore.Qt.GlobalColor.black)
+                pen.setWidthF(4.0 if self._highlight_index == 0 else 1.0)
                 pen.setCosmetic(True)
                 painter.setPen(pen)
                 painter.setBrush(QtCore.Qt.BrushStyle.NoBrush)
                 painter.drawEllipse(
                     QtCore.QPointF(p0.x(), p0.y()), d / 2.0, d / 2.0
                 )
-            if self.fill:
-                color = (
-                    self.select_fill_color
-                    if self.selected
-                    else self.fill_color
-                )
-                painter.fillPath(line_path, color)
-
             if (
                 self.shape_type == "quadrilateral"
                 and len(self.points) == 4
@@ -688,7 +700,7 @@ class Shape:
             point = self.points[i]
         if point is None:
             return
-        if i == self._highlight_index:
+        if i == self._highlight_index and not self.selected:
             size, shape = self._highlight_settings[self._highlight_mode]
             d *= size
         if self._highlight_index is not None:
