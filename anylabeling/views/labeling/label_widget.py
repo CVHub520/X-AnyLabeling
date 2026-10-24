@@ -48,7 +48,7 @@ from .utils.style import (
     get_dialog_style,
     get_dock_style,
     get_ok_btn_style,
-    get_panel_style,
+    get_scrollbar_style,
     get_settings_button_style,
     get_toolbar_scroll_area_style,
 )
@@ -73,6 +73,9 @@ from .utils.qt import new_icon_path
 from .utils.theme import get_theme
 from .pointcloud.icons import get_icon
 from .widgets.description_editor import DescriptionEditor
+from .widgets.hover_control import HoverControl
+from .widgets.hover_scrollbars import HoverScrollBars
+from .widgets.rounded_panel import RoundedPanel
 from .widgets import (
     AboutDialog,
     AutoLabelingWidget,
@@ -457,6 +460,7 @@ class LabelingWidget(LabelDialog):
         )
 
         scroll_area = QScrollArea()
+        scroll_area.setStyleSheet(get_scrollbar_style())
         scroll_area.setWidget(self.canvas)
         scroll_area.setWidgetResizable(True)
         self._canvas_scroll_area = scroll_area
@@ -2448,7 +2452,13 @@ class LabelingWidget(LabelDialog):
         instruction_layout.addWidget(self.sidebar_toggle_button)
         central_layout.addLayout(instruction_layout)
         central_layout.addWidget(self.auto_labeling_widget)
-        central_layout.addWidget(scroll_area)
+        canvas_panel = RoundedPanel()
+        canvas_panel_layout = QVBoxLayout(canvas_panel)
+        canvas_panel_layout.setContentsMargins(0, 0, 0, 0)
+        canvas_panel_layout.setSpacing(0)
+        scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        canvas_panel_layout.addWidget(scroll_area)
+        central_layout.addWidget(canvas_panel, 1)
         central_layout.addWidget(self.compare_view_slider)
         central_layout.addWidget(self.image_tags_widget)
         central_widget = QWidget()
@@ -2522,9 +2532,7 @@ class LabelingWidget(LabelDialog):
         description_empty_widget.setFixedHeight(0)
         self.description_dock.setTitleBarWidget(description_empty_widget)
 
-        desc_panel = QFrame()
-        desc_panel.setObjectName("sidebarPanel")
-        desc_panel.setStyleSheet(get_panel_style())
+        desc_panel = RoundedPanel()
         desc_panel_layout = QVBoxLayout(desc_panel)
         desc_panel_layout.setContentsMargins(0, 0, 0, 0)
         desc_panel_layout.setSpacing(0)
@@ -2555,9 +2563,7 @@ class LabelingWidget(LabelDialog):
         empty_widget.setFixedHeight(0)
         self.label_dock.setTitleBarWidget(empty_widget)
 
-        labels_panel = QFrame()
-        labels_panel.setObjectName("sidebarPanel")
-        labels_panel.setStyleSheet(get_panel_style())
+        labels_panel = RoundedPanel()
         labels_panel_layout = QVBoxLayout(labels_panel)
         labels_panel_layout.setContentsMargins(0, 0, 0, 0)
         labels_panel_layout.setSpacing(0)
@@ -2584,15 +2590,19 @@ class LabelingWidget(LabelDialog):
         shape_empty_widget.setFixedHeight(0)
         self.shape_dock.setTitleBarWidget(shape_empty_widget)
 
-        objects_panel = QFrame()
-        objects_panel.setObjectName("sidebarPanel")
-        objects_panel.setStyleSheet(get_panel_style())
+        objects_panel = RoundedPanel()
         objects_panel_layout = QVBoxLayout(objects_panel)
         objects_panel_layout.setContentsMargins(0, 0, 0, 0)
         objects_panel_layout.setSpacing(0)
         objects_panel_layout.addWidget(shapes_header_widget)
         objects_panel_layout.addWidget(self.shape_dock)
         right_sidebar_layout.addWidget(objects_panel)
+        for panel, checkbox in (
+            (desc_panel, self.description_checkbox),
+            (labels_panel, self.labels_checkbox),
+            (objects_panel, self.shapes_checkbox),
+        ):
+            HoverControl(panel, checkbox)
 
         file_search_row_layout = QHBoxLayout()
         file_search_row_layout.setContentsMargins(0, 0, 0, 0)
@@ -2601,14 +2611,21 @@ class LabelingWidget(LabelDialog):
         file_search_row_layout.addWidget(self.settings_button, 0)
         right_sidebar_layout.addLayout(file_search_row_layout)
 
-        files_panel = QFrame()
-        files_panel.setObjectName("sidebarPanel")
-        files_panel.setStyleSheet(get_panel_style())
+        files_panel = RoundedPanel()
         files_panel_layout = QVBoxLayout(files_panel)
         files_panel_layout.setContentsMargins(0, 0, 0, 0)
         files_panel_layout.setSpacing(0)
         files_panel_layout.addWidget(self.file_dock)
         right_sidebar_layout.addWidget(files_panel)
+        for area in (
+            scroll_area,
+            self.unique_label_list,
+            self.label_list,
+            self.file_list_widget,
+            self.flag_widget,
+            self.shape_text_edit,
+        ):
+            HoverScrollBars(area)
         self.file_dock.setFeatures(
             QDockWidget.DockWidgetFeature.DockWidgetFloatable
         )

@@ -18,11 +18,14 @@ from anylabeling.views.labeling import utils
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.widgets.popup import Popup
+from anylabeling.views.labeling.widgets.rounded_panel import RoundedPanel
 from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import (
     get_cancel_btn_style,
+    get_checkbox_indicator_style,
     get_dialog_style,
     get_ok_btn_style,
+    get_scrollbar_style,
     get_settings_combo_style,
     get_spinbox_style,
     get_table_item_bg_color,
@@ -1290,19 +1293,37 @@ class LabelDialog(QtWidgets.QDialog):
         t = get_theme()
         self.setStyleSheet(f"""
             QDialog#LabelDialog QLineEdit,
-            QDialog#LabelDialog QTextEdit {{
+            QDialog#LabelDialog QTextEdit,
+            QDialog#LabelDialog QListWidget {{
                 background-color: {t["background_secondary"]};
                 color: {t["text"]};
                 border: 1px solid {t["border"]};
-                border-radius: 0px;
+                border-radius: 8px;
                 margin: 0px;
                 selection-background-color: {t["selection"]};
+                selection-color: {t["selection_text"]};
             }}
             QDialog#LabelDialog QLineEdit {{
                 padding: 2px 4px;
             }}
             QDialog#LabelDialog QTextEdit {{
                 padding: 4px;
+            }}
+            QDialog#LabelDialog QListWidget {{
+                padding: 0px;
+                outline: none;
+            }}
+            QDialog#LabelDialog QListWidget#labelChoices {{
+                border: none;
+                border-radius: 0px;
+            }}
+            QDialog#LabelDialog QListWidget::item {{
+                padding: 2px 4px;
+                border-radius: 0px;
+            }}
+            QDialog#LabelDialog QListWidget::item:selected {{
+                background-color: {t["selection"]};
+                color: {t["selection_text"]};
             }}
             QDialog#LabelDialog QLineEdit:hover,
             QDialog#LabelDialog QTextEdit:hover {{
@@ -1316,7 +1337,7 @@ class LabelDialog(QtWidgets.QDialog):
                 background-color: {t["surface"]};
                 color: {t["text"]};
                 border: 1px solid {t["border"]};
-                border-radius: 0px;
+                border-radius: 8px;
                 margin: 0px;
                 min-width: 72px;
                 min-height: 22px;
@@ -1329,6 +1350,7 @@ class LabelDialog(QtWidgets.QDialog):
             QDialog#LabelDialog QPushButton:pressed {{
                 background-color: {t["surface_pressed"]};
             }}
+            {get_scrollbar_style()}
         """)
         control_height = 24
         self.edit = LabelQLineEdit()
@@ -1350,6 +1372,13 @@ class LabelDialog(QtWidgets.QDialog):
 
         # Add difficult checkbox
         self.edit_difficult = QtWidgets.QCheckBox(self.tr("useDifficult"))
+        self.edit_difficult.setStyleSheet(get_checkbox_indicator_style() + f"""
+                QCheckBox::indicator:checked {{
+                    background-color: {t["primary"]};
+                    border-color: {t["primary"]};
+                    image: url(:/images/images/checkmark-white.svg);
+                }}
+            """)
         self.edit_difficult.setChecked(difficult)
 
         # Add linking input
@@ -1418,6 +1447,7 @@ class LabelDialog(QtWidgets.QDialog):
 
         # label_list
         self.label_list = QtWidgets.QListWidget()
+        self.label_list.setObjectName("labelChoices")
         if self._fit_to_content["row"]:
             self.label_list.setHorizontalScrollBarPolicy(
                 QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
@@ -1438,7 +1468,12 @@ class LabelDialog(QtWidgets.QDialog):
         self.label_list.currentItemChanged.connect(self.label_selected)
         self.label_list.itemDoubleClicked.connect(self.label_double_clicked)
         self.edit.set_list_widget(self.label_list)
-        layout.addWidget(self.label_list)
+        label_panel = RoundedPanel(radius=8)
+        label_panel_layout = QtWidgets.QVBoxLayout(label_panel)
+        label_panel_layout.setContentsMargins(0, 0, 0, 0)
+        label_panel_layout.setSpacing(0)
+        label_panel_layout.addWidget(self.label_list)
+        layout.addWidget(label_panel)
         # label_flags
         if flags is None:
             flags = {}

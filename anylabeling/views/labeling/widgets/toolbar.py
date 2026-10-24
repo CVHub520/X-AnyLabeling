@@ -44,8 +44,8 @@ class ToolBar(QtWidgets.QFrame):
             ToolBar {{
                 background: {t["background"]};
                 padding: 0px;
-                border: 2px solid {t["border"]};
-                border-radius: 5px;
+                border: 1px solid {t["border"]};
+                border-radius: 8px;
             }}
             ToolBar QToolButton {{
                 min-width: 28px;

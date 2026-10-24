@@ -4520,8 +4520,12 @@ class Canvas(
                         if len(shape.points) < 2:
                             continue
                         center = shape.points[0]
-                        radius = QtCore.QLineF(center, shape.points[1]).length()
-                        anchor = QtCore.QPointF(center.x(), center.y() - radius)
+                        radius = QtCore.QLineF(
+                            center, shape.points[1]
+                        ).length()
+                        anchor = QtCore.QPointF(
+                            center.x(), center.y() - radius
+                        )
                     point = label_transform.map(anchor)
                     gap = 24
                     left = point.x() + gap
@@ -4568,12 +4572,12 @@ class Canvas(
                 p.setPen(pen)
                 p.drawPolyline(QtGui.QPolygonF([start, elbow, end]))
 
-            pen = QtGui.QPen(QtGui.QColor("#FFA500"), 8, Qt.PenStyle.SolidLine)
-            p.setPen(pen)
+            p.setPen(Qt.PenStyle.NoPen)
             for shape, rect, _, _ in labels:
                 if not shape.visible:
                     continue
-                p.fillRect(rect, shape.line_color)
+                p.setBrush(shape.line_color)
+                p.drawRoundedRect(QtCore.QRectF(rect), 4.0, 4.0)
 
             pen = QtGui.QPen(QtGui.QColor("#000000"), 8, Qt.PenStyle.SolidLine)
             p.setPen(pen)
