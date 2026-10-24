@@ -4,12 +4,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-
 MODULE_PATH = (
     Path(__file__).resolve().parents[2]
     / "anylabeling/views/labeling/utils/file_search.py"
 )
-SPEC = importlib.util.spec_from_file_location("file_search_module", MODULE_PATH)
+SPEC = importlib.util.spec_from_file_location(
+    "file_search_module", MODULE_PATH
+)
 FILE_SEARCH_MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(FILE_SEARCH_MODULE)
 
@@ -119,6 +120,7 @@ class TestFileSearch(unittest.TestCase):
                 str(Path(temp_dir) / "checked.jpg"),
                 str(Path(temp_dir) / "unchecked.jpg"),
                 str(Path(temp_dir) / "missing.jpg"),
+                str(Path(temp_dir) / "failed.jpg"),
             ]
             self._write_label_data(
                 Path(temp_dir) / "checked.json",
@@ -129,14 +131,62 @@ class TestFileSearch(unittest.TestCase):
                 {"checked": False, "shapes": []},
             )
 
+            self._write_label_data(
+                Path(temp_dir) / "failed.json",
+                {"checked": "failed", "shapes": []},
+            )
+
             checked_pattern = parse_search_pattern("checked::1")
             unchecked_pattern = parse_search_pattern("checked::0")
 
             self.assertEqual(
                 filter_image_files(image_files, checked_pattern),
-                [image_files[0]],
+                [image_files[0], image_files[3]],
             )
             self.assertEqual(
                 filter_image_files(image_files, unchecked_pattern),
                 [image_files[1], image_files[2]],
             )
+
+    def test_three_state_check_search_with_output_directory(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output_dir = Path(temp_dir) / "labels"
+            output_dir.mkdir()
+            image_files = [
+                str(Path(temp_dir) / f"{name}.jpg")
+                for name in (
+                    "passed",
+                    "failed",
+                    "unchecked",
+                    "legacy",
+                    "missing",
+                )
+            ]
+            for name, data in (
+                ("passed", {"checked": True}),
+                ("failed", {"checked": "failed"}),
+                ("unchecked", {"checked": False}),
+                ("legacy", {}),
+            ):
+                self._write_label_data(output_dir / f"{name}.json", data)
+            for value, indices in (
+                ("passed", [0]),
+                ("failed", [1]),
+                ("unchecked", [2, 3, 4]),
+                ("PASSED", [0]),
+                ("FAILED", [1]),
+                ("UNCHECKED", [2, 3, 4]),
+                ("1", [0, 1]),
+                ("true", [0, 1]),
+                ("yes", [0, 1]),
+                ("0", [2, 3, 4]),
+                ("false", [2, 3, 4]),
+            ):
+                with self.subTest(value=value):
+                    pattern = parse_search_pattern(f"checked::{value}")
+                    self.assertEqual(
+                        filter_image_files(
+                            image_files, pattern, str(output_dir)
+                        ),
+                        [image_files[index] for index in indices],
+                    )

@@ -540,7 +540,13 @@ def _shortcut_label(short_key: str) -> str:
             SETTINGS_TRANSLATION_CONTEXT, "Switch Prev Unchecked Image"
         ),
         "toggle_annotation_checked": QT_TRANSLATE_NOOP(
-            SETTINGS_TRANSLATION_CONTEXT, "Toggle Annotation Checked"
+            SETTINGS_TRANSLATION_CONTEXT, "Check Passed"
+        ),
+        "clear_annotation_checked": QT_TRANSLATE_NOOP(
+            SETTINGS_TRANSLATION_CONTEXT, "Unchecked"
+        ),
+        "fail_annotation_checked": QT_TRANSLATE_NOOP(
+            SETTINGS_TRANSLATION_CONTEXT, "Check Failed"
         ),
         "toggle_image_tags": QT_TRANSLATE_NOOP(
             SETTINGS_TRANSLATION_CONTEXT, "Toggle Image Tags"
@@ -1393,6 +1399,8 @@ def _shortcut_category_map() -> dict[str, tuple[str, ...]]:
             "open_prev",
             "open_prev_unchecked",
             "toggle_annotation_checked",
+            "clear_annotation_checked",
+            "fail_annotation_checked",
         ),
         "Shape": (
             "add_point_to_edge",

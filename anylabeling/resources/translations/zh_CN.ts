@@ -2902,7 +2902,8 @@ Continue?</source>
 - Attributes: difficult::1, gid::0, shape::1, label::xxx, type::xxx
 - Score range: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)
 - Description: description::1, description::true, description::yes
-- Checked status: checked::1, checked::0
+- Check result: checked::passed, checked::failed, checked::unchecked
+- Reviewed (passed or failed): checked::1; unchecked: checked::0
 Press Enter to search.</source>
       <translation>支持的搜索模式：
 - 文本：纯文本搜索
@@ -2911,7 +2912,8 @@ Press Enter to search.</source>
 - 属性：difficult::1、gid::0、shape::1、label::xxx、type::xxx
 - 分数范围：score::[0,0.5]、score::(0,0.6]、score::[0,0.6)、score::(0,0.6)
 - 描述：description::1、description::true、description::yes
-- 勾选状态：checked::1、checked::0
+- 检查结果：checked::passed（通过）、checked::failed（不通过）、checked::unchecked（未检查）
+- 已检查（通过或不通过）：checked::1；未检查：checked::0
 按 Enter 键搜索。</translation>
     </message>
     <message>
@@ -4879,6 +4881,18 @@ Results have been saved to:
       <translation>导出标签成功！
 结果已保存到：
 %s</translation>
+    </message>
+    <message>
+      <source>Check Status</source>
+      <translation>检查状态</translation>
+    </message>
+    <message>
+      <source>Check Passed</source>
+      <translation>检查通过</translation>
+    </message>
+    <message>
+      <source>Check Failed</source>
+      <translation>检查不通过</translation>
     </message>
   </context>
   <context>
@@ -8563,6 +8577,22 @@ Changes will not be saved until you click Save.</source>
       <location filename="../../views/labeling/settings/schema.py" line="350" />
       <source>Zoom To Original</source>
       <translation>原始大小</translation>
+    </message>
+    <message>
+      <source>Check Status</source>
+      <translation>检查状态</translation>
+    </message>
+    <message>
+      <source>Check Passed</source>
+      <translation>检查通过</translation>
+    </message>
+    <message>
+      <source>Check Failed</source>
+      <translation>检查不通过</translation>
+    </message>
+    <message>
+      <source>Unchecked</source>
+      <translation>未检查</translation>
     </message>
   </context>
   <context>

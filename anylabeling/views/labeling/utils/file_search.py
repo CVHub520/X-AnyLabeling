@@ -141,9 +141,14 @@ def parse_search_pattern(search_text: str) -> SearchPattern:
                     mode="attribute", attribute_filter=attribute_filter
                 )
             elif attr_name == "checked":
+                status = attr_value.lower()
                 attribute_filter = {
                     "type": "checked",
-                    "value": attr_value.lower() in ("true", "1", "yes"),
+                    "value": (
+                        status
+                        if status in ("passed", "failed", "unchecked")
+                        else status in ("true", "1", "yes")
+                    ),
                 }
                 return SearchPattern(
                     mode="attribute", attribute_filter=attribute_filter
@@ -248,7 +253,7 @@ def matches_label_attribute(
 
     if not osp.exists(label_file):
         if filter_type == "checked":
-            return filter_value is False
+            return filter_value is False or filter_value == "unchecked"
         return False
 
     try:
@@ -261,7 +266,14 @@ def matches_label_attribute(
             return has_shapes == filter_value
 
         if filter_type == "checked":
-            return (data.get("checked", False) is True) == filter_value
+            checked = data.get("checked", False)
+            if filter_value == "passed":
+                return checked is True
+            if filter_value == "failed":
+                return checked == "failed"
+            if filter_value == "unchecked":
+                return checked is not True and checked != "failed"
+            return (checked is True or checked == "failed") == filter_value
 
         if filter_type == "gid":
             target_gid = filter_value

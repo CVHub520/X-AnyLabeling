@@ -76,6 +76,8 @@ class SettingsRuntimeApplier:
             "shortcuts.open_next_unchecked": self._widget.actions.open_next_unchecked_image,
             "shortcuts.open_prev_unchecked": self._widget.actions.open_prev_unchecked_image,
             "shortcuts.toggle_annotation_checked": self._widget.actions.toggle_annotation_checked,
+            "shortcuts.clear_annotation_checked": self._widget.actions.clear_annotation_checked,
+            "shortcuts.fail_annotation_checked": self._widget.actions.fail_annotation_checked,
             "shortcuts.zoom_in": self._widget.actions.zoom_in,
             "shortcuts.zoom_out": self._widget.actions.zoom_out,
             "shortcuts.zoom_to_original": self._widget.actions.zoom_org,

@@ -2894,7 +2894,8 @@ Continue?</translation>
 - Attributes: difficult::1, gid::0, shape::1, label::xxx, type::xxx
 - Score range: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)
 - Description: description::1, description::true, description::yes
-- Checked status: checked::1, checked::0
+- Check result: checked::passed, checked::failed, checked::unchecked
+- Reviewed (passed or failed): checked::1; unchecked: checked::0
 Press Enter to search.</source>
       <translation type="unfinished" />
     </message>
@@ -4864,6 +4865,18 @@ Results have been saved to:
       <translation>Exporting annotations successfully!
 Results have been saved to:
 %s</translation>
+    </message>
+    <message>
+      <source>Check Status</source>
+      <translation>Check Status</translation>
+    </message>
+    <message>
+      <source>Check Passed</source>
+      <translation>Check Passed</translation>
+    </message>
+    <message>
+      <source>Check Failed</source>
+      <translation>Check Failed</translation>
     </message>
   </context>
   <context>
@@ -8538,6 +8551,22 @@ Changes will not be saved until you click Save.</translation>
       <location filename="../../views/labeling/settings/schema.py" line="350" />
       <source>Zoom To Original</source>
       <translation>Zoom To Original</translation>
+    </message>
+    <message>
+      <source>Check Status</source>
+      <translation>Check Status</translation>
+    </message>
+    <message>
+      <source>Check Passed</source>
+      <translation>Check Passed</translation>
+    </message>
+    <message>
+      <source>Check Failed</source>
+      <translation>Check Failed</translation>
+    </message>
+    <message>
+      <source>Unchecked</source>
+      <translation>Unchecked</translation>
     </message>
   </context>
   <context>

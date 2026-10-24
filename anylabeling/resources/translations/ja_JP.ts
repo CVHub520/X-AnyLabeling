@@ -2902,7 +2902,8 @@ Continue?</source>
 - Attributes: difficult::1, gid::0, shape::1, label::xxx, type::xxx
 - Score range: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)
 - Description: description::1, description::true, description::yes
-- Checked status: checked::1, checked::0
+- Check result: checked::passed, checked::failed, checked::unchecked
+- Reviewed (passed or failed): checked::1; unchecked: checked::0
 Press Enter to search.</source>
       <translation>対応している検索モード：
 - テキスト：プレーンテキスト検索
@@ -2911,7 +2912,8 @@ Press Enter to search.</source>
 - 属性：difficult::1、gid::0、shape::1、label::xxx、type::xxx
 - スコア範囲：score::[0,0.5]、score::(0,0.6]、score::[0,0.6)、score::(0,0.6)
 - 説明：description::1、description::true、description::yes
-- チェック状態：checked::1、checked::0
+- チェック結果：checked::passed（合格）、checked::failed（不合格）、checked::unchecked（未チェック）
+- チェック済み（合格または不合格）：checked::1；未チェック：checked::0
 Enter キーを押して検索します。</translation>
     </message>
     <message>
@@ -4879,6 +4881,18 @@ Results have been saved to:
       <translation>ラベルのエクスポートが完了しました！
 結果の保存先：
 %s</translation>
+    </message>
+    <message>
+      <source>Check Status</source>
+      <translation>チェック状態</translation>
+    </message>
+    <message>
+      <source>Check Passed</source>
+      <translation>チェック合格</translation>
+    </message>
+    <message>
+      <source>Check Failed</source>
+      <translation>チェック不合格</translation>
     </message>
   </context>
   <context>
@@ -8563,6 +8577,22 @@ Changes will not be saved until you click Save.</source>
       <location filename="../../views/labeling/settings/schema.py" line="350" />
       <source>Zoom To Original</source>
       <translation>元のサイズ</translation>
+    </message>
+    <message>
+      <source>Check Status</source>
+      <translation>チェック状態</translation>
+    </message>
+    <message>
+      <source>Check Passed</source>
+      <translation>チェック合格</translation>
+    </message>
+    <message>
+      <source>Check Failed</source>
+      <translation>チェック不合格</translation>
+    </message>
+    <message>
+      <source>Unchecked</source>
+      <translation>未チェック</translation>
     </message>
   </context>
   <context>

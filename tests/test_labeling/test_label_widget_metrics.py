@@ -180,12 +180,19 @@ class TestLabelWidgetMetrics(unittest.TestCase):
             tr=lambda text: text,
         )
 
-        for checked, status in ((True, "Checked"), (False, "Unchecked")):
+        widget._annotation_checked_text = lambda: (
+            LabelingWidget._annotation_checked_text(widget)
+        )
+        for checked, status in (
+            (True, "Check Passed"),
+            (False, "Unchecked"),
+            ("failed", "Check Failed"),
+        ):
             widget._annotation_checked = lambda value=checked: value
             title = LabelingWidget._window_title(widget)
             self.assertEqual(
                 title,
-                f"X-AnyLabeling - image.jpg [{status}] [640x480] [2/10]",
+                f"X-AnyLabeling - /tmp/image.jpg [{status}] [640x480] [2/10]",
             )
 
     def test_checked_state_sync_refreshes_window_title(self):

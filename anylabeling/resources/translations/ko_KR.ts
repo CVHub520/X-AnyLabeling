@@ -2903,7 +2903,8 @@ Continue?</source>
 - Attributes: difficult::1, gid::0, shape::1, label::xxx, type::xxx
 - Score range: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)
 - Description: description::1, description::true, description::yes
-- Checked status: checked::1, checked::0
+- Check result: checked::passed, checked::failed, checked::unchecked
+- Reviewed (passed or failed): checked::1; unchecked: checked::0
 Press Enter to search.</source>
       <translation>지원되는 검색 모드:
 - 텍스트: 일반 텍스트 검색
@@ -2912,7 +2913,8 @@ Press Enter to search.</source>
 - 속성: difficult::1, gid::0, shape::1, label::xxx, type::xxx
 - 점수 범위: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)
 - 설명: description::1, description::true, description::yes
-- 확인 상태: checked::1, checked::0
+- 검토 결과: checked::passed (통과), checked::failed (불합격), checked::unchecked (미검토)
+- 검토 완료 (통과 또는 불합격): checked::1; 미검토: checked::0
 Enter 키를 눌러 검색합니다.</translation>
     </message>
     <message>
@@ -4881,6 +4883,18 @@ Results have been saved to:
       <translation>주석을 성공적으로 내보냈습니다!
 결과가 다음 위치에 저장되었습니다:
 %s</translation>
+    </message>
+    <message>
+      <source>Check Status</source>
+      <translation>검토 상태</translation>
+    </message>
+    <message>
+      <source>Check Passed</source>
+      <translation>검토 통과</translation>
+    </message>
+    <message>
+      <source>Check Failed</source>
+      <translation>검토 불합격</translation>
     </message>
   </context>
   <context>
@@ -8565,6 +8579,22 @@ Changes will not be saved until you click Save.</source>
       <location filename="../../views/labeling/settings/schema.py" line="350" />
       <source>Zoom To Original</source>
       <translation>원래 크기</translation>
+    </message>
+    <message>
+      <source>Check Status</source>
+      <translation>검토 상태</translation>
+    </message>
+    <message>
+      <source>Check Passed</source>
+      <translation>검토 통과</translation>
+    </message>
+    <message>
+      <source>Check Failed</source>
+      <translation>검토 불합격</translation>
+    </message>
+    <message>
+      <source>Unchecked</source>
+      <translation>미검토</translation>
     </message>
   </context>
   <context>

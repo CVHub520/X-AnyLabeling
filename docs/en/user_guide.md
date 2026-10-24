@@ -103,8 +103,16 @@ Navigate between images in your dataset using these methods:
 - **Jump by Annotation Check Status**:
     - `Ctrl+Shift+D`: Jump to the next unchecked annotation.
     - `Ctrl+Shift+A`: Jump to the previous unchecked annotation.
-- **Toggle Annotation Check Status**: Right-click the canvas and choose `Mark as Checked` or `Mark as Unchecked`, or press `Ctrl+Alt+K`. The file list shows this review state with a colored dot: green means checked, gray means unchecked.
+- **Set Annotation Check Status**: Right-click the canvas and open the `Check Status` submenu to choose `Unchecked`, `Check Passed`, or `Check Failed`.
 - **Jump to Specific Image**: Type the exact filename (including extension) into the file search bar at the bottom right and press `Enter`.
+
+| Status | File list icon | Default shortcut | Top-level JSON `checked` value |
+| --- | --- | --- | --- |
+| Unchecked | Gray hollow circle | `Ctrl+Alt+U` | `false` |
+| Check Passed | Green filled circle | `Ctrl+Alt+K` | `true` |
+| Check Failed | Red filled circle | `Ctrl+Alt+J` | `"failed"` |
+
+Each shortcut sets a specific status; pressing it again does not toggle the status. Shortcuts can be customized in Settings. Setting a status saves the current annotation. Existing `checked: true` values mean passed; `false` or a missing field means unchecked. Navigation to the next or previous unchecked image skips both passed and failed images.
 
 The checkboxes in the file list are not editable by default. To enable editing, open `Settings` (`Ctrl+0`) and enable `File List Checkbox Editable` under `General`, or set `file_list_checkbox_editable` to `true` in the configuration file.
 These checkboxes indicate whether a label file exists and are separate from the annotation check status dot.
@@ -333,8 +341,11 @@ Filter images by object attributes using the format `attribute::value`:
 - `score::[0,0.6)`: Find images containing objects with scores in the range [0, 0.6) (left-closed, right-open)
 - `score::(0,0.6)`: Find images containing objects with scores in the range (0, 0.6) (open interval)
 - `description::1` or `description::true`: Find images containing objects with non-empty descriptions
-- `checked::1` or `checked::true`: Find checked images
-- `checked::0` or `checked::false`: Find unchecked images; images without generated label files are also treated as unchecked
+- `checked::passed`: Find only images that passed review
+- `checked::failed`: Find only images that failed review
+- `checked::unchecked`: Find unchecked images; images with a missing `checked` field or no label file are also treated as unchecked
+- `checked::1` or `checked::true`: Find all reviewed images, including both passed and failed images
+- `checked::0` or `checked::false`: Same as `checked::unchecked`
 
 ### 2.6 Editing Text Descriptions
 
@@ -880,7 +891,9 @@ You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit
 | `a`                   | Previous Image                                   |                                            |
 | `Ctrl+Shift+d`        | Next Unchecked Annotation                        | Uses the label JSON `checked` field        |
 | `Ctrl+Shift+a`        | Previous Unchecked Annotation                    | Uses the label JSON `checked` field        |
-| `Ctrl+Alt+k`          | Toggle Annotation Check Status                   | Saved as `checked` in the label JSON        |
+| `Ctrl+Alt+u`          | Clear Annotation Check Status                    | Saves `checked: false`                     |
+| `Ctrl+Alt+k`          | Mark Annotation as Passed                        | Saves `checked: true`                      |
+| `Ctrl+Alt+j`          | Mark Annotation as Failed                        | Saves `checked: "failed"`                  |
 | `p`                   | Create Polygon Shape                             | Shortcut might vary (check interface)      |
 | `Ctrl+n`              | Create Brush Polygon                             | Toggle brush mode for polygon drawing      |
 | `o`                   | Create Rotated Rectangle Shape                   | Shortcut might vary                        |

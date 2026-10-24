@@ -111,8 +111,9 @@ LABEL_COLORMAP = utils.label_colormap()
 LABEL_OPACITY = 128
 CHECKED_FIELD = "checked"
 FILE_CHECKED_COLOR = "#22A06B"
+FILE_FAILED_COLOR = "#DE350B"
 FILE_UNCHECKED_COLOR = "#8C98A4"
-CHECKED_FIELD_PATTERN = re.compile(r'"checked"\s*:\s*(true|false)')
+CHECKED_FIELD_PATTERN = re.compile(r'"checked"\s*:\s*(true|false|"failed")')
 
 
 def _measure_text_width(font_metrics, text):
@@ -372,7 +373,8 @@ class LabelingWidget(LabelDialog):
                 "- Attributes: difficult::1, gid::0, shape::1, label::xxx, type::xxx\n"
                 "- Score range: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)\n"
                 "- Description: description::1, description::true, description::yes\n"
-                "- Checked status: checked::1, checked::0\n"
+                "- Check result: checked::passed, checked::failed, checked::unchecked\n"
+                "- Reviewed (passed or failed): checked::1; unchecked: checked::0\n"
                 "Press Enter to search."
             )
         )
@@ -399,6 +401,7 @@ class LabelingWidget(LabelDialog):
         )
         self.file_status_icons = {
             True: _create_file_status_icon(FILE_CHECKED_COLOR),
+            "failed": _create_file_status_icon(FILE_FAILED_COLOR),
             False: _create_file_status_icon(
                 FILE_UNCHECKED_COLOR, filled=False
             ),
@@ -695,14 +698,38 @@ class LabelingWidget(LabelDialog):
             enabled=True,
         )
         toggle_annotation_checked = action(
-            self.tr("Mark as Checked"),
-            self.set_annotation_checked,
+            self.tr("Check Passed"),
+            lambda: self.set_annotation_checked(True),
             shortcuts.get("toggle_annotation_checked"),
-            None,
-            self.tr("Mark current annotation as checked"),
             checkable=True,
             enabled=False,
         )
+        clear_annotation_checked = action(
+            self.tr("Unchecked"),
+            lambda: self.set_annotation_checked(False),
+            shortcuts.get("clear_annotation_checked"),
+            checkable=True,
+            enabled=False,
+        )
+        fail_annotation_checked = action(
+            self.tr("Check Failed"),
+            lambda: self.set_annotation_checked("failed"),
+            shortcuts.get("fail_annotation_checked"),
+            checkable=True,
+            enabled=False,
+        )
+        self.annotation_check_menu = QtWidgets.QMenu(
+            self.tr("Check Status"), self
+        )
+        self.annotation_check_group = QtGui.QActionGroup(self)
+        for check_action in (
+            clear_annotation_checked,
+            toggle_annotation_checked,
+            fail_annotation_checked,
+        ):
+            self.annotation_check_group.addAction(check_action)
+            self.annotation_check_menu.addAction(check_action)
+            self.addAction(check_action)
 
         toggle_compare_view = action(
             self.tr("Compare View"),
@@ -1857,6 +1884,8 @@ class LabelingWidget(LabelDialog):
             delete_file=delete_file,
             delete_image_file=delete_image_file,
             toggle_annotation_checked=toggle_annotation_checked,
+            clear_annotation_checked=clear_annotation_checked,
+            fail_annotation_checked=fail_annotation_checked,
             keep_prev_mode=keep_prev_mode,
             auto_use_last_label_mode=auto_use_last_label_mode,
             auto_use_last_gid_mode=auto_use_last_gid_mode,
@@ -2062,6 +2091,8 @@ class LabelingWidget(LabelDialog):
                 digit_shortcut_9,
                 edit_mode,
                 toggle_annotation_checked,
+                clear_annotation_checked,
+                fail_annotation_checked,
                 shape_manager,
                 loop_thru_labels,
                 loop_select_labels,
@@ -2087,7 +2118,6 @@ class LabelingWidget(LabelDialog):
             self.actions.digit_shortcut_9,
         ):
             self.addAction(digit_action)
-        self.addAction(self.actions.toggle_annotation_checked)
 
         self.canvas.vertex_selected.connect(
             self.actions.remove_point.setEnabled
@@ -2288,7 +2318,7 @@ class LabelingWidget(LabelDialog):
         ) = self._append_filter_submenus(
             self.canvas.menus[0],
             prepend=True,
-            after_filter_actions=(self.actions.toggle_annotation_checked,),
+            after_filter_actions=(self.annotation_check_menu.menuAction(),),
         )
         self.canvas.menus[0].aboutToShow.connect(self.refresh_filter_menus)
         self.canvas.menus[0].aboutToShow.connect(
@@ -3131,7 +3161,7 @@ class LabelingWidget(LabelDialog):
         ) = self._append_filter_submenus(
             self.canvas.menus[0],
             prepend=True,
-            after_filter_actions=(self.actions.toggle_annotation_checked,),
+            after_filter_actions=(self.annotation_check_menu.menuAction(),),
         )
         self.menus.edit.clear()
         actions = (
@@ -3215,11 +3245,7 @@ class LabelingWidget(LabelDialog):
             current_index, total_count = self.get_image_progress_info()
             file_path = osp.abspath(str(self.filename))
             dirty_marker = "*" if self.dirty else ""
-            checked_status = (
-                self.tr("Checked")
-                if self._annotation_checked()
-                else self.tr("Unchecked")
-            )
+            checked_status = self._annotation_checked_text()
             image_size = ""
             if hasattr(self, "image") and not self.image.isNull():
                 image_size = f" [{self.image.width()}x{self.image.height()}]"
@@ -4201,19 +4227,26 @@ class LabelingWidget(LabelDialog):
                     buffer = buffer[-32:] + chunk
                     match = CHECKED_FIELD_PATTERN.search(buffer)
                     if match:
-                        return match.group(1) == "true"
+                        return (
+                            "failed"
+                            if match.group(1) == '"failed"'
+                            else match.group(1) == "true"
+                        )
         except Exception:
             return False
         return False
 
     def _set_file_item_checked(self, item, checked):
-        if item.data(Qt.ItemDataRole.UserRole) is checked:
+        if item.data(Qt.ItemDataRole.UserRole) == checked:
             return
         item.setIcon(self.file_status_icons[checked])
         item.setData(Qt.ItemDataRole.UserRole, checked)
+        item.setToolTip(
+            f"{item.text()}\n{self._annotation_checked_text(checked)}"
+        )
 
     def _file_item_annotation_checked(self, item):
-        return item.data(Qt.ItemDataRole.UserRole) is True
+        return item.data(Qt.ItemDataRole.UserRole) in (True, "failed")
 
     def _create_file_list_item(self, file, label_file):
         item = QtWidgets.QListWidgetItem(file)
@@ -4237,23 +4270,28 @@ class LabelingWidget(LabelDialog):
         return self.file_list_widget.item(self.fn_to_index[str(self.filename)])
 
     def _annotation_checked(self):
-        return self.other_data.get(CHECKED_FIELD, False) is True
+        checked = self.other_data.get(CHECKED_FIELD, False)
+        return "failed" if checked == "failed" else checked is True
+
+    def _annotation_checked_text(self, checked=None):
+        if checked is None:
+            checked = self._annotation_checked()
+        return {
+            False: self.tr("Unchecked"),
+            True: self.tr("Check Passed"),
+            "failed": self.tr("Check Failed"),
+        }[checked]
 
     def _update_annotation_checked_action(self):
         if not hasattr(self, "actions"):
             return
-        action = self.actions.toggle_annotation_checked
         checked = self._annotation_checked()
-        if action.isChecked() != checked:
-            action.setChecked(checked)
-        if checked:
-            action.setText(self.tr("Mark as Unchecked"))
-            tip = self.tr("Mark current annotation as unchecked")
-        else:
-            action.setText(self.tr("Mark as Checked"))
-            tip = self.tr("Mark current annotation as checked")
-        action.setToolTip(tip)
-        action.setStatusTip(tip)
+        for action, status in (
+            (self.actions.clear_annotation_checked, False),
+            (self.actions.toggle_annotation_checked, True),
+            (self.actions.fail_annotation_checked, "failed"),
+        ):
+            action.setChecked(checked == status)
 
     def _update_current_file_checked_item(self):
         item = self._current_file_item()
@@ -4268,7 +4306,9 @@ class LabelingWidget(LabelDialog):
     def set_annotation_checked(self, checked):
         if self.filename is None or self.image.isNull():
             return
-        self.other_data[CHECKED_FIELD] = bool(checked)
+        self.other_data[CHECKED_FIELD] = (
+            "failed" if checked == "failed" else bool(checked)
+        )
         self._sync_annotation_checked_state()
         label_file = self.get_label_file()
         if self.save_labels(label_file):

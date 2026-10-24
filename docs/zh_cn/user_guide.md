@@ -108,7 +108,15 @@ X-AnyLabeling 提供数据删除功能，具体操作如下：
 | Ctrl+Shift+D | 跳转到下一张未检查的标注 |
 
 
-检查状态保存在标注 JSON 的顶层 `checked` 字段中，右下角文件列表会用圆点展示该状态：绿色表示已检查，灰色表示未检查。可以在画布右键菜单中选择 `Mark as Checked` / `Mark as Unchecked`，也可以按 `Ctrl+Alt+K` 切换当前图像的检查状态。
+在画布右键菜单的“检查状态”二级菜单中，可以设置当前图像的检查结果：
+
+| 状态 | 文件列表图标 | 默认快捷键 | JSON 顶层 `checked` 值 |
+| --- | --- | --- | --- |
+| 未检查 | 灰色空心圆 | `Ctrl+Alt+U` | `false` |
+| 检查通过 | 绿色实心圆 | `Ctrl+Alt+K` | `true` |
+| 检查不通过 | 红色实心圆 | `Ctrl+Alt+J` | `"failed"` |
+
+三个快捷键直接设置对应状态，重复按下不会切换到其他状态；快捷键可以在设置中修改。设置状态后会保存当前标注。旧数据中的 `checked: true` 视为检查通过，`false` 或缺少该字段视为未检查。上一张／下一张未检查的跳转会跳过检查通过和检查不通过的图片。
 
 文件列表中的复选框默认不可编辑，如需启用编辑功能，可通过 `Settings`（`Ctrl+0`）在 `General` 中开启 `File List Checkbox Editable`，或在配置文件中将 `file_list_checkbox_editable` 设置为 `true`。
 该复选框表示是否存在标注文件，与圆点展示的检查状态相互独立。
@@ -337,8 +345,11 @@ X-AnyLabeling 默认开启自动保存功能，用户在初次启动界面时，
 - `score::[0,0.6)`：查找包含分数在 [0, 0.6) 区间内的对象（左闭右开）
 - `score::(0,0.6)`：查找包含分数在 (0, 0.6) 区间内的对象（开区间）
 - `description::1` 或 `description::true`：查找包含非空描述的图片
-- `checked::1` 或 `checked::true`：查找已检查的图片
-- `checked::0` 或 `checked::false`：查找未检查的图片；未生成标签文件的图片也会视为未检查
+- `checked::passed`：仅查找检查通过的图片
+- `checked::failed`：仅查找检查不通过的图片
+- `checked::unchecked`：查找未检查的图片；缺少 `checked` 字段或未生成标签文件的图片也会视为未检查
+- `checked::1` 或 `checked::true`：查找所有已检查的图片，包含检查通过和检查不通过
+- `checked::0` 或 `checked::false`：与 `checked::unchecked` 相同
 
 ### 2.6 编辑文本
 
@@ -949,7 +960,9 @@ digit_shortcuts:
 | a                     | 打开上一个文件                         |
 | Ctrl + Shift + d      | 打开下一个未检查的标注                      |
 | Ctrl + Shift + a      | 打开上一个未检查的标注                      |
-| Ctrl + Alt + k        | 切换当前标注的检查状态                      |
+| Ctrl + Alt + u        | 清除当前标注的检查状态（未检查）              |
+| Ctrl + Alt + k        | 将当前标注设为检查通过                      |
+| Ctrl + Alt + j        | 将当前标注设为检查不通过                    |
 | p                     | 创建多边形                           |
 | Ctrl + n              | 创建画笔多边形（切换画笔模式）                 |
 | o                     | 创建旋转框                           |

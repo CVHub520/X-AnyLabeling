@@ -144,7 +144,10 @@ class LabelFile:
 
         # Add new fields if not available
         other_data["description"] = other_data.get("description", "")
-        other_data["checked"] = data.get("checked", False) is True
+        checked = data.get("checked", False)
+        other_data["checked"] = (
+            "failed" if checked == "failed" else checked is True
+        )
 
         # Only replace data after everything is loaded.
         self.flags = flags
@@ -176,7 +179,8 @@ class LabelFile:
             other_data = {}
         if flags is None:
             flags = {}
-        checked = other_data.get("checked", False) is True
+        checked = other_data.get("checked", False)
+        checked = "failed" if checked == "failed" else checked is True
         for i, shape in enumerate(shapes):
             if shape["shape_type"] == "rectangle":
                 sorted_box = LabelConverter.calculate_bounding_box(

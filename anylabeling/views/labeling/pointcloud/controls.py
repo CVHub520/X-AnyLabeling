@@ -815,15 +815,16 @@ class ShortcutsDialog(QtWidgets.QDialog):
                 border: 1px solid {theme['border']}; border-radius: 16px;
                 padding: 0 10px 0 0; min-height: 30px; max-height: 30px; }}
             QLineEdit:focus {{ border-color: {theme['border']}; }}
-            QToolButton {{ border: 1px solid transparent; background: transparent; padding: 3px;
-                color: {theme['text']}; border-radius: 4px; }}
-            QToolButton#shortcutCloseButton {{
-                min-width: 18px; max-width: 18px;
-                min-height: 18px; max-height: 18px;
-                padding: 3px;
+            QPushButton#shortcutCloseButton {{
+                border: none; background: transparent;
+                color: {theme['text']}; font-size: 16px; font-weight: 500;
+                border-radius: 0px; outline: none; padding: 0;
             }}
-            QToolButton:hover {{ background: {theme['surface_hover']}; border-color: {theme['border']}; }}
-            QToolButton:pressed {{ background: {theme['surface_pressed']}; }}
+            QPushButton#shortcutCloseButton:focus {{ outline: none; }}
+            QPushButton#shortcutCloseButton:hover {{
+                background: rgb(239, 68, 68); color: white;
+                border-radius: 0px; border-top-right-radius: 20px;
+            }}
             QScrollArea, QWidget#shortcutContents {{ border: none; background: transparent; }}
             QScrollBar:vertical {{ background: transparent; width: 9px; margin: 13px 0; }}
             QScrollBar::handle:vertical {{ background: rgb(225, 224, 226);
@@ -841,21 +842,28 @@ class ShortcutsDialog(QtWidgets.QDialog):
         card.setObjectName("shortcutCard")
         outer.addWidget(card)
         layout = QtWidgets.QVBoxLayout(card)
-        layout.setContentsMargins(20, 18, 20, 20)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(12)
         header = QtWidgets.QHBoxLayout()
+        header.setContentsMargins(20, 0, 0, 0)
         title = QtWidgets.QLabel(self.windowTitle())
         title.setObjectName("shortcutTitle")
         header.addWidget(title)
         header.addStretch()
-        close = QtWidgets.QToolButton()
+        close = QtWidgets.QPushButton()
         close.setObjectName("shortcutCloseButton")
-        close.setText("×")
+        close.setText("\u00d7")
         close.setAccessibleName(self.tr("Close"))
-        close.setFixedSize(26, 26)
+        close.setFixedSize(48, 48)
+        close.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        close.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         close.clicked.connect(self.reject)
         header.addWidget(close)
         layout.addLayout(header)
+        body = QtWidgets.QVBoxLayout()
+        body.setContentsMargins(20, 0, 20, 20)
+        body.setSpacing(12)
+        layout.addLayout(body, 1)
         self.search = QtWidgets.QLineEdit()
         self.search.setPlaceholderText(self.tr("Search shortcuts"))
         self.search.setAccessibleName(self.tr("Search shortcuts"))
@@ -876,7 +884,7 @@ class ShortcutsDialog(QtWidgets.QDialog):
         painter.drawLine(QtCore.QPointF(9, 9), QtCore.QPointF(13, 13))
         painter.end()
         search_icon.setPixmap(pixmap)
-        layout.addWidget(self.search)
+        body.addWidget(self.search)
         scroll = QtWidgets.QScrollArea()
         scroll.setVerticalScrollBar(
             ShortcutScrollBar(QtCore.Qt.Orientation.Vertical, scroll)
@@ -918,7 +926,7 @@ class ShortcutsDialog(QtWidgets.QDialog):
         rows_layout.addWidget(self.empty)
         rows_layout.addStretch()
         scroll.setWidget(contents)
-        layout.addWidget(scroll, 1)
+        body.addWidget(scroll, 1)
         self.search.textChanged.connect(self._filter)
         self.search.setFocus()
 
