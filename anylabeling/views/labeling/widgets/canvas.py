@@ -2411,6 +2411,7 @@ class Canvas(
         for shape in self._shape_hit_candidates(pos):
             if (
                 not shape.locked
+                and shape.selected
                 and shape.shape_type == "cuboid"
                 and len(shape.points) == 8
             ):
@@ -2495,7 +2496,7 @@ class Canvas(
             # check if we happen to be inside a shape.
             index = (
                 None
-                if shape.locked
+                if shape.locked or not shape.selected
                 else shape.nearest_vertex(pos, self.epsilon / self.scale)
             )
             index_edge = (
@@ -2523,6 +2524,7 @@ class Canvas(
                 break
             if (
                 index_edge is not None
+                and shape.selected
                 and shape.can_add_point()
                 and shape.shape_type != "quadrilateral"
             ):
@@ -2542,7 +2544,7 @@ class Canvas(
                 self.setStatusTip(self.toolTip())
                 self.update()
                 break
-            shape_hit = False
+            shape_hit = index_edge is not None
             if shape.shape_type in ["point", "line", "linestrip"]:
                 nearest_index = shape.nearest_vertex(
                     pos, self.epsilon * 3 / self.scale
@@ -2582,14 +2584,6 @@ class Canvas(
                     CURSOR_DEFAULT if shape.locked else CURSOR_GRAB
                 )
                 # [Feature] Automatically highlight shape when the mouse is moved inside it
-                if self.h_shape_is_hovered:
-                    group_mode = (
-                        ev.modifiers()
-                        == QtCore.Qt.KeyboardModifier.ControlModifier
-                    )
-                    self.select_shape_point(
-                        pos, multiple_selection_mode=group_mode
-                    )
                 self.update()
 
                 if shape.shape_type == "rectangle":
@@ -2615,8 +2609,6 @@ class Canvas(
             self.override_cursor(CURSOR_DEFAULT)
             self.setToolTip("")
             self.setStatusTip("")
-            if self.h_shape_is_hovered and self.selected_shapes:
-                self.deselect_shape()
         self.vertex_selected.emit(self.h_vertex is not None)
 
         if prev_hover_shape != self.h_shape:

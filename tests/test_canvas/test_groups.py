@@ -120,7 +120,7 @@ class TestCanvasGroups(unittest.TestCase):
             self.canvas.update()
             self.app.processEvents()
             image = self.canvas.grab().toImage()
-            y = int(shape.bounding_rect().top() * scale)
+            y = int(shape.bounding_rect().top() * scale) - 3
             pixels = [
                 x
                 for x in range(image.width())

@@ -434,7 +434,9 @@ class Shape:
         """Paint shape using QPainter"""
         if self.points:
             color = (
-                self.select_line_color if self.selected else self.line_color
+                self.select_line_color
+                if self.selected or self.hovered
+                else self.line_color
             )
             pen = QtGui.QPen(color)
             pen.setWidthF(float(self.line_width))
@@ -537,7 +539,7 @@ class Shape:
                 painter.setPen(orient_pen)
                 painter.drawLine(self.points[0], self.points[1])
                 painter.setPen(pen)
-                if self.selected or self.hovered:
+                if self.selected:
                     for i in self.get_cuboid_visible_control_indices():
                         self.draw_vertex(vrtx_path, i)
             elif self.shape_type == "circle":

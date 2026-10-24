@@ -89,6 +89,15 @@ class TestCanvasShapeSelection(unittest.TestCase):
 
                 self._move_mouse(50, 20)
                 self.assertIs(self.canvas.h_shape, shape)
+                self.assertIsNone(self.canvas.h_edge)
+                QtTest.QTest.mouseClick(
+                    self.canvas,
+                    QtCore.Qt.MouseButton.LeftButton,
+                    pos=QtCore.QPoint(50, 20),
+                )
+                self.assertEqual(shape.points, original_points)
+                self.assertEqual(self.canvas.selected_shapes, [shape])
+                self._move_mouse(50, 20)
                 self.assertIsNotNone(self.canvas.h_edge)
 
     def test_click_selects_nested_shape_below_larger_shape(self):
@@ -118,6 +127,10 @@ class TestCanvasShapeSelection(unittest.TestCase):
         self.canvas.mouseMoveEvent(event)
 
         self.assertIs(self.canvas.h_shape, inner)
+        self.assertIsNone(self.canvas.h_vertex)
+        self.assertEqual(self.canvas.selected_shapes, [])
+        self._set_selection([inner])
+        self._move_mouse(40, 40)
         self.assertEqual(self.canvas.h_vertex, 0)
 
     def test_clicking_unselected_vertex_selects_its_shape(self):
@@ -133,12 +146,13 @@ class TestCanvasShapeSelection(unittest.TestCase):
 
         self.assertEqual(self.canvas.selected_shapes, [inner])
 
-    def test_auto_highlight_click_allows_move_until_mouse_leaves(self):
+    def test_hover_preserves_explicit_selection(self):
         shape = self.make_rectangle("shape", 40, 40, 80, 80)
         self.canvas.shapes = [shape]
         self.canvas.h_shape_is_hovered = True
 
         self._move_mouse(60, 60)
+        self.assertEqual(self.canvas.selected_shapes, [])
         QtTest.QTest.mouseClick(
             self.canvas,
             QtCore.Qt.MouseButton.LeftButton,
@@ -156,7 +170,7 @@ class TestCanvasShapeSelection(unittest.TestCase):
 
         self._move_mouse(180, 180)
 
-        self.assertEqual(self.canvas.selected_shapes, [])
+        self.assertEqual(self.canvas.selected_shapes, [shape])
 
     def test_finishing_shape_move_requests_repaint(self):
         shape = self.make_rectangle("shape", 40, 40, 80, 80)
