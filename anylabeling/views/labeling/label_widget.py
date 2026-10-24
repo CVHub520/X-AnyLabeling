@@ -142,7 +142,7 @@ def _find_next_label_loop_shape(shapes, start_index, canvas_shapes):
 
 
 def _create_file_status_icon(color, filled=True):
-    pixmap = QtGui.QPixmap(12, 12)
+    pixmap = QtGui.QPixmap(10, 12)
     pixmap.fill(Qt.GlobalColor.transparent)
     painter = QtGui.QPainter(pixmap)
     painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
@@ -152,7 +152,7 @@ def _create_file_status_icon(color, filled=True):
     else:
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.setPen(QtGui.QPen(QtGui.QColor(color), 1.5))
-    painter.drawEllipse(2, 2, 8, 8)
+    painter.drawEllipse(1, 2, 8, 8)
     painter.end()
     return QtGui.QIcon(pixmap)
 
@@ -361,7 +361,10 @@ class LabelingWidget(LabelDialog):
         self.settings_button.clicked.connect(self.open_settings_dialog)
         self.file_list_widget = QtWidgets.QListWidget()
         self.file_list_widget.setObjectName("FileList")
-        self.file_list_widget.setIconSize(QtCore.QSize(12, 12))
+        self.file_list_widget.setIconSize(QtCore.QSize(10, 12))
+        self.file_list_widget.setStyleSheet(
+            "QListWidget#FileList::indicator { margin-right: 0; }"
+        )
         self.file_status_icons = {
             True: _create_file_status_icon(FILE_CHECKED_COLOR),
             False: _create_file_status_icon(
