@@ -15,6 +15,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [2.3 Editing Labels](#23-editing-labels)
       * [2.4 Adding Image Captions](#24-adding-image-captions)
       * [2.5 Searching Images](#25-searching-images)
+      * [2.6 Editing Text Descriptions](#26-editing-text-descriptions)
    * [3. View Options](#3-view-options)
       * [3.1 Canvas Controls](#31-canvas-controls)
       * [3.2 Image Display](#32-image-display)
@@ -334,6 +335,14 @@ Filter images by object attributes using the format `attribute::value`:
 - `description::1` or `description::true`: Find images containing objects with non-empty descriptions
 - `checked::1` or `checked::true`: Find checked images
 - `checked::0` or `checked::false`: Find unchecked images; images without generated label files are also treated as unchecked
+
+### 2.6 Editing Text Descriptions
+
+Use the description panel on the right to edit text for an image or an individual shape. In edit mode, click an empty area of the canvas to edit the image description, or select a single shape to edit its description.
+
+Hover over the description field to reveal the expand icon in its bottom-right corner. Click it to open a centered editor for longer, multiline text. Click **Confirm** to apply the text to the panel, or click **Cancel** or press `Esc` to discard changes made in the dialog.
+
+After confirming, save the annotations as usual. Image descriptions are stored in the top-level `description` field of the label JSON; shape descriptions are stored in the `description` field of the corresponding `shapes` entry.
 
 ## 3. View Options
 

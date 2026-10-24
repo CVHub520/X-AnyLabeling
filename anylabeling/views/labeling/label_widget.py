@@ -24,7 +24,6 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMessageBox,
-    QPlainTextEdit,
     QPushButton,
     QRadioButton,
     QScrollArea,
@@ -50,7 +49,6 @@ from .utils.style import (
     get_dock_style,
     get_ok_btn_style,
     get_panel_style,
-    get_plain_text_edit_style,
     get_settings_button_style,
     get_toolbar_scroll_area_style,
 )
@@ -74,6 +72,7 @@ from .utils.file_search import (
 from .utils.qt import new_icon_path
 from .utils.theme import get_theme
 from .pointcloud.icons import get_icon
+from .widgets.description_editor import DescriptionEditor
 from .widgets import (
     AboutDialog,
     AutoLabelingWidget,
@@ -316,8 +315,7 @@ class LabelingWidget(LabelDialog):
         )
 
         self.shape_text_label = QLabel("Object Text")
-        self.shape_text_edit = QPlainTextEdit()
-        self.shape_text_edit.setStyleSheet(get_plain_text_edit_style())
+        self.shape_text_edit = DescriptionEditor()
         self.description_checkbox = QCheckBox()
         self.description_checkbox.setChecked(
             self._config["description_dock"]["show"]

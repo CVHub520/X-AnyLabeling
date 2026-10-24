@@ -2,6 +2,7 @@
     <qresource prefix="/images">
         <file>images/alibaba.png</file>
         <file>images/anthropic.png</file>
+        <file>images/maximize-2.svg</file>
         <file>images/panel-left.svg</file>
         <file>images/panel-right.svg</file>
         <file>images/rotate-cw.svg</file>

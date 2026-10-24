@@ -729,6 +729,44 @@ def get_checkbox_indicator_style() -> str:
     return _checkbox_indicator_qss()
 
 
+def get_scrollbar_style():
+    t = get_theme()
+    return f"""
+        QScrollBar:vertical {{
+            background-color: {t["background_secondary"]};
+            width: 8px;
+            margin: 0;
+        }}
+        QScrollBar::handle:vertical {{
+            background-color: {t["scrollbar"]};
+            border-radius: 4px;
+            min-height: 20px;
+        }}
+        QScrollBar::handle:vertical:hover {{
+            background-color: {t["scrollbar_hover"]};
+        }}
+        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
+            height: 0;
+        }}
+        QScrollBar:horizontal {{
+            background-color: {t["background_secondary"]};
+            height: 8px;
+            margin: 0;
+        }}
+        QScrollBar::handle:horizontal {{
+            background-color: {t["scrollbar"]};
+            border-radius: 4px;
+            min-width: 20px;
+        }}
+        QScrollBar::handle:horizontal:hover {{
+            background-color: {t["scrollbar_hover"]};
+        }}
+        QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{
+            width: 0;
+        }}
+    """
+
+
 def get_dialog_style() -> str:
     """
     Returns a comprehensive base stylesheet for QDialog subclasses.
@@ -918,38 +956,7 @@ def get_dialog_style() -> str:
             border-bottom: 1px solid {t["border"]};
             padding: 4px 8px;
         }}
-        QScrollBar:vertical {{
-            background-color: {t["background_secondary"]};
-            width: 8px;
-            margin: 0;
-        }}
-        QScrollBar::handle:vertical {{
-            background-color: {t["scrollbar"]};
-            border-radius: 4px;
-            min-height: 20px;
-        }}
-        QScrollBar::handle:vertical:hover {{
-            background-color: {t["scrollbar_hover"]};
-        }}
-        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
-            height: 0;
-        }}
-        QScrollBar:horizontal {{
-            background-color: {t["background_secondary"]};
-            height: 8px;
-            margin: 0;
-        }}
-        QScrollBar::handle:horizontal {{
-            background-color: {t["scrollbar"]};
-            border-radius: 4px;
-            min-width: 20px;
-        }}
-        QScrollBar::handle:horizontal:hover {{
-            background-color: {t["scrollbar_hover"]};
-        }}
-        QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{
-            width: 0;
-        }}
+        {get_scrollbar_style()}
     """
 
 

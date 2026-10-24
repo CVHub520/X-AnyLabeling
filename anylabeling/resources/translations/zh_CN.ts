@@ -10275,4 +10275,11 @@ Response preview:
       <translation>无法打开图片文件：%s</translation>
     </message>
   </context>
+<context>
+    <name>DescriptionEditor</name>
+    <message><source>Expand description</source><translation>展开描述</translation></message>
+    <message><source>Edit description</source><translation>编辑描述</translation></message>
+    <message><source>Cancel</source><translation>取消</translation></message>
+    <message><source>Confirm</source><translation>确认</translation></message>
+</context>
 </TS>
