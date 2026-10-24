@@ -779,6 +779,8 @@ class LabelModifyDialog(QtWidgets.QDialog):
         super(LabelModifyDialog, self).__init__(parent)
         self.parent = parent
         self.opacity = opacity
+        self._lock_changes = {}
+        self.annotations_changed = False
         self.image_file_list = self.get_image_file_list()
         self.start_index = 1
         self.end_index = len(self.image_file_list)
@@ -787,6 +789,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
     def init_ui(self):
         """Initialize the user interface."""
+
         self.setWindowTitle(self.tr("Label Change Manager"))
         self.setWindowFlags(
             self.windowFlags()
@@ -796,10 +799,22 @@ class LabelModifyDialog(QtWidgets.QDialog):
         self.resize(700, 400)
         self.move_to_center()
 
-        title_list = ["Category", "Delete", "New Value", "Visible", "Color"]
+        title_list = [
+            "Category",
+            "Delete",
+            "New Value",
+            "Visible",
+            "Lock",
+            "Color",
+        ]
         self.table_widget = QTableWidget(self)
         self.table_widget.setColumnCount(len(title_list))
         self.table_widget.setHorizontalHeaderLabels(title_list)
+        self.table_widget.horizontalHeaderItem(4).setToolTip(
+            self.tr(
+                "Session-only category lock; independent of the file range"
+            )
+        )
         self.table_widget.setEditTriggers(
             QtWidgets.QAbstractItemView.EditTrigger.DoubleClicked
         )
@@ -901,7 +916,6 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
             delete_checkbox = QCheckBox()
             delete_checkbox.setChecked(info["delete"])
-            delete_checkbox.setIcon(QtGui.QIcon(":/images/images/delete.png"))
             delete_checkbox.stateChanged.connect(
                 lambda state, row=i: self.on_delete_checkbox_changed(
                     row, state
@@ -951,15 +965,45 @@ class LabelModifyDialog(QtWidgets.QDialog):
             visible_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             visible_layout.addWidget(visible_checkbox)
 
+            lock_checkbox = QCheckBox()
+            lock_checkbox.setChecked(info.get("locked", False))
+            lock_checkbox.toggled.connect(
+                lambda locked, label=label: self._lock_changes.update(
+                    {label: locked}
+                )
+            )
+
             color = QColor(*info["color"])
             color.setAlpha(info["opacity"])
             color_button = LabelColorButton(color, self)
             color_button.setParent(self.table_widget)
             self.table_widget.setItem(i, 0, class_item)
-            self.table_widget.setCellWidget(i, 1, delete_checkbox)
+            self.table_widget.setCellWidget(
+                i, 1, self._checkbox_container(delete_checkbox)
+            )
             self.table_widget.setCellWidget(i, 2, value_edit)
             self.table_widget.setCellWidget(i, 3, visible_container)
-            self.table_widget.setCellWidget(i, 4, color_button)
+            self.table_widget.setCellWidget(
+                i, 4, self._checkbox_container(lock_checkbox)
+            )
+            self.table_widget.setCellWidget(i, 5, color_button)
+
+    @staticmethod
+    def _checkbox_container(checkbox):
+        container = QtWidgets.QWidget()
+        layout = QtWidgets.QHBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(checkbox)
+        return container
+
+    def _get_checkbox(self, row, column):
+        return (
+            self.table_widget.cellWidget(row, column)
+            .layout()
+            .itemAt(0)
+            .widget()
+        )
 
     def _get_value_edit(self, row):
         return self.table_widget.cellWidget(row, 2)
@@ -990,7 +1034,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
             f"QLineEdit:focus {{ background-color: {t['background_secondary']}; }}"
         )
         value_edit = self._get_value_edit(row)
-        if state == QtCore.Qt.CheckState.Checked:
+        if state == QtCore.Qt.CheckState.Checked.value:
             value_edit.setReadOnly(True)
             value_edit.setStyleSheet(
                 _base + f"QLineEdit {{ background-color: {t['surface']};"
@@ -1001,7 +1045,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
             value_edit.setStyleSheet(_base)
 
     def on_value_edit_changed(self, row, text):
-        delete_checkbox = self.table_widget.cellWidget(row, 1)
+        delete_checkbox = self._get_checkbox(row, 1)
         delete_checkbox.setEnabled(not bool(text))
 
     def on_visible_checkbox_changed(self, row, state):
@@ -1028,7 +1072,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
     def show_context_menu(self, pos):
         column = self.table_widget.columnAt(pos.x())
-        if column != 3:
+        if column not in (3, 4):
             return
 
         menu = QtWidgets.QMenu(self)
@@ -1037,9 +1081,11 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
         action = menu.exec(self.table_widget.mapToGlobal(pos))
         if action == select_all_action:
-            self.select_all_visible()
+            for row in range(self.table_widget.rowCount()):
+                self._get_checkbox(row, column).setChecked(True)
         elif action == deselect_all_action:
-            self.deselect_all_visible()
+            for row in range(self.table_widget.rowCount()):
+                self._get_checkbox(row, column).setChecked(False)
 
     def select_all_visible(self):
         for i in range(self.table_widget.rowCount()):
@@ -1072,7 +1118,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
         for i in range(total_num):
             label = self.table_widget.item(i, 0).text()
-            delete_checkbox = self.table_widget.cellWidget(i, 1)
+            delete_checkbox = self._get_checkbox(i, 1)
             value_edit = self._get_value_edit(i)
 
             is_delete = delete_checkbox.isChecked()
@@ -1081,11 +1127,14 @@ class LabelModifyDialog(QtWidgets.QDialog):
             visible_container = self.table_widget.cellWidget(i, 3)
             visible_checkbox = visible_container.layout().itemAt(0).widget()
             is_visible = visible_checkbox.isChecked()
+            lock_checkbox = self._get_checkbox(i, 4)
+            locked = lock_checkbox.isChecked()
 
             # Update the label info in the temporary dictionary
             self.parent.label_info[label]["delete"] = is_delete
             self.parent.label_info[label]["value"] = new_value
             self.parent.label_info[label]["visible"] = is_visible
+            self.parent.label_info[label]["locked"] = locked
 
             # Update the color
             color = self.parent.label_info[label]["color"]
@@ -1106,8 +1155,37 @@ class LabelModifyDialog(QtWidgets.QDialog):
             else:
                 updated_label_info[label] = self.parent.label_info[label]
 
+        self.annotations_changed = any(
+            info["delete"] or info["value"]
+            for info in self.parent.label_info.values()
+        )
         if self.modify_label(start_index, end_index):
+            applied_locks = {}
+            states = self.parent.unique_label_list.lock_states
+            for label, info in self.parent.label_info.items():
+                if info["delete"]:
+                    states.pop(label, None)
+                    continue
+                target = info["value"] or label
+                if target != label and label in states:
+                    states[target] = states.pop(label)
+                if label in self._lock_changes:
+                    states[target] = self._lock_changes[label]
+                    applied_locks[target] = self._lock_changes[label]
+                for item in self.parent.unique_label_list.find_items_by_label(
+                    target
+                ):
+                    self.parent.unique_label_list.set_item_locked(
+                        item, states.get(target, False)
+                    )
             self.parent.label_info = updated_label_info
+            for label, locked in applied_locks.items():
+                items = self.parent.unique_label_list.find_items_by_label(
+                    label
+                )
+                self.parent.toggle_unique_label_items_lock(
+                    items, locked=locked
+                )
             if hasattr(self.parent, "apply_label_visibility"):
                 self.parent.apply_label_visibility()
             popup = Popup(
@@ -1127,6 +1205,11 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
     def modify_label(self, start_index: int = -1, end_index: int = -1):
         try:
+            if not any(
+                info["delete"] or info["value"]
+                for info in self.parent.label_info.values()
+            ):
+                return True
             if start_index == -1:
                 start_index = self.start_index
             if end_index == -1:
@@ -1149,7 +1232,9 @@ class LabelModifyDialog(QtWidgets.QDialog):
                     label = shape["label"]
                     if self.parent.label_info[label][
                         "delete"
-                    ] and not shape.get("locked", False):
+                    ] and not self.parent.unique_label_list.lock_states.get(
+                        label, False
+                    ):
                         continue
                     if self.parent.label_info[label]["value"]:
                         shape["label"] = self.parent.label_info[label]["value"]
@@ -1184,7 +1269,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
         for i in range(self.parent.unique_label_list.count()):
             item = self.parent.unique_label_list.item(i)
             if item:
-                label_text = item.text()
+                label_text = item.data(Qt.ItemDataRole.UserRole)
                 if label_text:
                     classes.add(label_text)
 
@@ -1219,6 +1304,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 color=color,
                 opacity=opacity,
                 visible=visible,
+                locked=self.parent.unique_label_list.lock_states.get(c, False),
             )
 
     def update_range(self):

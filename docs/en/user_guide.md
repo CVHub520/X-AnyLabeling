@@ -252,6 +252,10 @@ Additional object-specific operations:
 
 To protect completed annotations, select one or more shapes and check **Lock Shape** in the canvas right-click menu. You can also right-click selected items in the **Shapes** panel to invert each item's lock state; locked items display a lock icon. Locked shapes remain selectable and allow label and attribute edits, while geometry changes and deletion are disabled.
 
+Right-click a category in **Labels** to lock or unlock all shapes of that category. Category rules apply across images during the current session, including subsequently loaded and newly created shapes. Hover over **Labels** or **Shapes** to reveal the header lock button: click to lock all when any are unlocked, or to unlock all when all are locked. Bulk operations replace previous states within their scope; clicking again does not restore earlier individual locks.
+
+Locks protect editing only during the current session. They are not written to annotation JSON and do not mark the file as unsaved. Object locks are retained when switching images and reset when the application closes. Legacy `locked` fields in annotation files are ignored and removed on normal save.
+
 When **Show Groups** is enabled, each group displays an interactive bounding frame and a compact badge such as `G3 · S5` (group 3 with 5 shapes). Clicking a shape still selects that shape first. Click the badge, frame, or empty area inside the frame to select the whole group, then drag it or use the arrow keys to move all members together (`Shift` accelerates keyboard movement). Copying and pasting a selected group assigns the pasted group the next available group ID and offsets it slightly. Deleting a selected group requires confirmation.
 
 - **Rectangles**: You can drag a rectangle's corner handles to resize it, or select multiple rectangles and merge them using the right-click menu. Mouse wheel editing is disabled by default; you can enable it in `Settings > Canvas > Wheel Editing > Enable Wheel Rectangle Editing`, or via the `wheel_rectangle_editing` setting. When enabled, select one unlocked rectangle and use `Ctrl + Wheel`: scrolling inside scales it, while scrolling outside adjusts the nearest edge. Plain wheel scrolling always zooms the canvas. Note: wheel rectangle editing is automatically disabled when `auto_highlight_shape` is enabled.
@@ -410,8 +414,17 @@ You can control the visibility of various shape attributes:
 When you hover over a shape, its dimensions (width and height) are displayed in the status bar.
 
 > [!TIP]
-> In the **Shapes** list on the right panel, right-click and select **Filter by Label** or **Filter by Group ID** to filter objects.
+> Use **Filter by Label** or **Filter by Group ID** in the canvas right-click menu to filter objects.
 > The global show/hide control for all shapes is available in the left toolbar as an **eye/hidden** toggle button (click once to hide all, click again to show all).
+
+The right panels also provide visibility controls:
+
+- **Labels item checkbox**: Show or hide an entire category. The setting is retained across images during the current session.
+- **Shapes item checkbox**: Show or hide an individual shape in the current image.
+- **Header eye button**: Appears on hover and toggles visibility in bulk. Labels controls all categories; Shapes controls all shapes in the current image. Click to hide all when any are visible, or to show all when all are hidden.
+- **Rightmost header checkbox**: Expand or hide the panel contents without changing shape visibility on the canvas.
+
+Visibility and locking are independent. Hiding shapes does not delete annotations.
 
 ### 3.4 Crosshair Customization
 
@@ -746,13 +759,15 @@ You can also use **Tools** > **Save Visualization Image** or **Save Visualizatio
 - **Delete Labels**: Remove specific label classes entirely from the list of available labels.
 - **Rename Labels**: Replace an existing label name throughout the selected annotation range.
 - **Control Label Visibility**: Use the `Visible` column checkboxes to show or hide specific labels on the canvas.
+- **Lock Categories**: Use the `Lock` column checkboxes to lock or unlock an entire category, sharing the current session state with the Labels panel.
 - **Change Label Colors**: Modify the display color for specific label classes *for the current session only*. (For persistent changes, see [7.2 Custom Label Colors](#72-custom-label-colors)).
 
-**Visibility Quick Actions**:
-- Right-click on the `Visible` column to quickly:
-  - **Select All**: Show all labels at once
-  - **Deselect All**: Hide all labels at once
-- Visibility settings persist across image switches and take effect after clicking the `Go` button.
+**Visibility and Lock Quick Actions**:
+
+- Right-click the `Visible` or `Lock` column and choose **Select All** or **Deselect All** to check or uncheck the entire column.
+- Changes take effect after clicking `Go`. `Visible` and `Lock` settings apply only to the current session, independently of the `From` / `To` file range.
+- The file range applies to annotation changes such as deletion and renaming. Changing only visibility or locking does not rewrite annotation JSON.
+- The `Delete` column uses centered checkboxes; check a box to mark its category for deletion.
 
 ### 5.4 Shape Type Conversion
 
@@ -915,7 +930,7 @@ You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit
 | `w`                   | Show Hidden Shapes                               | Show previously hidden shapes              |
 | `Alt+d`               | Open Digit Shortcut Manager                      | Configure numeric key shortcuts            |
 | `Alt+g`               | Open Group ID Manager                            | Manually set group ID                      |
-| `Alt+l`               | Open Label Manager                               | Rename, Delete, Hide/Show, Adjust Color    |
+| `Alt+l`               | Open Label Manager                               | Rename, Delete, Hide/Show, Lock/Unlock, Adjust Color    |
 | `Alt+s`               | Open Shape Manager                               | Add, Delete, Remove                        |
 | `Ctrl+0`              | Open Settings                                    | Shortcut settings can be edited in GUI     |
 | `Ctrl+Delete`         | Delete Current Label File (`.json`)              | **Irreversible**                           |

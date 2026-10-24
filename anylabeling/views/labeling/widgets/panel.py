@@ -66,6 +66,46 @@ class RoundedPanel(QtWidgets.QFrame):
             corner.raise_()
 
 
+class PanelHeader(QtWidgets.QWidget):
+    def __init__(self, title, controls):
+        super().__init__()
+        layout = QtWidgets.QHBoxLayout(self)
+        layout.setContentsMargins(4, 2, 4, 2)
+        layout.setSpacing(0)
+        actions = QtWidgets.QWidget()
+        actions_layout = QtWidgets.QHBoxLayout(actions)
+        actions_layout.setContentsMargins(0, 0, 0, 0)
+        actions_layout.setSpacing(2)
+        theme = get_theme()
+        for control in controls:
+            control.setFixedSize(18, 20)
+            if isinstance(control, QtWidgets.QToolButton):
+                control.setFixedSize(22, 22)
+                control.setIconSize(QtCore.QSize(14, 14))
+                control.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+                control.setStyleSheet(f"""
+                    QToolButton {{
+                        background: transparent;
+                        border: none;
+                        border-radius: 6px;
+                        padding: 0;
+                    }}
+                    QToolButton:checked {{ background: transparent; }}
+                    QToolButton:hover {{ background: {theme['surface_hover']}; }}
+                    QToolButton:pressed {{ background: {theme['surface_pressed']}; }}
+                """)
+            actions_layout.addWidget(control)
+        width = (
+            sum(control.width() for control in controls)
+            + (len(controls) - 1) * 2
+        )
+        layout.addSpacing(width)
+        title.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title, 1)
+        actions.setFixedWidth(width)
+        layout.addWidget(actions)
+
+
 class HoverControl(QtCore.QObject):
     def __init__(self, panel, control):
         super().__init__(panel)

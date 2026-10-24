@@ -73,7 +73,12 @@ from .utils.qt import new_icon_path
 from .utils.theme import get_theme
 from .pointcloud.icons import get_icon
 from .widgets.description_editor import DescriptionEditor
-from .widgets.panel import HoverControl, HoverScrollBars, RoundedPanel
+from .widgets.panel import (
+    HoverControl,
+    HoverScrollBars,
+    PanelHeader,
+    RoundedPanel,
+)
 from .widgets import (
     AboutDialog,
     AutoLabelingWidget,
@@ -275,6 +280,7 @@ class LabelingWidget(LabelDialog):
         self.dirty = False
 
         self._no_selection_slot = False
+        self._session_shape_locks = {}
         self._copied_shapes = None
         self._copied_group_id = None
         self._batch_edit_warning_shown = False
@@ -330,11 +336,11 @@ class LabelingWidget(LabelDialog):
         self.shape_dock.setStyleSheet(get_dock_style())
 
         self.unique_label_list = UniqueLabelQListWidget()
-        self.unique_label_list.setToolTip(
-            self.tr(
-                "Select label to start annotating for it. "
-                "Press 'Esc' to deselect."
-            )
+        self.unique_label_list.items_lock_requested.connect(
+            self.toggle_unique_label_items_lock
+        )
+        self.unique_label_list.label_visibility_changed.connect(
+            self.set_label_visibility
         )
         self.load_labels(self._config["labels"])
         self.label_dock = QtWidgets.QDockWidget(self.tr("Labels"), self)
@@ -2591,14 +2597,9 @@ class LabelingWidget(LabelDialog):
         )
         right_sidebar_layout.addWidget(self.scroll_area)
 
-        description_header_layout = QHBoxLayout()
-        description_header_layout.setContentsMargins(0, 2, 0, 2)
-        description_header_layout.addStretch()
-        description_header_layout.addWidget(self.shape_text_label)
-        description_header_layout.addStretch()
-        description_header_layout.addWidget(self.description_checkbox)
-        description_header_widget = QWidget()
-        description_header_widget.setLayout(description_header_layout)
+        description_header_widget = PanelHeader(
+            self.shape_text_label, [self.description_checkbox]
+        )
 
         description_empty_widget = QWidget()
         description_empty_widget.setFixedHeight(0)
@@ -2620,15 +2621,29 @@ class LabelingWidget(LabelDialog):
         self.labels_checkbox.setStyleSheet(get_checkbox_indicator_style())
         self.labels_checkbox.toggled.connect(self.toggle_labels_visibility)
 
-        labels_header_layout = QHBoxLayout()
-        labels_header_layout.setContentsMargins(0, 2, 0, 2)
-        labels_header_layout.addStretch()
-        labels_title = QLabel(self.tr("Labels"))
-        labels_header_layout.addWidget(labels_title)
-        labels_header_layout.addStretch()
-        labels_header_layout.addWidget(self.labels_checkbox)
-        labels_header_widget = QWidget()
-        labels_header_widget.setLayout(labels_header_layout)
+        self.labels_visibility_button = QtWidgets.QToolButton()
+        self.labels_visibility_button.setIcon(utils.new_icon("eye", "svg"))
+        self.labels_visibility_button.setAutoRaise(True)
+        self.labels_visibility_button.setToolTip(
+            self.tr("Show/hide all labels")
+        )
+        self.labels_visibility_button.clicked.connect(
+            self.toggle_all_labels_visibility
+        )
+        self.labels_lock_button = QtWidgets.QToolButton()
+        self.labels_lock_button.setIcon(utils.new_icon("unlock", "svg"))
+        self.labels_lock_button.setAutoRaise(True)
+        self.labels_lock_button.setCheckable(True)
+        self.labels_lock_button.setToolTip(self.tr("Lock/unlock all labels"))
+        self.labels_lock_button.clicked.connect(self.toggle_all_labels_lock)
+        labels_header_widget = PanelHeader(
+            QLabel(self.tr("Labels")),
+            [
+                self.labels_visibility_button,
+                self.labels_lock_button,
+                self.labels_checkbox,
+            ],
+        )
 
         # Hide the original dock title bar
         empty_widget = QWidget()
@@ -2648,15 +2663,29 @@ class LabelingWidget(LabelDialog):
         self.shapes_checkbox.setStyleSheet(get_checkbox_indicator_style())
         self.shapes_checkbox.toggled.connect(self.toggle_shapes_visibility)
 
-        shapes_header_layout = QHBoxLayout()
-        shapes_header_layout.setContentsMargins(0, 2, 0, 2)
-        shapes_header_layout.addStretch()
-        shapes_title = QLabel(self.tr("Shapes"))
-        shapes_header_layout.addWidget(shapes_title)
-        shapes_header_layout.addStretch()
-        shapes_header_layout.addWidget(self.shapes_checkbox)
-        shapes_header_widget = QWidget()
-        shapes_header_widget.setLayout(shapes_header_layout)
+        self.shapes_visibility_button = QtWidgets.QToolButton()
+        self.shapes_visibility_button.setIcon(utils.new_icon("eye", "svg"))
+        self.shapes_visibility_button.setAutoRaise(True)
+        self.shapes_visibility_button.setToolTip(
+            self.tr("Show/hide all shapes")
+        )
+        self.shapes_visibility_button.clicked.connect(
+            self.toggle_all_shapes_visibility
+        )
+        self.shapes_lock_button = QtWidgets.QToolButton()
+        self.shapes_lock_button.setIcon(utils.new_icon("unlock", "svg"))
+        self.shapes_lock_button.setAutoRaise(True)
+        self.shapes_lock_button.setCheckable(True)
+        self.shapes_lock_button.setToolTip(self.tr("Lock/unlock all shapes"))
+        self.shapes_lock_button.clicked.connect(self.toggle_all_shapes_lock)
+        shapes_header_widget = PanelHeader(
+            QLabel(self.tr("Shapes")),
+            [
+                self.shapes_visibility_button,
+                self.shapes_lock_button,
+                self.shapes_checkbox,
+            ],
+        )
 
         shape_empty_widget = QWidget()
         shape_empty_widget.setFixedHeight(0)
@@ -2673,6 +2702,10 @@ class LabelingWidget(LabelDialog):
             (desc_panel, self.description_checkbox),
             (labels_panel, self.labels_checkbox),
             (objects_panel, self.shapes_checkbox),
+            (labels_panel, self.labels_lock_button),
+            (objects_panel, self.shapes_lock_button),
+            (labels_panel, self.labels_visibility_button),
+            (objects_panel, self.shapes_visibility_button),
         ):
             HoverControl(panel, checkbox)
 
@@ -3319,7 +3352,43 @@ class LabelingWidget(LabelDialog):
     def status(self, message, delay=5000):
         self.statusBar().showMessage(message, delay)
 
+    @staticmethod
+    def _shape_lock_key(shape):
+        return (
+            shape.label,
+            shape.shape_type,
+            shape.group_id,
+            tuple((point.x(), point.y()) for point in shape.points),
+        )
+
+    def _remember_shape_locks(self):
+        if not self.image_path:
+            return
+        states = {}
+        for shape in self.canvas.shapes:
+            states.setdefault(self._shape_lock_key(shape), []).append(
+                shape.locked
+            )
+        self._session_shape_locks[osp.abspath(self.image_path)] = states
+
+    def _restore_shape_locks(self):
+        states = self._session_shape_locks.get(
+            osp.abspath(self.image_path), {}
+        )
+        offsets = {}
+        for shape in self.canvas.shapes:
+            key = self._shape_lock_key(shape)
+            index = offsets.get(key, 0)
+            offsets[key] = index + 1
+            if key in states and index < len(states[key]):
+                shape.locked = states[key][index]
+                item = self.label_list.find_item_by_shape(shape)
+                if item is not None:
+                    item.set_locked(shape.locked)
+        self.refresh_panel_controls()
+
     def reset_state(self):
+        self._remember_shape_locks()
         self._zoom_animation.stop()
         self._reset_label_loop()
         self.select_loop_count = -1
@@ -3361,6 +3430,7 @@ class LabelingWidget(LabelDialog):
         return bool(current_label) or current_gid not in ["", "-1"]
 
     def _update_select_toggle_button_tooltip(self):
+        self.refresh_panel_controls()
         if self.select_toggle_action is None:
             return
         if self._has_active_shape_filter():
@@ -3629,7 +3699,7 @@ class LabelingWidget(LabelDialog):
         )
         result = modify_label_dialog.exec()
         if result == QtWidgets.QDialog.DialogCode.Accepted:
-            if self.filename:
+            if self.filename and modify_label_dialog.annotations_changed:
                 self.load_file(self.filename)
 
     def gid_manager(self):
@@ -4146,6 +4216,7 @@ class LabelingWidget(LabelDialog):
             menu.addAction(action)
 
     def refresh_shape_lock_action(self):
+        self.refresh_panel_controls()
         items = self.label_list.selected_items()
         shapes = [item.shape() for item in items if item.shape() is not None]
         action = self.actions.toggle_shape_lock
@@ -4160,6 +4231,124 @@ class LabelingWidget(LabelDialog):
         for shape in shapes:
             shape.locked = not shape.locked
         self._update_shapes_lock(shapes)
+
+    def refresh_panel_controls(self):
+        if not hasattr(self, "shapes_visibility_button"):
+            return
+        items = [
+            self.unique_label_list.item(row)
+            for row in range(self.unique_label_list.count())
+        ]
+        labels = [item.data(Qt.ItemDataRole.UserRole) for item in items]
+        for button, visible in (
+            (
+                self.labels_visibility_button,
+                any(
+                    self.label_info.get(label, {}).get("visible", True)
+                    for label in labels
+                ),
+            ),
+            (
+                self.shapes_visibility_button,
+                any(s.visible for s in self.canvas.shapes),
+            ),
+        ):
+            button.setIcon(
+                utils.new_icon("eye" if visible else "eye-off", "svg")
+            )
+        self.labels_lock_button.setChecked(
+            bool(labels)
+            and all(
+                self.unique_label_list.lock_states.get(label, False)
+                for label in labels
+            )
+        )
+        self.shapes_lock_button.setChecked(
+            bool(self.canvas.shapes)
+            and all(shape.locked for shape in self.canvas.shapes)
+        )
+
+        for button in (self.labels_lock_button, self.shapes_lock_button):
+            button.setIcon(
+                utils.new_icon(
+                    "lock" if button.isChecked() else "unlock", "svg"
+                )
+            )
+
+    def toggle_all_labels_visibility(self):
+        labels = [
+            self.unique_label_list.item(row).data(Qt.ItemDataRole.UserRole)
+            for row in range(self.unique_label_list.count())
+        ]
+        visible = not any(
+            self.label_info.get(label, {}).get("visible", True)
+            for label in labels
+        )
+        for label in labels:
+            if label not in self.label_info:
+                self.label_info[label] = dict(
+                    delete=False,
+                    value=None,
+                    color=list(self._get_rgb_by_label(label)),
+                    opacity=LABEL_OPACITY,
+                    visible=visible,
+                )
+            else:
+                self.label_info[label]["visible"] = visible
+        self._refresh_shape_filters()
+
+    def toggle_all_shapes_visibility(self):
+        self._set_all_objects_visibility(
+            not any(s.visible for s in self.canvas.shapes)
+        )
+
+    def toggle_all_labels_lock(self):
+        items = [
+            self.unique_label_list.item(row)
+            for row in range(self.unique_label_list.count())
+        ]
+        states = self.unique_label_list.lock_states
+        locked = not (
+            items
+            and all(
+                states.get(item.data(Qt.ItemDataRole.UserRole), False)
+                for item in items
+            )
+        )
+        self.toggle_unique_label_items_lock(items, locked=locked)
+
+    def toggle_all_shapes_lock(self):
+        shapes = self.canvas.shapes
+        if not shapes:
+            return
+        locked = not all(shape.locked for shape in shapes)
+        labels = {shape.label for shape in shapes}
+        for label in labels:
+            self.unique_label_list.lock_states.pop(label, None)
+            for item in self.unique_label_list.find_items_by_label(label):
+                self.unique_label_list.set_item_locked(item, False)
+        self._set_shapes_locked(shapes, locked)
+
+    def toggle_unique_label_items_lock(self, items, locked=None):
+        states = self.unique_label_list.lock_states
+        labels = set()
+        for item in items:
+            label = item.data(Qt.ItemDataRole.UserRole)
+            states[label] = (
+                not states.get(label, False) if locked is None else locked
+            )
+            labels.add(label)
+            self.unique_label_list.set_item_locked(item, states[label])
+        for states_by_shape in self._session_shape_locks.values():
+            for key in list(states_by_shape):
+                if key[0] in labels:
+                    del states_by_shape[key]
+        shapes = [s for s in self.canvas.shapes if s.label in labels]
+        for shape in shapes:
+            shape.locked = states[shape.label]
+        if shapes:
+            self._update_shapes_lock(shapes)
+        self.refresh_panel_controls()
 
     def toggle_selected_shapes_lock(self, locked):
         items = self.label_list.selected_items()
@@ -4186,7 +4375,6 @@ class LabelingWidget(LabelDialog):
             self.shape_selection_changed(self.canvas.selected_shapes)
         else:
             self.refresh_shape_lock_action()
-        self.set_dirty()
 
     def pop_file_list_menu(self, point):
         item = self.file_list_widget.itemAt(point)
@@ -5186,6 +5374,8 @@ class LabelingWidget(LabelDialog):
             self.hide_attributes_panel()
 
     def add_label(self, shape, update_last_label=True, refresh_filters=True):
+        if shape.label in self.unique_label_list.lock_states:
+            shape.locked = self.unique_label_list.lock_states[shape.label]
         if shape.group_id is None:
             text = shape.label
         else:
@@ -5342,6 +5532,17 @@ class LabelingWidget(LabelDialog):
             self.flag_widget.addItem(item)
 
     def _sync_label_list_visibility(self, get_visible):
+        with QtCore.QSignalBlocker(self.unique_label_list):
+            for row in range(self.unique_label_list.count()):
+                item = self.unique_label_list.item(row)
+                visible = self.label_info.get(
+                    item.data(Qt.ItemDataRole.UserRole), {}
+                ).get("visible", True)
+                item.setCheckState(
+                    Qt.CheckState.Checked
+                    if visible
+                    else Qt.CheckState.Unchecked
+                )
         model = self.label_list.model()
         blocker = QtCore.QSignalBlocker(model)
         self.label_list.setUpdatesEnabled(False)
@@ -5385,6 +5586,19 @@ class LabelingWidget(LabelDialog):
             )
             return
         self.apply_label_visibility()
+
+    def set_label_visibility(self, label, visible):
+        if label not in self.label_info:
+            self.label_info[label] = dict(
+                delete=False,
+                value=None,
+                color=list(self._get_rgb_by_label(label)),
+                opacity=LABEL_OPACITY,
+                visible=visible,
+            )
+        else:
+            self.label_info[label]["visible"] = visible
+        self._refresh_shape_filters()
 
     def apply_label_visibility(self):
         self._sync_label_list_visibility(
@@ -5578,6 +5792,9 @@ class LabelingWidget(LabelDialog):
                 ["-1", str(item.shape().group_id)]
                 if item.shape().group_id is not None
                 else ["-1"]
+            )
+            and self.label_info.get(item.shape().label, {}).get(
+                "visible", True
             )
         )
 
@@ -6309,6 +6526,7 @@ class LabelingWidget(LabelDialog):
                         **shape.flags,
                     }
             self.load_shapes(self.label_file.shapes, update_last_label=False)
+            self._restore_shape_locks()
             self.image_tags_widget.refresh_colors()
             if self.label_file.flags is not None:
                 flags.update(self.label_file.flags)

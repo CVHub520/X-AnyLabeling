@@ -21,6 +21,7 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
 
     def _document_for_index(self, index, font):
         doc = QtGui.QTextDocument()
+        doc.setDocumentMargin(0)
         doc.setDefaultFont(font)
         if index is not None and index.isValid():
             doc.setHtml(index.data(Qt.ItemDataRole.DisplayRole) or "")
@@ -68,7 +69,11 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
         style.drawControl(
             QStyle.ControlElement.CE_ItemViewItem, options, painter
         )
-        if selected:
+        if (
+            selected
+            and options.features
+            & QtWidgets.QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator
+        ):
             indicator_rect = style.subElementRect(
                 QStyle.SubElement.SE_ItemViewItemCheckIndicator, options
             )
@@ -103,6 +108,16 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
         text_rect = style.subElementRect(
             QStyle.SubElement.SE_ItemViewItemText, options
         )
+        if (
+            options.features
+            & QtWidgets.QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator
+        ):
+            indicator_rect = style.subElementRect(
+                QStyle.SubElement.SE_ItemViewItemCheckIndicator, options
+            )
+            text_rect.setLeft(indicator_rect.right() + 3)
+        else:
+            text_rect.setLeft(option.rect.left() + 4)
 
         if index.column() != 0:
             text_rect.adjust(5, 0, 0, 0)
@@ -120,10 +135,10 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
             painter.drawPixmap(
                 icon_rect, self._colored_lock_pixmap(text_color, icon_size)
             )
-            text_rect.setLeft(text_rect.left() + icon_size)
+            text_rect.setLeft(text_rect.left() + icon_size + 2)
 
         margin = max(0, int((option.rect.height() - doc.size().height()) / 2))
-        text_rect.setTop(text_rect.top() + margin)
+        text_rect.setTop(option.rect.top() + margin)
 
         painter.translate(text_rect.topLeft())
         painter.setClipRect(text_rect.translated(-text_rect.topLeft()))
@@ -156,7 +171,7 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
         font_metrics = QtGui.QFontMetrics(font)
         width = int(doc.idealWidth())
         if index.data(LOCKED_ROLE):
-            width += max(10, min(13, font_metrics.height() - 2))
+            width += max(10, min(13, font_metrics.height() - 2)) + 2
         return QtCore.QSize(
             width,
             max(int(doc.size().height()), font_metrics.height() + 4),
@@ -172,7 +187,7 @@ class LabelListWidgetItem(QtGui.QStandardItem):
         self.setCheckable(True)
         self.setCheckState(Qt.CheckState.Checked)
         self.setEditable(False)
-        self.setTextAlignment(Qt.AlignmentFlag.AlignBottom)
+        self.setTextAlignment(Qt.AlignmentFlag.AlignVCenter)
 
     def clone(self):
         return LabelListWidgetItem(self.text(), self.shape())

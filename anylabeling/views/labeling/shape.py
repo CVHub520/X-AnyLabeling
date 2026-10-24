@@ -148,12 +148,11 @@ class Shape:
         }
         if self.shape_type == "rotation":
             dictData["direction"] = self.direction
-        if self.locked:
-            dictData["locked"] = True
         dictData = {
             **self.other_data,
             **dictData,
         }
+        dictData.pop("locked", None)
         return dictData
 
     def load_from_dict(self, data: dict, close=True):
@@ -175,7 +174,7 @@ class Shape:
         ):
             raise ValueError("kie_linking must be a list of integer pairs")
         self.kie_linking = kie_linking
-        self.locked = data.get("locked", False)
+        self.locked = False
         if self.shape_type == "rotation":
             self.direction = data.get("direction", 0)
         self.other_data = {k: v for k, v in data.items() if k not in self.KEYS}
