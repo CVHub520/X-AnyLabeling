@@ -1,5 +1,6 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+from ..pointcloud.icons import get_icon
 from ..utils.style import get_panel_style
 from ..utils.theme import get_theme
 
@@ -66,6 +67,50 @@ class RoundedPanel(QtWidgets.QFrame):
             corner.raise_()
 
 
+class PanelCheckBox(QtWidgets.QCheckBox):
+    def hitButton(self, pos):
+        return self.rect().contains(pos)
+
+    def paintEvent(self, event):
+        theme = get_theme()
+        rect = QtCore.QRect(
+            (self.width() - 14) // 2, (self.height() - 14) // 2, 14, 14
+        )
+        icon = get_icon(
+            "circle-check" if self.isChecked() else "circle",
+            theme["text"],
+            theme["primary"],
+        )
+        painter = QtWidgets.QStylePainter(self)
+        if self.isEnabled() and (self.underMouse() or self.isDown()):
+            painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+            painter.setPen(QtCore.Qt.PenStyle.NoPen)
+            painter.setBrush(
+                QtGui.QColor(
+                    theme["surface_pressed"]
+                    if self.isDown()
+                    else theme["surface_hover"]
+                )
+            )
+            painter.drawRoundedRect(self.rect(), 6, 6)
+        icon.paint(
+            painter,
+            rect,
+            mode=(
+                QtGui.QIcon.Mode.Normal
+                if self.isEnabled()
+                else QtGui.QIcon.Mode.Disabled
+            ),
+        )
+        if self.hasFocus():
+            focus = QtWidgets.QStyleOptionFocusRect()
+            focus.initFrom(self)
+            focus.rect = self.rect()
+            painter.drawPrimitive(
+                QtWidgets.QStyle.PrimitiveElement.PE_FrameFocusRect, focus
+            )
+
+
 class PanelHeader(QtWidgets.QWidget):
     def __init__(self, title, controls):
         super().__init__()
@@ -78,11 +123,11 @@ class PanelHeader(QtWidgets.QWidget):
         actions_layout.setSpacing(2)
         theme = get_theme()
         for control in controls:
-            control.setFixedSize(18, 20)
+            control.setFixedSize(22, 22)
+            control.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+            control.setFocusPolicy(QtCore.Qt.FocusPolicy.TabFocus)
             if isinstance(control, QtWidgets.QToolButton):
-                control.setFixedSize(22, 22)
                 control.setIconSize(QtCore.QSize(14, 14))
-                control.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
                 control.setStyleSheet(f"""
                     QToolButton {{
                         background: transparent;

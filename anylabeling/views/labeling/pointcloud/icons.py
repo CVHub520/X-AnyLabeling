@@ -59,8 +59,10 @@ def _svg_renderer(name, color):
     source.close()
     if name == "settings":
         data = data.replace(b"<path ", f'<path fill="{color}" '.encode())
-    data = data.replace(b"#000000", color.encode()).replace(
-        b"currentColor", color.encode()
+    data = (
+        data.replace(b"#000000", color.encode())
+        .replace(b"currentColor", color.encode())
+        .replace(b"#333333", color.encode())
     )
     return QtSvg.QSvgRenderer(QtCore.QByteArray(data))
 
@@ -292,6 +294,10 @@ def _draw_circle_arrow_up(painter, accent):
 
 def get_icon(name, color, accent):
     if name in (
+        "eye",
+        "eye-off",
+        "circle",
+        "circle-check",
         "panel-left",
         "panel-right",
         "rotate-cw",

@@ -16,7 +16,6 @@ from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtGui import QFontMetrics
 from PyQt6.QtWidgets import (
     QButtonGroup,
-    QCheckBox,
     QComboBox,
     QDockWidget,
     QFrame,
@@ -45,7 +44,6 @@ from . import utils
 from .utils.qt import apply_application_font
 from .utils.style import (
     get_cancel_btn_style,
-    get_checkbox_indicator_style,
     get_dialog_style,
     get_dock_style,
     get_ok_btn_style,
@@ -75,6 +73,7 @@ from .utils.theme import get_theme
 from .pointcloud.icons import get_icon
 from .widgets.description_editor import DescriptionEditor
 from .widgets.panel import (
+    PanelCheckBox,
     HoverControl,
     HoverScrollBars,
     PanelHeader,
@@ -354,11 +353,10 @@ class LabelingWidget(LabelDialog):
 
         self.shape_text_label = QLabel("Object Text")
         self.shape_text_edit = DescriptionEditor()
-        self.description_checkbox = QCheckBox()
+        self.description_checkbox = PanelCheckBox()
         self.description_checkbox.setChecked(
             self._config["description_dock"]["show"]
         )
-        self.description_checkbox.setStyleSheet(get_checkbox_indicator_style())
         self.description_checkbox.toggled.connect(
             self.toggle_description_visibility
         )
@@ -2618,13 +2616,14 @@ class LabelingWidget(LabelDialog):
         right_sidebar_layout.addWidget(self.flag_dock)
 
         # Labels with checkbox
-        self.labels_checkbox = QCheckBox()
+        self.labels_checkbox = PanelCheckBox()
         self.labels_checkbox.setChecked(True)
-        self.labels_checkbox.setStyleSheet(get_checkbox_indicator_style())
         self.labels_checkbox.toggled.connect(self.toggle_labels_visibility)
 
         self.labels_visibility_button = QtWidgets.QToolButton()
-        self.labels_visibility_button.setIcon(utils.new_icon("eye", "svg"))
+        self.labels_visibility_button.setIcon(
+            get_icon("eye", theme["text"], theme["primary"])
+        )
         self.labels_visibility_button.setAutoRaise(True)
         self.labels_visibility_button.setToolTip(
             self.tr("Show/hide all labels")
@@ -2633,7 +2632,9 @@ class LabelingWidget(LabelDialog):
             self.toggle_all_labels_visibility
         )
         self.labels_lock_button = QtWidgets.QToolButton()
-        self.labels_lock_button.setIcon(utils.new_icon("unlock", "svg"))
+        self.labels_lock_button.setIcon(
+            get_icon("unlock", theme["text"], theme["primary"])
+        )
         self.labels_lock_button.setAutoRaise(True)
         self.labels_lock_button.setCheckable(True)
         self.labels_lock_button.setToolTip(self.tr("Lock/unlock all labels"))
@@ -2660,13 +2661,14 @@ class LabelingWidget(LabelDialog):
         labels_panel_layout.addWidget(self.label_dock)
         right_sidebar_layout.addWidget(labels_panel)
 
-        self.shapes_checkbox = QCheckBox()
+        self.shapes_checkbox = PanelCheckBox()
         self.shapes_checkbox.setChecked(True)
-        self.shapes_checkbox.setStyleSheet(get_checkbox_indicator_style())
         self.shapes_checkbox.toggled.connect(self.toggle_shapes_visibility)
 
         self.shapes_visibility_button = QtWidgets.QToolButton()
-        self.shapes_visibility_button.setIcon(utils.new_icon("eye", "svg"))
+        self.shapes_visibility_button.setIcon(
+            get_icon("eye", theme["text"], theme["primary"])
+        )
         self.shapes_visibility_button.setAutoRaise(True)
         self.shapes_visibility_button.setToolTip(
             self.tr("Show/hide all shapes")
@@ -2675,7 +2677,9 @@ class LabelingWidget(LabelDialog):
             self.toggle_all_shapes_visibility
         )
         self.shapes_lock_button = QtWidgets.QToolButton()
-        self.shapes_lock_button.setIcon(utils.new_icon("unlock", "svg"))
+        self.shapes_lock_button.setIcon(
+            get_icon("unlock", theme["text"], theme["primary"])
+        )
         self.shapes_lock_button.setAutoRaise(True)
         self.shapes_lock_button.setCheckable(True)
         self.shapes_lock_button.setToolTip(self.tr("Lock/unlock all shapes"))
@@ -4246,6 +4250,7 @@ class LabelingWidget(LabelDialog):
     def refresh_panel_controls(self):
         if not hasattr(self, "shapes_visibility_button"):
             return
+        theme = get_theme()
         items = [
             self.unique_label_list.item(row)
             for row in range(self.unique_label_list.count())
@@ -4265,7 +4270,11 @@ class LabelingWidget(LabelDialog):
             ),
         ):
             button.setIcon(
-                utils.new_icon("eye" if visible else "eye-off", "svg")
+                get_icon(
+                    "eye" if visible else "eye-off",
+                    theme["text"],
+                    theme["primary"],
+                )
             )
         self.labels_lock_button.setChecked(
             any(
@@ -4279,8 +4288,10 @@ class LabelingWidget(LabelDialog):
 
         for button in (self.labels_lock_button, self.shapes_lock_button):
             button.setIcon(
-                utils.new_icon(
-                    "lock" if button.isChecked() else "unlock", "svg"
+                get_icon(
+                    "lock" if button.isChecked() else "unlock",
+                    theme["text"],
+                    theme["primary"],
                 )
             )
 
