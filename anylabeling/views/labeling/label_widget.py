@@ -381,6 +381,7 @@ class LabelingWidget(LabelDialog):
                 "- Description: description::1, description::true, description::yes\n"
                 "- Check result: checked::passed, checked::failed, checked::unchecked\n"
                 "- Reviewed (passed or failed): checked::1; unchecked: checked::0\n"
+                "- Object review: review::pending, review::missed, review::false_positive\n"
                 "Press Enter to search."
             )
         )
@@ -4639,6 +4640,9 @@ class LabelingWidget(LabelDialog):
             description=first_shape.description,
             difficult=first_shape.difficult,
             kie_linking=first_shape.kie_linking,
+            review_status=first_shape.other_data.get(
+                "review_status", "pending"
+            ),
             move_mode="center",
         )
 
@@ -4666,6 +4670,9 @@ class LabelingWidget(LabelDialog):
             shape.description = description
             shape.difficult = difficult
             shape.kie_linking = kie_linking
+            shape.other_data["review_status"] = (
+                self.label_dialog.get_review_status()
+            )
 
             self._update_shape_color(shape)
 
@@ -4732,6 +4739,7 @@ class LabelingWidget(LabelDialog):
             description=shape.description,
             difficult=shape.difficult,
             kie_linking=shape.kie_linking,
+            review_status=shape.other_data.get("review_status", "pending"),
             move_mode=self._config.get("move_mode", "auto"),
         )
         if text is None:
@@ -4752,6 +4760,9 @@ class LabelingWidget(LabelDialog):
         shape.description = description
         shape.difficult = difficult
         shape.kie_linking = kie_linking
+        shape.other_data["review_status"] = (
+            self.label_dialog.get_review_status()
+        )
 
         # Add to label history
         self.label_dialog.add_label_history(shape.label)
@@ -5844,6 +5855,7 @@ class LabelingWidget(LabelDialog):
         description = ""
         difficult = False
         kie_linking = []
+        review_status = "pending"
 
         if self.canvas.shapes[-1].label in [
             AutoLabelingMode.ADD,
@@ -5884,6 +5896,7 @@ class LabelingWidget(LabelDialog):
                     group_id=last_gid,
                     move_mode=self._config.get("move_mode", "auto"),
                 )
+                review_status = self.label_dialog.get_review_status()
                 if not text:
                     self.label_dialog.edit.setText(previous_text)
 
@@ -5909,6 +5922,7 @@ class LabelingWidget(LabelDialog):
                 shape.label = text
             shape.difficult = difficult
             shape.kie_linking = kie_linking
+            shape.other_data["review_status"] = review_status
             self.add_label(shape)
             self.actions.edit_mode.setEnabled(True)
             self.actions.undo_last_point.setEnabled(False)
@@ -7583,6 +7597,7 @@ class LabelingWidget(LabelDialog):
             return
 
         # Ask a label for the object
+        review_status = "pending"
         text, flags, group_id, description, difficult, kie_linking = (
             "",
             {},
@@ -7620,6 +7635,7 @@ class LabelingWidget(LabelDialog):
                 kie_linking=[],
                 move_mode=self._config.get("move_mode", "auto"),
             )
+            review_status = self.label_dialog.get_review_status()
             if not text:
                 self.label_dialog.edit.setText(previous_text)
                 return
@@ -7652,6 +7668,7 @@ class LabelingWidget(LabelDialog):
                 shape.description = description
                 shape.difficult = difficult
                 shape.kie_linking = kie_linking
+                shape.other_data["review_status"] = review_status
                 # Update unique label list
                 if not self.unique_label_list.find_items_by_label(shape.label):
                     unique_label_item = (

@@ -2563,6 +2563,18 @@ Original images backed up to:
   <context>
     <name>LabelDialog</name>
     <message>
+        <source>Pending</source>
+        <translation>待审</translation>
+    </message>
+    <message>
+        <source>Missed</source>
+        <translation>漏检</translation>
+    </message>
+    <message>
+        <source>False Positive</source>
+        <translation>误检</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/widgets/label_dialog.py" line="1280" />
       <source>Enter object label</source>
       <translation>输入对象标签</translation>
@@ -2611,6 +2623,14 @@ Original images backed up to:
       <location filename="../../views/labeling/widgets/label_dialog.py" line="1502" />
       <source>Please enter a valid list of linking pairs like [1,2].</source>
       <translation>请输入有效链接，如：[1,2]</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>取消</translation>
+    </message>
+    <message>
+      <source>OK</source>
+      <translation>确定</translation>
     </message>
   </context>
   <context>
@@ -2668,6 +2688,10 @@ Original images backed up to:
       <location filename="../../views/labeling/widgets/label_dialog.py" line="1242" />
       <source>Please enter a valid range.</source>
       <translation>请输入有效范围。</translation>
+    </message>
+    <message>
+      <source>Session-only category lock; independent of the file range</source>
+      <translation>类别锁定仅在当前会话生效，与文件范围无关</translation>
     </message>
   </context>
   <context>
@@ -2904,6 +2928,7 @@ Continue?</source>
 - Description: description::1, description::true, description::yes
 - Check result: checked::passed, checked::failed, checked::unchecked
 - Reviewed (passed or failed): checked::1; unchecked: checked::0
+- Object review: review::pending, review::missed, review::false_positive
 Press Enter to search.</source>
       <translation>支持的搜索模式：
 - 文本：纯文本搜索
@@ -2914,6 +2939,7 @@ Press Enter to search.</source>
 - 描述：description::1、description::true、description::yes
 - 检查结果：checked::passed（通过）、checked::failed（不通过）、checked::unchecked（未检查）
 - 已检查（通过或不通过）：checked::1；未检查：checked::0
+- 对象审批：review::pending（待审）、review::missed（漏检）、review::false_positive（误检）
 按 Enter 键搜索。</translation>
     </message>
     <message>
@@ -4893,6 +4919,22 @@ Results have been saved to:
     <message>
       <source>Check Failed</source>
       <translation>检查不通过</translation>
+    </message>
+    <message>
+      <source>Lock/unlock all labels</source>
+      <translation>锁定/解锁所有标签</translation>
+    </message>
+    <message>
+      <source>Lock/unlock all shapes</source>
+      <translation>锁定/解锁所有对象</translation>
+    </message>
+    <message>
+      <source>Show/hide all labels</source>
+      <translation>显示/隐藏所有标签</translation>
+    </message>
+    <message>
+      <source>Show/hide all shapes</source>
+      <translation>显示/隐藏所有对象</translation>
     </message>
   </context>
   <context>

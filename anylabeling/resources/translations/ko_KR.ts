@@ -2613,6 +2613,26 @@ Original images backed up to:
       <source>Please enter a valid list of linking pairs like [1,2].</source>
       <translation>[1,2] 와 같은 링크 쌍의 유효한 목록을 입력하십시오.</translation>
     </message>
+    <message>
+      <source>Cancel</source>
+      <translation>취소</translation>
+    </message>
+    <message>
+      <source>False Positive</source>
+      <translation>오검출</translation>
+    </message>
+    <message>
+      <source>Missed</source>
+      <translation>미검출</translation>
+    </message>
+    <message>
+      <source>OK</source>
+      <translation>확인</translation>
+    </message>
+    <message>
+      <source>Pending</source>
+      <translation>검토 대기</translation>
+    </message>
   </context>
   <context>
     <name>LabelFilterComboBox</name>
@@ -2669,6 +2689,10 @@ Original images backed up to:
       <location filename="../../views/labeling/widgets/label_dialog.py" line="1242" />
       <source>Please enter a valid range.</source>
       <translation>유효한 범위를 입력하십시오.</translation>
+    </message>
+    <message>
+      <source>Session-only category lock; independent of the file range</source>
+      <translation>범주 잠금은 현재 세션에만 적용되며 파일 범위와 무관합니다</translation>
     </message>
   </context>
   <context>
@@ -4895,6 +4919,58 @@ Results have been saved to:
     <message>
       <source>Check Failed</source>
       <translation>검토 불합격</translation>
+    </message>
+    <message>
+      <source>Lock/unlock all labels</source>
+      <translation>모든 라벨 잠금/잠금 해제</translation>
+    </message>
+    <message>
+      <source>Lock/unlock all shapes</source>
+      <translation>모든 객체 잠금/잠금 해제</translation>
+    </message>
+    <message>
+      <source>Select one polygon, then paint to add, hold Ctrl to erase, and use Ctrl+Wheel to resize the brush</source>
+      <translation>다각형 하나를 선택한 후 칠하여 영역을 추가하고, Ctrl을 누른 채 지우며, Ctrl+휠로 브러시 크기를 조절합니다</translation>
+    </message>
+    <message>
+      <source>Show/hide all labels</source>
+      <translation>모든 라벨 표시/숨기기</translation>
+    </message>
+    <message>
+      <source>Show/hide all shapes</source>
+      <translation>모든 객체 표시/숨기기</translation>
+    </message>
+    <message>
+      <source>Supported search modes:
+- Text: plain text search
+- Index: #N (e.g., #1, #10)
+- Regex: &lt;pattern&gt; (e.g., &lt;\.png$&gt;)
+- Attributes: difficult::1, gid::0, shape::1, label::xxx, type::xxx
+- Score range: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)
+- Description: description::1, description::true, description::yes
+- Check result: checked::passed, checked::failed, checked::unchecked
+- Reviewed (passed or failed): checked::1; unchecked: checked::0
+- Object review: review::pending, review::missed, review::false_positive
+Press Enter to search.</source>
+      <translation>지원되는 검색 모드:
+- 텍스트: 일반 텍스트 검색
+- 인덱스: #N(예: #1, #10)
+- 정규식: &lt;pattern&gt;(예: &lt;\.png$&gt;)
+- 속성: difficult::1, gid::0, shape::1, label::xxx, type::xxx
+- 점수 범위: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)
+- 설명: description::1, description::true, description::yes
+- 검토 결과: checked::passed (통과), checked::failed (불합격), checked::unchecked (미검토)
+- 검토 완료 (통과 또는 불합격): checked::1; 미검토: checked::0
+- 객체 검토: review::pending(검토 대기), review::missed(미검출), review::false_positive(오검출)
+Enter 키를 눌러 검색합니다.</translation>
+    </message>
+    <message>
+      <source>Tip: Hold Alt and drag with the left mouse button, or drag with the middle mouse button, to pan the canvas while drawing.</source>
+      <translation>팁: 그리는 동안 Alt를 누른 채 마우스 왼쪽 버튼으로 드래그하거나 가운데 버튼으로 드래그하여 캔버스를 이동할 수 있습니다.</translation>
+    </message>
+    <message>
+      <source>Wheel</source>
+      <translation>휠</translation>
     </message>
   </context>
   <context>
@@ -8596,6 +8672,10 @@ Changes will not be saved until you click Save.</source>
       <source>Unchecked</source>
       <translation>미검토</translation>
     </message>
+    <message>
+      <source>Use Ctrl+Wheel to adjust rectangle geometry while editing. Disabled by default.</source>
+      <translation>편집 중 Ctrl+휠로 사각형의 모양을 조절합니다. 기본적으로 비활성화되어 있습니다.</translation>
+    </message>
   </context>
   <context>
     <name>SettingsRuntimeApplier</name>
@@ -8648,6 +8728,10 @@ Changes will not be saved until you click Save.</source>
       <location filename="../../views/labeling/settings/runtime_applier.py" line="212" />
       <source>Ctrl+Wheel</source>
       <translation>Ctrl+휠</translation>
+    </message>
+    <message>
+      <source>Wheel</source>
+      <translation>휠</translation>
     </message>
   </context>
   <context>
@@ -10305,6 +10389,25 @@ Response preview:
     <message>
       <source>Failed opening image file: %s</source>
       <translation>이미지 파일을 열 수 없습니다: %s</translation>
+    </message>
+  </context>
+  <context>
+    <name>DescriptionEditor</name>
+    <message>
+      <source>Cancel</source>
+      <translation>취소</translation>
+    </message>
+    <message>
+      <source>Confirm</source>
+      <translation>확인</translation>
+    </message>
+    <message>
+      <source>Edit description</source>
+      <translation>설명 편집</translation>
+    </message>
+    <message>
+      <source>Expand description</source>
+      <translation>설명 펼치기</translation>
     </message>
   </context>
 </TS>

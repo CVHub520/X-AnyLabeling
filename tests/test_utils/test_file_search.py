@@ -148,6 +148,53 @@ class TestFileSearch(unittest.TestCase):
                 [image_files[1], image_files[2]],
             )
 
+    def test_object_review_search(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output_dir = Path(temp_dir) / "labels"
+            output_dir.mkdir()
+            annotations = {
+                "pending": [{"review_status": "pending"}],
+                "missed": [{"review_status": "missed"}],
+                "false_positive": [{"review_status": "false_positive"}],
+                "mixed": [
+                    {"review_status": "missed"},
+                    {"review_status": "false_positive"},
+                ],
+                "legacy": [{"label": "person"}],
+                "empty": [],
+            }
+            image_files = [
+                str(Path(temp_dir) / f"{name}.jpg")
+                for name in (*annotations, "missing", "invalid")
+            ]
+            for directory in (Path(temp_dir), output_dir):
+                for name, shapes in annotations.items():
+                    self._write_label_data(
+                        directory / f"{name}.json",
+                        {"checked": True, "shapes": shapes},
+                    )
+                (directory / "invalid.json").write_text("{", encoding="utf-8")
+            for output in (None, str(output_dir)):
+                for value, indices in (
+                    ("pending", [0, 4]),
+                    ("missed", [1, 3]),
+                    ("false_positive", [2, 3]),
+                    (" MISSED ", [1, 3]),
+                ):
+                    with self.subTest(output=output, value=value):
+                        pattern = parse_search_pattern(f"review::{value}")
+                        self.assertEqual(
+                            filter_image_files(image_files, pattern, output),
+                            [image_files[index] for index in indices],
+                        )
+
+    def test_invalid_object_review_falls_back_to_text(self):
+        for query in ("review::", "review::unknown"):
+            with self.subTest(query=query):
+                pattern = parse_search_pattern(query)
+                self.assertEqual(pattern.mode, "normal")
+                self.assertEqual(pattern.pattern, query)
+
     def test_three_state_check_search_with_output_directory(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             output_dir = Path(temp_dir) / "labels"

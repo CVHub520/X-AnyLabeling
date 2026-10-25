@@ -140,6 +140,13 @@ def parse_search_pattern(search_text: str) -> SearchPattern:
                 return SearchPattern(
                     mode="attribute", attribute_filter=attribute_filter
                 )
+            elif attr_name == "review":
+                status = attr_value.lower()
+                if status in ("pending", "missed", "false_positive"):
+                    return SearchPattern(
+                        mode="attribute",
+                        attribute_filter={"type": "review", "value": status},
+                    )
             elif attr_name == "checked":
                 status = attr_value.lower()
                 attribute_filter = {
@@ -274,6 +281,12 @@ def matches_label_attribute(
             if filter_value == "unchecked":
                 return checked is not True and checked != "failed"
             return (checked is True or checked == "failed") == filter_value
+
+        if filter_type == "review":
+            return any(
+                shape.get("review_status", "pending") == filter_value
+                for shape in shapes
+            )
 
         if filter_type == "gid":
             target_gid = filter_value

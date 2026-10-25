@@ -1506,18 +1506,15 @@ class LabelDialog(QtWidgets.QDialog):
         layout.addWidget(self.linking_list)
 
         # buttons
-        self.button_box = bb = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.StandardButton.Ok
-            | QtWidgets.QDialogButtonBox.StandardButton.Cancel,
-            QtCore.Qt.Orientation.Horizontal,
-            self,
-        )
-        bb.button(bb.StandardButton.Ok).setIcon(utils.new_icon("done"))
-        bb.button(bb.StandardButton.Cancel).setIcon(utils.new_icon("undo"))
-        bb.button(bb.StandardButton.Ok).setFixedHeight(control_height)
-        bb.button(bb.StandardButton.Cancel).setFixedHeight(control_height)
-        bb.accepted.connect(self.validate)
-        bb.rejected.connect(self.reject)
+        ok_button = QtWidgets.QPushButton(self.tr("OK"))
+        cancel_button = QtWidgets.QPushButton(self.tr("Cancel"))
+        ok_button.setIcon(utils.new_icon("done"))
+        cancel_button.setIcon(utils.new_icon("undo"))
+        ok_button.setFixedHeight(control_height)
+        cancel_button.setFixedHeight(control_height)
+        ok_button.setDefault(True)
+        ok_button.clicked.connect(self.validate)
+        cancel_button.clicked.connect(self.reject)
 
         # text edit
         self.edit_description = QtWidgets.QTextEdit()
@@ -1526,9 +1523,48 @@ class LabelDialog(QtWidgets.QDialog):
         layout.addWidget(self.edit_description)
 
         # difficult & confirm button
-        layout_button = QtWidgets.QHBoxLayout()
-        layout_button.addWidget(self.edit_difficult)
-        layout_button.addWidget(self.button_box)
+        layout_button = QtWidgets.QGridLayout()
+        layout_button.setHorizontalSpacing(6)
+        self.review_group = QtWidgets.QButtonGroup(self)
+        self.review_buttons = {}
+        for column, (status, title, control) in enumerate(
+            (
+                ("pending", self.tr("Pending"), self.edit_difficult),
+                ("missed", self.tr("Missed"), ok_button),
+                ("false_positive", self.tr("False Positive"), cancel_button),
+            )
+        ):
+            radio = QtWidgets.QRadioButton(title)
+            radio.setStyleSheet(f"""
+                QRadioButton {{ color: {t["text"]}; spacing: 6px; }}
+                QRadioButton::indicator {{
+                    width: 14px;
+                    height: 14px;
+                    border: 1px solid {t["border_light"]};
+                    border-radius: 8px;
+                    background-color: {t["background_secondary"]};
+                }}
+                QRadioButton::indicator:checked {{
+                    border-color: {t["primary"]};
+                    background: qradialgradient(
+                        cx: 0.5, cy: 0.5, radius: 0.5,
+                        fx: 0.5, fy: 0.5,
+                        stop: 0 {t["primary"]},
+                        stop: 0.5 {t["primary"]},
+                        stop: 0.6 {t["background_secondary"]},
+                        stop: 1 {t["background_secondary"]});
+                }}
+                QRadioButton::indicator:hover {{
+                    border-color: {t["primary"]};
+                }}
+                QRadioButton:focus {{ color: {t["primary"]}; }}
+            """)
+            self.review_group.addButton(radio)
+            self.review_buttons[status] = radio
+            layout_button.addWidget(radio, 0, column)
+            layout_button.addWidget(control, 1, column)
+            layout_button.setColumnStretch(column, 1)
+        self.review_buttons["pending"].setChecked(True)
         layout.addLayout(layout_button)
 
         # label_list
@@ -1782,6 +1818,13 @@ class LabelDialog(QtWidgets.QDialog):
     def get_difficult_state(self):
         return self.edit_difficult.isChecked()
 
+    def get_review_status(self):
+        return next(
+            status
+            for status, button in self.review_buttons.items()
+            if button.isChecked()
+        )
+
     def get_kie_linking(self):
         kie_linking = []
         for index in range(self.linking_list.count()):
@@ -1799,7 +1842,11 @@ class LabelDialog(QtWidgets.QDialog):
         description=None,
         difficult=False,
         kie_linking=None,
+        review_status="pending",
     ):
+        self.review_buttons.get(
+            review_status, self.review_buttons["pending"]
+        ).setChecked(True)
         if kie_linking is None:
             kie_linking = []
         if self._fit_to_content["row"]:

@@ -16,6 +16,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [2.4 Adding Image Captions](#24-adding-image-captions)
       * [2.5 Searching Images](#25-searching-images)
       * [2.6 Editing Text Descriptions](#26-editing-text-descriptions)
+      * [2.7 Reviewing Objects](#27-reviewing-objects)
    * [3. View Options](#3-view-options)
       * [3.1 Canvas Controls](#31-canvas-controls)
       * [3.2 Image Display](#32-image-display)
@@ -284,17 +285,22 @@ In Editing Mode, drag an empty area with the left mouse button to pan the canvas
 
 ### 2.3 Editing Labels
 
-When you create a shape or select an existing one in Edit Mode, the label panel appears (usually on the right), allowing you to edit its properties:
+When you create a shape (with automatic reuse of the last label disabled) or edit a shape's label, the label dialog opens to edit its properties:
 
-| Field              | Description                                                          |
-|--------------------|----------------------------------------------------------------------|
-| **Shape Label**    | Enter or select the object's category label (supports fuzzy search). |
-| **Group ID**       | Assign a numeric ID to group related shapes (e.g., for poses, tracking). |
-| **Difficult**      | Check this box if the object is difficult to recognize.             |
-| **Label List**     | Displays available labels, allowing selection.                      |
-| **Description**    | Add optional text notes specific to this shape instance.             |
-| **Label Linking**  | Used for linking shapes in tasks like Key Information Extraction (KIE). |
-| **Attributes**     | (If configured) Set custom attributes for the shape.               |
+<p align="center">
+  <img src="../../assets/resources/label_editor.png" alt="Label editor with object review status">
+</p>
+
+| Field | Description |
+| --- | --- |
+| **Shape Label** | Enter or select the object's category label (supports fuzzy search). |
+| **Group ID** | Assign a numeric ID to group related shapes (e.g., for poses, tracking). |
+| **Difficult** | Check this box if the object is difficult to recognize. |
+| **Review Status** | Pending (default), Missed, or False Positive. See [2.7 Reviewing Objects](#27-reviewing-objects). |
+| **Label List** | Displays available labels, allowing selection. |
+| **Description** | Add optional text notes specific to this shape instance. |
+| **Label Linking** | Used for linking shapes in tasks like Key Information Extraction (KIE). |
+| **Attributes** | (If configured) Set custom attributes for the shape. |
 
 ### 2.4 Adding Image Captions
 
@@ -350,6 +356,11 @@ Filter images by object attributes using the format `attribute::value`:
 - `checked::unchecked`: Find unchecked images; images with a missing `checked` field or no label file are also treated as unchecked
 - `checked::1` or `checked::true`: Find all reviewed images, including both passed and failed images
 - `checked::0` or `checked::false`: Same as `checked::unchecked`
+- `review::pending`: Find images containing Pending objects
+- `review::missed`: Find images containing Missed objects
+- `review::false_positive`: Find images containing False Positive objects
+
+For object review searches, objects in older annotations without a status are treated as Pending; images without objects do not match.
 
 ### 2.6 Editing Text Descriptions
 
@@ -358,6 +369,12 @@ Use the description panel on the right to edit text for an image or an individua
 Hover over the description field to reveal the expand icon in its bottom-right corner. Click it to open a centered editor for longer, multiline text. Click **Confirm** to apply the text to the panel, or click **Cancel** or press `Esc` to discard changes made in the dialog.
 
 After confirming, save the annotations as usual. Image descriptions are stored in the top-level `description` field of the label JSON; shape descriptions are stored in the `description` field of the corresponding `shapes` entry.
+
+### 2.7 Reviewing Objects
+
+In the label dialog, select **Pending** (default), **Missed**, or **False Positive** for an object. Click **OK** to confirm, then save the annotations; click **Cancel** to discard changes. Both individual and batch editing are supported. The status is stored in each object's `review_status` field.
+
+To filter images by object review status, see **Attribute Search** in [2.5 Searching Images](#25-searching-images) above.
 
 ## 3. View Options
 

@@ -2612,6 +2612,26 @@ Original images backed up to:
       <source>Please enter a valid list of linking pairs like [1,2].</source>
       <translation>有効なリンクを入力してください（例：[1,2]）</translation>
     </message>
+    <message>
+      <source>Cancel</source>
+      <translation>キャンセル</translation>
+    </message>
+    <message>
+      <source>False Positive</source>
+      <translation>誤検出</translation>
+    </message>
+    <message>
+      <source>Missed</source>
+      <translation>検出漏れ</translation>
+    </message>
+    <message>
+      <source>OK</source>
+      <translation>OK</translation>
+    </message>
+    <message>
+      <source>Pending</source>
+      <translation>未レビュー</translation>
+    </message>
   </context>
   <context>
     <name>LabelFilterComboBox</name>
@@ -2668,6 +2688,10 @@ Original images backed up to:
       <location filename="../../views/labeling/widgets/label_dialog.py" line="1242" />
       <source>Please enter a valid range.</source>
       <translation>有効な範囲を入力してください。</translation>
+    </message>
+    <message>
+      <source>Session-only category lock; independent of the file range</source>
+      <translation>カテゴリのロックは現在のセッションのみ有効で、ファイル範囲には依存しません</translation>
     </message>
   </context>
   <context>
@@ -4893,6 +4917,58 @@ Results have been saved to:
     <message>
       <source>Check Failed</source>
       <translation>チェック不合格</translation>
+    </message>
+    <message>
+      <source>Lock/unlock all labels</source>
+      <translation>すべてのラベルをロック／ロック解除</translation>
+    </message>
+    <message>
+      <source>Lock/unlock all shapes</source>
+      <translation>すべてのオブジェクトをロック／ロック解除</translation>
+    </message>
+    <message>
+      <source>Select one polygon, then paint to add, hold Ctrl to erase, and use Ctrl+Wheel to resize the brush</source>
+      <translation>ポリゴンを1つ選択し、塗って領域を追加します。Ctrlを押しながら消去し、Ctrl+ホイールでブラシサイズを調整します</translation>
+    </message>
+    <message>
+      <source>Show/hide all labels</source>
+      <translation>すべてのラベルを表示／非表示</translation>
+    </message>
+    <message>
+      <source>Show/hide all shapes</source>
+      <translation>すべてのオブジェクトを表示／非表示</translation>
+    </message>
+    <message>
+      <source>Supported search modes:
+- Text: plain text search
+- Index: #N (e.g., #1, #10)
+- Regex: &lt;pattern&gt; (e.g., &lt;\.png$&gt;)
+- Attributes: difficult::1, gid::0, shape::1, label::xxx, type::xxx
+- Score range: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)
+- Description: description::1, description::true, description::yes
+- Check result: checked::passed, checked::failed, checked::unchecked
+- Reviewed (passed or failed): checked::1; unchecked: checked::0
+- Object review: review::pending, review::missed, review::false_positive
+Press Enter to search.</source>
+      <translation>対応している検索モード：
+- テキスト：プレーンテキスト検索
+- インデックス：#N（例：#1、#10）
+- 正規表現：&lt;pattern&gt;（例：&lt;\.png$&gt;）
+- 属性：difficult::1、gid::0、shape::1、label::xxx、type::xxx
+- スコア範囲：score::[0,0.5]、score::(0,0.6]、score::[0,0.6)、score::(0,0.6)
+- 説明：description::1、description::true、description::yes
+- チェック結果：checked::passed（合格）、checked::failed（不合格）、checked::unchecked（未チェック）
+- チェック済み（合格または不合格）：checked::1；未チェック：checked::0
+- オブジェクトのレビュー: review::pending（未レビュー）、review::missed（検出漏れ）、review::false_positive（誤検出）
+Enter キーを押して検索します。</translation>
+    </message>
+    <message>
+      <source>Tip: Hold Alt and drag with the left mouse button, or drag with the middle mouse button, to pan the canvas while drawing.</source>
+      <translation>ヒント：描画中は、Altを押しながらマウスの左ボタンでドラッグするか、中央ボタンでドラッグするとキャンバスを移動できます。</translation>
+    </message>
+    <message>
+      <source>Wheel</source>
+      <translation>ホイール</translation>
     </message>
   </context>
   <context>
@@ -8594,6 +8670,10 @@ Changes will not be saved until you click Save.</source>
       <source>Unchecked</source>
       <translation>未チェック</translation>
     </message>
+    <message>
+      <source>Use Ctrl+Wheel to adjust rectangle geometry while editing. Disabled by default.</source>
+      <translation>編集中にCtrl+ホイールで矩形の形状を調整します。既定では無効です。</translation>
+    </message>
   </context>
   <context>
     <name>SettingsRuntimeApplier</name>
@@ -8646,6 +8726,10 @@ Changes will not be saved until you click Save.</source>
       <location filename="../../views/labeling/settings/runtime_applier.py" line="212" />
       <source>Ctrl+Wheel</source>
       <translation>Ctrl + スクロール</translation>
+    </message>
+    <message>
+      <source>Wheel</source>
+      <translation>ホイール</translation>
     </message>
   </context>
   <context>
@@ -10303,6 +10387,25 @@ Response preview:
     <message>
       <source>Failed opening image file: %s</source>
       <translation>画像ファイルを開けませんでした：%s</translation>
+    </message>
+  </context>
+  <context>
+    <name>DescriptionEditor</name>
+    <message>
+      <source>Cancel</source>
+      <translation>キャンセル</translation>
+    </message>
+    <message>
+      <source>Confirm</source>
+      <translation>確認</translation>
+    </message>
+    <message>
+      <source>Edit description</source>
+      <translation>説明を編集</translation>
+    </message>
+    <message>
+      <source>Expand description</source>
+      <translation>説明を展開</translation>
     </message>
   </context>
 </TS>
