@@ -65,6 +65,76 @@ class TestCanvasShapeSelection(unittest.TestCase):
         shape.close()
         return shape
 
+    def test_double_click_polygon_vertex(self):
+        for label_edit, locked, point_count in (
+            (True, False, 4),
+            (False, False, 4),
+            (True, True, 4),
+            (True, False, 3),
+        ):
+            with self.subTest(
+                label_edit=label_edit, locked=locked, point_count=point_count
+            ):
+                shape = self.make_rectangle("polygon", 20, 20, 80, 80)
+                shape.shape_type = "polygon"
+                shape.points = shape.points[:point_count]
+                shape.locked = locked
+                original_points = list(shape.points)
+                self.canvas.load_shapes([shape])
+                self._set_selection([shape])
+                self.canvas.double_click_edit_label = label_edit
+                moved = QtTest.QSignalSpy(self.canvas.shape_moved)
+                edited = QtTest.QSignalSpy(self.canvas.edit_label_requested)
+                self._move_mouse(20, 20)
+                QtTest.QTest.mouseClick(
+                    self.canvas,
+                    QtCore.Qt.MouseButton.LeftButton,
+                    pos=QtCore.QPoint(20, 20),
+                )
+                QtTest.QTest.mouseDClick(
+                    self.canvas,
+                    QtCore.Qt.MouseButton.LeftButton,
+                    pos=QtCore.QPoint(20, 20),
+                )
+                QtTest.QTest.mouseRelease(
+                    self.canvas,
+                    QtCore.Qt.MouseButton.LeftButton,
+                    pos=QtCore.QPoint(20, 20),
+                )
+                if not locked and point_count > 3:
+                    self.assertEqual(shape.points, original_points[1:])
+                    self.assertEqual(len(moved), 1)
+                    self.assertEqual(len(edited), 0)
+                    self.assertIsNone(self.canvas.h_vertex)
+                    self.canvas.restore_shape()
+                    self.assertEqual(self.canvas.shapes[0].points, original_points)
+                else:
+                    self.assertEqual(shape.points, original_points)
+                    self.assertEqual(len(moved), 0)
+                    if not locked:
+                        self.assertEqual(len(edited), 0)
+
+    def test_double_click_polygon_edge_keeps_vertices_and_edits_label(self):
+        shape = self.make_rectangle("polygon", 20, 20, 80, 80)
+        shape.shape_type = "polygon"
+        original_points = list(shape.points)
+        self.canvas.load_shapes([shape])
+        self._set_selection([shape])
+        edited = QtTest.QSignalSpy(self.canvas.edit_label_requested)
+        self._move_mouse(50, 20)
+        QtTest.QTest.mouseClick(
+            self.canvas,
+            QtCore.Qt.MouseButton.LeftButton,
+            pos=QtCore.QPoint(50, 20),
+        )
+        QtTest.QTest.mouseDClick(
+            self.canvas,
+            QtCore.Qt.MouseButton.LeftButton,
+            pos=QtCore.QPoint(50, 20),
+        )
+        self.assertEqual(shape.points, original_points)
+        self.assertEqual(len(edited), 1)
+
     def test_blank_click_does_not_extend_polygon_with_duplicate_points(self):
         for points in (
             [(20, 20), (80, 20), (80, 20), (80, 80), (20, 80)],

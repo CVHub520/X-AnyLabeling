@@ -3091,9 +3091,35 @@ class Canvas(
             self.auto_decode_finish_requested.emit()
             return
 
-        if self.editing() and self.double_click_edit_label:
+        if self.editing():
             pos = self.transform_pos(ev.position())
             for shape in self._shape_hit_candidates(pos):
+                if (
+                    ev.button() == QtCore.Qt.MouseButton.LeftButton
+                    and ev.modifiers() == QtCore.Qt.KeyboardModifier.NoModifier
+                    and not self.is_brush_mode
+                    and self._pending_edge_point is None
+                    and shape.shape_type == "polygon"
+                    and not shape.locked
+                ):
+                    index = shape.nearest_vertex(
+                        pos, self.epsilon / self.scale
+                    )
+                    if index is not None:
+                        if len(shape.points) > 3:
+                            self.prev_h_shape = shape
+                            self.prev_h_vertex = index
+                            self.remove_selected_point()
+                            self.store_moving_shape()
+                            self.un_highlight()
+                            self.prev_h_vertex = None
+                            self.is_move_editing = False
+                            self.vertex_selected.emit(False)
+                        self.h_shape_is_selected = False
+                        ev.accept()
+                        return
+                if not self.double_click_edit_label:
+                    return
                 self._undo_pending_edge_point()
                 if shape not in self.selected_shapes:
                     self.selection_changed.emit([shape])
