@@ -817,6 +817,7 @@ class ShortcutsDialog(QtWidgets.QDialog):
             QLineEdit:focus {{ border-color: {theme['border']}; }}
             QPushButton#shortcutCloseButton {{
                 border: none; background: transparent;
+                min-width: 48px; max-width: 48px;
                 color: {theme['text']}; font-size: 16px; font-weight: 500;
                 border-radius: 0px; outline: none; padding: 0;
             }}
