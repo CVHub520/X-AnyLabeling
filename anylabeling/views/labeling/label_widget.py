@@ -4258,15 +4258,13 @@ class LabelingWidget(LabelDialog):
                 utils.new_icon("eye" if visible else "eye-off", "svg")
             )
         self.labels_lock_button.setChecked(
-            bool(labels)
-            and all(
+            any(
                 self.unique_label_list.lock_states.get(label, False)
                 for label in labels
             )
         )
         self.shapes_lock_button.setChecked(
-            bool(self.canvas.shapes)
-            and all(shape.locked for shape in self.canvas.shapes)
+            any(shape.locked for shape in self.canvas.shapes)
         )
 
         for button in (self.labels_lock_button, self.shapes_lock_button):
@@ -4309,12 +4307,9 @@ class LabelingWidget(LabelDialog):
             for row in range(self.unique_label_list.count())
         ]
         states = self.unique_label_list.lock_states
-        locked = not (
-            items
-            and all(
-                states.get(item.data(Qt.ItemDataRole.UserRole), False)
-                for item in items
-            )
+        locked = not any(
+            states.get(item.data(Qt.ItemDataRole.UserRole), False)
+            for item in items
         )
         self.toggle_unique_label_items_lock(items, locked=locked)
 
@@ -4322,7 +4317,7 @@ class LabelingWidget(LabelDialog):
         shapes = self.canvas.shapes
         if not shapes:
             return
-        locked = not all(shape.locked for shape in shapes)
+        locked = not any(shape.locked for shape in shapes)
         labels = {shape.label for shape in shapes}
         for label in labels:
             self.unique_label_list.lock_states.pop(label, None)

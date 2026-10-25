@@ -99,7 +99,7 @@ class TestLabelLocks(unittest.TestCase):
 
     def test_bulk_labels_replaces_previous_individual_lock(self):
         self.widget.toggle_unique_label_items_lock([self.labels.item(0)])
-        for expected in (True, False):
+        for expected in (False, True, False):
             LabelingWidget.toggle_all_labels_lock(self.widget)
             self.assertEqual([s.locked for s in self.shapes], [expected] * 3)
             self.assertEqual(
@@ -108,7 +108,7 @@ class TestLabelLocks(unittest.TestCase):
 
     def test_bulk_shapes_clears_previous_category_policy(self):
         self.widget.toggle_unique_label_items_lock([self.labels.item(0)])
-        for expected in (True, False):
+        for expected in (False, True, False):
             LabelingWidget.toggle_all_shapes_lock(self.widget)
             self.assertEqual([s.locked for s in self.shapes], [expected] * 3)
             self.assertEqual(self.labels.lock_states, {})
@@ -240,6 +240,14 @@ class TestLabelLocks(unittest.TestCase):
         self.assertFalse(self.widget.labels_visibility_button.icon().isNull())
         self.shapes[0].locked = False
         LabelingWidget.refresh_panel_controls(self.widget)
+        self.assertTrue(self.widget.shapes_lock_button.isChecked())
+        self.widget.toggle_unique_label_items_lock([self.labels.item(0)])
+        LabelingWidget.refresh_panel_controls(self.widget)
+        self.assertTrue(self.widget.labels_lock_button.isChecked())
+        self.assertTrue(self.widget.shapes_lock_button.isChecked())
+        self.widget.toggle_unique_label_items_lock([self.labels.item(1)])
+        LabelingWidget.refresh_panel_controls(self.widget)
+        self.assertFalse(self.widget.labels_lock_button.isChecked())
         self.assertFalse(self.widget.shapes_lock_button.isChecked())
 
     def test_object_locks_survive_image_switch_in_memory(self):
