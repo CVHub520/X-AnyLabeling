@@ -577,7 +577,16 @@ def test_brush_uses_plain_wheel_for_zoom_and_ctrl_wheel_for_radius(view):
 
 @pytest.mark.parametrize(
     "shape_type",
-    ["polygon", "rectangle", "rotation", "line", "linestrip", "quadrilateral"],
+    [
+        "polygon",
+        "rectangle",
+        "rotation",
+        "line",
+        "linestrip",
+        "quadrilateral",
+        "circle",
+        "cuboid",
+    ],
 )
 @pytest.mark.parametrize(
     "button,modifiers",
@@ -585,6 +594,10 @@ def test_brush_uses_plain_wheel_for_zoom_and_ctrl_wheel_for_radius(view):
         (
             QtCore.Qt.MouseButton.LeftButton,
             QtCore.Qt.KeyboardModifier.AltModifier,
+        ),
+        (
+            QtCore.Qt.MouseButton.RightButton,
+            QtCore.Qt.KeyboardModifier.NoModifier,
         ),
         (
             QtCore.Qt.MouseButton.MiddleButton,
@@ -614,6 +627,8 @@ def test_drawing_pan_preserves_draft_and_resumes_at_correct_coordinates(
     assert_point(view.canvas.pan_offset, end - start)
     assert not view.canvas.shapes
     assert not view.canvas.shapes_backups
+    view.canvas.menus[0].exec.assert_not_called()
+    view.canvas.menus[1].exec.assert_not_called()
     next_pos = QtCore.QPointF(350, 250)
     expected = image_position(view, next_pos)
     mouse(
@@ -654,8 +669,10 @@ def test_middle_pan_does_not_paint_or_start_magic_wand(view, tool):
         getattr(view.canvas, name).assert_not_called()
 
 
-def test_right_drag_does_not_pan_in_drawing_mode(view):
+@pytest.mark.parametrize("shape_type", Shape.get_supported_shape())
+def test_right_drag_pans_before_drawing_and_click_opens_menu(view, shape_type):
     view.canvas.set_editing(False)
+    view.canvas.create_mode = shape_type
     point = QtCore.QPointF(100, 100)
     mouse(view, QtCore.QEvent.Type.MouseButtonPress, point)
     mouse(view, QtCore.QEvent.Type.MouseMove, point + QtCore.QPointF(100, 100))
@@ -664,5 +681,9 @@ def test_right_drag_does_not_pan_in_drawing_mode(view):
         QtCore.QEvent.Type.MouseButtonRelease,
         point + QtCore.QPointF(100, 100),
     )
-    assert view.canvas.pan_offset.isNull()
+    assert_point(view.canvas.pan_offset, QtCore.QPointF(100, 100))
     assert view.canvas.current is None
+    view.canvas.menus[0].exec.assert_not_called()
+    mouse(view, QtCore.QEvent.Type.MouseButtonPress, point)
+    mouse(view, QtCore.QEvent.Type.MouseButtonRelease, point)
+    view.canvas.menus[0].exec.assert_called_once()

@@ -2706,7 +2706,14 @@ class Canvas(
             return
         if (
             ev.button() == QtCore.Qt.MouseButton.RightButton
-            and self.editing()
+            and (
+                self.editing()
+                or (
+                    self.drawing()
+                    and not self.is_brush_mode
+                    and not self.is_magic_wand_mode
+                )
+            )
             and not ev.modifiers() & QtCore.Qt.KeyboardModifier.ControlModifier
             and self._has_valid_pixmap()
         ):

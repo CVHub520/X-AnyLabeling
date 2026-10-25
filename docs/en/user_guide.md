@@ -266,7 +266,7 @@ When **Show Groups** is enabled, each group displays an interactive bounding fra
 
 Additionally, you can quickly copy the coordinates of any selected shape to your clipboard using the **Copy Coordinates** option from the right-click context menu. For rectangles, this outputs the format `[x1, y1, x2, y2]` (top-left and bottom-right corners), while other shape types output `[x1, y1, x2, y2, x3, y3, ...]` (all vertex coordinates). In Editing Mode, double-clicking a shape on the canvas opens the label editor; you can disable this in `Settings > Canvas > Interaction > Double Click Edit Label`, or via the `double_click_edit_label` canvas setting (default: true).
 
-In Editing Mode, drag an empty area with the left mouse button to pan the canvas. While drawing a shape, use `Alt + Left Drag` or `Middle Drag` to pan without leaving Drawing Mode or changing the unfinished shape. These gestures allow free panning at any zoom level. In Editing Mode, `Alt + Left Drag` still erases polygon or line-strip vertices.
+In Editing Mode, drag an empty area with the left mouse button to pan the canvas. While drawing a shape, use `Right Drag`, `Alt + Left Drag`, or `Middle Drag` to pan without leaving Drawing Mode or changing the unfinished shape. These gestures allow free panning at any zoom level. In Editing Mode, `Alt + Left Drag` still erases polygon or line-strip vertices.
 
 > [!TIP]
 > When an image contains many shapes, use the following navigation tools to review them one by one without manually locating each shape.
@@ -390,7 +390,7 @@ This section explains how to customize the view settings in X-AnyLabeling, inclu
 
 Scroll the mouse wheel to zoom smoothly around the cursor in all canvas tools, including rectangle editing and Edit Brush. The zoom range is **10%–1000% (0.1×–10×)**, for both the main canvas and navigator. Small wheel increments are preserved, and the image position under the cursor stays fixed while zooming. `Ctrl + Wheel` adjusts a selected rectangle when rectangle wheel editing is enabled, or the brush size in Edit Brush; otherwise, it also zooms the canvas. Hold `Shift` while scrolling to move the scrollbars; in compare view, `Shift + Wheel` moves the divider.
 
-While drawing, use `Alt + Left Drag` or `Middle Drag` to pan freely, even when zoomed in: any image corner can be moved anywhere in the viewport. In Editing Mode, use the middle button, drag an empty area with the left button, or use right-button dragging. `Space + Left Drag` remains available for compatibility. A right-click keeps its existing action, including opening the context menu or finishing brush/magic-wand editing. Use `Ctrl + Right Drag` for the annotation copy/move menu. Fit Window or Fit Width resets the pan offset.
+While drawing ordinary shapes, use `Right Drag`, `Alt + Left Drag`, or `Middle Drag` to pan freely, even when zoomed in: any image corner can be moved anywhere in the viewport. In Editing Mode, use the middle button, drag an empty area with the left button, or use right-button dragging. `Space + Left Drag` remains available for compatibility. The Magic Wand retains its right-button confirmation action. A right-click keeps its existing action, including opening the context menu or finishing brush/magic-wand editing. Use `Ctrl + Right Drag` for the annotation copy/move menu. Fit Window or Fit Width resets the pan offset.
 
 To maintain the current zoom level when switching between images, enable `View` > `Keep Previous Zoom Ratio`.
 
@@ -986,6 +986,7 @@ You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit
 | `Ctrl+Wheel`          | Adjust Rectangle or Brush Size                   | Rectangle wheel editing must be enabled     |
 | `Alt+Left Drag`       | Pan Canvas                                       | Drawing Mode                               |
 | `Middle Drag`         | Pan Canvas                                       |                                            |
+| `Right Drag`          | Pan Canvas                                       | Ordinary shape drawing and Editing Mode    |
 | `Ctrl+=`              | Zoom to Actual Size (100%)                       |                                            |
 | `Ctrl++`              | Zoom In                                          |                                            |
 | `Ctrl+-`              | Zoom Out                                         |                                            |
