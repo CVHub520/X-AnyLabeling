@@ -111,34 +111,34 @@ Review the prompt before generating.</source>
       <translation>检查更新</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/about_dialog.py" line="422" />
+      <location filename="../../views/labeling/widgets/about_dialog.py" line="424" />
       <location filename="../../views/labeling/widgets/about_dialog.py" line="283" />
       <source>Copied!</source>
       <translation>已复制！</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/about_dialog.py" line="323" />
-      <location filename="../../views/labeling/widgets/about_dialog.py" line="308" />
+      <location filename="../../views/labeling/widgets/about_dialog.py" line="325" />
+      <location filename="../../views/labeling/widgets/about_dialog.py" line="310" />
       <source>No Updates Available</source>
       <translation>没有可用更新</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/about_dialog.py" line="330" />
+      <location filename="../../views/labeling/widgets/about_dialog.py" line="332" />
       <source>Check update failed</source>
       <translation>检查更新失败</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/about_dialog.py" line="358" />
+      <location filename="../../views/labeling/widgets/about_dialog.py" line="360" />
       <source>Update Available</source>
       <translation>有可用升级</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/about_dialog.py" line="399" />
+      <location filename="../../views/labeling/widgets/about_dialog.py" line="401" />
       <source>Cancel</source>
       <translation>取消</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/about_dialog.py" line="402" />
+      <location filename="../../views/labeling/widgets/about_dialog.py" line="404" />
       <source>Download</source>
       <translation>下载</translation>
     </message>
@@ -314,7 +314,7 @@ Review the prompt before generating.</source>
       <translation>现有对象在更新期间将被新对象覆盖。点击切换到保留状态。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1343" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1354" />
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="383" />
       <source>Replace (On)</source>
       <translation>标签覆盖（开启）</translation>
@@ -330,7 +330,7 @@ Review the prompt before generating.</source>
       <translation>调整掩码精细度：值越小越精细，值越大越粗糙 [默认值: 0.001]</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="997" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1008" />
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="428" />
       <source>AMG</source>
       <translation>AMG</translation>
@@ -341,79 +341,79 @@ Review the prompt before generating.</source>
       <translation>自动分割整张图像（无需提示）</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="660" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="661" />
       <source>Delete downloaded model files</source>
       <translation>删除已下载的模型文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="662" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="663" />
       <source>Are you sure you want to permanently delete "{path}"?</source>
       <translation>是否确定永久删除"{path}"？</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="668" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="669" />
       <source>If needed, these files can be downloaded again the next time you use this model.</source>
       <translation>如有需要，可在下次使用该模型时重新下载。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="683" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="684" />
       <source>Could not delete model files</source>
       <translation>无法删除模型文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="687" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="688" />
       <source>Model files deleted successfully.</source>
       <translation>模型文件删除成功。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="846" />
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="760" />
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="699" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="847" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="761" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="700" />
       <source>No Model</source>
       <translation>无模型</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="998" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1009" />
       <source>AMG may take a long time to process the current image. Do you want to continue?</source>
       <translation>AMG 处理当前图像可能需要较长时间。是否继续？</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1043" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1054" />
       <source>Cancel</source>
       <translation>取消</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1105" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1116" />
       <source>Cancelling...</source>
       <translation>正在取消……</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1336" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1347" />
       <source>Replace (Off)</source>
       <translation>标签覆盖（关闭）</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1811" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1823" />
       <source>TinyObj (On)</source>
       <translation>小目标（开启）</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1811" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1823" />
       <source>TinyObj (Off)</source>
       <translation>小目标（关闭）</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1890" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1902" />
       <source>Skip Det (On)</source>
       <translation>跳过检测（开启）</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1892" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1904" />
       <source>Skip Det (Off)</source>
       <translation>跳过检测（关闭）</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1911" />
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1923" />
       <source>Existing unsupported shape type. Only rectangle, rotation and polygon shapes are supported for detection boxes.</source>
       <translation>存在不支持的对象类型。检测框仅支持矩形、旋转框和多边形对象。</translation>
     </message>
@@ -662,94 +662,94 @@ Review the prompt before generating.</source>
   <context>
     <name>Canvas</name>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="245" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="252" />
       <source>Loading...</source>
       <translation>加载中...</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1533" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1615" />
       <source>Auto Labeling</source>
       <translation>自动标注</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1536" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1618" />
       <source>Magic Wand</source>
       <translation>魔术棒</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1537" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1619" />
       <source>Drawing</source>
       <translation>绘制</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1539" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1621" />
       <source>Editing</source>
       <translation>编辑</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1541" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1623" />
       <source>Unknown</source>
       <translation>未知</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1607" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1689" />
       <source>Click &amp; drag to erase points of shape '%s'</source>
       <translation>点击并拖动以擦除对象 '%s' 的顶点</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1803" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1894" />
       <source>Click &amp; drag to rotate shape '%s'</source>
       <translation>点击并拖动以旋转形状“%s”</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="2336" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2435" />
       <source>Click &amp; drag to adjust cuboid depth of shape '%s'</source>
       <translation>点击并拖动以调整对象：'%s' 的长方体深度</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="2343" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2442" />
       <source>Click &amp; drag to adjust rear edge of cuboid shape '%s'</source>
       <translation>点击并拖动以调整长方体对象：'%s' 的后边缘</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="2420" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="2350" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2519" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2449" />
       <source>Click &amp; drag to move point of shape '%s'</source>
       <translation>点击并拖动以移动对象顶点：'%s'</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="2479" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="2368" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2579" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2467" />
       <source>Click &amp; drag to move shape '%s'</source>
       <translation>点击并拖动以移动对象：'%s'</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="2388" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2487" />
       <source>Click &amp; drag to adjust cuboid %s face of shape '%s'</source>
       <translation>点击并拖动以调整长方体 %s 面（对象：'%s'）</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="2441" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2541" />
       <source>Click to create point of shape '%s'</source>
       <translation>点击以创建对象“%s”的顶点</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="2471" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2571" />
       <source>Locked shape '%s'</source>
       <translation>对象“%s”已锁定</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="3202" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="3345" />
       <source>Group %s · %d shapes</source>
       <translation>群组 %s · %d 个对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="3204" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="3347" />
       <source>Locked %s</source>
       <translation>已锁定：%s</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="3206" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="3349" />
       <source>Click &amp; drag to move %s</source>
       <translation>单击并拖拽以移动 %s</translation>
     </message>
@@ -854,238 +854,238 @@ Review the prompt before generating.</source>
   <context>
     <name>ChatbotDialog</name>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="149" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="151" />
       <source>Clear Chat</source>
       <translation>清除对话</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="151" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="153" />
       <source>Open Image Folder</source>
       <translation>打开图像文件夹</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="154" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="156" />
       <source>Open Image File</source>
       <translation>打开图像文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="157" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="159" />
       <source>Previous Image</source>
       <translation>上一张图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="159" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="161" />
       <source>Next Image</source>
       <translation>下一张图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="161" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="163" />
       <source>Run All Images</source>
       <translation>运行所有图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="164" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="166" />
       <source>Import/Export Dataset</source>
       <translation>导入/导出数据集</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="301" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="303" />
       <source>Type a message and press Enter to send.</source>
       <translation>输入消息并按 Enter 发送。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="530" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="532" />
       <source>API Address</source>
       <translation>API 地址</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="582" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="584" />
       <source>API Key</source>
       <translation>API 密钥</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="621" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="623" />
       <source>Enter API key</source>
       <translation>输入 API 密钥</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="698" />
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="649" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="700" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="651" />
       <source>Model Name</source>
       <translation>模型名称</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="719" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="721" />
       <source>System instruction</source>
       <translation>系统提示词</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="737" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="739" />
       <source>Temperature</source>
       <translation>温度</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="776" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="778" />
       <source>Precise</source>
       <translation>精确</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="782" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="784" />
       <source>Neutral</source>
       <translation>中性</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="788" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="790" />
       <source>Creative</source>
       <translation>创意</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="802" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="804" />
       <source>Max output tokens</source>
       <translation>最大输出长度</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="830" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="832" />
       <source>Backend</source>
       <translation>后端</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="831" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="833" />
       <source>Generation</source>
       <translation>生成</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1137" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1139" />
       <source>Image not available</source>
       <translation>图像不支持</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1560" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1562" />
       <source>Inferencing...</source>
       <translation>推理中。。。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1561" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1563" />
       <source>Cancel</source>
       <translation>取消</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1567" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1569" />
       <source>Progress</source>
       <translation>进度</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1703" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1705" />
       <source>Processing image %d/%d...</source>
       <translation>处理图像 %d/%d...</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1783" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1790" />
       <source>Processed %d images successfully.
 %d images failed.</source>
       <translation>成功处理 %d 张图像，%d 张图像处理失败。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1798" />
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1788" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1805" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1795" />
       <source>Batch Processing Complete</source>
       <translation>批量处理完成</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1793" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1800" />
       <source>All %d images processed successfully.</source>
       <translation>全部 %d 张图像处理成功。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1808" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1815" />
       <source>Dataset Operations</source>
       <translation>数据操作</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1819" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1826" />
       <source>Import Dataset</source>
       <translation>导入数据</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1822" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1829" />
       <source>Export Dataset</source>
       <translation>导出数据</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1965" />
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1930" />
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1874" />
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1835" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1972" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1937" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1881" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1842" />
       <source>Export Error</source>
       <translation>导出错误</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1978" />
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1836" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1985" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1843" />
       <source>No file is currently open.</source>
       <translation>当前没有打开的文件。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1843" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1850" />
       <source>Select Export Directory</source>
       <translation>选择导出目录</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1875" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1882" />
       <source>No labeling files found in the current directory.</source>
       <translation>当前目录中未找到标注文件。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1931" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1938" />
       <source>No valid chat data found to export.</source>
       <translation>未找到可导出的有效聊天数据。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1955" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1962" />
       <source>Export Successful</source>
       <translation>导出成功</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2124" />
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2000" />
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1977" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2131" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2007" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1984" />
       <source>Import Error</source>
       <translation>导入错误</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1985" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1992" />
       <source>Select Dataset File</source>
       <translation>选择数据文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2001" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2008" />
       <source>Invalid dataset format. Expected a list of records.</source>
       <translation>数据集格式无效。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2097" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2104" />
       <source>Successfully imported {0} items to:
 {1}</source>
       <translation>成功导入 {0} 项到：
 {1}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2102" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2109" />
       <source>Import Successful</source>
       <translation>导入成功</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2112" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2119" />
       <source>Import Notice</source>
       <translation>导入通知</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2113" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2120" />
       <source>No valid items were found to import. Make sure images are available.</source>
       <translation>未找到可导入的有效项目。请确保图像可用。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2588" />
+      <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2595" />
       <source>Are you sure you want to clear the entire conversation?</source>
       <translation>您确定要清除整个对话吗？</translation>
     </message>
@@ -1829,6 +1829,30 @@ Review the prompt before generating.</source>
     </message>
   </context>
   <context>
+    <name>DescriptionEditor</name>
+    <message>
+      <location filename="../../views/labeling/widgets/description_editor.py" line="21" />
+      <location filename="../../views/labeling/widgets/description_editor.py" line="20" />
+      <source>Expand description</source>
+      <translation>展开描述</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/description_editor.py" line="95" />
+      <source>Edit description</source>
+      <translation>编辑描述</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/description_editor.py" line="134" />
+      <source>Cancel</source>
+      <translation>取消</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/description_editor.py" line="137" />
+      <source>Confirm</source>
+      <translation>确认</translation>
+    </message>
+  </context>
+  <context>
     <name>DetectionWorkspace</name>
     <message>
       <location filename="../../views/labeling/pointcloud/detection.py" line="144" />
@@ -1934,77 +1958,77 @@ Review the prompt before generating.</source>
   <context>
     <name>DigitShortcutDialog</name>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="88" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="91" />
       <source>Digit Shortcut Manager</source>
       <translation>数字快捷键管理器</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="105" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="108" />
       <source>Configure digit keys (0-9) for quick shape creation:</source>
       <translation>配置数字键（0-9）用于快速创建对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="115" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="118" />
       <source>Digit</source>
       <translation>数字</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="115" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="118" />
       <source>Drawing Mode</source>
       <translation>绘制模式</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="115" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="118" />
       <source>Label</source>
       <translation>标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="144" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="147" />
       <source>None</source>
       <translation>空</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="198" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="201" />
       <source>Reset</source>
       <translation>重置</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="202" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="205" />
       <source>OK</source>
       <translation>确认</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="206" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="209" />
       <source>Cancel</source>
       <translation>取消</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="247" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="250" />
       <source>Required</source>
       <translation>必须填写</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="254" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="257" />
       <source>Confirm Reset</source>
       <translation>确认重置</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="255" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="258" />
       <source>Are you sure you want to reset all shortcuts? This cannot be undone.</source>
       <translation>您确定要重置所有快捷键吗？此操作无法撤销。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="303" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="306" />
       <source>Validation Error</source>
       <translation>验证错误</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="304" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="307" />
       <source>Please provide a label for each enabled drawing mode.</source>
       <translation>请为每个已启用的绘制模式提供标签名称。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="318" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="321" />
       <source>Digit shortcuts saved successfully</source>
       <translation>保存成功</translation>
     </message>
@@ -2425,32 +2449,32 @@ Original images backed up to:
   <context>
     <name>GroupIDModifyDialog</name>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="400" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="403" />
       <source>Group ID Change Manager</source>
       <translation>群组编号管理器</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="584" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="587" />
       <source>Enter new ID</source>
       <translation>输入新的编号</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="614" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="617" />
       <source>Invalid Range</source>
       <translation>无效范围</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="615" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="618" />
       <source>Please enter a valid range.</source>
       <translation>请输入有效范围。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="664" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="667" />
       <source>Group IDs modified successfully!</source>
       <translation>群组编号修改成功！</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="672" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="675" />
       <source>An error occurred while updating the Group IDs.</source>
       <translation>更新群组编号时发生错误。</translation>
     </message>
@@ -2458,13 +2482,13 @@ Original images backed up to:
   <context>
     <name>ImageTagChip</name>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="155" />
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="154" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="157" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="156" />
       <source>Delete tag</source>
       <translation>删除标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="244" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="246" />
       <source>Double-click a tag to edit its text.</source>
       <translation>双击标签可修改文本。</translation>
     </message>
@@ -2472,90 +2496,90 @@ Original images backed up to:
   <context>
     <name>ImageTagsWidget</name>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="441" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="443" />
       <source>Add image tag</source>
       <translation>添加图片标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="449" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="451" />
       <source>Batch Delete Tags</source>
       <translation>批量删除标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="456" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="458" />
       <source>Copy All Tags</source>
       <translation>复制所有标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="814" />
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="482" />
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="472" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="813" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="479" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="469" />
       <source>Select All</source>
       <translation>全选</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="475" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="472" />
       <source>Delete</source>
       <translation>删除</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="478" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="475" />
       <source>Cancel</source>
       <translation>取消</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="814" />
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="482" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="813" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="479" />
       <source>Deselect All</source>
       <translation>取消全选</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="577" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="576" />
       <source>Copy Successful</source>
       <translation>复制成功</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="593" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="592" />
       <source>Image tag editor</source>
       <translation>图片标签编辑器</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="638" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="637" />
       <source>Press Enter to add, or Esc to cancel.</source>
       <translation>按 Enter 添加，或按 Esc 取消。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="640" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="639" />
       <source>Press Enter to save, or Esc to cancel.</source>
       <translation>按 Enter 保存，或按 Esc 取消。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="739" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="738" />
       <source>Tags cannot be empty or contain line breaks.</source>
       <translation>标签不能为空或包含换行符。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="744" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="743" />
       <source>This tag already exists.</source>
       <translation>该标签已存在。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="773" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="772" />
       <source>Delete Image Tag</source>
       <translation>删除图片标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="775" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="774" />
       <source>Delete tag "%s"?</source>
       <translation>删除标签“%s”？</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="836" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="835" />
       <source>Delete Image Tags</source>
       <translation>删除图片标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="837" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="836" />
       <source>Delete %d selected tags?</source>
       <translation>删除选中的 %d 个标签？</translation>
     </message>
@@ -2563,74 +2587,87 @@ Original images backed up to:
   <context>
     <name>LabelDialog</name>
     <message>
-        <source>Pending</source>
-        <translation>待审</translation>
-    </message>
-    <message>
-        <source>Missed</source>
-        <translation>漏检</translation>
-    </message>
-    <message>
-        <source>False Positive</source>
-        <translation>误检</translation>
-    </message>
-    <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1280" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1369" />
       <source>Enter object label</source>
       <translation>输入对象标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1342" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1450" />
       <source>Group ID</source>
       <translation>群组编号</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1352" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1460" />
       <source>useDifficult</source>
       <translation>困难标志</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1358" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1473" />
       <source>Enter linking, e.g., [0,1]</source>
       <translation>输入链接，如：[0,1]</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1372" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1487" />
       <source>Add</source>
       <translation>新增</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1409" />
-      <source>Label description</source>
-      <translation>标签描述</translation>
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1509" />
+      <source>OK</source>
+      <translation>确定</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1484" />
-      <source>Duplicate Entry</source>
-      <translation>重复输入</translation>
-    </message>
-    <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1485" />
-      <source>This linking pair already exists.</source>
-      <translation>当前链接已存在。</translation>
-    </message>
-    <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1501" />
-      <source>Invalid Input</source>
-      <translation>无效输入</translation>
-    </message>
-    <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1502" />
-      <source>Please enter a valid list of linking pairs like [1,2].</source>
-      <translation>请输入有效链接，如：[1,2]</translation>
-    </message>
-    <message>
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1510" />
       <source>Cancel</source>
       <translation>取消</translation>
     </message>
     <message>
-      <source>OK</source>
-      <translation>确定</translation>
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1521" />
+      <source>Label description</source>
+      <translation>标签描述</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1532" />
+      <source>Pending</source>
+      <translation>待审</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1533" />
+      <source>Missed</source>
+      <translation>漏检</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1534" />
+      <source>False Positive</source>
+      <translation>误检</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1641" />
+      <source>Duplicate Entry</source>
+      <translation>重复输入</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1642" />
+      <source>This linking pair already exists.</source>
+      <translation>当前链接已存在。</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1658" />
+      <source>Invalid Input</source>
+      <translation>无效输入</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1659" />
+      <source>Please enter a valid list of linking pairs like [1,2].</source>
+      <translation>请输入有效链接，如：[1,2]</translation>
+    </message>
+  </context>
+  <context>
+    <name>LabelFile</name>
+    <message>
+      <location filename="../../views/labeling/label_file.py" line="120" />
+      <source>Failed opening image file: %s</source>
+      <translation>无法打开图片文件：%s</translation>
     </message>
   </context>
   <context>
@@ -2644,54 +2681,55 @@ Original images backed up to:
   <context>
     <name>LabelModifyDialog</name>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="787" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="793" />
       <source>Label Change Manager</source>
       <translation>标签管理器</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="897" />
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="819" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="814" />
+      <source>Session-only category lock; independent of the file range</source>
+      <translation>类别锁定仅在当前会话生效，与文件范围无关</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="915" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="837" />
       <source>Double-click to copy label text</source>
       <translation>双击复制标签文本</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1019" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1066" />
       <source>Label copied to clipboard</source>
       <translation>标签已复制到剪贴板</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1032" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1079" />
       <source>Select All</source>
       <translation>全选</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1033" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1080" />
       <source>Deselect All</source>
       <translation>取消全选</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1111" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1192" />
       <source>Labels modified successfully!</source>
       <translation>标签修改成功！</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1119" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1200" />
       <source>An error occurred while updating the labels.</source>
       <translation>更新标签时发生错误。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1241" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1330" />
       <source>Invalid Range</source>
       <translation>无效范围</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/label_dialog.py" line="1242" />
+      <location filename="../../views/labeling/widgets/label_dialog.py" line="1331" />
       <source>Please enter a valid range.</source>
       <translation>请输入有效范围。</translation>
-    </message>
-    <message>
-      <source>Session-only category lock; independent of the file range</source>
-      <translation>类别锁定仅在当前会话生效，与文件范围无关</translation>
     </message>
   </context>
   <context>
@@ -2886,39 +2924,34 @@ Continue?</source>
   <context>
     <name>LabelingWidget</name>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="267" />
+      <location filename="../../views/labeling/label_widget.py" line="307" />
       <source>Flags</source>
       <translation>标志</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="294" />
+      <location filename="../../views/labeling/label_widget.py" line="334" />
       <source>Objects</source>
       <translation>对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="300" />
-      <source>Select label to start annotating for it. Press 'Esc' to deselect.</source>
-      <translation>选择标签以开始为其进行标注，可按 'Esc' 键取消选择</translation>
-    </message>
-    <message>
-      <location filename="../../views/labeling/label_widget.py" line="2536" />
-      <location filename="../../views/labeling/label_widget.py" line="306" />
+      <location filename="../../views/labeling/label_widget.py" line="2675" />
+      <location filename="../../views/labeling/label_widget.py" line="346" />
       <source>Labels</source>
       <translation>标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="7407" />
-      <location filename="../../views/labeling/label_widget.py" line="326" />
+      <location filename="../../views/labeling/label_widget.py" line="7875" />
+      <location filename="../../views/labeling/label_widget.py" line="364" />
       <source>Description</source>
       <translation>描述</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="333" />
+      <location filename="../../views/labeling/label_widget.py" line="371" />
       <source>Search files...</source>
       <translation>搜索文件...</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="335" />
+      <location filename="../../views/labeling/label_widget.py" line="373" />
       <source>Supported search modes:
 - Text: plain text search
 - Index: #N (e.g., #1, #10)
@@ -2943,1403 +2976,1459 @@ Press Enter to search.</source>
 按 Enter 键搜索。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2900" />
-      <location filename="../../views/labeling/label_widget.py" line="354" />
+      <location filename="../../views/labeling/label_widget.py" line="3079" />
+      <location filename="../../views/labeling/label_widget.py" line="394" />
       <source>Settings</source>
       <translation>设置</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="560" />
+      <location filename="../../views/labeling/label_widget.py" line="620" />
       <source>Open File</source>
       <translation>打开文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="564" />
+      <location filename="../../views/labeling/label_widget.py" line="624" />
       <source>Open image or label file</source>
       <translation>打开图像或标签文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="567" />
+      <location filename="../../views/labeling/label_widget.py" line="627" />
       <source>Open Video</source>
       <translation>打开视频</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="571" />
+      <location filename="../../views/labeling/label_widget.py" line="631" />
       <source>Open video file</source>
       <translation>打开视频文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="578" />
-      <location filename="../../views/labeling/label_widget.py" line="574" />
+      <location filename="../../views/labeling/label_widget.py" line="638" />
+      <location filename="../../views/labeling/label_widget.py" line="634" />
       <source>Open Dir</source>
       <translation>打开文件夹</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="581" />
+      <location filename="../../views/labeling/label_widget.py" line="641" />
       <source>Next Image</source>
       <translation>下一张图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="585" />
+      <location filename="../../views/labeling/label_widget.py" line="645" />
       <source>Open next image</source>
       <translation>打开下一张图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="589" />
+      <location filename="../../views/labeling/label_widget.py" line="649" />
       <source>Prev Image</source>
       <translation>上一张图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="593" />
+      <location filename="../../views/labeling/label_widget.py" line="653" />
       <source>Open prev image</source>
       <translation>打开上一张图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="597" />
+      <location filename="../../views/labeling/label_widget.py" line="657" />
+      <source>Forward 10 Images</source>
+      <translation>向后切换 10 张</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="660" />
+      <source>Move forward by 10 images</source>
+      <translation>向后切换 10 张图片</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="664" />
+      <source>Back 10 Images</source>
+      <translation>向前切换 10 张</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="667" />
+      <source>Move back by 10 images</source>
+      <translation>向前切换 10 张图片</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="671" />
       <source>Next Unchecked Image</source>
       <translation>下一张未检查的图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="601" />
+      <location filename="../../views/labeling/label_widget.py" line="675" />
       <source>Open next unchecked image</source>
       <translation>打开下一张未检查的图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="605" />
+      <location filename="../../views/labeling/label_widget.py" line="679" />
       <source>Prev Unchecked Image</source>
       <translation>上一张未检查的图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="609" />
+      <location filename="../../views/labeling/label_widget.py" line="683" />
       <source>Open previous unchecked image</source>
       <translation>打开上一张未检查的图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="613" />
+      <location filename="../../views/labeling/label_widget.py" line="687" />
       <source>Save</source>
       <translation>保存</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="617" />
+      <location filename="../../views/labeling/label_widget.py" line="691" />
       <source>Save labels to file</source>
       <translation>将标签保存到文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="621" />
+      <location filename="../../views/labeling/label_widget.py" line="695" />
       <source>Save As</source>
       <translation>另存为</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="625" />
+      <location filename="../../views/labeling/label_widget.py" line="699" />
       <source>Save labels to a different file</source>
       <translation>将标签保存到不同的文件中</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="629" />
+      <location filename="../../views/labeling/label_widget.py" line="703" />
       <source>Auto Run</source>
       <translation>自动运行</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="633" />
+      <location filename="../../views/labeling/label_widget.py" line="707" />
       <source>Auto run all images at once</source>
       <translation>一次运行所有图片</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="637" />
+      <location filename="../../views/labeling/label_widget.py" line="711" />
       <source>Delete File</source>
       <translation>删除文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="641" />
+      <location filename="../../views/labeling/label_widget.py" line="715" />
       <source>Delete current label file</source>
       <translation>删除当前的标签文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="645" />
+      <location filename="../../views/labeling/label_widget.py" line="719" />
       <source>Delete Image File</source>
       <translation>删除图像文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="649" />
+      <location filename="../../views/labeling/label_widget.py" line="723" />
       <source>Delete current image file</source>
       <translation>删除当前图像文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="4179" />
-      <location filename="../../views/labeling/label_widget.py" line="653" />
-      <source>Mark as Checked</source>
-      <translation>标记为已检查</translation>
+      <location filename="../../views/labeling/label_widget.py" line="4545" />
+      <location filename="../../views/labeling/label_widget.py" line="727" />
+      <source>Check Passed</source>
+      <translation>检查通过</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="4180" />
-      <location filename="../../views/labeling/label_widget.py" line="657" />
-      <source>Mark current annotation as checked</source>
-      <translation>将当前标注标记为已检查</translation>
+      <location filename="../../views/labeling/label_widget.py" line="4544" />
+      <location filename="../../views/labeling/label_widget.py" line="734" />
+      <source>Unchecked</source>
+      <translation>未检查</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="663" />
+      <location filename="../../views/labeling/label_widget.py" line="4546" />
+      <location filename="../../views/labeling/label_widget.py" line="741" />
+      <source>Check Failed</source>
+      <translation>检查不通过</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="748" />
+      <source>Check Status</source>
+      <translation>检查状态</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="761" />
       <source>Compare View</source>
       <translation>对比视图</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="667" />
+      <location filename="../../views/labeling/label_widget.py" line="765" />
       <source>Toggle split-screen compare view</source>
       <translation>切换分屏对比视图</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="672" />
+      <location filename="../../views/labeling/label_widget.py" line="770" />
       <source>Change Output Dir</source>
       <translation>更改输出目录</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="676" />
+      <location filename="../../views/labeling/label_widget.py" line="774" />
       <source>Change where annotations are loaded/saved</source>
       <translation>更改标注加载和保存的位置</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="680" />
+      <location filename="../../views/labeling/label_widget.py" line="778" />
       <source>Save Automatically</source>
       <translation>自动保存</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="683" />
+      <location filename="../../views/labeling/label_widget.py" line="781" />
       <source>Save automatically</source>
       <translation>自动保存</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="690" />
+      <location filename="../../views/labeling/label_widget.py" line="788" />
       <source>Save With Image Data</source>
       <translation>保存包括图像数据在内的文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="693" />
+      <location filename="../../views/labeling/label_widget.py" line="791" />
       <source>Save image data in label file</source>
       <translation>在标签文件中保存图像数据</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="699" />
+      <location filename="../../views/labeling/label_widget.py" line="797" />
       <source>Close</source>
       <translation>关闭</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="703" />
+      <location filename="../../views/labeling/label_widget.py" line="801" />
       <source>Close current file</source>
       <translation>关闭当前文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="707" />
+      <location filename="../../views/labeling/label_widget.py" line="805" />
       <source>Keep Previous Annotation</source>
       <translation>保留上一张图像的标注</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="711" />
+      <location filename="../../views/labeling/label_widget.py" line="809" />
       <source>Toggle "Keep Previous Annotation" mode</source>
       <translation>切换“保留上一个注释”模式</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="717" />
+      <location filename="../../views/labeling/label_widget.py" line="815" />
       <source>Auto Use Last Label</source>
       <translation>自动使用上一个标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="721" />
+      <location filename="../../views/labeling/label_widget.py" line="819" />
       <source>Toggle "Auto Use Last Label" mode</source>
       <translation>切换“自动使用上一个标签”模式</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="727" />
+      <location filename="../../views/labeling/label_widget.py" line="825" />
       <source>Auto Use Last Group ID</source>
       <translation>自动使用上一次的群组编号</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="731" />
+      <location filename="../../views/labeling/label_widget.py" line="829" />
       <source>Toggle "Auto Use Last Group ID" mode</source>
       <translation>切换"自动使用上一次的群组编号"模式</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="737" />
+      <location filename="../../views/labeling/label_widget.py" line="835" />
       <source>Use System Clipboard</source>
       <translation>使用系统剪贴板</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="739" />
+      <location filename="../../views/labeling/label_widget.py" line="837" />
       <source>Use system clipboard for copy and paste</source>
       <translation>使用系统剪贴板进行复制和粘贴</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="746" />
+      <location filename="../../views/labeling/label_widget.py" line="844" />
       <source>Visibility Shapes</source>
       <translation>显示所有对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="750" />
+      <location filename="../../views/labeling/label_widget.py" line="848" />
       <source>Toggle "Visibility Shapes" mode</source>
       <translation>切换“对象可见”模式</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="756" />
+      <location filename="../../views/labeling/label_widget.py" line="854" />
       <source>Create Polygons</source>
       <translation>创建多边形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="760" />
+      <location filename="../../views/labeling/label_widget.py" line="858" />
       <source>Start drawing polygons</source>
       <translation>开始绘制多边形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="764" />
+      <location filename="../../views/labeling/label_widget.py" line="862" />
       <source>Create Brush Polygons</source>
       <translation>创建画笔多边形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="768" />
+      <location filename="../../views/labeling/label_widget.py" line="866" />
       <source>Toggle brush mode for drawing polygons</source>
       <translation>切换画笔模式绘制多边形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="772" />
+      <location filename="../../views/labeling/label_widget.py" line="870" />
       <source>Magic Wand</source>
       <translation>魔术棒</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="776" />
+      <location filename="../../views/labeling/label_widget.py" line="874" />
       <source>Select a contiguous color region; drag to adjust tolerance; right-click to finish; press Esc to cancel</source>
       <translation>选择连续的颜色区域；拖动可调整容差；右键单击完成；按 Esc 取消</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="783" />
+      <location filename="../../views/labeling/label_widget.py" line="881" />
       <source>Create Rectangle</source>
       <translation>创建矩形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="787" />
+      <location filename="../../views/labeling/label_widget.py" line="885" />
       <source>Start drawing rectangles</source>
       <translation>开始绘制矩形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="791" />
+      <location filename="../../views/labeling/label_widget.py" line="889" />
       <source>Create Rotation</source>
       <translation>创建旋转框</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="795" />
+      <location filename="../../views/labeling/label_widget.py" line="893" />
       <source>Start drawing rotations</source>
       <translation>开始绘制旋转框</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="799" />
+      <location filename="../../views/labeling/label_widget.py" line="897" />
       <source>Create Quadrilateral</source>
       <translation>创建四边形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="803" />
+      <location filename="../../views/labeling/label_widget.py" line="901" />
       <source>Start drawing quadrilaterals (4 points, auto-closed)</source>
       <translation>开始绘制四边形（四点，自动闭合）</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="807" />
+      <location filename="../../views/labeling/label_widget.py" line="905" />
       <source>Create Circle</source>
       <translation>创建圆形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="811" />
+      <location filename="../../views/labeling/label_widget.py" line="909" />
       <source>Start drawing circles</source>
       <translation>开始绘制圆形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="815" />
+      <location filename="../../views/labeling/label_widget.py" line="913" />
       <source>Create Line</source>
       <translation>创建线条</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="819" />
+      <location filename="../../views/labeling/label_widget.py" line="917" />
       <source>Start drawing lines</source>
       <translation>开始绘制线条</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="823" />
+      <location filename="../../views/labeling/label_widget.py" line="921" />
       <source>Create Point</source>
       <translation>创建点</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="827" />
+      <location filename="../../views/labeling/label_widget.py" line="925" />
       <source>Start drawing points</source>
       <translation>开始绘制点</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="831" />
+      <location filename="../../views/labeling/label_widget.py" line="929" />
       <source>Create LineStrip</source>
       <translation>创建线条序列</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="835" />
+      <location filename="../../views/labeling/label_widget.py" line="933" />
       <source>Start drawing linestrip. Ctrl+LeftClick ends creation.</source>
       <translation>开始绘制线条序列。使用 Ctrl+左键单击结束创建。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="839" />
+      <location filename="../../views/labeling/label_widget.py" line="937" />
       <source>Create Cuboid</source>
       <translation>创建长方体</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="843" />
+      <location filename="../../views/labeling/label_widget.py" line="941" />
       <source>Start drawing cuboids from rectangle</source>
       <translation>从矩形框开始绘制长方体</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="847" />
+      <location filename="../../views/labeling/label_widget.py" line="945" />
       <source>Digit Shortcut 0</source>
       <translation>数字快捷键 0</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="854" />
+      <location filename="../../views/labeling/label_widget.py" line="952" />
       <source>Digit Shortcut 1</source>
       <translation>数字快捷键 1</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="861" />
+      <location filename="../../views/labeling/label_widget.py" line="959" />
       <source>Digit Shortcut 2</source>
       <translation>数字快捷键 2</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="868" />
+      <location filename="../../views/labeling/label_widget.py" line="966" />
       <source>Digit Shortcut 3</source>
       <translation>数字快捷键 3</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="875" />
+      <location filename="../../views/labeling/label_widget.py" line="973" />
       <source>Digit Shortcut 4</source>
       <translation>数字快捷键 4</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="882" />
+      <location filename="../../views/labeling/label_widget.py" line="980" />
       <source>Digit Shortcut 5</source>
       <translation>数字快捷键 5</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="889" />
+      <location filename="../../views/labeling/label_widget.py" line="987" />
       <source>Digit Shortcut 6</source>
       <translation>数字快捷键 6</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="896" />
+      <location filename="../../views/labeling/label_widget.py" line="994" />
       <source>Digit Shortcut 7</source>
       <translation>数字快捷键 7</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="903" />
+      <location filename="../../views/labeling/label_widget.py" line="1001" />
       <source>Digit Shortcut 8</source>
       <translation>数字快捷键 8</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="910" />
+      <location filename="../../views/labeling/label_widget.py" line="1008" />
       <source>Digit Shortcut 9</source>
       <translation>数字快捷键 9</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="917" />
+      <location filename="../../views/labeling/label_widget.py" line="1015" />
       <source>Edit Object</source>
       <translation>编辑对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="921" />
+      <location filename="../../views/labeling/label_widget.py" line="1019" />
       <source>Move and edit the selected polygons</source>
       <translation>移动和编辑选定的多边形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="925" />
+      <location filename="../../views/labeling/label_widget.py" line="1023" />
       <source>Edit Brush</source>
       <translation>编辑笔刷</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="929" />
+      <location filename="../../views/labeling/label_widget.py" line="1027" />
       <source>Select one polygon, then paint to add, hold Ctrl to erase, and use Ctrl+Wheel to resize the brush</source>
       <translation>选择一个多边形，然后绘制以添加区域，按住 Ctrl 绘制以擦除，使用 Ctrl+滚轮调整笔刷大小</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="938" />
+      <location filename="../../views/labeling/label_widget.py" line="1036" />
       <source>Group Selected Shapes</source>
       <translation>将选定的对象分组</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="942" />
+      <location filename="../../views/labeling/label_widget.py" line="1040" />
       <source>Group shapes by assigning a same group_id</source>
       <translation>通过分配相同的 group_id 来将对象分组</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="946" />
+      <location filename="../../views/labeling/label_widget.py" line="1044" />
       <source>Ungroup Selected Shapes</source>
       <translation>取消选定对象的分组</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="950" />
+      <location filename="../../views/labeling/label_widget.py" line="1048" />
       <source>Ungroup shapes</source>
       <translation>取消分组的对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="955" />
+      <location filename="../../views/labeling/label_widget.py" line="1053" />
       <source>Delete</source>
       <translation>删除</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="959" />
+      <location filename="../../views/labeling/label_widget.py" line="1057" />
       <source>Delete the selected polygons</source>
       <translation>删除所选多边形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="963" />
+      <location filename="../../views/labeling/label_widget.py" line="1061" />
       <source>Duplicate Polygons</source>
       <translation>复制多边形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="967" />
+      <location filename="../../views/labeling/label_widget.py" line="1065" />
       <source>Create a duplicate of the selected polygons</source>
       <translation>创建所选多边形的副本</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="971" />
+      <location filename="../../views/labeling/label_widget.py" line="1069" />
       <source>Copy Object</source>
       <translation>复制对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="975" />
+      <location filename="../../views/labeling/label_widget.py" line="1073" />
       <source>Copy selected polygons to clipboard</source>
       <translation>将所选多边形复制到剪贴板</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="979" />
+      <location filename="../../views/labeling/label_widget.py" line="1077" />
       <source>Paste Object</source>
       <translation>粘贴对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="983" />
+      <location filename="../../views/labeling/label_widget.py" line="1081" />
       <source>Paste copied polygons</source>
       <translation>粘贴复制的多边形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="987" />
+      <location filename="../../views/labeling/label_widget.py" line="1085" />
       <source>Undo last point</source>
       <translation>撤销上一个点</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="991" />
+      <location filename="../../views/labeling/label_widget.py" line="1089" />
       <source>Undo last drawn point</source>
       <translation>撤销上一个绘制的点</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="995" />
+      <location filename="../../views/labeling/label_widget.py" line="1093" />
       <source>Remove Selected Point</source>
       <translation>删除所选点</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="999" />
+      <location filename="../../views/labeling/label_widget.py" line="1097" />
       <source>Remove selected point from polygon</source>
       <translation>从多边形中删除所选点</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1004" />
+      <location filename="../../views/labeling/label_widget.py" line="1102" />
       <source>Undo</source>
       <translation>撤销</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1008" />
+      <location filename="../../views/labeling/label_widget.py" line="1106" />
       <source>Undo last add and edit of shape</source>
       <translation>撤销上一次添加和编辑对象操作</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1012" />
+      <location filename="../../views/labeling/label_widget.py" line="1110" />
       <source>Hide Selected Polygons</source>
       <translation>隐藏选中对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1016" />
+      <location filename="../../views/labeling/label_widget.py" line="1114" />
       <source>Hide selected polygons</source>
       <translation>隐藏选中对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1020" />
+      <location filename="../../views/labeling/label_widget.py" line="1118" />
       <source>Show Hidden Polygons</source>
       <translation>显示隐藏对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1024" />
+      <location filename="../../views/labeling/label_widget.py" line="1122" />
       <source>Show hidden polygons</source>
       <translation>显示隐藏对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1029" />
+      <location filename="../../views/labeling/label_widget.py" line="1127" />
       <source>Overview</source>
       <translation>统计总览</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1033" />
+      <location filename="../../views/labeling/label_widget.py" line="1131" />
       <source>Show annotations statistics</source>
       <translation>展示标注统计结果</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1036" />
+      <location filename="../../views/labeling/label_widget.py" line="1134" />
       <source>Save Cropped Image</source>
       <translation>保存裁剪图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1039" />
+      <location filename="../../views/labeling/label_widget.py" line="1137" />
       <source>Save cropped image. (Support rectangle/rotation/polygon shape_type)</source>
       <translation>保存截取的子图（支持矩形框/多边形/旋转框对象）</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1044" />
+      <location filename="../../views/labeling/label_widget.py" line="1142" />
       <source>Save Visualization Image</source>
       <translation>保存可视化图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1047" />
+      <location filename="../../views/labeling/label_widget.py" line="1145" />
       <source>Save visualization image</source>
       <translation>保存可视化图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1050" />
+      <location filename="../../views/labeling/label_widget.py" line="1148" />
       <source>Save Visualization Video</source>
       <translation>保存可视化视频</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1053" />
+      <location filename="../../views/labeling/label_widget.py" line="1151" />
       <source>Save visualization video</source>
       <translation>保存可视化视频</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1056" />
+      <location filename="../../views/labeling/label_widget.py" line="1154" />
       <source>Digit Shortcut Manager</source>
       <translation>数字快捷键管理器</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1060" />
+      <location filename="../../views/labeling/label_widget.py" line="1158" />
       <source>Manage Digit Shortcuts: Assign Drawing Modes and Labels to Number Keys</source>
       <translation>数字快捷键管理器：为数字键分配绘制模式和标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1065" />
+      <location filename="../../views/labeling/label_widget.py" line="1163" />
       <source>Label Manager</source>
       <translation>标签管理器</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1069" />
+      <location filename="../../views/labeling/label_widget.py" line="1167" />
       <source>Manage Labels: Rename, Delete, Hide/Show, Adjust Color</source>
       <translation>管理标签：重命名、删除、隐藏/显示、调整颜色</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1074" />
+      <location filename="../../views/labeling/label_widget.py" line="1172" />
       <source>Group ID Manager</source>
       <translation>群组编号管理器</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1078" />
+      <location filename="../../views/labeling/label_widget.py" line="1176" />
       <source>Manage Group ID</source>
       <translation>管理群组编号</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1081" />
+      <location filename="../../views/labeling/label_widget.py" line="1179" />
       <source>Shape Manager</source>
       <translation>对象管理器</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1085" />
+      <location filename="../../views/labeling/label_widget.py" line="1183" />
       <source>Manage Shapes: Add, Delete, Remove</source>
       <translation>管理对象：添加、删除、移除</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1089" />
+      <location filename="../../views/labeling/label_widget.py" line="1187" />
       <source>Copy Coordinates</source>
       <translation>复制坐标</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1092" />
+      <location filename="../../views/labeling/label_widget.py" line="1190" />
       <source>Copy shape coordinates to clipboard</source>
       <translation>复制对象坐标到剪贴板</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1096" />
+      <location filename="../../views/labeling/label_widget.py" line="1194" />
       <source>Union Selection</source>
       <translation>合并选择</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1100" />
+      <location filename="../../views/labeling/label_widget.py" line="1198" />
       <source>Union multiple selected rectangle shapes</source>
       <translation>合并多个选中的矩形框对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1104" />
+      <location filename="../../views/labeling/label_widget.py" line="1202" />
       <source>Lock Shape</source>
       <translation>锁定对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1106" />
+      <location filename="../../views/labeling/label_widget.py" line="1204" />
       <source>Prevent changes to the selected shapes' coordinates</source>
       <translation>防止修改所选对象的坐标</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1111" />
+      <location filename="../../views/labeling/label_widget.py" line="1209" />
       <source>Shape Converter</source>
       <translation>对象类型转换器</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1114" />
+      <location filename="../../views/labeling/label_widget.py" line="1212" />
       <source>Open shape converter</source>
       <translation>打开对象类型转换器</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1117" />
+      <location filename="../../views/labeling/label_widget.py" line="1215" />
       <source>ChatBot</source>
       <translation>聊天机器人</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1121" />
+      <location filename="../../views/labeling/label_widget.py" line="1219" />
       <source>Open chatbot dialog</source>
       <translation>打开聊天机器人对话框</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1124" />
+      <location filename="../../views/labeling/label_widget.py" line="1222" />
       <source>VQA</source>
       <translation>视觉问答</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1128" />
+      <location filename="../../views/labeling/label_widget.py" line="1226" />
       <source>Open VQA dialog</source>
       <translation>打开视觉问答窗口</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1131" />
+      <location filename="../../views/labeling/label_widget.py" line="1229" />
       <source>Point Cloud</source>
       <translation>点云工作区</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1135" />
+      <location filename="../../views/labeling/label_widget.py" line="1233" />
       <source>Open point cloud workspace</source>
       <translation>打开点云工作区</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1138" />
+      <location filename="../../views/labeling/label_widget.py" line="1236" />
       <source>Classifier</source>
       <translation>图像分类器</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1144" />
+      <location filename="../../views/labeling/label_widget.py" line="1242" />
       <source>Open image classifier dialog</source>
       <translation>打开图像分类器窗口</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1147" />
+      <location filename="../../views/labeling/label_widget.py" line="1245" />
       <source>Video Classifier</source>
       <translation>视频分类器</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1151" />
+      <location filename="../../views/labeling/label_widget.py" line="1249" />
       <source>Open video classifier dialog</source>
       <translation>打开视频分类器窗口</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1154" />
+      <location filename="../../views/labeling/label_widget.py" line="1252" />
       <source>PaddleOCR</source>
       <translation>PaddleOCR</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1158" />
+      <location filename="../../views/labeling/label_widget.py" line="1256" />
       <source>Open PaddleOCR dialog</source>
       <translation>打开 PaddleOCR 对话框</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1161" />
+      <location filename="../../views/labeling/label_widget.py" line="1259" />
       <source>Documentation</source>
       <translation>文档</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1164" />
+      <location filename="../../views/labeling/label_widget.py" line="1262" />
       <source>Show documentation</source>
       <translation>显示帮助文档</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1167" />
+      <location filename="../../views/labeling/label_widget.py" line="1265" />
       <source>Sponsor</source>
       <translation>赞助</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1170" />
+      <location filename="../../views/labeling/label_widget.py" line="1268" />
       <source>Open sponsor page</source>
       <translation>打开赞助页面</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1173" />
+      <location filename="../../views/labeling/label_widget.py" line="1271" />
       <source>About</source>
       <translation>关于</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1176" />
+      <location filename="../../views/labeling/label_widget.py" line="1274" />
       <source>Open about dialog</source>
       <translation>打开关于对话框</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1180" />
+      <location filename="../../views/labeling/label_widget.py" line="1278" />
       <source>Loop Through Labels</source>
       <translation>循环浏览标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1184" />
+      <location filename="../../views/labeling/label_widget.py" line="1282" />
       <source>Loop through labels</source>
       <translation>遍历标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1188" />
+      <location filename="../../views/labeling/label_widget.py" line="1286" />
       <source>Loop Select Labels</source>
       <translation>循环选择标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1192" />
+      <location filename="../../views/labeling/label_widget.py" line="1290" />
       <source>Loop select labels</source>
       <translation>遍历选中标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1196" />
+      <location filename="../../views/labeling/label_widget.py" line="1294" />
       <source>Toggle Shapes Visibility</source>
       <translation>切换对象显示</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="3279" />
-      <location filename="../../views/labeling/label_widget.py" line="1199" />
+      <location filename="../../views/labeling/label_widget.py" line="3520" />
+      <location filename="../../views/labeling/label_widget.py" line="1297" />
       <source>Hide all shapes</source>
       <translation>隐藏所有对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1214" />
+      <location filename="../../views/labeling/label_widget.py" line="1312" />
       <source>Zoom in or out of the image. Also accessible with {} and {} from the canvas.</source>
       <translation>放大或缩小图像。也可从画布上使用 {} 和 {} 进行访问</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1222" />
+      <location filename="../../views/labeling/label_widget.py" line="1320" />
       <source>Wheel</source>
       <translation>滚轮</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1228" />
+      <location filename="../../views/labeling/label_widget.py" line="1326" />
       <source>Zoom In</source>
       <translation>放大</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1232" />
+      <location filename="../../views/labeling/label_widget.py" line="1330" />
       <source>Increase zoom level</source>
       <translation>增加缩放级别</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1236" />
+      <location filename="../../views/labeling/label_widget.py" line="1334" />
       <source>Zoom Out</source>
       <translation>缩小</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1240" />
+      <location filename="../../views/labeling/label_widget.py" line="1338" />
       <source>Decrease zoom level</source>
       <translation>减小缩放级别</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1244" />
+      <location filename="../../views/labeling/label_widget.py" line="1342" />
       <source>Original Size</source>
       <translation>原始大小</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1248" />
+      <location filename="../../views/labeling/label_widget.py" line="1346" />
       <source>Zoom to original size</source>
       <translation>缩放到原始大小</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1252" />
+      <location filename="../../views/labeling/label_widget.py" line="1350" />
       <source>Keep Previous Scale</source>
       <translation>保持上一次缩放</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1254" />
+      <location filename="../../views/labeling/label_widget.py" line="1352" />
       <source>Keep previous zoom scale</source>
       <translation>保留先前的缩放比例</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1260" />
+      <location filename="../../views/labeling/label_widget.py" line="1358" />
       <source>Keep Previous Brightness</source>
       <translation>保持上一次亮度</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1262" />
+      <location filename="../../views/labeling/label_widget.py" line="1360" />
       <source>Keep previous brightness</source>
       <translation>保持当前亮度</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1268" />
+      <location filename="../../views/labeling/label_widget.py" line="1366" />
       <source>Keep Previous Contrast</source>
       <translation>保持上一次对比度</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1270" />
+      <location filename="../../views/labeling/label_widget.py" line="1368" />
       <source>Keep previous contrast</source>
       <translation>保持当前对比度</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1276" />
+      <location filename="../../views/labeling/label_widget.py" line="1374" />
       <source>Fit Window</source>
       <translation>适应窗口</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1280" />
+      <location filename="../../views/labeling/label_widget.py" line="1378" />
       <source>Zoom follows window size</source>
       <translation>缩放跟随窗口大小</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1285" />
+      <location filename="../../views/labeling/label_widget.py" line="1384" />
       <source>Fit Width</source>
       <translation>适应宽度</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1289" />
+      <location filename="../../views/labeling/label_widget.py" line="1388" />
       <source>Zoom follows window width</source>
       <translation>缩放跟随窗口宽度</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1294" />
+      <location filename="../../views/labeling/label_widget.py" line="1393" />
       <source>Show Groups</source>
       <translation>显示群组编号</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1296" />
+      <location filename="../../views/labeling/label_widget.py" line="1395" />
       <source>Show shape groups</source>
       <translation>显示对象分组</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1304" />
+      <location filename="../../views/labeling/label_widget.py" line="1403" />
       <source>Show Masks</source>
       <translation>显示掩码</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1307" />
+      <location filename="../../views/labeling/label_widget.py" line="1406" />
       <source>Show semi-transparent masks for shapes</source>
       <translation>显示对象的半透明掩码</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1315" />
+      <location filename="../../views/labeling/label_widget.py" line="1414" />
       <source>Show Texts</source>
       <translation>显示文本</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1318" />
+      <location filename="../../views/labeling/label_widget.py" line="1417" />
       <source>Show text above shapes</source>
       <translation>在对象上方显示文本</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1326" />
+      <location filename="../../views/labeling/label_widget.py" line="1425" />
       <source>Show Labels</source>
       <translation>显示标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1329" />
+      <location filename="../../views/labeling/label_widget.py" line="1428" />
       <source>Show label inside shapes</source>
       <translation>显示标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1337" />
+      <location filename="../../views/labeling/label_widget.py" line="1436" />
       <source>Show Scores</source>
       <translation>显示置信度</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1339" />
+      <location filename="../../views/labeling/label_widget.py" line="1438" />
       <source>Show score inside shapes</source>
       <translation>在对象内部显示置信度</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1347" />
+      <location filename="../../views/labeling/label_widget.py" line="1446" />
       <source>Show Attributes</source>
       <translation>显示属性</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1350" />
+      <location filename="../../views/labeling/label_widget.py" line="1449" />
       <source>Show attribute inside shapes</source>
       <translation>在对象内显示属性</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1358" />
+      <location filename="../../views/labeling/label_widget.py" line="1457" />
       <source>Show Degress</source>
       <translation>显示旋转角度</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1360" />
+      <location filename="../../views/labeling/label_widget.py" line="1459" />
       <source>Show degrees above rotated shapes</source>
       <translation>显示旋转框上方的角度。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1368" />
+      <location filename="../../views/labeling/label_widget.py" line="1467" />
       <source>Show KIE Linking</source>
       <translation>显示KIE连接</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1371" />
+      <location filename="../../views/labeling/label_widget.py" line="1470" />
       <source>Show KIE linking between key and value</source>
       <translation>显示键值之间的KIE链接</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1421" />
+      <location filename="../../views/labeling/label_widget.py" line="1516" />
       <source>System</source>
       <translation>跟随系统</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1422" />
+      <location filename="../../views/labeling/label_widget.py" line="1517" />
       <source>Light</source>
       <translation>浅色主题</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1423" />
+      <location filename="../../views/labeling/label_widget.py" line="1518" />
       <source>Dark</source>
       <translation>深色主题</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1439" />
+      <location filename="../../views/labeling/label_widget.py" line="1534" />
       <source>Image Flags</source>
       <translation>图像标记</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1443" />
+      <location filename="../../views/labeling/label_widget.py" line="1538" />
       <source>Upload Custom Image Flags File</source>
       <translation>上传自定义图像标记文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1446" />
+      <location filename="../../views/labeling/label_widget.py" line="1541" />
       <source>Label Flags</source>
       <translation>标签标记</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1450" />
+      <location filename="../../views/labeling/label_widget.py" line="1545" />
       <source>Upload Custom Label Flags File</source>
       <translation>上传自定义标签标记文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2478" />
-      <location filename="../../views/labeling/label_widget.py" line="1453" />
+      <location filename="../../views/labeling/label_widget.py" line="2608" />
+      <location filename="../../views/labeling/label_widget.py" line="1548" />
       <source>Attributes</source>
       <translation>属性</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1457" />
+      <location filename="../../views/labeling/label_widget.py" line="1552" />
       <source>Upload Custom Attributes File</source>
       <translation>导入自定义属性文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1460" />
+      <location filename="../../views/labeling/label_widget.py" line="1555" />
       <source>Label Classes</source>
       <translation>标签类别</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1464" />
+      <location filename="../../views/labeling/label_widget.py" line="1559" />
       <source>Upload Custom Label Classes File</source>
       <translation>上传自定义标签类别文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1598" />
-      <location filename="../../views/labeling/label_widget.py" line="1467" />
+      <location filename="../../views/labeling/label_widget.py" line="1693" />
+      <location filename="../../views/labeling/label_widget.py" line="1562" />
       <source>YOLO HBB</source>
       <translation>YOLO HBB</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1471" />
+      <location filename="../../views/labeling/label_widget.py" line="1566" />
       <source>Upload Custom YOLO Horizontal Bounding Boxes Annotations</source>
       <translation>导入 YOLO 水平框标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1607" />
-      <location filename="../../views/labeling/label_widget.py" line="1476" />
+      <location filename="../../views/labeling/label_widget.py" line="1702" />
+      <location filename="../../views/labeling/label_widget.py" line="1571" />
       <source>YOLO OBB</source>
       <translation>YOLO OBB</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1480" />
+      <location filename="../../views/labeling/label_widget.py" line="1575" />
       <source>Upload Custom YOLO Oriented Bounding Boxes Annotations</source>
       <translation>导入 YOLO 旋转框标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1616" />
-      <location filename="../../views/labeling/label_widget.py" line="1485" />
+      <location filename="../../views/labeling/label_widget.py" line="1711" />
+      <location filename="../../views/labeling/label_widget.py" line="1580" />
       <source>YOLO Seg</source>
       <translation>YOLO Seg</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1489" />
+      <location filename="../../views/labeling/label_widget.py" line="1584" />
       <source>Upload Custom YOLO Segmentation Annotations</source>
       <translation>导入 YOLO 分割标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1623" />
-      <location filename="../../views/labeling/label_widget.py" line="1492" />
+      <location filename="../../views/labeling/label_widget.py" line="1718" />
+      <location filename="../../views/labeling/label_widget.py" line="1587" />
       <source>YOLO Pose</source>
       <translation>YOLO Pose</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1496" />
+      <location filename="../../views/labeling/label_widget.py" line="1591" />
       <source>Upload Custom YOLO Pose Annotations</source>
       <translation>导入自定义 YOLO 关键点标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1630" />
-      <location filename="../../views/labeling/label_widget.py" line="1499" />
+      <location filename="../../views/labeling/label_widget.py" line="1725" />
+      <location filename="../../views/labeling/label_widget.py" line="1594" />
       <source>VOC Detection</source>
       <translation>VOC 检测</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1503" />
+      <location filename="../../views/labeling/label_widget.py" line="1598" />
       <source>Upload Custom Pascal VOC Detection Annotations</source>
       <translation>导入自定义 VOC 检测框标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1637" />
-      <location filename="../../views/labeling/label_widget.py" line="1506" />
+      <location filename="../../views/labeling/label_widget.py" line="1732" />
+      <location filename="../../views/labeling/label_widget.py" line="1601" />
       <source>VOC Segmentation</source>
       <translation>VOC 分割</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1510" />
+      <location filename="../../views/labeling/label_widget.py" line="1605" />
       <source>Upload Custom Pascal VOC Segmentation Annotations</source>
       <translation>导入自定义 VOC 分割标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1644" />
-      <location filename="../../views/labeling/label_widget.py" line="1513" />
+      <location filename="../../views/labeling/label_widget.py" line="1739" />
+      <location filename="../../views/labeling/label_widget.py" line="1608" />
       <source>COCO Detection</source>
       <translation>COCO 检测</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1517" />
+      <location filename="../../views/labeling/label_widget.py" line="1612" />
       <source>Upload Custom COCO Detection Annotations</source>
       <translation>导入自定义 COCO 检测框标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1651" />
-      <location filename="../../views/labeling/label_widget.py" line="1520" />
+      <location filename="../../views/labeling/label_widget.py" line="1746" />
+      <location filename="../../views/labeling/label_widget.py" line="1615" />
       <source>COCO Segmentation</source>
       <translation>COCO 分割</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1524" />
+      <location filename="../../views/labeling/label_widget.py" line="1619" />
       <source>Upload Custom COCO Instance Segmentation Annotations</source>
       <translation>上传自定义 COCO 实例分割标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1660" />
-      <location filename="../../views/labeling/label_widget.py" line="1529" />
+      <location filename="../../views/labeling/label_widget.py" line="1755" />
+      <location filename="../../views/labeling/label_widget.py" line="1624" />
       <source>COCO Keypoints</source>
       <translation>COCO 关键点</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1533" />
+      <location filename="../../views/labeling/label_widget.py" line="1628" />
       <source>Upload Custom COCO Keypoint Annotations</source>
       <translation>导入自定义 COCO 关键点标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1667" />
-      <location filename="../../views/labeling/label_widget.py" line="1536" />
+      <location filename="../../views/labeling/label_widget.py" line="1762" />
+      <location filename="../../views/labeling/label_widget.py" line="1631" />
       <source>DOTA</source>
       <translation>DOTA</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1540" />
+      <location filename="../../views/labeling/label_widget.py" line="1635" />
       <source>Upload Custom DOTA Annotations</source>
       <translation>导入自定义 DOTA 标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1674" />
-      <location filename="../../views/labeling/label_widget.py" line="1543" />
+      <location filename="../../views/labeling/label_widget.py" line="1769" />
+      <location filename="../../views/labeling/label_widget.py" line="1638" />
       <source>MASK</source>
       <translation>MASK</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1547" />
+      <location filename="../../views/labeling/label_widget.py" line="1642" />
       <source>Upload Custom MASK Annotations</source>
       <translation>导入自定义 MASK 标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1681" />
-      <location filename="../../views/labeling/label_widget.py" line="1550" />
+      <location filename="../../views/labeling/label_widget.py" line="1776" />
+      <location filename="../../views/labeling/label_widget.py" line="1645" />
       <source>MOT</source>
       <translation>MOT</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1554" />
+      <location filename="../../views/labeling/label_widget.py" line="1649" />
       <source>Upload Custom Multi-Object-Tracking Annotations</source>
       <translation>导入自定义 MOT 标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1697" />
-      <location filename="../../views/labeling/label_widget.py" line="1557" />
+      <location filename="../../views/labeling/label_widget.py" line="1792" />
+      <location filename="../../views/labeling/label_widget.py" line="1652" />
       <source>ODVG</source>
       <translation>ODVG</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1561" />
+      <location filename="../../views/labeling/label_widget.py" line="1656" />
       <source>Upload Custom Object Detection Visual Grounding Annotations</source>
       <translation>导入自定义目标检测视觉 Grounding 标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1566" />
+      <location filename="../../views/labeling/label_widget.py" line="1661" />
       <source>MM-Grounding-DINO</source>
       <translation>MM-Grounding-DINO</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1570" />
+      <location filename="../../views/labeling/label_widget.py" line="1665" />
       <source>Upload Custom MM-Grounding-DINO Annotations</source>
       <translation>导入自定义 MM-Grounding-DINO 标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1706" />
-      <location filename="../../views/labeling/label_widget.py" line="1573" />
+      <location filename="../../views/labeling/label_widget.py" line="1801" />
+      <location filename="../../views/labeling/label_widget.py" line="1668" />
       <source>PPOCR Rec</source>
       <translation>PPOCR Rec</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1577" />
+      <location filename="../../views/labeling/label_widget.py" line="1672" />
       <source>Upload Custom PPOCR Recognition Annotations</source>
       <translation>导入自定义 PPOCR 识别标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1713" />
-      <location filename="../../views/labeling/label_widget.py" line="1580" />
+      <location filename="../../views/labeling/label_widget.py" line="1808" />
+      <location filename="../../views/labeling/label_widget.py" line="1675" />
       <source>PPOCR KIE</source>
       <translation>PPOCR KIE</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1584" />
+      <location filename="../../views/labeling/label_widget.py" line="1679" />
       <source>Upload Custom PPOCR Key Information Extraction (KIE - Semantic Entity Recognition &amp; Relation Extraction) Annotations</source>
       <translation>导入自定义 PPOCR 关键信息提取标签（包含语义实体识别和关系提取）</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1722" />
-      <location filename="../../views/labeling/label_widget.py" line="1589" />
+      <location filename="../../views/labeling/label_widget.py" line="1817" />
+      <location filename="../../views/labeling/label_widget.py" line="1684" />
       <source>VLM-R1 OVD</source>
       <translation>VLM-R1 OVD</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1593" />
+      <location filename="../../views/labeling/label_widget.py" line="1688" />
       <source>Upload Custom VLM-R1 OVD Annotations</source>
       <translation>导入自定义 VLM-R1 OVD 标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1602" />
+      <location filename="../../views/labeling/label_widget.py" line="1697" />
       <source>Export Custom YOLO Horizontal Bounding Boxes Annotations</source>
       <translation>导入自定义 YOLO 水平边界框标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1611" />
+      <location filename="../../views/labeling/label_widget.py" line="1706" />
       <source>Export Custom YOLO Oriented Bounding Boxes Annotations</source>
       <translation>导入自定义 YOLO 有向边界框标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1620" />
+      <location filename="../../views/labeling/label_widget.py" line="1715" />
       <source>Export Custom YOLO Segmentation Annotations</source>
       <translation>导出自定义 YOLO 分割标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1627" />
+      <location filename="../../views/labeling/label_widget.py" line="1722" />
       <source>Export Custom YOLO Pose Annotations</source>
       <translation>导出自定义 YOLO 关键点标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1634" />
+      <location filename="../../views/labeling/label_widget.py" line="1729" />
       <source>Export Custom PASCAL VOC Detection Annotations</source>
       <translation>导出自定义 VOC 检测框标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1641" />
+      <location filename="../../views/labeling/label_widget.py" line="1736" />
       <source>Export Custom PASCAL VOC Segmentation Annotations</source>
       <translation>导出自定义 PASCAL VOC 分割标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1648" />
+      <location filename="../../views/labeling/label_widget.py" line="1743" />
       <source>Export Custom COCO Rectangle Annotations</source>
       <translation>导出自定义 COCO 检测框标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1655" />
+      <location filename="../../views/labeling/label_widget.py" line="1750" />
       <source>Export Custom COCO Instance Segmentation Annotations</source>
       <translation>导出自定义 COCO 实例分割标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1664" />
+      <location filename="../../views/labeling/label_widget.py" line="1759" />
       <source>Export Custom COCO Keypoint Annotations</source>
       <translation>导出自定义 COCO 关键点标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1671" />
+      <location filename="../../views/labeling/label_widget.py" line="1766" />
       <source>Export Custom DOTA Annotations</source>
       <translation>导出自定义 DOTA 标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1678" />
+      <location filename="../../views/labeling/label_widget.py" line="1773" />
       <source>Export Custom MASK Annotations - RGB/Gray</source>
       <translation>导出自定义掩码标签（支持彩色和灰度图）</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1685" />
+      <location filename="../../views/labeling/label_widget.py" line="1780" />
       <source>Export Custom Multi-Object-Tracking Annotations</source>
       <translation>导出自定义 MOT 标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1688" />
+      <location filename="../../views/labeling/label_widget.py" line="1783" />
       <source>MOTS</source>
       <translation>MOTS</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1692" />
+      <location filename="../../views/labeling/label_widget.py" line="1787" />
       <source>Export Custom Multi-Object-Tracking-Segmentation Annotations</source>
       <translation>导出自定义多目标追踪分割标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1701" />
+      <location filename="../../views/labeling/label_widget.py" line="1796" />
       <source>Export Custom Object Detection Visual Grounding Annotations</source>
       <translation>导出自定义目标检测视觉 Grounding 标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1710" />
+      <location filename="../../views/labeling/label_widget.py" line="1805" />
       <source>Export Custom PPOCR Recognition Annotations</source>
       <translation>导出自定义 PPOCR 识别标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1717" />
+      <location filename="../../views/labeling/label_widget.py" line="1812" />
       <source>Export Custom PPOCR Key Information Extraction (KIE - Semantic Entity Recognition &amp; Relation Extraction) Annotations</source>
       <translation>导出自定义 PPOCR 关键信息提取标签（包括语义实体识别和关系提取）</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1726" />
+      <location filename="../../views/labeling/label_widget.py" line="1821" />
       <source>Export Custom VLM-R1 OVD Annotations</source>
       <translation>导出自定义 VLM-R1 OVD 标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1748" />
+      <location filename="../../views/labeling/label_widget.py" line="1843" />
       <source>Edit Label</source>
       <translation>编辑标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1752" />
+      <location filename="../../views/labeling/label_widget.py" line="1847" />
       <source>Modify the label of the selected polygon</source>
       <translation>修改所选多边形的标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1757" />
+      <location filename="../../views/labeling/label_widget.py" line="1852" />
       <source>Fill Drawing Polygon</source>
       <translation>填充绘制的多边形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1761" />
+      <location filename="../../views/labeling/label_widget.py" line="1856" />
       <source>Fill polygon while drawing</source>
       <translation>绘制时填充多边形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1768" />
+      <location filename="../../views/labeling/label_widget.py" line="1863" />
       <source>Navigator</source>
       <translation>导航器</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1772" />
+      <location filename="../../views/labeling/label_widget.py" line="1867" />
       <source>Show/hide the navigator window</source>
       <translation>显示/隐藏导航器窗口</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1778" />
+      <location filename="../../views/labeling/label_widget.py" line="1873" />
       <source>Image Tags</source>
       <translation>图片标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1781" />
+      <location filename="../../views/labeling/label_widget.py" line="1876" />
       <source>Show or hide image tags</source>
       <translation>显示或隐藏图片标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="1793" />
-      <location filename="../../views/labeling/label_widget.py" line="1789" />
+      <location filename="../../views/labeling/label_widget.py" line="1889" />
+      <location filename="../../views/labeling/label_widget.py" line="1885" />
       <source>Auto Labeling</source>
       <translation>自动标注</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2052" />
+      <location filename="../../views/labeling/label_widget.py" line="2153" />
       <source>File</source>
       <translation>文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2053" />
+      <location filename="../../views/labeling/label_widget.py" line="2154" />
       <source>Edit</source>
       <translation>编辑</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2054" />
+      <location filename="../../views/labeling/label_widget.py" line="2155" />
       <source>View</source>
       <translation>视图</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2846" />
-      <location filename="../../views/labeling/label_widget.py" line="2055" />
+      <location filename="../../views/labeling/label_widget.py" line="3025" />
+      <location filename="../../views/labeling/label_widget.py" line="2156" />
       <source>Theme</source>
       <translation>主题</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2056" />
+      <location filename="../../views/labeling/label_widget.py" line="2157" />
       <source>Language</source>
       <translation>语言</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2057" />
+      <location filename="../../views/labeling/label_widget.py" line="2158" />
       <source>Upload</source>
       <translation>上传</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2058" />
+      <location filename="../../views/labeling/label_widget.py" line="2159" />
       <source>Export</source>
       <translation>导出</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2059" />
+      <location filename="../../views/labeling/label_widget.py" line="2160" />
       <source>Tool</source>
       <translation>工具</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2060" />
+      <location filename="../../views/labeling/label_widget.py" line="2161" />
+      <source>Workflow</source>
+      <translation>工作流</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="2162" />
       <source>Train</source>
       <translation>训练</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2061" />
+      <location filename="../../views/labeling/label_widget.py" line="2163" />
       <source>Help</source>
       <translation>帮助</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2062" />
+      <location filename="../../views/labeling/label_widget.py" line="2164" />
       <source>Open Recent</source>
       <translation>最近打开</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2353" />
+      <location filename="../../views/labeling/label_widget.py" line="2460" />
       <source>Please wait...</source>
       <translation>请稍候...</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2384" />
+      <location filename="../../views/labeling/label_widget.py" line="2491" />
       <source>Toggle right panel</source>
       <translation>显示/隐藏右侧面板</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2433" />
-      <location filename="../../views/labeling/label_widget.py" line="2432" />
+      <location filename="../../views/labeling/label_widget.py" line="2541" />
+      <location filename="../../views/labeling/label_widget.py" line="2540" />
       <source>Update available</source>
       <translation>有可用更新</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2566" />
+      <location filename="../../views/labeling/label_widget.py" line="2661" />
+      <source>Show/hide all labels</source>
+      <translation>显示/隐藏所有标签</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="2672" />
+      <source>Lock/unlock all labels</source>
+      <translation>锁定/解锁所有标签</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="2706" />
+      <source>Show/hide all shapes</source>
+      <translation>显示/隐藏所有对象</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="2717" />
+      <source>Lock/unlock all shapes</source>
+      <translation>锁定/解锁所有对象</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="2720" />
       <source>Shapes</source>
       <translation>对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2885" />
-      <location filename="../../views/labeling/label_widget.py" line="2834" />
+      <location filename="../../views/labeling/label_widget.py" line="3064" />
+      <location filename="../../views/labeling/label_widget.py" line="3013" />
       <source>Please restart the application to apply changes.</source>
       <translation>请重新启动应用程序以应用更改。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2859" />
+      <location filename="../../views/labeling/label_widget.py" line="3038" />
       <source>The new theme will take effect after restarting the application. Apply this setting now?</source>
       <translation>新主题将在重新启动应用程序后生效。现在应用此设置吗？</translation>
     </message>
@@ -4347,209 +4436,189 @@ Press Enter to search.</source>
       <location filename="../../views/labeling/utils/export.py" line="481" />
       <location filename="../../views/labeling/utils/export.py" line="464" />
       <location filename="../../views/labeling/utils/export.py" line="339" />
-      <location filename="../../views/labeling/label_widget.py" line="2868" />
+      <location filename="../../views/labeling/label_widget.py" line="3047" />
       <source>Cancel</source>
       <translation>取消</translation>
     </message>
     <message>
       <location filename="../../views/labeling/utils/export.py" line="345" />
-      <location filename="../../views/labeling/label_widget.py" line="2872" />
+      <location filename="../../views/labeling/label_widget.py" line="3051" />
       <source>OK</source>
       <translation>确认</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2898" />
+      <location filename="../../views/labeling/label_widget.py" line="3077" />
       <source>Mode:</source>
       <translation>当前模式：</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2899" />
+      <location filename="../../views/labeling/label_widget.py" line="3078" />
       <source>Shortcuts:</source>
       <translation>快捷键：</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2901" />
+      <location filename="../../views/labeling/label_widget.py" line="3080" />
       <source>Previous</source>
       <translation>上一张</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2902" />
+      <location filename="../../views/labeling/label_widget.py" line="3081" />
       <source>Next</source>
       <translation>下一张</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2903" />
+      <location filename="../../views/labeling/label_widget.py" line="3082" />
       <source>Rectangle</source>
       <translation>矩形框</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2904" />
+      <location filename="../../views/labeling/label_widget.py" line="3083" />
       <source>Polygon</source>
       <translation>多边形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2905" />
+      <location filename="../../views/labeling/label_widget.py" line="3084" />
       <source>Rotation</source>
       <translation>旋转框</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2906" />
+      <location filename="../../views/labeling/label_widget.py" line="3085" />
       <source>Quadrilateral</source>
       <translation>四边形</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="2929" />
+      <location filename="../../views/labeling/label_widget.py" line="3108" />
       <source>Tip: Hold Alt and drag with the left mouse button, or drag with the middle mouse button, to pan the canvas while drawing.</source>
       <translation>提示：绘制时，按住 Alt 并用鼠标左键拖动，或直接用中键拖动，可平移画布。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="3149" />
-      <source>Checked</source>
-      <translation>已检查</translation>
-    </message>
-    <message>
-      <location filename="../../views/labeling/label_widget.py" line="3151" />
-      <source>Unchecked</source>
-      <translation>未检查</translation>
-    </message>
-    <message>
-      <location filename="../../views/labeling/label_widget.py" line="3270" />
+      <location filename="../../views/labeling/label_widget.py" line="3511" />
       <source>Toggle shapes visibility is unavailable while a label or group filter is active</source>
       <translation>标签或分组筛选器激活时，无法切换对象可见性</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="3282" />
+      <location filename="../../views/labeling/label_widget.py" line="3523" />
       <source>Show all shapes</source>
       <translation>显示所有对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="7309" />
-      <location filename="../../views/labeling/label_widget.py" line="5553" />
-      <location filename="../../views/labeling/label_widget.py" line="4439" />
-      <location filename="../../views/labeling/label_widget.py" line="4350" />
-      <location filename="../../views/labeling/label_widget.py" line="3322" />
+      <location filename="../../views/labeling/label_widget.py" line="7776" />
+      <location filename="../../views/labeling/label_widget.py" line="5982" />
+      <location filename="../../views/labeling/label_widget.py" line="4824" />
+      <location filename="../../views/labeling/label_widget.py" line="4731" />
+      <location filename="../../views/labeling/label_widget.py" line="3563" />
       <source>Invalid label</source>
       <translation>无效标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="3323" />
+      <location filename="../../views/labeling/label_widget.py" line="3564" />
       <source>Invalid label '{}' with validation type: {}!
 Reset the label as {}.</source>
       <translation>无效标签'{}'，有效标签'{}'！标签重置为'{}'.</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="3647" />
-      <location filename="../../views/labeling/label_widget.py" line="3558" />
+      <location filename="../../views/labeling/label_widget.py" line="3888" />
+      <location filename="../../views/labeling/label_widget.py" line="3799" />
       <source>No images loaded</source>
       <translation>未加载图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="3559" />
+      <location filename="../../views/labeling/label_widget.py" line="3800" />
       <source>Please load an image folder before opening the VQA dialog.</source>
       <translation>请在打开视觉问答窗口前加载图像文件夹。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="3585" />
+      <location filename="../../views/labeling/label_widget.py" line="3826" />
       <source>Point cloud unavailable</source>
       <translation>点云功能不可用</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="3586" />
+      <location filename="../../views/labeling/label_widget.py" line="3827" />
       <source>Unable to open the point cloud workspace: %s</source>
       <translation>无法打开点云工作区：%s</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="3617" />
+      <location filename="../../views/labeling/label_widget.py" line="3858" />
       <source>Video Classifier requires QtMultimedia, which this Qt build does not provide.</source>
       <translation>视频分类器需要 QtMultimedia，但当前 Qt 构建未提供该组件。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="3648" />
+      <location filename="../../views/labeling/label_widget.py" line="3889" />
       <source>Please load an image folder before opening the Classification dialog.</source>
       <translation>请在打开图像分类对话框之前加载图片文件夹。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="3729" />
+      <location filename="../../views/labeling/label_widget.py" line="3970" />
       <source>No objects to review</source>
       <translation>没有可复核的对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="3731" />
+      <location filename="../../views/labeling/label_widget.py" line="3972" />
       <source>Review complete</source>
       <translation>复核完成</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="3791" />
+      <location filename="../../views/labeling/label_widget.py" line="4034" />
       <source>Reviewing {current} / {total}</source>
       <translation>正在复核 {current} / {total}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="3830" />
+      <location filename="../../views/labeling/label_widget.py" line="4073" />
       <source>Copied</source>
       <translation>已复制</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="3831" />
+      <location filename="../../views/labeling/label_widget.py" line="4074" />
       <source>The information has been copied to the clipboard.</source>
       <translation>环境信息已复制到剪切板</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="4032" />
+      <location filename="../../views/labeling/label_widget.py" line="4275" />
       <source>Open Last Dir: %s</source>
       <translation>打开上一次文件夹：%s</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="4099" />
+      <location filename="../../views/labeling/label_widget.py" line="4462" />
       <source>Copy File Name</source>
       <translation>复制文件名</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="4102" />
+      <location filename="../../views/labeling/label_widget.py" line="4465" />
       <source>Copy File Path</source>
       <translation>复制文件路径</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="4112" />
+      <location filename="../../views/labeling/label_widget.py" line="4475" />
       <source>Copy Successful</source>
       <translation>复制成功</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="4176" />
-      <source>Mark as Unchecked</source>
-      <translation>标记为未检查</translation>
-    </message>
-    <message>
-      <location filename="../../views/labeling/label_widget.py" line="4177" />
-      <source>Mark current annotation as unchecked</source>
-      <translation>将当前标注标记为未检查</translation>
-    </message>
-    <message>
-      <location filename="../../views/labeling/label_widget.py" line="4206" />
+      <location filename="../../views/labeling/label_widget.py" line="4584" />
       <source>Filter by Label</source>
       <translation>按标签筛选</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="4207" />
+      <location filename="../../views/labeling/label_widget.py" line="4585" />
       <source>Filter by Group ID</source>
       <translation>按组 ID 筛选</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="4232" />
+      <location filename="../../views/labeling/label_widget.py" line="4610" />
       <source>All Labels</source>
       <translation>全部标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="4247" />
+      <location filename="../../views/labeling/label_widget.py" line="4625" />
       <source>All Group IDs</source>
       <translation>全部组 ID</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="4316" />
+      <location filename="../../views/labeling/label_widget.py" line="4694" />
       <source>Batch Edit</source>
       <translation>批量编辑</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="4317" />
+      <location filename="../../views/labeling/label_widget.py" line="4695" />
       <source>You are about to edit multiple shapes in batch mode. This operation cannot be undone.
 
 This warning will only be shown once. Do you want to continue?</source>
@@ -4558,198 +4627,198 @@ This warning will only be shown once. Do you want to continue?</source>
 此警告仅显示一次。是否继续？</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="7310" />
-      <location filename="../../views/labeling/label_widget.py" line="5554" />
-      <location filename="../../views/labeling/label_widget.py" line="4440" />
-      <location filename="../../views/labeling/label_widget.py" line="4351" />
+      <location filename="../../views/labeling/label_widget.py" line="7777" />
+      <location filename="../../views/labeling/label_widget.py" line="5983" />
+      <location filename="../../views/labeling/label_widget.py" line="4825" />
+      <location filename="../../views/labeling/label_widget.py" line="4732" />
       <source>Invalid label '{}' with validation type '{}'</source>
       <translation>无效标签'{}'，验证类型'{}'</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="4602" />
+      <location filename="../../views/labeling/label_widget.py" line="4990" />
       <source>Value '{}' is not defined in the current attribute configuration.</source>
       <translation>当前属性配置中未定义值“{}”。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="5380" />
-      <location filename="../../views/labeling/label_widget.py" line="4998" />
+      <location filename="../../views/labeling/label_widget.py" line="5804" />
+      <location filename="../../views/labeling/label_widget.py" line="5387" />
       <source>Error saving label data</source>
       <translation>保存标签数据时出错</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="5380" />
-      <location filename="../../views/labeling/label_widget.py" line="4998" />
+      <location filename="../../views/labeling/label_widget.py" line="5804" />
+      <location filename="../../views/labeling/label_widget.py" line="5387" />
       <source>&lt;b&gt;%s&lt;/b&gt;</source>
       <translation>&lt;b&gt;%s&lt;/b&gt;</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="5408" />
+      <location filename="../../views/labeling/label_widget.py" line="5832" />
       <source>Error pasting shapes</source>
       <translation>粘贴对象失败</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="5409" />
+      <location filename="../../views/labeling/label_widget.py" line="5833" />
       <source>Error decoding shapes: %s</source>
       <translation>对象解码失败：%s</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="5624" />
-      <location filename="../../views/labeling/label_widget.py" line="5614" />
+      <location filename="../../views/labeling/label_widget.py" line="6054" />
+      <location filename="../../views/labeling/label_widget.py" line="6044" />
       <source>X: %d, Y: %d | H: %d, W: %d</source>
       <translation>X: %d, Y: %d | H: %d, W: %d</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="5638" />
-      <location filename="../../views/labeling/label_widget.py" line="5630" />
+      <location filename="../../views/labeling/label_widget.py" line="6068" />
+      <location filename="../../views/labeling/label_widget.py" line="6060" />
       <source>X: %d, Y: %d</source>
       <translation>X: %d, Y: %d</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6174" />
-      <location filename="../../views/labeling/label_widget.py" line="6133" />
-      <location filename="../../views/labeling/label_widget.py" line="6113" />
+      <location filename="../../views/labeling/label_widget.py" line="6570" />
+      <location filename="../../views/labeling/label_widget.py" line="6532" />
+      <location filename="../../views/labeling/label_widget.py" line="6506" />
       <source>Error opening file</source>
       <translation>打开文件时出错</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6114" />
+      <location filename="../../views/labeling/label_widget.py" line="6507" />
       <source>No such file: &lt;b&gt;%s&lt;/b&gt;</source>
       <translation>没有这个文件：&lt;b&gt;%s&lt;/b&gt;</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6134" />
+      <location filename="../../views/labeling/label_widget.py" line="6533" />
       <source>&lt;p&gt;&lt;b&gt;%s&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Make sure &lt;i&gt;%s&lt;/i&gt; is a valid label file.</source>
       <translation>&lt;p&gt;&lt;b&gt;%s&lt;/b&gt;&lt;/p&gt;&lt;p&gt;确保&lt;i&gt;%s&lt;/i&gt;是一个有效的标签文件。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6180" />
-      <location filename="../../views/labeling/label_widget.py" line="6140" />
+      <location filename="../../views/labeling/label_widget.py" line="6576" />
+      <location filename="../../views/labeling/label_widget.py" line="6539" />
       <source>Error reading %s</source>
       <translation>读取%s时出错</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="7399" />
-      <location filename="../../views/labeling/label_widget.py" line="7111" />
-      <location filename="../../views/labeling/label_widget.py" line="6161" />
+      <location filename="../../views/labeling/label_widget.py" line="7867" />
+      <location filename="../../views/labeling/label_widget.py" line="7576" />
+      <location filename="../../views/labeling/label_widget.py" line="6557" />
       <source>Image Description</source>
       <translation>图像文本描述</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6175" />
+      <location filename="../../views/labeling/label_widget.py" line="6571" />
       <source>&lt;p&gt;Make sure &lt;i&gt;{0}&lt;/i&gt; is a valid image file.&lt;br/&gt;Supported image formats: {1}&lt;/p&gt;</source>
       <translation>&lt;p&gt;确保&lt;i&gt;{0}&lt;/i&gt;是一个有效的图像文件。&lt;br/&gt;支持的图像格式：{1}&lt;/p&gt;</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6519" />
+      <location filename="../../views/labeling/label_widget.py" line="6983" />
       <source>Image &amp; Label files (%s)</source>
       <translation>图像和标签文件（%s）</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6526" />
+      <location filename="../../views/labeling/label_widget.py" line="6990" />
       <source>%s - Choose Image or Label file</source>
       <translation>%s - 选择图像或标签文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6546" />
+      <location filename="../../views/labeling/label_widget.py" line="7010" />
       <source>%s - Save/Load Annotations in Directory</source>
       <translation>%s - 在目录中保存/加载注释</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6559" />
+      <location filename="../../views/labeling/label_widget.py" line="7023" />
       <source>%s . Annotations will be saved/loaded in %s</source>
       <translation>%s . 注释将保存/加载在%s中</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6590" />
+      <location filename="../../views/labeling/label_widget.py" line="7054" />
       <source>%s - Choose File</source>
       <translation>%s - 选择文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6621" />
-      <location filename="../../views/labeling/label_widget.py" line="6591" />
+      <location filename="../../views/labeling/label_widget.py" line="7085" />
+      <location filename="../../views/labeling/label_widget.py" line="7055" />
       <source>Label files (*%s)</source>
       <translation>标签文件（*%s）</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6619" />
+      <location filename="../../views/labeling/label_widget.py" line="7083" />
       <source>Choose File</source>
       <translation>选择文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6648" />
+      <location filename="../../views/labeling/label_widget.py" line="7112" />
       <source>Please open an image first</source>
       <translation>请先打开一张图像</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6653" />
+      <location filename="../../views/labeling/label_widget.py" line="7117" />
       <source>Select Compare Image Directory</source>
       <translation>选择对比图像目录</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6662" />
+      <location filename="../../views/labeling/label_widget.py" line="7126" />
       <source>Invalid compare directory</source>
       <translation>无效的对比目录</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6673" />
+      <location filename="../../views/labeling/label_widget.py" line="7137" />
       <source>Close Compare View</source>
       <translation>关闭对比视图</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6674" />
+      <location filename="../../views/labeling/label_widget.py" line="7138" />
       <source>Are you sure you want to close the compare view?</source>
       <translation>确定要关闭对比视图吗？</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6766" />
-      <location filename="../../views/labeling/label_widget.py" line="6752" />
-      <location filename="../../views/labeling/label_widget.py" line="6722" />
-      <location filename="../../views/labeling/label_widget.py" line="6708" />
+      <location filename="../../views/labeling/label_widget.py" line="7230" />
+      <location filename="../../views/labeling/label_widget.py" line="7216" />
+      <location filename="../../views/labeling/label_widget.py" line="7186" />
+      <location filename="../../views/labeling/label_widget.py" line="7172" />
       <source>Attention</source>
       <translation>注意</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6709" />
+      <location filename="../../views/labeling/label_widget.py" line="7173" />
       <source>Please disable 'Keep Previous Annotation' before deleting the label file.</source>
       <translation>请在删除标签文件前禁用"保留上一个注释"。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6716" />
+      <location filename="../../views/labeling/label_widget.py" line="7180" />
       <source>You are about to permanently delete this label file, proceed anyway?</source>
       <translation>您即将永久删除此标签文件，是否继续？</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6753" />
+      <location filename="../../views/labeling/label_widget.py" line="7217" />
       <source>Please disable 'Keep Previous Annotation' before deleting the image file.</source>
       <translation>请在删除图像文件前禁用"保留上一个注释"。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6760" />
+      <location filename="../../views/labeling/label_widget.py" line="7224" />
       <source>You are about to permanently delete this image file, proceed anyway?</source>
       <translation>您即将永久删除此图像文件，是否继续？</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6839" />
+      <location filename="../../views/labeling/label_widget.py" line="7303" />
       <source>Save annotations?</source>
       <translation>保存注释？</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6892" />
+      <location filename="../../views/labeling/label_widget.py" line="7356" />
       <source>Delete Group</source>
       <translation>删除群组</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6893" />
+      <location filename="../../views/labeling/label_widget.py" line="7357" />
       <source>Deleting this group will remove %d shapes. This action cannot be undone. Do you want to continue?</source>
       <translation>删除该群组将移除 %d 个对象。此操作无法撤销。是否继续？</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="6943" />
+      <location filename="../../views/labeling/label_widget.py" line="7407" />
       <source>%s - Open Directory</source>
       <translation>%s - 打开目录</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/label_widget.py" line="7393" />
+      <location filename="../../views/labeling/label_widget.py" line="7861" />
       <source>Object Description</source>
       <translation>对象文本描述</translation>
     </message>
@@ -4907,34 +4976,6 @@ Results have been saved to:
       <translation>导出标签成功！
 结果已保存到：
 %s</translation>
-    </message>
-    <message>
-      <source>Check Status</source>
-      <translation>检查状态</translation>
-    </message>
-    <message>
-      <source>Check Passed</source>
-      <translation>检查通过</translation>
-    </message>
-    <message>
-      <source>Check Failed</source>
-      <translation>检查不通过</translation>
-    </message>
-    <message>
-      <source>Lock/unlock all labels</source>
-      <translation>锁定/解锁所有标签</translation>
-    </message>
-    <message>
-      <source>Lock/unlock all shapes</source>
-      <translation>锁定/解锁所有对象</translation>
-    </message>
-    <message>
-      <source>Show/hide all labels</source>
-      <translation>显示/隐藏所有标签</translation>
-    </message>
-    <message>
-      <source>Show/hide all shapes</source>
-      <translation>显示/隐藏所有对象</translation>
     </message>
   </context>
   <context>
@@ -5263,12 +5304,12 @@ Results have been saved to:
   <context>
     <name>ModelItem</name>
     <message>
-      <location filename="../../views/labeling/widgets/searchable_model_dropdown.py" line="187" />
+      <location filename="../../views/labeling/widgets/searchable_model_dropdown.py" line="200" />
       <source>Delete downloaded model files</source>
       <translation>删除已下载的模型文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/searchable_model_dropdown.py" line="189" />
+      <location filename="../../views/labeling/widgets/searchable_model_dropdown.py" line="202" />
       <source>Remove custom model</source>
       <translation>移除自定义模型</translation>
     </message>
@@ -5762,96 +5803,96 @@ Results have been saved to:
       <translation>导入失败</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1242" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1244" />
       <source>Parsing failed.</source>
       <translation>解析失败。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1283" />
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1260" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1285" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1262" />
       <source>Cancelling parsing task. Waiting for current step to finish.</source>
       <translation>正在取消解析任务。请等待当前步骤完成。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1269" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1271" />
       <source>File {0}/{1}: {2}  Page {3}/{4}</source>
       <translation>文件 {0}/{1}：{2}  第 {3}/{4} 页</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1279" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1281" />
       <source>Parsing is running for this file.</source>
       <translation>此文件正在解析中。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1288" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1290" />
       <source>Waiting in the parsing queue.</source>
       <translation>正在解析队列中等待。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1291" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1293" />
       <source>Waiting to parse this file.</source>
       <translation>等待解析此文件。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1362" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1364" />
       <source>Parsing</source>
       <translation>解析中</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1647" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1649" />
       <source>Download Document Parsing</source>
       <translation>下载文档解析结果</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1649" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1651" />
       <source>ZIP Files (*.zip)</source>
       <translation>ZIP 文件 (*.zip)</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="2108" />
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1723" />
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1696" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="2110" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1725" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1698" />
       <source>Save Failed</source>
       <translation>保存失败</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1725" />
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1698" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1727" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1700" />
       <source>Download Successful</source>
       <translation>下载成功</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1710" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1712" />
       <source>Download JSON</source>
       <translation>下载 JSON</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1712" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1714" />
       <source>JSON Files (*.json)</source>
       <translation>JSON 文件 (*.json)</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1794" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="1796" />
       <source>Page {0}</source>
       <translation>第 {0} 页</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="2095" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="2097" />
       <source>Block content exceeds the available editor height</source>
       <translation>块内容超出编辑器可用高度</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="2143" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="2145" />
       <source>Delete File</source>
       <translation>删除文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="2144" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="2146" />
       <source>Are you sure you want to delete this file? This action cannot be undone and will remove all associated data.</source>
       <translation>确定要删除此文件吗？此操作无法撤销，并将移除所有关联数据。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="2443" />
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="2445" />
       <source>Copy Successful</source>
       <translation>复制成功</translation>
     </message>
@@ -7445,195 +7486,195 @@ The main application remains available.</source>
   <context>
     <name>SettingsDialog</name>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="438" />
-      <location filename="../../views/labeling/settings/dialog.py" line="105" />
+      <location filename="../../views/labeling/settings/dialog.py" line="393" />
+      <location filename="../../views/labeling/settings/dialog.py" line="106" />
       <source>Settings</source>
       <translation>设置</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="122" />
+      <location filename="../../views/labeling/settings/dialog.py" line="123" />
       <source>Ready to edit settings</source>
       <translation>准备编辑设置</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="609" />
+      <location filename="../../views/labeling/settings/dialog.py" line="564" />
       <source>Reset</source>
       <translation>重置</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="300" />
-      <location filename="../../views/labeling/settings/dialog.py" line="625" />
+      <location filename="../../views/labeling/settings/dialog.py" line="580" />
       <source>Save</source>
       <translation>保存</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="761" />
+      <location filename="../../views/labeling/settings/dialog.py" line="716" />
       <source>Ready to edit shortcuts</source>
       <translation>准备编辑快捷键</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="762" />
+      <location filename="../../views/labeling/settings/dialog.py" line="717" />
       <source>Ready to edit {page} settings</source>
       <translation>准备编辑 {page} 设置</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="768" />
+      <location filename="../../views/labeling/settings/dialog.py" line="723" />
       <source>Shortcut changes are pending. Click Save to persist.</source>
       <translation>快捷键更改待保存。点击“保存”以持久化。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="771" />
+      <location filename="../../views/labeling/settings/dialog.py" line="726" />
       <source>{page} changes are pending. Click Save to persist.</source>
       <translation>{page} 更改待保存。点击“保存”以持久化。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="787" />
+      <location filename="../../views/labeling/settings/dialog.py" line="742" />
       <source>Pending changes exist in other pages. Click Save to persist.</source>
       <translation>其他页面存在待保存更改。点击“保存”以持久化。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1119" />
-      <location filename="../../views/labeling/settings/dialog.py" line="1093" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1074" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1048" />
       <source>None</source>
       <translation>空</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1222" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1177" />
       <source>System Default</source>
       <translation>系统默认</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1403" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1358" />
       <source>Usually used to enable batch labeling mode.</source>
       <translation>通常用于启用批量标注模式。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1406" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1361" />
       <source>Open the auto-labeling panel.</source>
       <translation>打开自动标注面板。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1407" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1362" />
       <source>Add a positive prompt point.</source>
       <translation>添加一个正向提示点。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1410" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1365" />
       <source>Clear all prompt points added to the current image.</source>
       <translation>清除当前图像中的所有提示点。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1413" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1368" />
       <source>Finish the current object annotation.</source>
       <translation>完成当前对象标注。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1416" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1371" />
       <source>Add a negative prompt point.</source>
       <translation>添加一个负向提示点。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1419" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1374" />
       <source>Run auto-labeling on the current image.</source>
       <translation>在当前图像上运行自动标注。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1422" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1377" />
       <source>Close the current file.</source>
       <translation>关闭当前文件。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1423" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1378" />
       <source>Delete the current label file.</source>
       <translation>删除当前标签文件。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1424" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1379" />
       <source>Delete the current image file.</source>
       <translation>删除当前图像文件。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1427" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1382" />
       <source>Open an image or label file.</source>
       <translation>打开图像或标签文件。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1428" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1383" />
       <source>Open an image directory.</source>
       <translation>打开图像目录。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1429" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1384" />
       <source>Open a video file.</source>
       <translation>打开视频文件。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1430" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1385" />
       <source>Quit the application.</source>
       <translation>退出应用程序。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1431" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1386" />
       <source>Save labels to file.</source>
       <translation>将标签保存到文件。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1432" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1387" />
       <source>Save labels to another file.</source>
       <translation>将标签另存为其他文件。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1433" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1388" />
       <source>Change the output directory.</source>
       <translation>更改输出目录。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1434" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1389" />
       <source>Open the next image.</source>
       <translation>打开下一张图像。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1435" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1390" />
       <source>Open the next unchecked image.</source>
       <translation>打开下一张未检查图像。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1438" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1393" />
       <source>Open the previous image.</source>
       <translation>打开上一张图像。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1439" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1394" />
       <source>Open the previous unchecked image.</source>
       <translation>打开上一张未检查图像。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1662" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1617" />
       <source>No shortcuts in the current category.</source>
       <translation>当前分类中没有快捷键。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1882" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1837" />
       <source>No settings changes to save</source>
       <translation>没有可保存的设置更改</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1911" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1866" />
       <source>Current page has no resettable fields</source>
       <translation>当前页面没有可重置项</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1918" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1873" />
       <source>No settings found in {page}</source>
       <translation>在 {page} 中未找到设置项</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1925" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1880" />
       <source>Reset Settings</source>
       <translation>重置设置</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1926" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1881" />
       <source>Reset all settings in '{page}' to defaults?
 
 Changes will not be saved until you click Save.</source>
@@ -7642,32 +7683,32 @@ Changes will not be saved until you click Save.</source>
 在点击“保存”之前，更改不会被保存。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1948" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1903" />
       <source>{page} defaults restored. Click Save to persist.</source>
       <translation>已恢复 {page} 的默认值。点击“保存”以持久化。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1960" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1915" />
       <source>{page} values are already defaults</source>
       <translation>{page} 的值已是默认值</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1969" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1924" />
       <source>No shortcut category selected</source>
       <translation>未选择快捷键分类</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1974" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1929" />
       <source>No shortcuts found in category: {group}</source>
       <translation>在分类中未找到快捷键：{group}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1981" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1936" />
       <source>Reset Shortcuts</source>
       <translation>重置快捷键</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1982" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1937" />
       <source>Reset all shortcuts in '{group}' to defaults?
 
 Changes will not be saved until you click Save.</source>
@@ -7676,32 +7717,32 @@ Changes will not be saved until you click Save.</source>
 在点击“保存”之前，更改不会被保存。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="1995" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1950" />
       <source>Shortcut values in '{group}' are already defaults</source>
       <translation>'{group}' 的快捷键值已是默认值</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="2033" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1988" />
       <source>Shortcut defaults restored for '{group}'. Click Save to persist.</source>
       <translation>已恢复 '{group}' 的快捷键默认值。点击“保存”以持久化。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="2043" />
+      <location filename="../../views/labeling/settings/dialog.py" line="1998" />
       <source>Settings saved</source>
       <translation>设置已保存</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="2048" />
+      <location filename="../../views/labeling/settings/dialog.py" line="2003" />
       <source>Save failed: {message}</source>
       <translation>保存失败：{message}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="2057" />
+      <location filename="../../views/labeling/settings/dialog.py" line="2012" />
       <source>Restart Required</source>
       <translation>需要重启</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/dialog.py" line="2059" />
+      <location filename="../../views/labeling/settings/dialog.py" line="2014" />
       <source>Qt image allocation limit changes will take effect after restarting the application.</source>
       <translation>Qt 图像分配上限更改将在重启应用后生效。</translation>
     </message>
@@ -8620,72 +8661,56 @@ Changes will not be saved until you click Save.</source>
       <source>Zoom To Original</source>
       <translation>原始大小</translation>
     </message>
-    <message>
-      <source>Check Status</source>
-      <translation>检查状态</translation>
-    </message>
-    <message>
-      <source>Check Passed</source>
-      <translation>检查通过</translation>
-    </message>
-    <message>
-      <source>Check Failed</source>
-      <translation>检查不通过</translation>
-    </message>
-    <message>
-      <source>Unchecked</source>
-      <translation>未检查</translation>
-    </message>
   </context>
   <context>
     <name>SettingsRuntimeApplier</name>
     <message>
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="133" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="135" />
       <source>Quit</source>
       <translation>退出</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="139" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="141" />
       <source>Open Settings</source>
       <translation>打开设置</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="146" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="148" />
       <source>Add Point To Edge</source>
       <translation>在线段上添加点</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="153" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="155" />
       <source>Auto Labeling Add Point</source>
       <translation>自动标注添加点</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="160" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="162" />
       <source>Auto Labeling Remove Point</source>
       <translation>自动标注移除点</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="169" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="171" />
       <source>Auto Labeling Run</source>
       <translation>运行自动标注</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="176" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="178" />
       <source>Auto Labeling Clear</source>
       <translation>清空自动标注</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="183" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="185" />
       <source>Auto Labeling Finish Object</source>
       <translation>自动标注完成对象</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="206" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="208" />
       <source>Zoom in or out of the image. Also accessible with {} and {} from the canvas.</source>
       <translation>放大或缩小图像。也可从画布上使用 {} 和 {} 进行访问</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="212" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="214" />
       <source>Wheel</source>
       <translation>滚轮</translation>
     </message>
@@ -8698,42 +8723,42 @@ Changes will not be saved until you click Save.</source>
       <translation>对象类型转换器</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="130" />
+      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="132" />
       <source>Cancel</source>
       <translation>取消</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="132" />
+      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="134" />
       <source>Confirm</source>
       <translation>确认</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="211" />
+      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="213" />
       <source>Warning</source>
       <translation>警告</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="212" />
+      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="214" />
       <source>Current annotation will be changed</source>
       <translation>当前的标注将被更改</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="214" />
+      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="216" />
       <source>Are you sure you want to perform this conversion?</source>
       <translation>您确定要执行此转换操作吗？</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="293" />
+      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="295" />
       <source>Conversion canceled.</source>
       <translation>已取消转换。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="301" />
+      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="303" />
       <source>Conversion completed with errors.</source>
       <translation>转换已完成，但出现错误。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="309" />
+      <location filename="../../views/labeling/widgets/shape_converter_dialog.py" line="311" />
       <source>Conversion completed successfully!</source>
       <translation>转换成功完成！</translation>
     </message>
@@ -8885,23 +8910,23 @@ Changes will not be saved until you click Save.</source>
     <name>ShortcutsDialog</name>
     <message>
       <location filename="../../views/labeling/pointcloud/controls.py" line="795" />
-      <location filename="../../views/labeling/label_widget.py" line="2414" />
+      <location filename="../../views/labeling/label_widget.py" line="2521" />
       <source>Keyboard shortcuts</source>
       <translation>键盘快捷键</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/pointcloud/controls.py" line="854" />
+      <location filename="../../views/labeling/pointcloud/controls.py" line="857" />
       <source>Close</source>
       <translation>关闭</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/pointcloud/controls.py" line="861" />
-      <location filename="../../views/labeling/pointcloud/controls.py" line="860" />
+      <location filename="../../views/labeling/pointcloud/controls.py" line="870" />
+      <location filename="../../views/labeling/pointcloud/controls.py" line="869" />
       <source>Search shortcuts</source>
       <translation>搜索快捷键</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/pointcloud/controls.py" line="915" />
+      <location filename="../../views/labeling/pointcloud/controls.py" line="924" />
       <source>No matching shortcuts</source>
       <translation>未找到匹配的快捷键</translation>
     </message>
@@ -9429,37 +9454,37 @@ If not, please manually modify the `Name` field value.</source>
       <translation>安装目录不可写。请安装到当前用户拥有写入权限的目录，以启用自动更新。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/utils/update_controller.py" line="233" />
+      <location filename="../../views/labeling/utils/update_controller.py" line="241" />
       <source>The update installer could not start.</source>
       <translation>无法启动更新安装程序。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/utils/update_controller.py" line="240" />
+      <location filename="../../views/labeling/utils/update_controller.py" line="248" />
       <source>The update installer did not become ready. Your current application is still running.</source>
       <translation>更新安装程序未就绪。当前应用仍在运行。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/utils/update_controller.py" line="253" />
+      <location filename="../../views/labeling/utils/update_controller.py" line="261" />
       <source>The update installer returned an invalid acknowledgement.</source>
       <translation>更新安装程序返回了无效的确认信息。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/utils/update_controller.py" line="269" />
+      <location filename="../../views/labeling/utils/update_controller.py" line="277" />
       <source>Finish saving your work, then try updating again.</source>
       <translation>请先保存当前工作，再尝试更新。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/utils/update_controller.py" line="300" />
+      <location filename="../../views/labeling/utils/update_controller.py" line="308" />
       <source>Couldn't verify the update server. Check your network or proxy settings, then try again.</source>
       <translation>无法验证更新服务器。请检查网络或代理设置后重试。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/utils/update_controller.py" line="304" />
+      <location filename="../../views/labeling/utils/update_controller.py" line="312" />
       <source>Couldn't connect to the update server. Check your connection and try again.</source>
       <translation>无法连接更新服务器。请检查网络连接后重试。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/utils/update_controller.py" line="326" />
+      <location filename="../../views/labeling/utils/update_controller.py" line="334" />
       <source>The update failed. Your previous version has been restored.
 
 </source>
@@ -9723,7 +9748,7 @@ Do you want to continue?</source>
   <context>
     <name>VideoClassifierDialog</name>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1737" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1709" />
       <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="873" />
       <source>(no video loaded)</source>
       <translation>（未加载视频）</translation>
@@ -9744,6 +9769,7 @@ Do you want to continue?</source>
       <translation>上一帧</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1235" />
       <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="956" />
       <source>Play/Pause</source>
       <translation>播放/暂停</translation>
@@ -9764,8 +9790,8 @@ Do you want to continue?</source>
       <translation>预览缩放</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1713" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1538" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1685" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1510" />
       <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="991" />
       <source>Open video</source>
       <translation>打开视频</translation>
@@ -9776,7 +9802,7 @@ Do you want to continue?</source>
       <translation>使用 AI 自动切分视频</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3104" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3076" />
       <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1002" />
       <source>Export dataset</source>
       <translation>导出数据集</translation>
@@ -9807,11 +9833,13 @@ Do you want to continue?</source>
       <translation>选择一个片段以编辑其描述。</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1243" />
       <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1134" />
       <source>Undo</source>
       <translation>撤销</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1244" />
       <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1141" />
       <source>Redo</source>
       <translation>重做</translation>
@@ -9822,9 +9850,9 @@ Do you want to continue?</source>
       <translation>在播放头处切分</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3105" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2899" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2861" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3077" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2871" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2833" />
       <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1155" />
       <source>Export segment</source>
       <translation>导出片段</translation>
@@ -9840,62 +9868,127 @@ Do you want to continue?</source>
       <translation>放大时间轴</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1450" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1231" />
+      <source>Show shortcuts</source>
+      <translation>查看快捷键</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1236" />
+      <source>Previous/Next frame</source>
+      <translation>上一帧/下一帧</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1237" />
+      <source>Back/Forward 1 second</source>
+      <translation>后退/前进 1 秒</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1238" />
+      <source>Previous/Next segment</source>
+      <translation>上一个/下一个片段</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1239" />
+      <source>Mark in/out</source>
+      <translation>标记入点/出点</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1240" />
+      <source>Create segment from marks</source>
+      <translation>根据入点和出点创建片段</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1241" />
+      <source>Delete selected segment</source>
+      <translation>删除选中片段</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1242" />
+      <source>Save annotations</source>
+      <translation>保存标注</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1245" />
+      <source>Select label by number</source>
+      <translation>选择对应序号的标签</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1259" />
+      <source>Shortcuts</source>
+      <translation>快捷键</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1263" />
+      <source>Key</source>
+      <translation>按键</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1265" />
+      <source>Action</source>
+      <translation>功能</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1295" />
+      <source>Open tutorial</source>
+      <translation>打开教程</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1422" />
       <source>Double-click to edit label and description; hold left button to drag</source>
       <translation>双击编辑标签和描述；按住左键拖动</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1454" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1426" />
       <source>Right-drag the timeline ruler, then release to create a segment</source>
       <translation>在时间轴标尺上按住右键拖动，松开后创建片段</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1523" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1495" />
       <source>Unsupported file</source>
       <translation>不支持的文件</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1524" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1496" />
       <source>This file type is not supported.</source>
       <translation>不支持此文件类型。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1532" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1504" />
       <source>Loading video...</source>
       <translation>正在加载视频...</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2998" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2894" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2400" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1533" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2970" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2866" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2372" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1505" />
       <source>Cancel</source>
       <translation>取消</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1662" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1634" />
       <source>Sidecar backup: {p}</source>
       <translation>sidecar 备份：{p}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1671" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1643" />
       <source>Incompatible sidecar</source>
       <translation>不兼容的 sidecar</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1673" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1645" />
       <source>Invalid sidecar</source>
       <translation>无效的 sidecar</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1677" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1649" />
       <source>The sidecar file cannot be loaded and will not be overwritten:
 {path}</source>
       <translation>无法加载 sidecar 文件，该文件不会被覆盖：
 {path}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1683" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1655" />
       <source>Details: {error}
 
 Back up the original file and create a new sidecar?</source>
@@ -9904,29 +9997,29 @@ Back up the original file and create a new sidecar?</source>
 是否备份原文件并创建新的 sidecar？</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1689" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1661" />
       <source>Back up and rebuild</source>
       <translation>备份并重建</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1703" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1675" />
       <source>Sidecar backup failed</source>
       <translation>sidecar 备份失败</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1704" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1676" />
       <source>Failed to back up {path}:
 {error}</source>
       <translation>备份 {path} 失败：
 {error}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1776" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1748" />
       <source>Playback error</source>
       <translation>播放错误</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1777" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1749" />
       <source>Failed to play this video. The system may lack a suitable Qt multimedia codec.
 
 Details: {msg}</source>
@@ -9935,151 +10028,151 @@ Details: {msg}</source>
 详情：{msg}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1789" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1761" />
       <source>FPS: {f:.2f} | Size: {w}x{h}</source>
       <translation>FPS：{f:.2f} | 尺寸：{w}x{h}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1926" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1919" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1906" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1898" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1891" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1878" />
       <source>Save current frame</source>
       <translation>保存当前帧</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1907" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1879" />
       <source>No decoded frame is available yet.</source>
       <translation>暂无可用的解码帧。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1921" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1893" />
       <source>PNG Image (*.png);;JPEG Image (*.jpg *.jpeg)</source>
       <translation>PNG 图像 (*.png);;JPEG 图像 (*.jpg *.jpeg)</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1927" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1899" />
       <source>Failed to save the current frame.</source>
       <translation>保存当前帧失败。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1946" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1918" />
       <source>Save failed</source>
       <translation>保存失败</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1950" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="1922" />
       <source>Saved: {p}</source>
       <translation>已保存：{p}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2759" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2073" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2067" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2731" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2045" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2039" />
       <source>Add segment</source>
       <translation>添加片段</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2068" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2040" />
       <source>Create a label first.</source>
       <translation>请先创建标签。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2074" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2046" />
       <source>Select a label first.</source>
       <translation>请先选择标签。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2104" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2076" />
       <source>Pick a label</source>
       <translation>选择标签</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2181" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2176" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2153" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2148" />
       <source>Edit segment</source>
       <translation>编辑片段</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2177" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2149" />
       <source>Define some labels first.</source>
       <translation>请先定义一些标签。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2491" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2476" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2286" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2272" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2261" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2250" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2234" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2463" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2448" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2258" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2244" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2233" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2222" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2206" />
       <source>AI Segmentation</source>
       <translation>AI 切分</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2235" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2207" />
       <source>Please open a video first.</source>
       <translation>请先打开视频。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2355" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2262" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2327" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2234" />
       <source>Prompt cannot be empty.</source>
       <translation>Prompt 不能为空。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2273" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2245" />
       <source>Existing segments will be overwritten by AI-generated segments. Continue?</source>
       <translation>现有片段将被 AI 生成的片段覆盖。继续？</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2287" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2259" />
       <source>The selected segment will be replaced by AI-generated segments. Continue?</source>
       <translation>选中的片段将被 AI 生成的片段替换。继续？</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2326" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2325" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2298" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2297" />
       <source>Generating segments...</source>
       <translation>正在生成片段...</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2558" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2405" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2354" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2333" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2530" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2377" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2326" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2305" />
       <source>AI Description</source>
       <translation>AI 描述</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2334" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2306" />
       <source>Please select a segment first.</source>
       <translation>请先选择一个片段。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2376" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2375" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2348" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2347" />
       <source>Generating description...</source>
       <translation>正在生成描述...</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2386" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2385" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2383" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2358" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2357" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2355" />
       <source>Not configured</source>
       <translation>未配置</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2448" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2420" />
       <source>AI generation cancelled.</source>
       <translation>已取消 AI 生成。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2477" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2449" />
       <source>Failed to generate segments.</source>
       <translation>生成片段失败。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2492" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2464" />
       <source>No valid segments found in the AI response.
 
 Response preview:
@@ -10090,17 +10183,17 @@ Response preview:
 {preview}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2531" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2503" />
       <source>Generated {n} segments.</source>
       <translation>已生成 {n} 个片段。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2559" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2531" />
       <source>Failed to generate description.</source>
       <translation>生成描述失败。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2578" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2550" />
       <source>Description generated.</source>
       <translation>描述已生成。</translation>
     </message>
@@ -10110,184 +10203,132 @@ Response preview:
       <translation>片段{n}</translation>
     </message>
     <message>
-      <source>Show shortcuts</source>
-      <translation>查看快捷键</translation>
-    </message>
-    <message>
-      <source>Previous/Next frame</source>
-      <translation>上一帧/下一帧</translation>
-    </message>
-    <message>
-      <source>Back/Forward 1 second</source>
-      <translation>后退/前进 1 秒</translation>
-    </message>
-    <message>
-      <source>Previous/Next segment</source>
-      <translation>上一个/下一个片段</translation>
-    </message>
-    <message>
-      <source>Mark in/out</source>
-      <translation>标记入点/出点</translation>
-    </message>
-    <message>
-      <source>Create segment from marks</source>
-      <translation>根据入点和出点创建片段</translation>
-    </message>
-    <message>
-      <source>Delete selected segment</source>
-      <translation>删除选中片段</translation>
-    </message>
-    <message>
-      <source>Save annotations</source>
-      <translation>保存标注</translation>
-    </message>
-    <message>
-      <source>Select label by number</source>
-      <translation>选择对应序号的标签</translation>
-    </message>
-    <message>
-      <source>Shortcuts</source>
-      <translation>快捷键</translation>
-    </message>
-    <message>
-      <source>Key</source>
-      <translation>按键</translation>
-    </message>
-    <message>
-      <source>Action</source>
-      <translation>功能</translation>
-    </message>
-    <message>
-      <source>Open tutorial</source>
-      <translation>打开教程</translation>
-    </message>
-    <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2760" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2732" />
       <source>The marked range is too short.</source>
       <translation>标记范围过短。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2969" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2862" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2941" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2834" />
       <source>ffmpeg was not found. Install ffmpeg or imageio-ffmpeg to export clips.</source>
       <translation>未找到 ffmpeg。请安装 ffmpeg 或 imageio-ffmpeg 以导出片段。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2881" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2853" />
       <source>Export selected segment</source>
       <translation>导出所选片段</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2883" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2855" />
       <source>MP4 Video (*.mp4)</source>
       <translation>MP4 视频 (*.mp4)</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2893" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2865" />
       <source>Exporting selected segment...</source>
       <translation>正在导出所选片段...</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3024" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2929" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2996" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2901" />
       <source>Export complete</source>
       <translation>导出完成</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2930" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2902" />
       <source>Exported segment to {path}</source>
       <translation>片段已导出到 {path}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2935" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2907" />
       <source>Export cancelled.</source>
       <translation>导出已取消。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3026" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2939" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2998" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2911" />
       <source>Export failed</source>
       <translation>导出失败</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2941" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2913" />
       <source>Failed to export the selected segment.</source>
       <translation>导出所选片段失败。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3000" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2989" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2982" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2968" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2956" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2972" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2961" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2954" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2940" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2928" />
       <source>Export Dataset</source>
       <translation>导出数据</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2957" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2929" />
       <source>Load a video and annotate at least one segment first.</source>
       <translation>请先加载视频并至少标注一个片段。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2983" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2955" />
       <source>Output directory is required.</source>
       <translation>输出目录不能为空。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2990" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2962" />
       <source>Pick at least one output format.</source>
       <translation>请至少选择一种输出格式。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2998" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2970" />
       <source>Exporting…</source>
       <translation>正在导出…</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3014" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="2986" />
       <source>Exporting…
 {msg}</source>
       <translation>正在导出…
 {msg}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3040" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3012" />
       <source>FPS: {f:.2f}  Size: {w}x{h}  Duration: {d}</source>
       <translation>FPS：{f:.2f}  尺寸：{w}x{h}  时长：{d}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3049" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3021" />
       <source>In: {t}</source>
       <translation>入点：{t}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3055" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3027" />
       <source>Out: {t}</source>
       <translation>出点：{t}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3060" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3032" />
       <source>Segments: {n}</source>
       <translation>片段：{n}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3064" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3036" />
       <source>Cursor: {t}</source>
       <translation>光标：{t}</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3067" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3039" />
       <source>[modified]</source>
       <translation>[已修改]</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3069" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3041" />
       <source>Drop or open a video to begin.</source>
       <translation>拖入或打开视频以开始。</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3108" />
-      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3107" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3080" />
+      <location filename="../../views/labeling/widgets/video_classifier_dialog.py" line="3079" />
       <source>ffmpeg required</source>
       <translation>需要 ffmpeg</translation>
     </message>
@@ -10340,18 +10381,4 @@ Response preview:
       <translation>无法创建 OpenGL 显示上下文。</translation>
     </message>
   </context>
-  <context>
-    <name>LabelFile</name>
-    <message>
-      <source>Failed opening image file: %s</source>
-      <translation>无法打开图片文件：%s</translation>
-    </message>
-  </context>
-<context>
-    <name>DescriptionEditor</name>
-    <message><source>Expand description</source><translation>展开描述</translation></message>
-    <message><source>Edit description</source><translation>编辑描述</translation></message>
-    <message><source>Cancel</source><translation>取消</translation></message>
-    <message><source>Confirm</source><translation>确认</translation></message>
-</context>
 </TS>

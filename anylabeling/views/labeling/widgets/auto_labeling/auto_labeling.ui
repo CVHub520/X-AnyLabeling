@@ -539,7 +539,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../../../resources/resources.qrc">
-         <normaloff>:/images/images/cancel.png</normaloff>:/images/images/cancel.png</iconset>
+         <normaloff>:/images/images/toolbar/circle-x.svg</normaloff>:/images/images/toolbar/circle-x.svg</iconset>
        </property>
        <property name="iconSize">
         <size>

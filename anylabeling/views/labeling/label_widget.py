@@ -503,6 +503,12 @@ class LabelingWidget(LabelDialog):
 
         scroll_area = QScrollArea()
         scroll_area.setStyleSheet(get_scrollbar_style())
+        scroll_area.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        scroll_area.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
         scroll_area.setWidget(self.canvas)
         scroll_area.setWidgetResizable(True)
         self._canvas_scroll_area = scroll_area
@@ -621,7 +627,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Open Video"),
             lambda: utils.open_video_file(self),
             shortcuts["open_video"],
-            "video",
+            "file-video-camera",
             self.tr("Open video file"),
         )
         opendir = action(
@@ -645,6 +651,20 @@ class LabelingWidget(LabelDialog):
             shortcuts["open_prev"],
             "prev",
             self.tr("Open prev image"),
+            enabled=False,
+        )
+        jump_next_images = action(
+            self.tr("Forward 10 Images"),
+            lambda: self.jump_images(10),
+            icon="skip-next",
+            tip=self.tr("Move forward by 10 images"),
+            enabled=False,
+        )
+        jump_prev_images = action(
+            self.tr("Back 10 Images"),
+            lambda: self.jump_images(-10),
+            icon="skip-prev",
+            tip=self.tr("Move back by 10 images"),
             enabled=False,
         )
         open_next_unchecked_image = action(
@@ -699,7 +719,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Delete Image File"),
             self.delete_image_file,
             shortcuts["delete_image_file"],
-            "delete",
+            "image-off",
             self.tr("Delete current image file"),
             enabled=True,
         )
@@ -741,7 +761,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Compare View"),
             self.toggle_compare_view,
             shortcuts.get("toggle_compare_view"),
-            "compare",
+            "columns-2",
             self.tr("Toggle split-screen compare view"),
             enabled=True,
         )
@@ -925,70 +945,70 @@ class LabelingWidget(LabelDialog):
             self.tr("Digit Shortcut 0"),
             lambda: self.create_digit_mode(0),
             "0",
-            "digit0",
+            None,
             enabled=False,
         )
         digit_shortcut_1 = action(
             self.tr("Digit Shortcut 1"),
             lambda: self.create_digit_mode(1),
             "1",
-            "digit1",
+            None,
             enabled=False,
         )
         digit_shortcut_2 = action(
             self.tr("Digit Shortcut 2"),
             lambda: self.create_digit_mode(2),
             "2",
-            "digit2",
+            None,
             enabled=False,
         )
         digit_shortcut_3 = action(
             self.tr("Digit Shortcut 3"),
             lambda: self.create_digit_mode(3),
             "3",
-            "digit3",
+            None,
             enabled=False,
         )
         digit_shortcut_4 = action(
             self.tr("Digit Shortcut 4"),
             lambda: self.create_digit_mode(4),
             "4",
-            "digit4",
+            None,
             enabled=False,
         )
         digit_shortcut_5 = action(
             self.tr("Digit Shortcut 5"),
             lambda: self.create_digit_mode(5),
             "5",
-            "digit5",
+            None,
             enabled=False,
         )
         digit_shortcut_6 = action(
             self.tr("Digit Shortcut 6"),
             lambda: self.create_digit_mode(6),
             "6",
-            "digit6",
+            None,
             enabled=False,
         )
         digit_shortcut_7 = action(
             self.tr("Digit Shortcut 7"),
             lambda: self.create_digit_mode(7),
             "7",
-            "digit7",
+            None,
             enabled=False,
         )
         digit_shortcut_8 = action(
             self.tr("Digit Shortcut 8"),
             lambda: self.create_digit_mode(8),
             "8",
-            "digit8",
+            None,
             enabled=False,
         )
         digit_shortcut_9 = action(
             self.tr("Digit Shortcut 9"),
             lambda: self.create_digit_mode(9),
             "9",
-            "digit9",
+            None,
             enabled=False,
         )
         edit_mode = action(
@@ -1016,7 +1036,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Group Selected Shapes"),
             self.group_selected_shapes,
             shortcuts["group_selected_shapes"],
-            "group-shapes",
+            "group",
             self.tr("Group shapes by assigning a same group_id"),
             enabled=True,
         )
@@ -1024,7 +1044,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Ungroup Selected Shapes"),
             self.ungroup_selected_shapes,
             shortcuts["ungroup_selected_shapes"],
-            "ungroup-shapes",
+            "ungroup",
             self.tr("Ungroup shapes"),
             enabled=True,
         )
@@ -1041,7 +1061,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Duplicate Polygons"),
             self.duplicate_selected_shape,
             shortcuts["duplicate_polygon"],
-            "copy",
+            "copy-plus",
             self.tr("Create a duplicate of the selected polygons"),
             enabled=False,
         )
@@ -1057,7 +1077,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Paste Object"),
             self.paste_selected_shape,
             shortcuts["paste_polygon"],
-            "paste",
+            "clipboard-paste",
             self.tr("Paste copied polygons"),
             enabled=self._config["system_clipboard"],
         )
@@ -1073,7 +1093,7 @@ class LabelingWidget(LabelDialog):
             text=self.tr("Remove Selected Point"),
             slot=self.remove_selected_point,
             shortcut=shortcuts["remove_selected_point"],
-            icon="edit",
+            icon="circle-minus",
             tip=self.tr("Remove selected point from polygon"),
             enabled=False,
         )
@@ -1090,7 +1110,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Hide Selected Polygons"),
             self.hide_selected_polygons,
             shortcuts["hide_selected_polygons"],
-            "hide-selected",
+            "eye-off",
             self.tr("Hide selected polygons"),
             enabled=True,
         )
@@ -1098,7 +1118,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Show Hidden Polygons"),
             self.show_hidden_polygons,
             shortcuts["show_hidden_polygons"],
-            "show-hidden",
+            "eye",
             self.tr("Show hidden polygons"),
             enabled=True,
         )
@@ -1107,7 +1127,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Overview"),
             self.overview,
             shortcuts["show_overview"],
-            icon="overview",
+            icon="chart-column",
             tip=self.tr("Show annotations statistics"),
         )
         save_crop = action(
@@ -1121,7 +1141,7 @@ class LabelingWidget(LabelDialog):
         save_visualization_image = action(
             self.tr("Save Visualization Image"),
             lambda: utils.save_visualization(self, export_type="image"),
-            icon="file",
+            icon="image-down",
             tip=self.tr("Save visualization image"),
         )
         save_visualization_video = action(
@@ -1166,7 +1186,7 @@ class LabelingWidget(LabelDialog):
         copy_coordinates = action(
             self.tr("Copy Coordinates"),
             self.copy_shape_coordinates,
-            icon="copy",
+            icon="map-pin",
             tip=self.tr("Copy shape coordinates to clipboard"),
             enabled=False,
         )
@@ -1174,7 +1194,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Union Selection"),
             self.union_selection,
             shortcuts["union_selected_shapes"],
-            icon="union",
+            icon="combine",
             tip=self.tr("Union multiple selected rectangle shapes"),
             enabled=False,
         )
@@ -1188,28 +1208,28 @@ class LabelingWidget(LabelDialog):
         shape_converter = action(
             self.tr("Shape Converter"),
             lambda: utils.open_shape_converter(self),
-            icon="convert",
+            icon="file-cog",
             tip=self.tr("Open shape converter"),
         )
         open_chatbot = action(
             self.tr("ChatBot"),
             self.open_chatbot,
             shortcuts["open_chatbot"],
-            icon="psyduck",
+            icon="message-circle",
             tip=self.tr("Open chatbot dialog"),
         )
         open_vqa = action(
             self.tr("VQA"),
             self.open_vqa,
             shortcuts["open_vqa"],
-            icon="husky",
+            icon="message-circle-question-mark",
             tip=self.tr("Open VQA dialog"),
         )
         open_pointcloud = action(
             self.tr("Point Cloud"),
             self.open_pointcloud,
             shortcuts.get("open_pointcloud"),
-            icon="cartesian",
+            icon="chart-scatter",
             tip=self.tr("Open point cloud workspace"),
         )
         open_image_classifier = action(
@@ -1218,39 +1238,39 @@ class LabelingWidget(LabelDialog):
             shortcuts.get(
                 "open_image_classifier", shortcuts.get("open_classifier")
             ),
-            icon="ragdoll",
+            icon="folder-tree",
             tip=self.tr("Open image classifier dialog"),
         )
         open_video_classifier = action(
             self.tr("Video Classifier"),
             self.open_video_classifier,
             shortcuts.get("open_video_classifier"),
-            icon="cavy",
+            icon="clapperboard",
             tip=self.tr("Open video classifier dialog"),
         )
         open_paddleocr = action(
             self.tr("PaddleOCR"),
             self.open_paddleocr,
             shortcuts["open_paddleocr"],
-            icon="paddlepaddle",
+            icon="scan-text",
             tip=self.tr("Open PaddleOCR dialog"),
         )
         documentation = action(
             self.tr("Documentation"),
             self.documentation,
-            icon="docs",
+            icon="book-open",
             tip=self.tr("Show documentation"),
         )
         sponsor = action(
             self.tr("Sponsor"),
             self.sponsor,
-            icon="brush_polygon",
+            icon="heart-handshake",
             tip=self.tr("Open sponsor page"),
         )
         about = action(
             self.tr("About"),
             self.about,
-            icon="help",
+            icon="info",
             tip=self.tr("Open about dialog"),
         )
 
@@ -1282,7 +1302,7 @@ class LabelingWidget(LabelDialog):
         ultralytics_train = action(
             "Ultralytics",
             lambda: self.start_training("ultralytics"),
-            icon="ultralytics",
+            icon="cpu-ai",
         )
 
         zoom = QtWidgets.QWidgetAction(self)
@@ -1322,7 +1342,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Original Size"),
             functools.partial(self.set_zoom, 100),
             shortcuts["zoom_to_original"],
-            "zoom",
+            "scan-search",
             self.tr("Zoom to original size"),
             enabled=False,
         )
@@ -1359,6 +1379,7 @@ class LabelingWidget(LabelDialog):
             checkable=True,
             enabled=False,
         )
+        fit_window.setObjectName("fitWindow")
         fit_width = action(
             self.tr("Fit Width"),
             self.set_fit_width,
@@ -1458,7 +1479,6 @@ class LabelingWidget(LabelDialog):
         select_lang_en = action(
             "English",
             functools.partial(self.set_language, "en_US"),
-            icon="us",
             checkable=True,
             checked=self._config["language"] == "en_US",
             enabled=self._config["language"] != "en_US",
@@ -1466,7 +1486,6 @@ class LabelingWidget(LabelDialog):
         select_lang_zh = action(
             "中文",
             functools.partial(self.set_language, "zh_CN"),
-            icon="cn",
             checkable=True,
             checked=self._config["language"] == "zh_CN",
             enabled=self._config["language"] != "zh_CN",
@@ -1475,7 +1494,6 @@ class LabelingWidget(LabelDialog):
         select_lang_jp = action(
             "日本語",
             functools.partial(self.set_language, "ja_JP"),
-            icon="ja",
             checkable=True,
             checked=self._config["language"] == "ja_JP",
             enabled=self._config["language"] != "ja_JP",
@@ -1483,7 +1501,6 @@ class LabelingWidget(LabelDialog):
         select_lang_ko = action(
             "한국어",
             functools.partial(self.set_language, "ko_KR"),
-            icon="ko",
             checkable=True,
             checked=self._config["language"] == "ko_KR",
             enabled=self._config["language"] != "ko_KR",
@@ -1495,16 +1512,16 @@ class LabelingWidget(LabelDialog):
         theme_group.setExclusive(True)
         self._theme_actions = {}
         current_appearance = self._config.get("theme", "auto")
-        for _mode, _label in (
-            ("auto", self.tr("System")),
-            ("light", self.tr("Light")),
-            ("dark", self.tr("Dark")),
+        for _mode, _label, _icon in (
+            ("auto", self.tr("System"), "monitor"),
+            ("light", self.tr("Light"), "sun"),
+            ("dark", self.tr("Dark"), "moon"),
         ):
             _act = QtGui.QAction(_label, theme_group)
             _act.setCheckable(True)
             _act.setChecked(current_appearance == _mode)
             _act.setData(_mode)
-            _act.setIcon(utils.new_icon(f"theme-{_mode}"))
+            _act.setIcon(utils.new_icon(_icon))
             _act.triggered.connect(
                 functools.partial(self._on_theme_changed, _mode)
             )
@@ -1512,7 +1529,7 @@ class LabelingWidget(LabelDialog):
             self._theme_actions[_mode] = _act
 
         # Upload
-        upload_export_icon = "label"
+        upload_export_icon = "tag"
         upload_image_flags_file = action(
             self.tr("Image Flags"),
             lambda: utils.upload_image_flags_file(self),
@@ -1835,7 +1852,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Fill Drawing Polygon"),
             self.canvas.set_fill_drawing,
             None,
-            "color",
+            "palette",
             self.tr("Fill polygon while drawing"),
             checkable=True,
             enabled=True,
@@ -1846,7 +1863,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Navigator"),
             self.toggle_navigator,
             shortcuts["show_navigator"],
-            "navigator",
+            "compass",
             self.tr("Show/hide the navigator window"),
             checkable=True,
             enabled=True,
@@ -1860,6 +1877,7 @@ class LabelingWidget(LabelDialog):
             checkable=True,
             checked=False,
             enabled=True,
+            icon="tags",
         )
 
         # AI Actions
@@ -1993,6 +2011,8 @@ class LabelingWidget(LabelDialog):
             show_navigator=show_navigator,
             show_image_tags=show_image_tags,
             zoom_actions=zoom_actions,
+            jump_next_images=jump_next_images,
+            jump_prev_images=jump_prev_images,
             open_next_image=open_next_image,
             open_prev_image=open_prev_image,
             open_next_unchecked_image=open_next_unchecked_image,
@@ -2138,11 +2158,12 @@ class LabelingWidget(LabelDialog):
             upload=self.menu(self.tr("Upload")),
             export=self.menu(self.tr("Export")),
             tool=self.menu(self.tr("Tool")),
+            workflow=self.menu(self.tr("Workflow")),
             train=self.menu(self.tr("Train")),
             help=self.menu(self.tr("Help")),
             recent_files=QtWidgets.QMenu(self.tr("Open Recent")),
         )
-        self.menus.recent_files.setIcon(utils.new_icon("recent"))
+        self.menus.recent_files.setIcon(utils.new_icon("rotate-ccw-clock"))
         self.menus.recent_files.aboutToShow.connect(self.update_file_menu)
         self.canvas_label_filter_menu_0 = None
         self.canvas_gid_filter_menu_0 = None
@@ -2164,8 +2185,8 @@ class LabelingWidget(LabelDialog):
                 save,
                 save_as,
                 save_auto,
-                change_output_dir,
                 save_with_image_data,
+                change_output_dir,
                 close,
                 delete_file,
                 delete_image_file,
@@ -2173,6 +2194,17 @@ class LabelingWidget(LabelDialog):
             ),
         )
         utils.add_actions(self.menus.train, (ultralytics_train,))
+        utils.add_actions(
+            self.menus.workflow,
+            (
+                open_chatbot,
+                open_vqa,
+                open_pointcloud,
+                open_image_classifier,
+                open_video_classifier,
+                open_paddleocr,
+            ),
+        )
         utils.add_actions(
             self.menus.tool,
             (
@@ -2336,8 +2368,10 @@ class LabelingWidget(LabelDialog):
         self.actions.tool = (
             # open_,
             opendir,
+            jump_next_images,
             open_next_image,
             open_prev_image,
+            jump_prev_images,
             save,
             delete_file,
             None,
@@ -2360,29 +2394,21 @@ class LabelingWidget(LabelDialog):
             loop_thru_labels,
             loop_select_labels,
             select_toggle_shapes,
-            run_all_images,
+            None,
             toggle_auto_labeling_widget,
-            None,
-            open_chatbot,
-            open_vqa,
-            open_pointcloud,
-            open_image_classifier,
-            open_video_classifier,
-            open_paddleocr,
-            None,
-            fit_width,
-            zoom,
+            run_all_images,
         )
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
 
         self.tools_scroll_area = self.toolbar_scroll_area(self.tools)
-        layout.addWidget(self.tools_scroll_area)
         central_layout = QVBoxLayout()
         central_layout.setContentsMargins(0, 0, 0, 0)
-        self.label_instruction = QLabel(self.get_labeling_instruction())
+        central_layout.setSpacing(4)
+        self.label_instruction = QLabel(self.get_labeling_instruction(), self)
         self.label_instruction.setContentsMargins(0, 0, 0, 0)
+        self.label_instruction.hide()
         self.auto_labeling_widget = AutoLabelingWidget(self)
         self.auto_labeling_widget.auto_segmentation_requested.connect(
             self.on_auto_segmentation_requested
@@ -2453,7 +2479,7 @@ class LabelingWidget(LabelDialog):
         instruction_layout = QHBoxLayout()
         instruction_layout.setContentsMargins(0, 0, 0, 0)
         instruction_layout.setSpacing(2)
-        instruction_layout.addWidget(self.label_instruction, 1)
+        instruction_layout.addWidget(self.tools_scroll_area, 1)
         theme = get_theme()
         self.sidebar_toggle_button = QtWidgets.QToolButton()
         self.sidebar_toggle_button.setIcon(
@@ -2496,6 +2522,7 @@ class LabelingWidget(LabelDialog):
                 "ShortcutsDialog", "Keyboard shortcuts"
             )
         )
+        self.shortcuts_button.setToolTip(self.get_labeling_instruction())
         self.shortcuts_button.setAccessibleName(
             self.shortcuts_button.toolTip()
         )
@@ -2517,8 +2544,13 @@ class LabelingWidget(LabelDialog):
         )
         self.update_button.hide()
         instruction_layout.addWidget(self.update_button)
-        instruction_layout.addWidget(self.shortcuts_button)
-        instruction_layout.addWidget(self.sidebar_toggle_button)
+        utility_actions = []
+        for button in (self.shortcuts_button, self.sidebar_toggle_button):
+            button.setStyleSheet("")
+            widget_action = QtWidgets.QWidgetAction(self)
+            widget_action.setDefaultWidget(button)
+            utility_actions.append(widget_action)
+        self.actions.tool += (None, fit_window, fit_width, *utility_actions)
         central_layout.addLayout(instruction_layout)
         central_layout.addWidget(self.auto_labeling_widget)
         canvas_panel = RoundedPanel()
@@ -2729,7 +2761,6 @@ class LabelingWidget(LabelDialog):
         files_panel_layout.addWidget(self.file_dock)
         right_sidebar_layout.addWidget(files_panel)
         for area in (
-            scroll_area,
             self.unique_label_list,
             self.label_list,
             self.file_list_widget,
@@ -3090,6 +3121,7 @@ class LabelingWidget(LabelDialog):
         if not hasattr(self, "label_instruction"):
             return
         self.label_instruction.setText(self.get_labeling_instruction())
+        self.shortcuts_button.setToolTip(self.get_labeling_instruction())
         self.update_space_pan_tip()
 
     def _format_instruction_shortcut(self, value):
@@ -3155,13 +3187,13 @@ class LabelingWidget(LabelDialog):
     def toolbar(self, title, actions=None):
         toolbar = ToolBar(title)
         toolbar.setObjectName(f"{title}ToolBar")
-        toolbar.setOrientation(Qt.Orientation.Vertical)
+        toolbar.setOrientation(Qt.Orientation.Horizontal)
         toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
-        toolbar.setIconSize(QtCore.QSize(24, 24))
-        toolbar.setFixedWidth(40)
+        toolbar.setIconSize(QtCore.QSize(18, 18))
+        toolbar.setFixedHeight(26)
         toolbar.setSizePolicy(
-            QtWidgets.QSizePolicy.Policy.Fixed,
             QtWidgets.QSizePolicy.Policy.MinimumExpanding,
+            QtWidgets.QSizePolicy.Policy.Fixed,
         )
         if actions:
             utils.add_actions(toolbar, actions)
@@ -3174,17 +3206,23 @@ class LabelingWidget(LabelDialog):
         scroll_area.setFrameShape(QFrame.Shape.NoFrame)
         scroll_area.setWidgetResizable(True)
         scroll_area.setHorizontalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
         )
         scroll_area.setVerticalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
         scroll_area.setStyleSheet(get_toolbar_scroll_area_style())
         scroll_area.setSizePolicy(
-            QtWidgets.QSizePolicy.Policy.Fixed,
             QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Fixed,
         )
-        scroll_area.setFixedWidth(toolbar.maximumWidth() + 6)
+        scroll_area.viewport().setAutoFillBackground(False)
+        scroll_area.setFixedHeight(toolbar.height())
+        scroll_area.horizontalScrollBar().rangeChanged.connect(
+            lambda minimum, maximum: scroll_area.setFixedHeight(
+                toolbar.height() + (6 if maximum > minimum else 0)
+            )
+        )
         scroll_area.setWidget(toolbar)
         return scroll_area
 
@@ -3231,6 +3269,7 @@ class LabelingWidget(LabelDialog):
         utils.add_actions(self.menus.edit, actions + self.actions.editMenu)
 
     def set_dirty(self):
+        self.actions.save.setIcon(utils.new_icon("save"))
         # Even if we autosave the file, we keep the ability to undo
         self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
 
@@ -3310,6 +3349,9 @@ class LabelingWidget(LabelDialog):
     def set_clean(self):
         self.dirty = False
         self.actions.save.setEnabled(False)
+        self.actions.save.setIcon(
+            utils.new_icon("save-check" if self.label_file else "save")
+        )
         self.actions.union_selection.setEnabled(False)
         self.actions.create_mode.setEnabled(True)
         self.actions.create_brush_polygon_mode.setEnabled(True)
@@ -3360,6 +3402,22 @@ class LabelingWidget(LabelDialog):
             self.actions.shape_manager.setEnabled(True)
         else:
             self.actions.shape_manager.setEnabled(False)
+        self.update_browse_actions()
+
+    def update_browse_actions(self):
+        index = self.fn_to_index.get(str(self.filename), -1)
+        count = self.file_list_widget.count()
+        valid = 0 <= index < count
+        self.actions.jump_next_images.setEnabled(valid and index + 10 < count)
+        self.actions.jump_prev_images.setEnabled(valid and index >= 10)
+
+    def jump_images(self, offset):
+        if not self.may_continue():
+            return
+        index = self.fn_to_index.get(str(self.filename), -1)
+        target = index + offset
+        if index >= 0 and 0 <= target < self.file_list_widget.count():
+            self.load_file(self.file_list_widget.item(target).text())
 
     def queue_event(self, function):
         QtCore.QTimer.singleShot(0, function)
@@ -3409,6 +3467,7 @@ class LabelingWidget(LabelDialog):
         self.select_loop_count = -1
         self.label_list.clear()
         self.filename = None
+        self.update_browse_actions()
         self.image_path = None
         self.image_data = None
         self.label_file = None
@@ -3462,7 +3521,7 @@ class LabelingWidget(LabelDialog):
             icon = utils.new_icon("eye")
         else:
             tooltip = self.tr("Show all shapes")
-            icon = utils.new_icon("hidden")
+            icon = utils.new_icon("eye-off")
         self.select_toggle_action.setIcon(icon)
         self.select_toggle_action.setToolTip(tooltip)
         self.select_toggle_action.setStatusTip(tooltip)
@@ -4212,7 +4271,7 @@ class LabelingWidget(LabelDialog):
                 or self.last_open_dir
             )
             action = QtGui.QAction(
-                utils.new_icon("folder", "svg"),
+                utils.new_icon("open"),
                 self.tr("Open Last Dir: %s") % dir_name,
                 self,
             )
@@ -4223,7 +4282,7 @@ class LabelingWidget(LabelDialog):
             if files:
                 menu.addSeparator()
         for i, f in enumerate(files):
-            icon = utils.new_icon("labels")
+            icon = utils.new_icon("file")
             action = QtGui.QAction(
                 icon, "&%d %s" % (i + 1, QtCore.QFileInfo(f).fileName()), self
             )
@@ -5309,6 +5368,7 @@ class LabelingWidget(LabelDialog):
                 flags=flags,
             )
             self.label_file = label_file
+            self.actions.save.setIcon(utils.new_icon("save-check"))
             items = self.file_list_widget.findItems(
                 self.image_path, Qt.MatchFlag.MatchExactly
             )
@@ -5725,6 +5785,7 @@ class LabelingWidget(LabelDialog):
                 flags=flags,
             )
             self.label_file = label_file
+            self.actions.save.setIcon(utils.new_icon("save-check"))
             items = self.file_list_widget.findItems(
                 self.image_path, Qt.MatchFlag.MatchExactly
             )
@@ -6670,7 +6731,14 @@ class LabelingWidget(LabelDialog):
             app._xanylabeling_ui_scale = scale
             apply_application_font(self._config.get("font_family"))
             self.tools.setUiScale(scale)
-            self.tools_scroll_area.setFixedWidth(round(40 * scale) + 6)
+            self.tools_scroll_area.setFixedHeight(
+                self.tools.height()
+                + (
+                    6
+                    if self.tools_scroll_area.horizontalScrollBar().maximum()
+                    else 0
+                )
+            )
 
         base_width = round(self._sidebar_base_width * scale)
         self.right_sidebar.setMinimumWidth(base_width)
@@ -7392,6 +7460,7 @@ class LabelingWidget(LabelDialog):
 
         self.last_open_dir = dirpath
         self.filename = None
+        self.update_browse_actions()
         self.file_list_widget.clear()
         image_files = []
 

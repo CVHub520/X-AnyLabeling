@@ -12,13 +12,13 @@ class ToolBar(QtWidgets.QFrame):
         self.setWindowTitle(title)
         self._orientation = QtCore.Qt.Orientation.Vertical
         self._tool_button_style = QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly
-        self._icon_size = QtCore.QSize(24, 24)
-        self._button_size = 28
+        self._icon_size = QtCore.QSize(18, 18)
+        self._button_size = 26
         self._owned_widgets = []
 
         layout = QtWidgets.QVBoxLayout(self)
         layout.setSpacing(0)
-        layout.setContentsMargins(2, 2, 2, 2)
+        layout.setContentsMargins(0, 0, 0, 0)
         self._content_widget = QtWidgets.QWidget(self)
         self._content_layout = QtWidgets.QVBoxLayout(self._content_widget)
         self._content_layout.setSpacing(0)
@@ -43,10 +43,9 @@ class ToolBar(QtWidgets.QFrame):
             """
         self.setStyleSheet(f"""
             ToolBar {{
-                background: {t["background"]};
+                background: transparent;
                 padding: 0px;
-                border: 1px solid {t["border"]};
-                border-radius: 8px;
+                border: none;
             }}
             ToolBar QToolButton {{
                 border: none;
@@ -58,6 +57,13 @@ class ToolBar(QtWidgets.QFrame):
                 border: 1px solid {t["border_light"]};
                 border-radius: 6px;
                 background: {t["surface_hover"]};
+            }}
+            ToolBar QToolButton:checked {{
+                background: {t["surface_pressed"]};
+                border-radius: 6px;
+            }}
+            ToolBar QToolButton#fitWindow:checked:!hover:!pressed {{
+                background: transparent;
             }}
             ToolBar QToolButton:pressed {{
                 background: {t["surface_pressed"]};
@@ -79,6 +85,23 @@ class ToolBar(QtWidgets.QFrame):
 
     def setOrientation(self, orientation):
         self._orientation = orientation
+        horizontal = orientation == QtCore.Qt.Orientation.Horizontal
+        direction = (
+            QtWidgets.QBoxLayout.Direction.LeftToRight
+            if horizontal
+            else QtWidgets.QBoxLayout.Direction.TopToBottom
+        )
+        self.layout().setDirection(direction)
+        self._content_layout.setDirection(direction)
+        self._content_layout.setSpacing(2 if horizontal else 0)
+        self.layout().setAlignment(
+            self._content_widget,
+            (
+                QtCore.Qt.AlignmentFlag.AlignVCenter
+                if horizontal
+                else QtCore.Qt.AlignmentFlag.AlignTop
+            ),
+        )
 
     def setToolButtonStyle(self, style):
         self._tool_button_style = style
@@ -102,16 +125,18 @@ class ToolBar(QtWidgets.QFrame):
             widget = item.widget()
             if widget is None:
                 continue
+            widget.setParent(None)
             if widget in self._owned_widgets:
                 widget.deleteLater()
-            else:
-                widget.setParent(None)
         self._owned_widgets = []
 
     def setUiScale(self, scale):
-        self._button_size = round(28 * scale)
-        self.setIconSize(QtCore.QSize(round(24 * scale), round(24 * scale)))
-        self.setFixedWidth(round(40 * scale))
+        self._button_size = round(26 * scale)
+        self.setIconSize(QtCore.QSize(round(18 * scale), round(18 * scale)))
+        if self._orientation == QtCore.Qt.Orientation.Horizontal:
+            self.setFixedHeight(round(26 * scale))
+        else:
+            self.setFixedWidth(round(40 * scale))
         for button in self.findChildren(QtWidgets.QToolButton):
             button.setFixedSize(self._button_size, self._button_size)
         self._content_layout.invalidate()
@@ -130,6 +155,7 @@ class ToolBar(QtWidgets.QFrame):
 
         super().addAction(action)
         btn = QtWidgets.QToolButton(self)
+        btn.setObjectName(action.objectName())
         btn.setDefaultAction(action)
         btn.setToolButtonStyle(self.toolButtonStyle())
         btn.setIconSize(self._icon_size)
@@ -146,11 +172,14 @@ class ToolBar(QtWidgets.QFrame):
         super().addAction(action)
         separator = QtWidgets.QFrame(self)
         separator.setObjectName("ToolBarSeparator")
+        separator.setStyleSheet(
+            f"background-color: {get_theme()['text_secondary']};"
+        )
         if self._orientation == QtCore.Qt.Orientation.Vertical:
             separator.setFixedSize(24, 1)
             separator.setContentsMargins(6, 4, 6, 4)
         else:
-            separator.setFixedSize(1, 24)
+            separator.setFixedSize(1, 18)
         self._owned_widgets.append(separator)
         self._content_layout.addWidget(
             separator, 0, QtCore.Qt.AlignmentFlag.AlignCenter

@@ -1152,7 +1152,9 @@ class PPOCRDialog(QDialog):
         else:
             icon_name, icon_ext = "file", "png"
         self.file_icon_label.setPixmap(
-            QPixmap(new_icon_path(icon_name, icon_ext)).scaled(
+            new_icon(icon_name, icon_ext)
+            .pixmap(16, 16)
+            .scaled(
                 16,
                 16,
                 Qt.AspectRatioMode.KeepAspectRatio,

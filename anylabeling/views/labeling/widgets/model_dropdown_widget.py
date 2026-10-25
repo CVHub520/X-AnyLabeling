@@ -21,7 +21,11 @@ from anylabeling.views.labeling.chatbot.utils import (
     save_json,
 )
 from anylabeling.views.labeling.logger import logger
-from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
+from anylabeling.views.labeling.utils.qt import (
+    new_icon,
+    new_icon_path,
+    new_provider_icon,
+)
 from anylabeling.views.labeling.utils.theme import get_theme
 
 
@@ -198,11 +202,20 @@ class ProviderSection(QFrame):
         icon = QLabel()
         if provider_name == "Favorites":
             icon_name, ext = "star-black", "svg"
+        elif provider_name == "Others":
+            icon_name, ext = "ellipsis", "svg"
         else:
             icon_name, ext = provider_name.lower(), "png"
-        icon.setPixmap(
-            QIcon(new_icon(icon_name, ext)).pixmap(QSize(*ICON_SIZE_SMALL))
-        )
+        icon.setFixedSize(24, 24)
+        icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        icon.setStyleSheet("background: transparent; border: none;")
+        if provider_name in ("Favorites", "Custom", "Others"):
+            icon.setPixmap(
+                QIcon(new_icon(icon_name, ext)).pixmap(QSize(*ICON_SIZE_SMALL))
+            )
+        else:
+            icon.setPixmap(new_provider_icon(icon_name, ext))
+        header.setSpacing(8)
         header.addWidget(icon)
 
         _t = get_theme()

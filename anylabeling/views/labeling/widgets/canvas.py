@@ -5172,6 +5172,10 @@ class Canvas(
             ev.accept()
             return
 
+        if mods & QtCore.Qt.KeyboardModifier.ControlModifier:
+            ev.accept()
+            return
+
         # Shift+wheel: adjust compare view split position
         if (
             mods == QtCore.Qt.KeyboardModifier.ShiftModifier

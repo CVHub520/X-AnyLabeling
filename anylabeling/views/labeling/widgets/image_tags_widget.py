@@ -2,7 +2,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import Qt
 
 from ..utils.image_tags import normalize_image_tag
-from ..utils.qt import new_icon_path
+from ..utils.qt import new_icon, new_icon_path
 from .popup import Popup
 
 IMAGE_TAG_MIME_TYPE = "application/x-xanylabeling-image-tag"
@@ -135,10 +135,12 @@ class ImageTagChip(QtWidgets.QFrame):
         self._foreground = QtGui.QColor("#111111")
         self.setObjectName("imageTagChip")
         self.setFixedHeight(IMAGE_TAG_HEIGHT)
+        self.setMinimumWidth(IMAGE_TAG_HEIGHT)
         self.setCursor(Qt.CursorShape.ArrowCursor)
         self.setAccessibleName(text)
 
         self.text_label = QtWidgets.QLabel(self)
+        self.text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.text_label.setTextFormat(Qt.TextFormat.PlainText)
         self.text_label.setTextInteractionFlags(
             Qt.TextInteractionFlag.NoTextInteraction
@@ -438,27 +440,22 @@ class ImageTagsWidget(QtWidgets.QFrame):
         else:
             self._input = None
             add_button = self._create_round_action_button(
-                "+", "addImageTagButton", self.tr("Add image tag")
+                "circle-plus", "addImageTagButton", self.tr("Add image tag")
             )
             add_button.clicked.connect(self.start_add)
             self._flow.addWidget(add_button)
             if self._tags:
                 batch_button = self._create_round_action_button(
-                    "−",
+                    "circle-minus",
                     "batchDeleteImageTagsButton",
                     self.tr("Batch Delete Tags"),
                 )
                 batch_button.clicked.connect(self.start_batch_mode)
                 self._flow.addWidget(batch_button)
                 self._copy_all_button = self._create_round_action_button(
-                    "C",
+                    "copyright",
                     "copyAllImageTagsButton",
                     self.tr("Copy All Tags"),
-                )
-                self._copy_all_button.setStyleSheet(
-                    self._copy_all_button.styleSheet()
-                    + "QPushButton#copyAllImageTagsButton {"
-                    "font-size: 14px; font-weight: bold; }"
                 )
                 self._copy_all_button.clicked.connect(self.copy_all_tags)
                 self._flow.addWidget(self._copy_all_button)
@@ -523,8 +520,10 @@ class ImageTagsWidget(QtWidgets.QFrame):
         )
         return button
 
-    def _create_round_action_button(self, text, object_name, tooltip):
-        button = QtWidgets.QPushButton(text, self._content)
+    def _create_round_action_button(self, icon, object_name, tooltip):
+        button = QtWidgets.QPushButton(self._content)
+        button.setIcon(new_icon(icon, "svg"))
+        button.setIconSize(QtCore.QSize(20, 20))
         button.setObjectName(object_name)
         button.setFixedSize(IMAGE_TAG_HEIGHT, IMAGE_TAG_HEIGHT)
         button.setCursor(Qt.CursorShape.PointingHandCursor)

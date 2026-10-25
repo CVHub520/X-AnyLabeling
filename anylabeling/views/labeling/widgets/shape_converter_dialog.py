@@ -5,7 +5,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QDialog
 
 from anylabeling.views.labeling.logger import logger
-from anylabeling.views.labeling.utils.qt import new_icon_path
+from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 from anylabeling.views.labeling.utils.shape import (
     CONVERSION_MODE_MAP,
     CONVERSION_TARGETS,
@@ -53,7 +53,9 @@ class ShapeConverterDialog(QDialog):
         self.arrow_label = QtWidgets.QLabel(self)
         self.arrow_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.arrow_label.setMinimumWidth(56)
-        arrow_pixmap = QtGui.QPixmap(new_icon_path("arrow-right", "svg"))
+        arrow_pixmap = new_icon("shape-converter-arrow-right", "svg").pixmap(
+            24, 24
+        )
         if not arrow_pixmap.isNull():
             self.arrow_label.setPixmap(
                 arrow_pixmap.scaled(

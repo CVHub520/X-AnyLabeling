@@ -233,6 +233,27 @@ def get_toolbar_scroll_area_style():
             border: none;
             background-color: transparent;
         }}
+        QScrollBar:horizontal {{
+            background-color: transparent;
+            height: 6px;
+            margin: 0;
+        }}
+        QScrollBar::handle:horizontal {{
+            background-color: {t["scrollbar"]};
+            border-radius: 3px;
+            min-width: 20px;
+        }}
+        QScrollBar::handle:horizontal:hover {{
+            background-color: {t["scrollbar_hover"]};
+        }}
+        QScrollBar::add-line:horizontal,
+        QScrollBar::sub-line:horizontal {{
+            width: 0;
+        }}
+        QScrollBar::add-page:horizontal,
+        QScrollBar::sub-page:horizontal {{
+            background-color: transparent;
+        }}
         QScrollBar:vertical {{
             background-color: transparent;
             width: 6px;

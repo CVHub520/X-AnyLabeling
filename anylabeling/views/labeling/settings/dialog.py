@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtSvg import QSvgRenderer
 
 from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import (
@@ -179,66 +180,20 @@ class SettingsDialog(QtWidgets.QDialog):
         pen.setJoinStyle(QtCore.Qt.PenJoinStyle.RoundJoin)
         painter.setPen(pen)
         painter.setBrush(QtCore.Qt.BrushStyle.NoBrush)
-        scale = size / 20.0
-
-        def point(x: float, y: float) -> QtCore.QPointF:
-            return QtCore.QPointF(x * scale, y * scale)
-
-        if name == "General":
-            knob_radius = 1.6
-            slider_rows = (
-                (4.8, 15.2, 7.0, 5.8),
-                (4.8, 15.2, 12.8, 10.0),
-                (4.8, 15.2, 9.4, 14.2),
-            )
-            for x1, x2, knob_x, y in slider_rows:
-                painter.drawLine(
-                    point(x1, y),
-                    point(knob_x - knob_radius - 0.8, y),
+        icon_names = {
+            "Shortcuts": "command",
+            "General": "sliders-horizontal",
+            "Canvas": "frame",
+            "Shape": "shapes",
+        }
+        if name in icon_names:
+            svg_file = QtCore.QFile(new_icon_path(icon_names[name], "svg"))
+            if svg_file.open(QtCore.QIODevice.OpenModeFlag.ReadOnly):
+                data = bytes(svg_file.readAll()).replace(
+                    b"currentColor", color.name().encode()
                 )
-                painter.drawLine(
-                    point(knob_x + knob_radius + 0.8, y),
-                    point(x2, y),
-                )
-                painter.drawEllipse(
-                    point(knob_x, y),
-                    knob_radius * scale,
-                    knob_radius * scale,
-                )
-        elif name == "Shortcuts":
-            petal_radius = 2.8
-            petals = (
-                point(7.2, 7.2),
-                point(12.8, 7.2),
-                point(7.2, 12.8),
-                point(12.8, 12.8),
-            )
-            for petal in petals:
-                painter.drawEllipse(
-                    petal,
-                    petal_radius * scale,
-                    petal_radius * scale,
-                )
-            painter.drawEllipse(point(10.0, 10.0), 0.9 * scale, 0.9 * scale)
-        elif name == "Canvas":
-            rect = QtCore.QRectF(
-                4.4 * scale, 4.4 * scale, 11.2 * scale, 11.2 * scale
-            )
-            painter.drawRoundedRect(rect, 2.0 * scale, 2.0 * scale)
-            painter.drawLine(point(10.0, 5.8), point(10.0, 14.2))
-            painter.drawLine(point(5.8, 10.0), point(14.2, 10.0))
-        elif name == "Shape":
-            points = (
-                point(10.0, 4.9),
-                point(14.5, 7.5),
-                point(14.5, 12.5),
-                point(10.0, 15.1),
-                point(5.5, 12.5),
-                point(5.5, 7.5),
-            )
-            painter.drawPolygon(QtGui.QPolygonF(points))
-            for point in points:
-                painter.drawEllipse(point, 1.05 * scale, 1.05 * scale)
+                svg_file.close()
+                QSvgRenderer(QtCore.QByteArray(data)).render(painter)
         else:
             cx = size / 2
             cy = size / 2

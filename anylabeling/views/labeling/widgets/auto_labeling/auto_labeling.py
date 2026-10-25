@@ -47,7 +47,7 @@ from anylabeling.views.labeling.widgets.remote_server_dialog import (
     RemoteServerDialog,
 )
 from anylabeling.views.labeling.widgets.popup import Popup
-from anylabeling.views.labeling.utils.qt import new_icon_path
+from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 from anylabeling.views.labeling.widgets.searchable_model_dropdown import (
     load_json,
     save_json,
@@ -442,6 +442,7 @@ class AutoLabelingWidget(QWidget):
         self.hide_labeling_widgets()
 
         # Handle close button
+        self.button_close.setIcon(new_icon("circle-x"))
         self.button_close.hide()
         self.button_close.clicked.connect(self.unload_and_hide)
 

@@ -141,7 +141,7 @@ class ChatMessage(QFrame):
             role_label.setFixedSize(*ICON_SIZE_SMALL)
             icon_pixmap = QPixmap(new_icon_path(self.provider))
             if icon_pixmap.isNull():
-                icon_pixmap = QPixmap(new_icon_path("brain"))
+                icon_pixmap = new_icon("brain").pixmap(*ICON_SIZE_SMALL)
             scaled_icon = icon_pixmap.scaled(
                 *ICON_SIZE_SMALL,
                 Qt.AspectRatioMode.KeepAspectRatio,

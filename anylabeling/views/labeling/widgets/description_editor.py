@@ -41,7 +41,7 @@ class DescriptionEditor(QtWidgets.QPlainTextEdit):
             QToolButton:hover {{ background: {theme['surface_hover']}; }}
             QToolButton:pressed {{ background: {theme['surface_pressed']}; }}
         """)
-        source = QtCore.QFile(new_icon_path("maximize-2", "svg"))
+        source = QtCore.QFile(new_icon_path("toolbar/maximize-2", "svg"))
         if not source.open(QtCore.QIODevice.OpenModeFlag.ReadOnly):
             return
         svg = bytes(source.readAll())

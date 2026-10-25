@@ -464,7 +464,7 @@ class ChatbotDialog(QDialog):
             import_media_btn_modes, import_media_btn_names
         ):
             btn = QPushButton()
-            icon_name = "folder-chatbot" if btn_mode == "folder" else btn_mode
+            icon_name = "open" if btn_mode == "folder" else btn_mode
             btn.setIcon(QIcon(new_icon(icon_name, "svg")))
             btn.setFixedSize(*ICON_SIZE_NORMAL)
             btn.setStyleSheet(ChatbotDialogStyle.get_button_style())

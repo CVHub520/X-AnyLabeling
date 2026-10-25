@@ -1,198 +1,237 @@
 <RCC>
     <qresource prefix="/images">
-        <file>images/alibaba.png</file>
-        <file>images/anthropic.png</file>
-        <file>images/maximize-2.svg</file>
-        <file>images/panel-left.svg</file>
-        <file>images/panel-right.svg</file>
-        <file>images/rotate-cw.svg</file>
-        <file>images/squares-unite.svg</file>
-        <file>images/scan-search.svg</file>
-        <file>images/save-plus.svg</file>
-        <file>images/pointcloud-download.svg</file>
-        <file>images/pointcloud-upload.svg</file>
-        <file>images/arrow-left.svg</file>
-        <file>images/arrow-right.svg</file>
-        <file>images/auto-run.png</file>
-        <file>images/backward.svg</file>
-        <file>images/brain.png</file>
-        <file>images/bria-ai.png</file>
-        <file>images/brush.png</file>
-        <file>images/brush_polygon.png</file>
-        <file>images/cancel.png</file>
-        <file>images/caret-down.svg</file>
-        <file>images/caret-left.svg</file>
-        <file>images/caret-right.svg</file>
-        <file>images/caret-up.svg</file>
-        <file>images/cartesian.png</file>
-        <file>images/cavy.png</file>
-        <file>images/check.svg</file>
-        <file>images/checkmark.svg</file>
-        <file>images/checkmark-white.svg</file>
-        <file>images/circle-selection.png</file>
-        <file>images/circle.png</file>
-        <file>images/click.svg</file>
-        <file>images/cn.png</file>
-        <file>images/color.png</file>
-        <file>images/color.svg</file>
-        <file>images/compare.png</file>
-        <file>images/convert.png</file>
-        <file>images/copy-green.svg</file>
-        <file>images/copy.png</file>
-        <file>images/copy.svg</file>
-        <file>images/createai.png</file>
-        <file>images/crop.png</file>
-        <file>images/cuboid.png</file>
-        <file>images/custom.png</file>
-        <file>images/cvhub.png</file>
-        <file>images/deci-ai.png</file>
-        <file>images/deepseek.png</file>
-        <file>images/delete.png</file>
-        <file>images/digit0.png</file>
-        <file>images/digit1.png</file>
-        <file>images/digit2.png</file>
-        <file>images/digit3.png</file>
-        <file>images/digit4.png</file>
-        <file>images/digit5.png</file>
-        <file>images/digit6.png</file>
-        <file>images/digit7.png</file>
-        <file>images/digit8.png</file>
-        <file>images/digit9.png</file>
-        <file>images/discord.png</file>
-        <file>images/docs.png</file>
-        <file>images/document.svg</file>
-        <file>images/done.png</file>
-        <file>images/download.svg</file>
-        <file>images/edit.png</file>
-        <file>images/edit.svg</file>
-        <file>images/email.png</file>
-        <file>images/eraser.svg</file>
-        <file>images/error.svg</file>
-        <file>images/eth.png</file>
-        <file>images/export.svg</file>
-        <file>images/eye-off.svg</file>
-        <file>images/eye.png</file>
-        <file>images/eye.svg</file>
-        <file>images/circle.svg</file>
-        <file>images/circle-check.svg</file>
-        <file>images/file.png</file>
-        <file>images/fit-width.png</file>
-        <file>images/fit-window.png</file>
-        <file>images/fit.svg</file>
-        <file>images/folder-chatbot.svg</file>
-        <file>images/folder.svg</file>
-        <file>images/forward.svg</file>
-        <file>images/github.png</file>
-        <file>images/google.png</file>
-        <file>images/group-shapes.png</file>
-        <file>images/help-circle.svg</file>
-        <file>images/help.png</file>
-        <file>images/hide-selected.png</file>
-        <file>images/hidden.png</file>
-        <file>images/hku.png</file>
-        <file>images/huawei.png</file>
-        <file>images/husky.png</file>
+        <file alias="images/alibaba.png">images/brands/alibaba.png</file>
+        <file alias="images/anthropic.png">images/brands/anthropic.png</file>
+        <file alias="images/bria-ai.png">images/brands/bria-ai.png</file>
+        <file alias="images/createai.png">images/brands/createai.png</file>
+        <file alias="images/cvhub.png">images/brands/cvhub.png</file>
+        <file alias="images/deci-ai.png">images/brands/deci-ai.png</file>
+        <file alias="images/deepseek.png">images/brands/deepseek.png</file>
+        <file alias="images/discord.png">images/brands/discord.png</file>
+        <file alias="images/eth.png">images/brands/eth.png</file>
+        <file alias="images/github.png">images/brands/github.png</file>
+        <file alias="images/google.png">images/brands/google.png</file>
+        <file alias="images/hku.png">images/brands/hku.png</file>
+        <file alias="images/huawei.png">images/brands/huawei.png</file>
+        <file alias="images/idea-research.png">images/brands/idea-research.png</file>
+        <file alias="images/imoonlab.png">images/brands/imoonlab.png</file>
+        <file alias="images/insightface.png">images/brands/insightface.png</file>
+        <file alias="images/megvii.png">images/brands/megvii.png</file>
+        <file alias="images/meituan.png">images/brands/meituan.png</file>
+        <file alias="images/meta.png">images/brands/meta.png</file>
+        <file alias="images/microsoft.png">images/brands/microsoft.png</file>
+        <file alias="images/mit.png">images/brands/mit.png</file>
+        <file alias="images/ollama.png">images/brands/ollama.png</file>
+        <file alias="images/openai.png">images/brands/openai.png</file>
+        <file alias="images/opendatalab.png">images/brands/opendatalab.png</file>
+        <file alias="images/opengvlab.png">images/brands/opengvlab.png</file>
+        <file alias="images/openmmlab.png">images/brands/openmmlab.png</file>
+        <file alias="images/openrouter.png">images/brands/openrouter.png</file>
+        <file alias="images/oppo.png">images/brands/oppo.png</file>
+        <file alias="images/paddlepaddle.png">images/brands/paddlepaddle.png</file>
+        <file alias="images/qwen.png">images/brands/qwen.png</file>
+        <file alias="images/roboflow.png">images/brands/roboflow.png</file>
+        <file alias="images/thu.png">images/brands/thu.png</file>
+        <file alias="images/twitter.png">images/brands/twitter.png</file>
+        <file alias="images/ultralytics.png">images/brands/ultralytics.png</file>
+        <file alias="images/ustc.png">images/brands/ustc.png</file>
+        <file alias="images/xmu.png">images/brands/xmu.png</file>
+
+        <file alias="images/toolbar/warning.svg">images/common/warning.svg</file>
+        <file alias="images/toolbar/unlock.svg">images/common/unlock.svg</file>
+        <file alias="images/toolbar/stop.svg">images/common/stop.svg</file>
+        <file alias="images/toolbar/starred.svg">images/common/starred.svg</file>
+        <file alias="images/toolbar/star.svg">images/common/star.svg</file>
+        <file alias="images/toolbar/settings.svg">images/common/settings.svg</file>
+        <file alias="images/toolbar/send.svg">images/common/send.svg</file>
+        <file alias="images/toolbar/search.svg">images/common/search.svg</file>
+        <file alias="images/toolbar/run.svg">images/common/play.svg</file>
+        <file alias="images/toolbar/rotate-cw.svg">images/common/rotate-cw.svg</file>
+        <file alias="images/toolbar/refresh.svg">images/common/rotate-cw.svg</file>
+        <file>images/toolbar/maximize-2.svg</file>
+        <file alias="images/toolbar/lock.svg">images/common/lock.svg</file>
+        <file alias="images/toolbar/json.svg">images/common/json.svg</file>
+        <file alias="images/toolbar/import-export.svg">images/common/import-export.svg</file>
+        <file alias="images/toolbar/help-circle.svg">images/common/help-circle.svg</file>
+        <file alias="images/toolbar/error.svg">images/common/error.svg</file>
+        <file alias="images/toolbar/eraser.svg">images/common/eraser.svg</file>
+        <file alias="images/toolbar/download.svg">images/common/download.svg</file>
+        <file alias="images/toolbar/document.svg">images/common/document.svg</file>
+        <file alias="images/toolbar/click.svg">images/common/click.svg</file>
+        <file alias="images/toolbar/arrow-right.svg">images/common/arrow-right.svg</file>
+        <file>images/toolbar/shape-converter-arrow-right.svg</file>
+        <file alias="images/toolbar/arrow-left.svg">images/common/arrow-left.svg</file>
+        <file alias="images/toolbar/trash.svg">images/common/trash.svg</file>
+        <file>images/toolbar/circle-x.svg</file>
+        <file alias="images/toolbar/zoom-out.svg">images/common/zoom-out.svg</file>
+        <file alias="images/toolbar/zoom-in.svg">images/common/zoom-in.svg</file>
+        <file alias="images/toolbar/video.svg">images/common/video.svg</file>
+        <file>images/toolbar/ungroup.svg</file>
+        <file>images/toolbar/tags.svg</file>
+        <file>images/toolbar/tag.svg</file>
+        <file>images/toolbar/sun.svg</file>
+        <file>images/toolbar/scan-text.svg</file>
+        <file>images/toolbar/scan-search.svg</file>
+        <file>images/toolbar/rotate-ccw-clock.svg</file>
+        <file>images/toolbar/palette.svg</file>
+        <file>images/toolbar/moon.svg</file>
+        <file>images/toolbar/monitor.svg</file>
+        <file>images/toolbar/message-circle-question-mark.svg</file>
+        <file>images/toolbar/message-circle.svg</file>
+        <file>images/toolbar/map-pin.svg</file>
+        <file>images/toolbar/info.svg</file>
+        <file>images/toolbar/image-off.svg</file>
+        <file>images/toolbar/image-down.svg</file>
+        <file>images/toolbar/heart-handshake.svg</file>
+        <file>images/toolbar/group.svg</file>
+        <file>images/toolbar/folder-tree.svg</file>
+        <file>images/toolbar/file-video-camera.svg</file>
+        <file>images/toolbar/file-cog.svg</file>
+        <file alias="images/toolbar/file.svg">images/common/document.svg</file>
+        <file>images/toolbar/crop.svg</file>
+        <file>images/toolbar/cpu-ai.svg</file>
+        <file>images/toolbar/copy-plus.svg</file>
+        <file alias="images/toolbar/copy.svg">images/common/copy.svg</file>
+        <file>images/toolbar/compass.svg</file>
+        <file>images/toolbar/combine.svg</file>
+        <file>images/toolbar/columns-2.svg</file>
+        <file>images/toolbar/clipboard-paste.svg</file>
+        <file>images/toolbar/clapperboard.svg</file>
+        <file>images/toolbar/circle-minus.svg</file>
+        <file alias="images/toolbar/check.svg">images/common/check.svg</file>
+        <file>images/toolbar/chart-scatter.svg</file>
+        <file>images/toolbar/chart-column.svg</file>
+        <file>images/toolbar/book-open.svg</file>
+        <file>images/toolbar/fit-window.svg</file>
+        <file alias="images/toolbar/eye-off.svg">images/common/eye-off.svg</file>
+        <file>images/toolbar/save-check.svg</file>
+        <file>images/toolbar/skip-prev.svg</file>
+        <file>images/toolbar/skip-next.svg</file>
+        <file alias="images/toolbar/open.svg">images/common/folder-open.svg</file>
+        <file alias="images/toolbar/next.svg">images/common/arrow-right.svg</file>
+        <file alias="images/toolbar/prev.svg">images/common/arrow-left.svg</file>
+        <file>images/toolbar/save.svg</file>
+        <file alias="images/toolbar/save-as.svg">images/toolbar/save-check.svg</file>
+        <file alias="images/toolbar/delete.svg">images/common/trash.svg</file>
+        <file alias="images/toolbar/cancel.svg">images/toolbar/circle-x.svg</file>
+        <file>images/toolbar/polygon.svg</file>
+        <file>images/toolbar/brush_polygon.svg</file>
+        <file alias="images/toolbar/magic_wand.svg">images/common/wand-sparkles.svg</file>
+        <file alias="images/toolbar/rectangle.svg">images/common/stop.svg</file>
+        <file>images/toolbar/cuboid.svg</file>
+        <file>images/toolbar/rotation.svg</file>
+        <file>images/toolbar/quadrilateral.svg</file>
+        <file>images/toolbar/circle.svg</file>
+        <file>images/toolbar/line.svg</file>
+        <file>images/toolbar/point.svg</file>
+        <file>images/toolbar/line-strip.svg</file>
+        <file>images/toolbar/brush.svg</file>
+        <file alias="images/toolbar/edit.svg">images/common/edit.svg</file>
+        <file>images/toolbar/undo.svg</file>
+        <file>images/toolbar/loop.svg</file>
+        <file>images/toolbar/circle-selection.svg</file>
+        <file alias="images/toolbar/eye.svg">images/common/eye.svg</file>
+        <file>images/toolbar/auto-run.svg</file>
+        <file>images/toolbar/brain.svg</file>
+        <file>images/toolbar/fit-width.svg</file>
+
+        <file alias="images/maximize-2.svg">images/toolbar/maximize-2.svg</file>
+        <file alias="images/panel-left.svg">images/common/panel-left.svg</file>
+        <file alias="images/panel-right.svg">images/common/panel-right.svg</file>
+        <file alias="images/rotate-cw.svg">images/common/rotate-cw.svg</file>
+        <file alias="images/squares-unite.svg">images/common/squares-unite.svg</file>
+        <file alias="images/scan-search.svg">images/common/scan-search.svg</file>
+        <file alias="images/save-plus.svg">images/common/save-plus.svg</file>
+        <file alias="images/pointcloud-download.svg">images/common/pointcloud-download.svg</file>
+        <file alias="images/pointcloud-upload.svg">images/common/pointcloud-upload.svg</file>
+        <file alias="images/arrow-left.svg">images/common/arrow-left.svg</file>
+        <file alias="images/arrow-right.svg">images/common/arrow-right.svg</file>
+        <file alias="images/backward.svg">images/common/chevrons-left.svg</file>
+        <file alias="images/chevrons-left.svg">images/common/chevrons-left.svg</file>
+        <file alias="images/caret-down.svg">images/common/caret-down.svg</file>
+        <file alias="images/caret-left.svg">images/common/caret-left.svg</file>
+        <file alias="images/caret-right.svg">images/common/caret-right.svg</file>
+        <file alias="images/caret-up.svg">images/common/caret-up.svg</file>
+        <file alias="images/check.svg">images/common/check.svg</file>
+        <file alias="images/checkmark.svg">images/common/checkmark.svg</file>
+        <file alias="images/checkmark-white.svg">images/common/checkmark-white.svg</file>
+        <file alias="images/click.svg">images/common/click.svg</file>
+        <file alias="images/color.svg">images/common/color.svg</file>
+        <file alias="images/copy-green.svg">images/common/copy-green.svg</file>
+        <file alias="images/copy.svg">images/common/copy.svg</file>
+        <file alias="images/custom.png">images/icon.png</file>
+        <file alias="images/document.svg">images/common/document.svg</file>
+        <file alias="images/download.svg">images/common/download.svg</file>
+        <file alias="images/edit.svg">images/common/edit.svg</file>
+        <file alias="images/email.png">images/common/email.png</file>
+        <file alias="images/eraser.svg">images/common/eraser.svg</file>
+        <file alias="images/error.svg">images/common/error.svg</file>
+        <file alias="images/export.svg">images/common/upload.svg</file>
+        <file alias="images/eye-off.svg">images/common/eye-off.svg</file>
+        <file alias="images/eye.svg">images/common/eye.svg</file>
+        <file alias="images/circle.svg">images/common/circle.svg</file>
+        <file alias="images/circle-check.svg">images/common/circle-check.svg</file>
+        <file alias="images/fit.svg">images/common/scan-search.svg</file>
+        <file alias="images/folder.svg">images/common/folder-open.svg</file>
+        <file alias="images/forward.svg">images/common/chevrons-right.svg</file>
+        <file alias="images/help-circle.svg">images/common/help-circle.svg</file>
         <file>images/icon.icns</file>
         <file>images/icon.ico</file>
         <file>images/icon.png</file>
-        <file>images/idea-research.png</file>
-        <file>images/image.svg</file>
-        <file>images/imoonlab.png</file>
-        <file>images/import-export.svg</file>
-        <file>images/insightface.png</file>
-        <file>images/ja.png</file>
-        <file>images/json.svg</file>
-        <file>images/ko.png</file>
-        <file>images/labels.png</file>
-        <file>images/left.svg</file>
-        <file>images/line-strip.png</file>
-        <file>images/line.png</file>
-        <file>images/lock.svg</file>
-        <file>images/unlock.svg</file>
-        <file>images/label.png</file>
+        <file alias="images/image.svg">images/toolbar/image.svg</file>
+        <file>images/toolbar/image.svg</file>
+        <file alias="images/ellipsis.svg">images/toolbar/ellipsis.svg</file>
+        <file>images/toolbar/ellipsis.svg</file>
+        <file alias="images/import-export.svg">images/common/import-export.svg</file>
+        <file alias="images/json.svg">images/common/json.svg</file>
+        <file alias="images/left.svg">images/common/chevron-left.svg</file>
+        <file alias="images/lock.svg">images/common/lock.svg</file>
+        <file alias="images/unlock.svg">images/common/unlock.svg</file>
         <file>images/logo.png</file>
-        <file>images/loop.png</file>
-        <file>images/magic_wand.png</file>
-        <file>images/megvii.png</file>
-        <file>images/meituan.png</file>
-        <file>images/meta.png</file>
-        <file>images/microsoft.png</file>
-        <file>images/minus.svg</file>
-        <file>images/mit.png</file>
-        <file>images/navigator.png</file>
-        <file>images/new.svg</file>
-        <file>images/next.png</file>
-        <file>images/ollama.png</file>
-        <file>images/open.png</file>
-        <file>images/open.svg</file>
-        <file>images/openai.png</file>
-        <file>images/opendatalab.png</file>
-        <file>images/opengvlab.png</file>
-        <file>images/openmmlab.png</file>
-        <file>images/openrouter.png</file>
-        <file>images/oppo.png</file>
-        <file>images/others.png</file>
-        <file>images/overview.png</file>
-        <file>images/paddlepaddle.png</file>
-        <file>images/paste.png</file>
-        <file>images/pause.svg</file>
-        <file>images/pdf.svg</file>
-        <file>images/play.svg</file>
-        <file>images/point.png</file>
-        <file>images/polygon.png</file>
-        <file>images/prev.png</file>
-        <file>images/psyduck.png</file>
-        <file>images/quadrilateral.png</file>
-        <file>images/qwen.png</file>
-        <file>images/ragdoll.png</file>
-        <file>images/recent.png</file>
-        <file>images/rectangle.png</file>
-        <file>images/redo.svg</file>
-        <file>images/refresh.svg</file>
-        <file>images/right.svg</file>
-        <file>images/roboflow.png</file>
-        <file>images/rotation.png</file>
-        <file>images/run.svg</file>
-        <file>images/save-as.png</file>
-        <file>images/save.png</file>
-        <file>images/scissors.svg</file>
-        <file>images/search.svg</file>
-        <file>images/send.svg</file>
-        <file>images/settings.svg</file>
-        <file>images/shortcuts.svg</file>
-        <file>images/show-hidden.png</file>
-        <file>images/sidebar.svg</file>
-        <file>images/star-black.svg</file>
-        <file>images/star.svg</file>
-        <file>images/starred.svg</file>
-        <file>images/stop.svg</file>
-        <file>images/theme-auto.png</file>
-        <file>images/theme-dark.png</file>
-        <file>images/theme-light.png</file>
-        <file>images/thu.png</file>
-        <file>images/trash.svg</file>
-        <file>images/twitter.png</file>
-        <file>images/ultralytics.png</file>
-        <file>images/undo.png</file>
-        <file>images/undo.svg</file>
-        <file>images/ungroup-shapes.png</file>
-        <file>images/union.png</file>
-        <file>images/us.png</file>
-        <file>images/ustc.png</file>     
-        <file>images/video.png</file>
-        <file>images/video.svg</file>
-        <file>images/command.svg</file>
-        <file>images/keyboard.svg</file>
-        <file>images/view.svg</file>
-        <file>images/vision.svg</file>
-        <file>images/wand.svg</file>
-        <file>images/warning.svg</file>
-        <file>images/xmu.png</file>
-        <file>images/zoom-in.png</file>
-        <file>images/zoom-in.svg</file>
-        <file>images/zoom-out.png</file>
-        <file>images/zoom-out.svg</file>
-        <file>images/zoom.png</file>
+        <file alias="images/minus.svg">images/common/minus.svg</file>
+        <file alias="images/new.svg">images/common/plus.svg</file>
+        <file alias="images/open.svg">images/common/folder-open.svg</file>
+        <file alias="images/others.png">images/toolbar/ellipsis.svg</file>
+        <file alias="images/pause.svg">images/common/pause.svg</file>
+        <file alias="images/pdf.svg">images/common/pdf.svg</file>
+        <file alias="images/play.svg">images/common/play.svg</file>
+        <file alias="images/redo.svg">images/common/redo.svg</file>
+        <file alias="images/refresh.svg">images/common/rotate-cw.svg</file>
+        <file alias="images/right.svg">images/common/chevron-right.svg</file>
+        <file alias="images/run.svg">images/common/play.svg</file>
+        <file alias="images/scissors.svg">images/common/scissors.svg</file>
+        <file alias="images/search.svg">images/common/search.svg</file>
+        <file alias="images/send.svg">images/common/send.svg</file>
+        <file alias="images/settings.svg">images/common/settings.svg</file>
+        <file alias="images/shortcuts.svg">images/common/command.svg</file>
+        <file alias="images/sidebar.svg">images/common/sidebar.svg</file>
+        <file alias="images/star-black.svg">images/common/star-black.svg</file>
+        <file alias="images/star.svg">images/common/star.svg</file>
+        <file alias="images/starred.svg">images/common/starred.svg</file>
+        <file alias="images/stop.svg">images/common/stop.svg</file>
+        <file alias="images/trash.svg">images/common/trash.svg</file>
+        <file alias="images/undo.svg">images/common/undo.svg</file>
+        <file alias="images/video.svg">images/common/video.svg</file>
+        <file alias="images/command.svg">images/common/command.svg</file>
+        <file alias="images/sliders-horizontal.svg">images/common/sliders-horizontal.svg</file>
+        <file alias="images/frame.svg">images/common/frame.svg</file>
+        <file alias="images/shapes.svg">images/common/shapes.svg</file>
+        <file alias="images/keyboard.svg">images/common/keyboard.svg</file>
+        <file alias="images/view.svg">images/common/eye.svg</file>
+        <file alias="images/vision.svg">images/toolbar/image.svg</file>
+        <file alias="images/wand.svg">images/common/wand-sparkles.svg</file>
+        <file alias="images/warning.svg">images/common/warning.svg</file>
+        <file alias="images/zoom-in.svg">images/common/zoom-in.svg</file>
+        <file alias="images/zoom-out.svg">images/common/zoom-out.svg</file>
+        <file alias="images/chevron-left.svg">images/common/chevron-left.svg</file>
+        <file alias="images/chevron-right.svg">images/common/chevron-right.svg</file>
+        <file alias="images/chevrons-right.svg">images/common/chevrons-right.svg</file>
+        <file alias="images/folder-open.svg">images/common/folder-open.svg</file>
+        <file alias="images/plus.svg">images/common/plus.svg</file>
+        <file alias="images/upload.svg">images/common/upload.svg</file>
+        <file alias="images/wand-sparkles.svg">images/common/wand-sparkles.svg</file>
+        <file>images/toolbar/circle-plus.svg</file>
+        <file>images/toolbar/copyright.svg</file>
     </qresource>
     <qresource prefix="/languages">
         <file>translations/en_US.qm</file>

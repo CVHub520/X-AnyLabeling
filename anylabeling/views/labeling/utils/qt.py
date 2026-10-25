@@ -6,6 +6,9 @@ from math import sqrt
 import numpy as np
 from PyQt6.QtCore import Qt
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtSvg import QSvgRenderer
+
+from .theme import get_theme
 
 from anylabeling.views.labeling.logger import logger
 from .image import get_supported_image_extensions
@@ -57,12 +60,53 @@ def scan_all_images(folder_path):
 
 
 def new_icon(icon, ext="png"):
+    svg_file = QtCore.QFile(f":/images/images/toolbar/{icon}.svg")
+    if ext in ("png", "svg") and svg_file.open(
+        QtCore.QIODevice.OpenModeFlag.ReadOnly
+    ):
+        data = bytes(svg_file.readAll()).replace(
+            b"currentColor", get_theme()["text"].encode()
+        )
+        svg_file.close()
+        pixmap = QtGui.QPixmap(96, 96)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QtGui.QPainter(pixmap)
+        QSvgRenderer(QtCore.QByteArray(data)).render(painter)
+        painter.end()
+        return QtGui.QIcon(pixmap)
     return QtGui.QIcon(osp.join(f":/images/images/{icon}.{ext}"))
 
 
 def new_icon_path(icon, ext="png"):
     """Returns the resource path string for an icon."""
     return f":/images/images/{icon}.{ext}"
+
+
+def new_provider_icon(icon, ext="png", size=24):
+    scale = 2
+    pixmap = QtGui.QPixmap(size * scale, size * scale)
+    pixmap.setDevicePixelRatio(scale)
+    pixmap.fill(Qt.GlobalColor.transparent)
+    painter = QtGui.QPainter(pixmap)
+    painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+    painter.setRenderHint(QtGui.QPainter.RenderHint.SmoothPixmapTransform)
+    painter.setPen(QtGui.QPen(QtGui.QColor(get_theme()["border"]), 1))
+    painter.setBrush(QtGui.QColor("#ffffff"))
+    painter.drawEllipse(QtCore.QRectF(0.5, 0.5, size - 1, size - 1))
+    bounds = QtCore.QRectF(3, 3, size - 6, size - 6)
+    clip = QtGui.QPainterPath()
+    clip.addEllipse(bounds)
+    painter.setClipPath(clip)
+    source = new_icon(icon, ext).pixmap(
+        QtCore.QSize((size - 6) * scale, (size - 6) * scale)
+    )
+    target = QtCore.QRectF(
+        0, 0, source.width() / scale, source.height() / scale
+    )
+    target.moveCenter(bounds.center())
+    painter.drawPixmap(target, source, QtCore.QRectF(source.rect()))
+    painter.end()
+    return pixmap
 
 
 def new_button(text, icon=None, slot=None):

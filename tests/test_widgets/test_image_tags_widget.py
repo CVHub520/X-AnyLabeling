@@ -6,6 +6,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+from anylabeling.resources import resources
 from anylabeling.views.labeling.widgets.image_tags_widget import (
     IMAGE_TAG_CLOSE_SIZE,
     IMAGE_TAG_HEIGHT,
@@ -320,14 +321,31 @@ class ImageTagsWidgetTest(unittest.TestCase):
             self.widget._content.contextMenuPolicy(),
             QtCore.Qt.ContextMenuPolicy.DefaultContextMenu,
         )
-        self.assertEqual(add_button.text(), "+")
-        self.assertEqual(batch_button.text(), "−")
-        self.assertEqual(copy_button.text(), "C")
-        self.assertIn("font-size: 14px", copy_button.styleSheet())
+        for button in (add_button, batch_button, copy_button):
+            self.assertEqual(button.text(), "")
+            self.assertFalse(button.icon().pixmap(20, 20).isNull())
         self.assertEqual(add_button.styleSheet(), batch_button.styleSheet())
 
         batch_button.click()
         self.assertEqual(self.widget.mode, "batch")
+
+    def test_single_letter_tags_keep_rounded_corners(self):
+        self.widget.resize(500, 100)
+        self.widget.set_tags(["i", "a", "long"])
+        self.widget.show()
+        self.app.processEvents()
+        image = self.widget._content.grab().toImage()
+        color = QtGui.QColor(32, 120, 200)
+        for chip in self.widget._chips:
+            self.assertGreaterEqual(chip.width(), IMAGE_TAG_HEIGHT)
+            position = chip.pos()
+            self.assertNotEqual(image.pixelColor(position), color)
+            self.assertEqual(
+                image.pixelColor(
+                    position + QtCore.QPoint(chip.width() // 2, 2)
+                ),
+                color,
+            )
 
     @mock.patch("anylabeling.views.labeling.widgets.image_tags_widget.Popup")
     def test_copy_all_button_uses_popup_component(self, popup):

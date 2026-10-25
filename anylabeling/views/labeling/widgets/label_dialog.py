@@ -1508,7 +1508,7 @@ class LabelDialog(QtWidgets.QDialog):
         # buttons
         ok_button = QtWidgets.QPushButton(self.tr("OK"))
         cancel_button = QtWidgets.QPushButton(self.tr("Cancel"))
-        ok_button.setIcon(utils.new_icon("done"))
+        ok_button.setIcon(utils.new_icon("check"))
         cancel_button.setIcon(utils.new_icon("undo"))
         ok_button.setFixedHeight(control_height)
         cancel_button.setFixedHeight(control_height)
