@@ -22,6 +22,11 @@ def apply_application_font(font_family):
     app_font = QtGui.QFont(default_font)
     if font_family:
         app_font.setFamily(font_family)
+    scale = getattr(app, "_xanylabeling_ui_scale", 1.0)
+    if app_font.pointSizeF() > 0:
+        app_font.setPointSizeF(app_font.pointSizeF() * scale)
+    else:
+        app_font.setPixelSize(round(app_font.pixelSize() * scale))
     app.setFont(app_font)
 
 

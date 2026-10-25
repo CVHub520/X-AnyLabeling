@@ -13,6 +13,7 @@ class ToolBar(QtWidgets.QFrame):
         self._orientation = QtCore.Qt.Orientation.Vertical
         self._tool_button_style = QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly
         self._icon_size = QtCore.QSize(24, 24)
+        self._button_size = 28
         self._owned_widgets = []
 
         layout = QtWidgets.QVBoxLayout(self)
@@ -48,10 +49,6 @@ class ToolBar(QtWidgets.QFrame):
                 border-radius: 8px;
             }}
             ToolBar QToolButton {{
-                min-width: 28px;
-                min-height: 28px;
-                max-width: 28px;
-                max-height: 28px;
                 border: none;
                 background: transparent;
                 padding: 0px;
@@ -111,6 +108,15 @@ class ToolBar(QtWidgets.QFrame):
                 widget.setParent(None)
         self._owned_widgets = []
 
+    def setUiScale(self, scale):
+        self._button_size = round(28 * scale)
+        self.setIconSize(QtCore.QSize(round(24 * scale), round(24 * scale)))
+        self.setFixedWidth(round(40 * scale))
+        for button in self.findChildren(QtWidgets.QToolButton):
+            button.setFixedSize(self._button_size, self._button_size)
+        self._content_layout.invalidate()
+        self.setMinimumHeight(self.sizeHint().height())
+
     def addAction(self, action):
         if isinstance(action, QtWidgets.QWidgetAction):
             super().addAction(action)
@@ -127,7 +133,7 @@ class ToolBar(QtWidgets.QFrame):
         btn.setDefaultAction(action)
         btn.setToolButtonStyle(self.toolButtonStyle())
         btn.setIconSize(self._icon_size)
-        btn.setFixedSize(28, 28)
+        btn.setFixedSize(self._button_size, self._button_size)
         self._owned_widgets.append(btn)
         self._content_layout.addWidget(
             btn, 0, QtCore.Qt.AlignmentFlag.AlignCenter

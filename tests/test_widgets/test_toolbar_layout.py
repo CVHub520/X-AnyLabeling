@@ -50,9 +50,32 @@ class TestToolBarLayout(unittest.TestCase):
         toolbar.show()
         self.app.processEvents()
 
-        button = toolbar.widgetForAction(action)
+        button = toolbar.findChild(QtWidgets.QToolButton)
         self.assertIsNotNone(button)
-        self.assertGreaterEqual(button.height(), toolbar.iconSize().height() + 4)
-        self.assertGreater(button.geometry().top(), 0)
-        self.assertGreaterEqual(button.geometry().left(), 0)
-        self.assertLessEqual(button.geometry().right(), toolbar.width())
+        self.assertGreaterEqual(button.height(), button.iconSize().height() + 4)
+        position = button.mapTo(toolbar, QtCore.QPoint())
+        self.assertGreater(position.y(), 0)
+        self.assertGreaterEqual(position.x(), 0)
+        self.assertLessEqual(position.x() + button.width(), toolbar.width())
+
+    def test_scaled_buttons_fit_after_actions_are_rebuilt(self):
+        for mode in ("light", "dark"):
+            init_theme(mode)
+            toolbar = ToolBar("Tools")
+            self._widgets.append(toolbar)
+            toolbar.addAction(QtGui.QAction("Open", toolbar))
+            toolbar.setUiScale(1.5)
+            toolbar.clear()
+            toolbar.addAction(QtGui.QAction("Save", toolbar))
+            toolbar.show()
+            self.app.processEvents()
+            button = toolbar.findChildren(QtWidgets.QToolButton)[-1]
+            self.assertEqual(button.size(), QtCore.QSize(42, 42))
+            self.assertEqual(button.iconSize(), QtCore.QSize(36, 36))
+            rect = QtCore.QRect(
+                button.mapTo(toolbar, QtCore.QPoint()), button.size()
+            )
+            self.assertTrue(toolbar.rect().contains(rect))
+            toolbar.setUiScale(1.0)
+            self.app.processEvents()
+            self.assertEqual(button.size(), QtCore.QSize(28, 28))

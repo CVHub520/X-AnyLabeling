@@ -42,6 +42,7 @@ from ...app_info import (
     __preferred_device__,
 )
 from . import utils
+from .utils.qt import apply_application_font
 from .utils.style import (
     get_cancel_btn_style,
     get_checkbox_indicator_style,
@@ -2764,6 +2765,15 @@ class LabelingWidget(LabelDialog):
         self.right_sidebar.setMinimumWidth(sidebar_width)
         self.right_sidebar.setMaximumWidth(sidebar_width * 2)
         self._right_sidebar_width = sidebar_width
+        self._sidebar_base_width = sidebar_width
+        self._sidebar_width_ratio = None
+        self._ui_scale = 1.0
+        self._ui_resize_timer = QtCore.QTimer(self)
+        self._ui_resize_timer.setSingleShot(True)
+        self._ui_resize_timer.timeout.connect(self._update_ui_density)
+        self.sidebar_splitter.splitterMoved.connect(
+            self._remember_sidebar_width
+        )
         self.sidebar_splitter.addWidget(self.right_sidebar)
         self.sidebar_splitter.setStretchFactor(0, 1)
         self.sidebar_splitter.setStretchFactor(1, 0)
@@ -6631,7 +6641,51 @@ class LabelingWidget(LabelDialog):
             return
         super(LabelingWidget, self).keyPressEvent(event)
 
+    def _remember_sidebar_width(self, position, index):
+        available = (
+            self.sidebar_splitter.width() - self.sidebar_splitter.handleWidth()
+        )
+        if available > 0 and not self.right_sidebar.isHidden():
+            self._sidebar_width_ratio = self.right_sidebar.width() / available
+
+    def _update_ui_density(self):
+        scale = min(
+            1.5, max(1.0, min(self.width() / 1920, self.height() / 1000))
+        )
+        scale = round(scale * 8) / 8
+        if scale != self._ui_scale:
+            self._ui_scale = scale
+            app = QtWidgets.QApplication.instance()
+            app._xanylabeling_ui_scale = scale
+            apply_application_font(self._config.get("font_family"))
+            self.tools.setUiScale(scale)
+            self.tools_scroll_area.setFixedWidth(round(40 * scale) + 6)
+
+        base_width = round(self._sidebar_base_width * scale)
+        self.right_sidebar.setMinimumWidth(base_width)
+        self.right_sidebar.setMaximumWidth(base_width * 2)
+        available = (
+            self.sidebar_splitter.width() - self.sidebar_splitter.handleWidth()
+        )
+        target = (
+            round(available * self._sidebar_width_ratio)
+            if self._sidebar_width_ratio is not None
+            else base_width
+        )
+        self._right_sidebar_width = max(
+            base_width, min(base_width * 2, target)
+        )
+        if not self.right_sidebar.isHidden():
+            self.sidebar_splitter.setSizes(
+                [
+                    max(1, available - self._right_sidebar_width),
+                    self._right_sidebar_width,
+                ]
+            )
+
     def resizeEvent(self, _):
+        if hasattr(self, "_ui_resize_timer"):
+            self._ui_resize_timer.start(100)
         if (
             self.canvas
             and not self.image.isNull()
