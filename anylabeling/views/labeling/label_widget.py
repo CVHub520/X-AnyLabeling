@@ -548,6 +548,8 @@ class LabelingWidget(LabelDialog):
         self.canvas.scroll_request.connect(self.scroll_request)
         self.canvas.new_shape.connect(self.new_shape)
         self.canvas.show_shape.connect(self.show_shape)
+        self.canvas.show_line_length.connect(self.show_line_length)
+        self.canvas.show_circle_radius.connect(self.show_circle_radius)
         self.canvas.shape_moved.connect(self.set_dirty)
         self.canvas.shape_rotated.connect(self.set_dirty)
         self.canvas.shapes_deleted.connect(self.on_canvas_shapes_deleted)
@@ -6040,6 +6042,29 @@ class LabelingWidget(LabelDialog):
             else:
                 self.canvas.undo_last_line()
                 self.canvas.shapes_backups.pop()
+
+    def show_line_length(self, length, pos):
+        if self.canvas.create_mode == "linestrip":
+            points = self.canvas.current.points
+            total_length = length + sum(
+                utils.distance(points[i] - points[i - 1])
+                for i in range(1, len(points))
+            )
+            self.status(
+                self.tr("X: %d, Y: %d | L: %.2f px | Total: %.2f px")
+                % (int(pos.x()), int(pos.y()), length, total_length)
+            )
+            return
+        self.status(
+            self.tr("X: %d, Y: %d | L: %.2f px")
+            % (int(pos.x()), int(pos.y()), length)
+        )
+
+    def show_circle_radius(self, radius, pos):
+        self.status(
+            self.tr("X: %d, Y: %d | R: %.2f px | C: %.2f px")
+            % (int(pos.x()), int(pos.y()), radius, 2 * math.pi * radius)
+        )
 
     def show_shape(self, shape_height, shape_width, pos):
         """Display annotation width and height while hovering inside.

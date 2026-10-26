@@ -210,8 +210,8 @@ You can create the following shape types using the tools in the left toolbar, th
 
 | Shape Type | Shortcut | Drawing Method |
 | --- | --- | --- |
-| `rectangle` | `R` | Click to set the first corner, move the cursor, and click again to set the opposite corner. Hold `Ctrl` while drawing to constrain the rectangle to a square. |
-| `rotation` | `O` | Draw an initially horizontal or vertical box as you would a rectangle. In editing mode, select the shape and press `Z`, `X`, `C`, or `V` to adjust its angle. |
+| `rectangle` | `R` | Click to set the first corner, move the cursor, and click again to set the opposite corner. Hold `Shift` while drawing to constrain the rectangle to a square. |
+| `rotation` | `O` | Draw an initially horizontal or vertical box as you would a rectangle. Hold `Shift` while drawing to constrain it to a square. In editing mode, select the shape and press `Z`, `X`, `C`, or `V` to adjust its angle. |
 | `polygon` | `P` | Click along the boundary to add vertices, then click the starting vertex or double-click the last vertex to finish. At least three vertices are required. |
 | `quadrilateral` | `T` | Click four corners in sequence; the fourth click completes the shape. |
 | `point` | `Shift+P` | Click to place one keypoint. |

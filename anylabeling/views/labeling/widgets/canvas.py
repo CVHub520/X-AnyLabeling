@@ -65,6 +65,8 @@ class Canvas(
     mode_changed = QtCore.pyqtSignal()
     new_shape = QtCore.pyqtSignal()
     show_shape = QtCore.pyqtSignal(int, int, QtCore.QPointF)
+    show_line_length = QtCore.pyqtSignal(float, QtCore.QPointF)
+    show_circle_radius = QtCore.pyqtSignal(float, QtCore.QPointF)
     selection_changed = QtCore.pyqtSignal(list)
     shape_moved = QtCore.pyqtSignal()
     shape_rotated = QtCore.pyqtSignal()
@@ -1978,7 +1980,7 @@ class Canvas(
         self.update()
 
     def _constrain_rectangle_pos(self, pos, modifiers):
-        if not modifiers & QtCore.Qt.KeyboardModifier.ControlModifier:
+        if not modifiers & QtCore.Qt.KeyboardModifier.ShiftModifier:
             return pos
         anchor = self.current[0]
         dx, dy = pos.x() - anchor.x(), pos.y() - anchor.y()
@@ -2038,7 +2040,7 @@ class Canvas(
             self.line.points = [self.current[0], pos]
             self.line.close()
         elif self.create_mode == "rotation":
-            self.line[1] = pos
+            self.line[1] = self._constrain_rectangle_pos(pos, modifiers)
         elif self.create_mode == "circle":
             self.line.points = [self.current[0], pos]
             self.line.shape_type = "circle"
@@ -2168,9 +2170,9 @@ class Canvas(
                 self.override_cursor(CURSOR_DRAW)
                 return
 
-            if self.create_mode == "rectangle":
+            if self.create_mode in ["rectangle", "rotation"]:
                 pos = self._constrain_rectangle_pos(pos, ev.modifiers())
-            if self.create_mode in ["rectangle", "cuboid"]:
+            if self.create_mode in ["rectangle", "rotation", "cuboid"]:
                 shape_width = int(abs(self.current[0].x() - pos.x()))
                 shape_height = int(abs(self.current[0].y() - pos.y()))
                 self.show_shape.emit(shape_height, shape_width, pos)
@@ -2221,6 +2223,10 @@ class Canvas(
                 and ev.modifiers() & QtCore.Qt.KeyboardModifier.ShiftModifier
             ):
                 pos = self._snap_line_pos(self.current[-1], pos)
+            if self.create_mode in ["line", "linestrip"]:
+                self.show_line_length.emit(
+                    utils.distance(pos - self.current[-1]), pos
+                )
             if self.create_mode in ["polygon", "linestrip", "quadrilateral"]:
                 self.line[0] = self.current[-1]
                 self.line[1] = pos
@@ -2233,6 +2239,9 @@ class Canvas(
             elif self.create_mode == "circle":
                 self.line.points = [self.current[0], pos]
                 self.line.shape_type = "circle"
+                self.show_circle_radius.emit(
+                    utils.distance(pos - self.current[0]), pos
+                )
             elif self.create_mode == "line":
                 self.line.points = [self.current[0], pos]
                 self.line.close()
@@ -5410,13 +5419,13 @@ class Canvas(
             return
         if self.drawing():
             if (
-                key == QtCore.Qt.Key.Key_Control
-                and self.create_mode == "rectangle"
+                key == QtCore.Qt.Key.Key_Shift
+                and self.create_mode in ["rectangle", "rotation"]
                 and self.current
             ):
                 self._sync_drawing_line(
                     self.prev_move_point,
-                    modifiers | QtCore.Qt.KeyboardModifier.ControlModifier,
+                    modifiers | QtCore.Qt.KeyboardModifier.ShiftModifier,
                 )
                 self.update()
             if key == QtCore.Qt.Key.Key_Escape and self.current:
@@ -5495,13 +5504,13 @@ class Canvas(
             return
         if self.drawing():
             if (
-                key == QtCore.Qt.Key.Key_Control
-                and self.create_mode == "rectangle"
+                key == QtCore.Qt.Key.Key_Shift
+                and self.create_mode in ["rectangle", "rotation"]
                 and self.current
             ):
                 self._sync_drawing_line(
                     self.prev_move_point,
-                    modifiers & ~QtCore.Qt.KeyboardModifier.ControlModifier,
+                    modifiers & ~QtCore.Qt.KeyboardModifier.ShiftModifier,
                 )
                 self.update()
             if modifiers == QtCore.Qt.KeyboardModifier.NoModifier:
