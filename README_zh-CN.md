@@ -30,6 +30,7 @@
 
 ## 🥳 新功能
 
+- `2026-10-27`：新增支持正方形标注。
 - `2026-10-24`：支持画布上的平滑缩放、自由平移和边界裁剪。
 - `2026-10-18`：新增支持 [GroundingPI、GroundAnything 和 GroundAnything-VLM](./examples/vision_foundation/groundingpi/README.md) 模型，支持目标检测、描述定位、描述与类别指点、OCR、文档版面分析、GUI 定位及参考框检测。
 - `2026-10-01`：新增 [3D 点云标注](./docs/zh_cn/point_cloud.md)功能，支持 3D 点云检测与分割。

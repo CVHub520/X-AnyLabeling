@@ -28,6 +28,7 @@
 
 ## 🥳 What's New
 
+- `2026-10-27`: Add square annotation support.
 - `2026-10-24`: Add support for smooth zoom, free panning, and boundary clipping on the canvas.
 - `2026-10-18`: Add support for [GroundingPI, GroundAnything, and GroundAnything-VLM](./examples/vision_foundation/groundingpi/README.md) with detection, grounding, referring and category-based pointing, OCR, document layout, GUI grounding, and visual prompting.
 - `2026-10-01`: Add [3D point cloud annotation](./docs/en/point_cloud.md), supporting 3D point cloud detection and segmentation.

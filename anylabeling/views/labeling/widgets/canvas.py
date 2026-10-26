@@ -1977,6 +1977,22 @@ class Canvas(
         self.override_cursor(CURSOR_POINT)
         self.update()
 
+    def _constrain_rectangle_pos(self, pos, modifiers):
+        if not modifiers & QtCore.Qt.KeyboardModifier.ControlModifier:
+            return pos
+        anchor = self.current[0]
+        dx, dy = pos.x() - anchor.x(), pos.y() - anchor.y()
+        side = max(abs(dx), abs(dy))
+        if not self.out_off_pixmap(anchor):
+            side = min(
+                side,
+                self.pixmap.width() - anchor.x() if dx >= 0 else anchor.x(),
+                self.pixmap.height() - anchor.y() if dy >= 0 else anchor.y(),
+            )
+        return anchor + QtCore.QPointF(
+            math.copysign(side, dx), math.copysign(side, dy)
+        )
+
     def _sync_drawing_line(self, pos, modifiers):
         if not self.drawing() or not self.current:
             return
@@ -2018,6 +2034,7 @@ class Canvas(
             self.line[0] = self.current[-1]
             self.line[1] = pos
         elif self.create_mode == "rectangle":
+            pos = self._constrain_rectangle_pos(pos, modifiers)
             self.line.points = [self.current[0], pos]
             self.line.close()
         elif self.create_mode == "rotation":
@@ -2151,6 +2168,8 @@ class Canvas(
                 self.override_cursor(CURSOR_DRAW)
                 return
 
+            if self.create_mode == "rectangle":
+                pos = self._constrain_rectangle_pos(pos, ev.modifiers())
             if self.create_mode in ["rectangle", "cuboid"]:
                 shape_width = int(abs(self.current[0].x() - pos.x()))
                 shape_height = int(abs(self.current[0].y() - pos.y()))
@@ -4622,17 +4641,24 @@ class Canvas(
 
         # Draw mouse coordinates
         if self.cross_line_show:
+            cross_pos = self.prev_move_point
+            if (
+                self.drawing()
+                and self.create_mode == "rectangle"
+                and self.current
+            ):
+                cross_pos = self.line[1]
             pen = self._cross_line_pen()
             rect = self._cross_line_rect()
             p.setPen(pen)
             p.setOpacity(self.cross_line_opacity)
             p.drawLine(
-                QtCore.QPointF(self.prev_move_point.x(), rect.top()),
-                QtCore.QPointF(self.prev_move_point.x(), rect.bottom()),
+                QtCore.QPointF(cross_pos.x(), rect.top()),
+                QtCore.QPointF(cross_pos.x(), rect.bottom()),
             )
             p.drawLine(
-                QtCore.QPointF(rect.left(), self.prev_move_point.y()),
-                QtCore.QPointF(rect.right(), self.prev_move_point.y()),
+                QtCore.QPointF(rect.left(), cross_pos.y()),
+                QtCore.QPointF(rect.right(), cross_pos.y()),
             )
 
         # Draw attributes
@@ -5383,6 +5409,16 @@ class Canvas(
             ev.accept()
             return
         if self.drawing():
+            if (
+                key == QtCore.Qt.Key.Key_Control
+                and self.create_mode == "rectangle"
+                and self.current
+            ):
+                self._sync_drawing_line(
+                    self.prev_move_point,
+                    modifiers | QtCore.Qt.KeyboardModifier.ControlModifier,
+                )
+                self.update()
             if key == QtCore.Qt.Key.Key_Escape and self.current:
                 self.cancel_drawing()
             elif key == QtCore.Qt.Key.Key_Backspace and self.current:
@@ -5458,6 +5494,16 @@ class Canvas(
             ev.accept()
             return
         if self.drawing():
+            if (
+                key == QtCore.Qt.Key.Key_Control
+                and self.create_mode == "rectangle"
+                and self.current
+            ):
+                self._sync_drawing_line(
+                    self.prev_move_point,
+                    modifiers & ~QtCore.Qt.KeyboardModifier.ControlModifier,
+                )
+                self.update()
             if modifiers == QtCore.Qt.KeyboardModifier.NoModifier:
                 self.snapping = True
         elif self.editing():
