@@ -285,7 +285,7 @@ def test_pan_interrupts_zoom_and_navigator_centers_image_coordinates(view):
     assert_point(image_position(view, center), QtCore.QPointF())
 
 
-def test_shift_wheel_scrolls_and_ctrl_wheel_still_zooms(view):
+def test_shift_wheel_scrolls_and_ctrl_wheel_does_not_zoom(view):
     scrolls = []
     view.canvas.scroll_request.connect(lambda *args: scrolls.append(args))
     wheel(view, modifiers=QtCore.Qt.KeyboardModifier.ShiftModifier)
@@ -295,7 +295,7 @@ def test_shift_wheel_scrolls_and_ctrl_wheel_still_zooms(view):
     )
     wheel(view, modifiers=QtCore.Qt.KeyboardModifier.ControlModifier)
     assert (
-        view._zoom_animation.state() == QtCore.QAbstractAnimation.State.Running
+        view._zoom_animation.state() == QtCore.QAbstractAnimation.State.Stopped
     )
 
 
@@ -503,7 +503,7 @@ def test_rectangle_wheel_editing_is_disabled_by_default(view):
     wheel(view, modifiers=QtCore.Qt.KeyboardModifier.ControlModifier)
     assert shape.points == points
     assert (
-        view._zoom_animation.state() == QtCore.QAbstractAnimation.State.Running
+        view._zoom_animation.state() == QtCore.QAbstractAnimation.State.Stopped
     )
 
 
@@ -551,7 +551,7 @@ def test_ctrl_wheel_edits_rectangle_and_records_undo(view, point, delta):
     assert view.canvas.shapes[0].points == original
 
 
-def test_locked_rectangle_ctrl_wheel_zooms_without_modifying_shape(view):
+def test_locked_rectangle_ctrl_wheel_does_not_zoom_or_modify_shape(view):
     shape = selected_rectangle(view)
     shape.locked = True
     points = list(shape.points)
@@ -559,7 +559,7 @@ def test_locked_rectangle_ctrl_wheel_zooms_without_modifying_shape(view):
     wheel(view, modifiers=QtCore.Qt.KeyboardModifier.ControlModifier)
     assert shape.points == points
     assert (
-        view._zoom_animation.state() == QtCore.QAbstractAnimation.State.Running
+        view._zoom_animation.state() == QtCore.QAbstractAnimation.State.Stopped
     )
 
 

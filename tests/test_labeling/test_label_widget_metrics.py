@@ -1,6 +1,7 @@
 import os
 from types import SimpleNamespace
 import unittest
+from unittest.mock import Mock
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -286,6 +287,7 @@ class TestLabelWidgetMetrics(unittest.TestCase):
         widget = SimpleNamespace(
             label_list=SimpleNamespace(selected_items=lambda: [item]),
             actions=SimpleNamespace(toggle_shape_lock=action),
+            refresh_panel_controls=Mock(),
         )
 
         LabelingWidget.refresh_shape_lock_action(widget)

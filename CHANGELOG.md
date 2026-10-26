@@ -1,5 +1,41 @@
 # X-AnyLabeling Changelog
 
+## `v4.2.1` (Oct 26, 2026)
+
+X-AnyLabeling 4.2.1 refreshes the application interface and improves annotation review, canvas interaction, and image switching performance.
+
+### 🚀 New Features
+
+- Add three-state annotation review and object review statuses with shortcuts and search filters.
+- Add session-only locking and bulk visibility controls for labels and shapes.
+- Add an expandable description editor and document text editing.
+- Support smooth zoom, free panning, boundary clipping, and right-button panning while drawing shapes.
+- Support deleting polygon vertices by double-clicking.
+- Adapt interface density to the window size.
+
+### 🐛 Bug Fixes
+
+- Import COCO RLE annotations without silently losing annotations.
+- Translate the video classifier interface through embedded resources.
+- Preserve error fallbacks while allowing interrupts.
+- Prevent false edge hits caused by duplicate polygon vertices and require explicit selection before editing shape vertices.
+- Unlock all items when any label or shape is locked.
+- Fix panel icon visibility and hover behavior in dark themes.
+- Prevent the point cloud shortcuts dialog close button from shrinking.
+
+### 🛠️ Improvements
+
+- Refresh the application interface with rounded panels, hover controls, overlay scrollbars, and refined sidebar and file list interactions.
+- Improve shape metadata labels, vertex colors, and hover outlines, and hide idle polygon start vertices.
+- Optimize image switching and shape rendering.
+- Unify vision foundation model categories in the documentation.
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v4.2.0` (Oct 18, 2026)
 
 X-AnyLabeling 4.2.0 adds PCD point cloud support and expands remote grounding model workflows.

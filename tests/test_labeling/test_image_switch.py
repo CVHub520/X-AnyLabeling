@@ -11,7 +11,39 @@ from PyQt6 import QtCore, QtGui, QtTest, QtWidgets
 from anylabeling import config as app_config
 from anylabeling.views.labeling.settings.schema import load_template_config
 from anylabeling.views.mainwindow import MainWindow
-from scripts.benchmark_image_switch import generate_images
+
+
+def generate_images(directory, counts, size):
+    directory.mkdir(parents=True, exist_ok=True)
+    paths = {}
+    for count in counts:
+        image_path = directory / f"polygons_{count:03d}_0.png"
+        image = QtGui.QImage(size, size, QtGui.QImage.Format.Format_RGB32)
+        image.fill(QtCore.Qt.GlobalColor.white)
+        assert image.save(str(image_path))
+        annotation = {
+            "version": "4.2.1",
+            "flags": {},
+            "shapes": [
+                {
+                    "label": f"object_{index}",
+                    "points": [[1, 1], [size - 2, 1], [1, size - 2]],
+                    "group_id": index % 2,
+                    "shape_type": "polygon",
+                    "flags": {},
+                }
+                for index in range(count)
+            ],
+            "imagePath": image_path.name,
+            "imageData": None,
+            "imageHeight": size,
+            "imageWidth": size,
+        }
+        image_path.with_suffix(".json").write_text(
+            json.dumps(annotation), encoding="utf-8"
+        )
+        paths[count] = [str(image_path)]
+    return paths
 
 
 @pytest.fixture
@@ -77,8 +109,10 @@ def test_loaded_shapes_keep_filter_checkbox_lock_and_undo_behavior(
     data["shapes"][0]["locked"] = True
     label_path.write_text(json.dumps(data), encoding="utf-8")
     assert widget.load_file(path)
-    assert widget.label_list[0].is_locked()
-    assert widget.canvas.shapes[0].locked
+    assert not widget.label_list[0].is_locked()
+    assert not widget.canvas.shapes[0].locked
+    widget.label_list[0].set_locked(True)
+    widget.canvas.shapes[0].locked = True
     changes = QtTest.QSignalSpy(widget.label_list.item_changed)
     item = widget.label_list[1]
     item.setCheckState(QtCore.Qt.CheckState.Unchecked)
