@@ -72,6 +72,7 @@ from .utils.qt import new_icon_path
 from .utils.theme import get_theme
 from .pointcloud.icons import get_icon
 from .widgets.description_editor import DescriptionEditor
+from .widgets.toolbar import ToolBarScrollArea
 from .widgets.panel import (
     PanelCheckBox,
     HoverControl,
@@ -3212,7 +3213,7 @@ class LabelingWidget(LabelDialog):
         return toolbar
 
     def toolbar_scroll_area(self, toolbar):
-        scroll_area = QScrollArea()
+        scroll_area = ToolBarScrollArea()
         scroll_area.setObjectName(f"{toolbar.objectName()}ScrollArea")
         scroll_area.setFrameShape(QFrame.Shape.NoFrame)
         scroll_area.setWidgetResizable(True)

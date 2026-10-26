@@ -4,6 +4,15 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from anylabeling.views.labeling.utils.theme import get_mode, get_theme
 
 
+class ToolBarScrollArea(QtWidgets.QScrollArea):
+    def wheelEvent(self, event):
+        scroll_bar = self.horizontalScrollBar()
+        if scroll_bar.maximum() > scroll_bar.minimum():
+            QtWidgets.QApplication.sendEvent(scroll_bar, event)
+            return
+        super().wheelEvent(event)
+
+
 class ToolBar(QtWidgets.QFrame):
     """Toolbar widget for labeling tool"""
 
