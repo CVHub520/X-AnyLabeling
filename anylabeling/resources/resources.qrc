@@ -48,6 +48,11 @@
         <file alias="images/toolbar/run.svg">images/common/play.svg</file>
         <file alias="images/toolbar/rotate-cw.svg">images/common/rotate-cw.svg</file>
         <file alias="images/toolbar/refresh.svg">images/common/rotate-cw.svg</file>
+        <file>images/toolbar/ruler.svg</file>
+        <file>images/toolbar/list-checks.svg</file>
+        <file>images/toolbar/link.svg</file>
+        <file>images/toolbar/layers.svg</file>
+        <file>images/toolbar/badge-percent.svg</file>
         <file>images/toolbar/maximize-2.svg</file>
         <file alias="images/toolbar/lock.svg">images/common/lock.svg</file>
         <file alias="images/toolbar/json.svg">images/common/json.svg</file>
