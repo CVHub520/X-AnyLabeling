@@ -63,7 +63,7 @@ class TestPointCloudIntegration(unittest.TestCase):
                 view = window.labeling_widget.view
                 assert view.filename is None
                 assert view.actions.open_pointcloud.isEnabled()
-                actions = view.actions.tool
+                actions = view.menus.workflow.actions()
                 assert actions.index(view.actions.open_pointcloud) == (
                     actions.index(view.actions.open_vqa) + 1
                 )
