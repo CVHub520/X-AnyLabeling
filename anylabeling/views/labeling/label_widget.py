@@ -586,7 +586,7 @@ class LabelingWidget(LabelDialog):
         )
         self.image_tags_widget.status_message.connect(self.status)
         self.image_tags_widget.set_interactions_enabled(False)
-        self.image_tags_widget.hide()
+        self.image_tags_widget.show()
 
         features = QtWidgets.QDockWidget.DockWidgetFeature(0)
         for dock in [
@@ -1878,7 +1878,7 @@ class LabelingWidget(LabelDialog):
             shortcuts["toggle_image_tags"],
             tip=self.tr("Show or hide image tags"),
             checkable=True,
-            checked=False,
+            checked=True,
             enabled=True,
             icon="tags",
         )
