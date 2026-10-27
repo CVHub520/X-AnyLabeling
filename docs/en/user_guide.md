@@ -422,6 +422,13 @@ To apply the current adjustments to all subsequent images in the session, enable
 
 ### 3.3 Shape Display
 
+The main window toolbar provides four mutually exclusive display modes, from left to right:
+
+- **Color by label** (default): Uses the existing category colors.
+- **Color by instance**: Assigns different colors to individual annotations, including those with the same label.
+- **Color by group**: Uses the same color for annotations sharing a group ID; ungrouped annotations use individual colors.
+- **Binary mask**: Shows visible annotations as white foreground on a black background, hiding the source image and text overlays. Annotation opacity does not affect this view.
+
 You can control the visibility of various shape attributes:
 
 - Toggle display of label names next to shapes (`Ctrl+L` or `View` > `Show Labels`).

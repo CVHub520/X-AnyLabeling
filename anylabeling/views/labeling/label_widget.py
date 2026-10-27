@@ -2564,7 +2564,36 @@ class LabelingWidget(LabelDialog):
             widget_action = QtWidgets.QWidgetAction(self)
             widget_action.setDefaultWidget(button)
             utility_actions.append(widget_action)
-        self.actions.tool += (None, fit_window, fit_width, *utility_actions)
+        self.display_mode_group = QtGui.QActionGroup(self)
+        self.display_mode_group.setExclusive(True)
+        display_actions = []
+        for mode, title, icon in (
+            ("label", self.tr("Color by label"), "swatch-book"),
+            ("instance", self.tr("Color by instance"), "component"),
+            ("group", self.tr("Color by group"), "network"),
+            ("bitmap", self.tr("Binary mask"), "contrast"),
+        ):
+            display_action = action(
+                title,
+                icon=icon,
+                tip=title,
+                checkable=True,
+                checked=mode == "label",
+            )
+            display_action.setData(mode)
+            self.display_mode_group.addAction(display_action)
+            display_actions.append(display_action)
+        self.display_mode_group.triggered.connect(
+            lambda selected: self.canvas.set_display_mode(selected.data())
+        )
+        self.actions.tool += (
+            None,
+            *display_actions,
+            None,
+            fit_window,
+            fit_width,
+            *utility_actions,
+        )
         central_layout.addLayout(instruction_layout)
         central_layout.addWidget(self.auto_labeling_widget)
         canvas_panel = RoundedPanel()

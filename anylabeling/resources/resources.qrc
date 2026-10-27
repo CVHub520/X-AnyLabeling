@@ -1,5 +1,9 @@
 <RCC>
     <qresource prefix="/images">
+        <file>images/toolbar/contrast.svg</file>
+        <file>images/toolbar/network.svg</file>
+        <file>images/toolbar/component.svg</file>
+        <file>images/toolbar/swatch-book.svg</file>
         <file alias="images/alibaba.png">images/brands/alibaba.png</file>
         <file alias="images/anthropic.png">images/brands/anthropic.png</file>
         <file alias="images/bria-ai.png">images/brands/bria-ai.png</file>

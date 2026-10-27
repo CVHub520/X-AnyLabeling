@@ -30,10 +30,11 @@
 
 ## 🥳 新功能
 
+- `2026-10-27`：新增[标注显示模式](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#33-%E5%AF%B9%E8%B1%A1%E5%8F%AF%E8%A7%86%E5%8C%96)，支持按类别、实例或群组配色，以及黑色背景、白色前景的二值掩码视图。
 - `2026-10-27`：新增支持正方形标注。
 - `2026-10-24`：支持画布上的平滑缩放、自由平移和边界裁剪。
 - `2026-10-18`：新增支持 [GroundingPI、GroundAnything 和 GroundAnything-VLM](./examples/vision_foundation/groundingpi/README.md) 模型，支持目标检测、描述定位、描述与类别指点、OCR、文档版面分析、GUI 定位及参考框检测。
-- `2026-10-01`：新增 [3D 点云标注](./docs/zh_cn/point_cloud.md)功能，支持 3D 点云检测与分割。
+- `2026-10-01`：新增 [3D 点云标注](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/point_cloud)功能，支持 3D 点云检测与分割。
 - `2026-08-19`：新增[图片标签](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#37-%E5%9B%BE%E7%89%87%E6%A0%87%E7%AD%BE)功能，支持标签新增、编辑、排序及批量删除。
 - `2026-08-12`：新增支持 [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg) 实例分割模型。
 - `2026-08-08`：新增支持 [RT-DETRv2-OBB](https://xanylabeling.com/examples/detection/obb) 旋转目标检测模型。

@@ -28,10 +28,11 @@
 
 ## 🥳 What's New
 
+- `2026-10-27`: Add [annotation display modes](https://xanylabeling.com/docs/x-anylabeling/user_guide#33-shape-display): color by label, instance, or group, and a binary mask view with white foreground on a black background.
 - `2026-10-27`: Add square annotation support.
 - `2026-10-24`: Add support for smooth zoom, free panning, and boundary clipping on the canvas.
 - `2026-10-18`: Add support for [GroundingPI, GroundAnything, and GroundAnything-VLM](./examples/vision_foundation/groundingpi/README.md) with detection, grounding, referring and category-based pointing, OCR, document layout, GUI grounding, and visual prompting.
-- `2026-10-01`: Add [3D point cloud annotation](./docs/en/point_cloud.md), supporting 3D point cloud detection and segmentation.
+- `2026-10-01`: Add [3D point cloud annotation](https://xanylabeling.com/docs/x-anylabeling/point_cloud), supporting 3D point cloud detection and segmentation.
 - `2026-08-19`: Add support for [image tagging](https://xanylabeling.com/docs/x-anylabeling/user_guide#37-image-tags), with tag creation, editing, reordering, and batch deletion.
 - `2026-08-12`: Add support for [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg) instance segmentation models.
 - `2026-08-08`: Add support for the [RT-DETRv2-OBB](https://xanylabeling.com/examples/detection/obb) rotated object detection model.

@@ -2,6 +2,8 @@
 
 import copy
 import math
+import weakref
+import zlib
 
 import cv2
 import numpy as np
@@ -209,6 +211,9 @@ class Canvas(
         # Set widget options.
         self.setMouseTracking(True)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.WheelFocus)
+        self.display_mode = "label"
+        self._instance_color_ids = weakref.WeakKeyDictionary()
+        self._next_instance_color_id = 0
         self.show_groups = False
         self.show_masks = True
         self.show_texts = True
@@ -4057,8 +4062,12 @@ class Canvas(
             if not visible_shapes:
                 continue
             group_rect = self._group_rect(visible_shapes)
-            group_color = QtGui.QColor(
-                *LABEL_COLORMAP[int(group_id) % len(LABEL_COLORMAP)]
+            group_color = (
+                self._display_color(group_shapes[0])
+                if self.display_mode == "group"
+                else QtGui.QColor(
+                    *LABEL_COLORMAP[int(group_id) % len(LABEL_COLORMAP)]
+                )
             )
             selected = bool(
                 active_shapes and group_id == self._selected_group_id
@@ -4127,8 +4136,104 @@ class Canvas(
             )
         painter.restore()
 
+    def set_display_mode(self, mode):
+        if mode not in ("label", "instance", "group", "bitmap"):
+            raise ValueError(f"Unknown display mode: {mode}")
+        self.display_mode = mode
+        self.update()
+
+    def _display_color(self, shape):
+        if self.display_mode == "group" and shape.group_id is not None:
+            color_id = zlib.crc32(str(shape.group_id).encode("utf-8"))
+        else:
+            if shape not in self._instance_color_ids:
+                self._instance_color_ids[shape] = self._next_instance_color_id
+                self._next_instance_color_id += 1
+            color_id = self._instance_color_ids[shape]
+        return QtGui.QColor.fromHsvF((color_id * 0.61803398875) % 1, 0.7, 1.0)
+
+    def _paint_bitmap(self, painter):
+        painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing, False)
+        painter.setRenderHint(
+            QtGui.QPainter.RenderHint.SmoothPixmapTransform, False
+        )
+        painter.setOpacity(1.0)
+        painter.setClipRect(self.pixmap.rect())
+        painter.fillRect(self.pixmap.rect(), Qt.GlobalColor.black)
+        shapes = self.shapes + ([self.current] if self.current else [])
+        for shape in shapes:
+            if not shape.visible or not self.is_visible(shape):
+                continue
+            if shape._brush_using_mask and shape.mask is not None:
+                mask = np.ascontiguousarray(shape.mask != 0, dtype=np.uint8)
+                height, width = mask.shape
+                image = QtGui.QImage(
+                    mask.data,
+                    width,
+                    height,
+                    mask.strides[0],
+                    QtGui.QImage.Format.Format_Indexed8,
+                )
+                image.setColorTable([0, QtGui.qRgb(255, 255, 255)])
+                painter.drawImage(0, 0, image)
+                continue
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(Qt.GlobalColor.white)
+            if shape.shape_type == "point" and shape.points:
+                radius = shape.point_size / 2
+                painter.drawEllipse(shape.points[0], radius, radius)
+            elif shape.shape_type in ("line", "linestrip"):
+                painter.setPen(
+                    QtGui.QPen(Qt.GlobalColor.white, shape.line_width)
+                )
+                painter.setBrush(Qt.BrushStyle.NoBrush)
+                painter.drawPolyline(QtGui.QPolygonF(shape.points))
+            elif (
+                shape.shape_type in ("rectangle", "rotation")
+                and len(shape.points) == 2
+            ):
+                painter.drawRect(shape.get_rect_from_line(*shape.points))
+            elif shape.shape_type == "cuboid" and len(shape.points) >= 8:
+                points = np.array(
+                    [(point.x(), point.y()) for point in shape.points[:8]],
+                    dtype=np.float32,
+                )
+                hull = cv2.convexHull(points).reshape(-1, 2)
+                painter.drawPolygon(
+                    QtGui.QPolygonF(
+                        [QtCore.QPointF(float(x), float(y)) for x, y in hull]
+                    )
+                )
+            else:
+                painter.drawPath(shape.make_path())
+
+    def paintEvent(self, event):
+        if self.display_mode not in ("instance", "group"):
+            self._paint_canvas(event)
+            return
+        original_colors = []
+        try:
+            for shape in self.shapes + self.selected_shapes_copy:
+                color = self._display_color(shape)
+                for name in (
+                    "line_color",
+                    "fill_color",
+                    "select_line_color",
+                    "select_fill_color",
+                    "vertex_fill_color",
+                ):
+                    original = getattr(shape, name)
+                    original_colors.append((shape, name, original))
+                    replacement = QtGui.QColor(color)
+                    replacement.setAlpha(original.alpha())
+                    setattr(shape, name, replacement)
+            self._paint_canvas(event)
+        finally:
+            for shape, name, color in reversed(original_colors):
+                setattr(shape, name, color)
+
     # QT Overload
-    def paintEvent(self, event):  # noqa: C901
+    def _paint_canvas(self, event):  # noqa: C901
         """Paint event for canvas"""
         if (
             self.pixmap is None
@@ -4145,6 +4250,11 @@ class Canvas(
 
         p.scale(self.scale, self.scale)
         p.translate(self.offset_to_center())
+
+        if self.display_mode == "bitmap":
+            self._paint_bitmap(p)
+            p.end()
+            return
 
         p.drawPixmap(0, 0, self.pixmap)
 
