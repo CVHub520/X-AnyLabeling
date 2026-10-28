@@ -30,6 +30,7 @@
 
 ## 🥳 新功能
 
+- `2026-10-28`：新增支持 [WeVisOne-VL](./examples/vision_foundation/wevisone_vl/README.md) 模型，支持目标检测、描述定位、目标指点、计数、OCR、文本定位、分割、文本及框提示抠图、参考框检测和自由提示。
 - `2026-10-28`：新增支持 [Xiaomi-Lens-0](./examples/vision_foundation/xiaomi_lens/README.md) 模型，支持描述理解与分割、多实例定位、推理分割、具身指令定位及细粒度感知。
 - `2026-10-27`：新增[标注显示模式](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#33-%E5%AF%B9%E8%B1%A1%E5%8F%AF%E8%A7%86%E5%8C%96)，支持按类别、实例或群组配色，以及黑色背景、白色前景的二值掩码视图。
 - `2026-10-27`：新增支持正方形标注。
@@ -80,7 +81,7 @@
 | 📄 **光学字符识别** | PP-OCRv4, PP-OCRv5, PP-OCRv6 |
 | 🧾 **综合版面分析** | PP-DocLayoutV3 |
 | 📑 **文档解析** | PaddleOCR-VL, PaddleOCR-VL-1.6 |
-| 🗣️ **视觉基础模型** | Rex-Omni, Florence2, LocateAnything, GroundingPI, GroundAnything, GroundAnything-VLM, Xiaomi-Lens-0 |
+| 🗣️ **视觉基础模型** | Rex-Omni, Florence2, LocateAnything, GroundingPI, GroundAnything, GroundAnything-VLM, Xiaomi-Lens-0, WeVisOne-VL |
 | 👁️ **视觉语言模型** | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ **车道线检测** | CLRNet |
 | 🔢 **目标计数** | CountGD, GeCO, GeCo2 |
@@ -138,6 +139,7 @@
   - [Rex-Omni](./examples/vision_foundation/rexomni/README.md)
   - [Florence 2](./examples/vision_foundation/florence2/README.md)
   - [LocateAnything](./examples/vision_foundation/locateanything/README.md)
+  - [WeVisOne-VL](./examples/vision_foundation/wevisone_vl/README.md)
   - [Xiaomi-Lens-0](./examples/vision_foundation/xiaomi_lens/README.md)
   - [GroundingPI / GroundAnything / GroundAnything-VLM](./examples/vision_foundation/groundingpi/README.md)
 - [Counting](./examples/counting/)

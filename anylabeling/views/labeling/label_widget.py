@@ -2482,6 +2482,12 @@ class LabelingWidget(LabelDialog):
         self.auto_labeling_widget.model_manager.model_loaded.connect(
             self.update_thumbnail_display
         )
+        self.auto_labeling_widget.remote_server_select_combobox.currentIndexChanged.connect(
+            self.update_thumbnail_display
+        )
+        self.auto_labeling_widget.remote_task_select_combobox.currentIndexChanged.connect(
+            self.update_thumbnail_display
+        )
         self.next_files_changed.connect(
             self.auto_labeling_widget.model_manager.on_next_files_changed
         )
@@ -7971,6 +7977,16 @@ class LabelingWidget(LabelDialog):
         model_config = (
             self.auto_labeling_widget.model_manager.loaded_model_config
         )
+        if model_config and model_config.get("type") == "remote_server":
+            thumbnail_path = model_config["model"].get_preview_path(
+                self.filename
+            )
+            if thumbnail_path:
+                self.thumbnail_pixmap = QtGui.QPixmap(thumbnail_path)
+                if not self.thumbnail_pixmap.isNull():
+                    self.thumbnail_container.show()
+                    self.update_thumbnail_pixmap()
+            return
         supported_model_list = list(_THUMBNAIL_RENDER_MODELS.keys())
         if not (
             model_config

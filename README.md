@@ -28,6 +28,7 @@
 
 ## 🥳 What's New
 
+- `2026-10-28`: Add support for the [WeVisOne-VL](./examples/vision_foundation/wevisone_vl/README.md) model with detection, referring localization, pointing, counting, OCR, text grounding, segmentation, text and box matting, visual prompting, and freeform instructions.
 - `2026-10-28`: Add support for the [Xiaomi-Lens-0](./examples/vision_foundation/xiaomi_lens/README.md) model with referring comprehension and segmentation, multi-instance grounding, reasoning segmentation, embodied referring, and fine-grained perception.
 - `2026-10-27`: Add [annotation display modes](https://xanylabeling.com/docs/x-anylabeling/user_guide#33-shape-display): color by label, instance, or group, and a binary mask view with white foreground on a black background.
 - `2026-10-27`: Add square annotation support.
@@ -78,7 +79,7 @@
 | 📄 OCR | PP-OCRv4, PP-OCRv5, PP-OCRv6 |
 | 🧾 Layout Analysis | PP-DocLayoutV3 |
 | 📑 Document Parsing | PaddleOCR-VL, PaddleOCR-VL-1.6 |
-| 🗣️ Vision Foundation Models | Rex-Omni, Florence2, LocateAnything, GroundingPI, GroundAnything, GroundAnything-VLM, Xiaomi-Lens-0 |
+| 🗣️ Vision Foundation Models | Rex-Omni, Florence2, LocateAnything, GroundingPI, GroundAnything, GroundAnything-VLM, Xiaomi-Lens-0, WeVisOne-VL |
 | 👁️ Vision Language Models | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ Lane Detection | CLRNet |
 | 🔢 Object Counting | CountGD, GeCO, GeCo2 |
@@ -135,6 +136,7 @@
   - [Rex-Omni](./examples/vision_foundation/rexomni/README.md)
   - [Florence 2](./examples/vision_foundation/florence2/README.md)
   - [LocateAnything](./examples/vision_foundation/locateanything/README.md)
+  - [WeVisOne-VL](./examples/vision_foundation/wevisone_vl/README.md)
   - [Xiaomi-Lens-0](./examples/vision_foundation/xiaomi_lens/README.md)
   - [GroundingPI / GroundAnything / GroundAnything-VLM](./examples/vision_foundation/groundingpi/README.md)
 - [Counting](./examples/counting/)
