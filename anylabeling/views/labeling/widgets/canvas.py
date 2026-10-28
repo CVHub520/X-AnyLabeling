@@ -746,7 +746,9 @@ class Canvas(
         weight = max(0.0, min(1.0, float(luminance_weight)))
         lab[..., 0] *= (100.0 / 255.0) * weight
         np.square(lab, out=lab)
-        return np.sqrt(np.sum(lab, axis=2, dtype=np.float32))
+        distance = lab[..., 0] + lab[..., 1]
+        distance += lab[..., 2]
+        return np.sqrt(distance, out=distance)
 
     @staticmethod
     def _connected_magic_wand_mask(
@@ -758,7 +760,6 @@ class Canvas(
         if not (0 <= x < width and 0 <= y < height):
             return np.zeros((height, width), dtype=np.uint8)
         tolerance = max(0, min(255, int(threshold)))
-        candidates = (distance <= tolerance).astype(np.uint8)
         flood_mask = np.zeros((height + 2, width + 2), dtype=np.uint8)
         flags = (
             4
@@ -767,12 +768,12 @@ class Canvas(
             | (255 << 8)
         )
         cv2.floodFill(
-            candidates,
+            distance,
             flood_mask,
             (x, y),
             0,
             0,
-            0,
+            tolerance,
             flags,
         )
         return flood_mask[1:-1, 1:-1]
@@ -838,9 +839,13 @@ class Canvas(
             self._magic_wand_seed,
             self._magic_wand_threshold,
         )
+        x, y, width, height = cv2.boundingRect(self._magic_wand_mask)
         self._magic_wand_path = self._polylines_to_painter_path(
-            self._mask_to_polylines(self._magic_wand_mask)
+            self._mask_to_polylines(
+                self._magic_wand_mask[y : y + height, x : x + width]
+            )
         )
+        self._magic_wand_path.translate(x, y)
         self.update()
 
     def _start_magic_wand(
@@ -3028,9 +3033,7 @@ class Canvas(
                 ev.accept()
                 return
             if ev.button() == QtCore.Qt.MouseButton.RightButton:
-                if self._finish_magic_wand() and not self.is_auto_labeling:
-                    self.prev_pan_point = ev.globalPosition()
-                    self.mode_changed.emit()
+                self._finish_magic_wand()
                 ev.accept()
                 return
 

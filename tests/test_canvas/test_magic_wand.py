@@ -4,6 +4,7 @@ import unittest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 try:
+    import cv2
     import numpy as np
     from PyQt6 import QtCore, QtGui, QtWidgets
 
@@ -73,6 +74,52 @@ class TestCanvasMagicWand(unittest.TestCase):
         self.assertEqual(mask[1, 1], 255)
         self.assertEqual(mask[1, 2], 255)
         self.assertEqual(mask[1, 3], 0)
+
+    def test_distance_and_masks_match_original_algorithm(self):
+        rng = np.random.default_rng(42)
+        image = rng.integers(0, 256, (60, 80, 3), dtype=np.uint8)
+        for seed in ((0, 0), (40, 30), (79, 59)):
+            for weight in (0.0, 0.5, 1.0):
+                lab = cv2.cvtColor(image, cv2.COLOR_RGB2LAB).astype(np.float32)
+                lab -= lab[seed[1], seed[0]].copy()
+                lab[..., 0] *= (100.0 / 255.0) * weight
+                np.square(lab, out=lab)
+                expected_distance = np.sqrt(
+                    np.sum(lab, axis=2, dtype=np.float32)
+                )
+                distance = self.canvas._compute_magic_wand_distance(
+                    image, seed, weight
+                )
+                np.testing.assert_array_equal(distance, expected_distance)
+                for threshold in (0, 15, 50, 100, 255):
+                    candidates = (distance <= threshold).astype(np.uint8)
+                    expected = np.zeros((62, 82), dtype=np.uint8)
+                    cv2.floodFill(
+                        candidates,
+                        expected,
+                        seed,
+                        0,
+                        0,
+                        0,
+                        4
+                        | cv2.FLOODFILL_FIXED_RANGE
+                        | cv2.FLOODFILL_MASK_ONLY
+                        | (255 << 8),
+                    )
+                    actual = self.canvas._connected_magic_wand_mask(
+                        distance, seed, threshold
+                    )
+                    np.testing.assert_array_equal(actual, expected[1:-1, 1:-1])
+                np.testing.assert_array_equal(distance, expected_distance)
+
+    def test_cropped_preview_preserves_image_coordinates(self):
+        self.canvas._start_magic_wand(
+            QtCore.QPointF(28, 5), QtCore.QPointF(28, 5)
+        )
+        expected = self.canvas._polylines_to_painter_path(
+            self.canvas._mask_to_polylines(self.canvas._magic_wand_mask)
+        )
+        self.assertEqual(self.canvas._magic_wand_path, expected)
 
     def test_drag_increases_threshold_in_all_directions(self):
         self.canvas._start_magic_wand(
@@ -225,7 +272,41 @@ class TestCanvasMagicWand(unittest.TestCase):
         self.assertFalse(self.canvas._magic_wand_active)
         self.assertEqual(len(self.canvas.shapes), 1)
         self.assertEqual(created, [True])
-        self.assertEqual(mode_changes, [True])
+        self.assertEqual(mode_changes, [])
+        self.assertTrue(self.canvas.drawing())
+        self.assertTrue(self.canvas.is_magic_wand_mode)
+
+        for button in (
+            QtCore.Qt.MouseButton.LeftButton,
+            QtCore.Qt.MouseButton.RightButton,
+        ):
+            self.canvas.mousePressEvent(
+                self.mouse_event(
+                    QtCore.QEvent.Type.MouseButtonPress,
+                    QtCore.QPointF(28, 5),
+                    button,
+                    button,
+                )
+            )
+            self.canvas.mouseReleaseEvent(
+                self.mouse_event(
+                    QtCore.QEvent.Type.MouseButtonRelease,
+                    QtCore.QPointF(28, 5),
+                    button,
+                    QtCore.Qt.MouseButton.NoButton,
+                )
+            )
+
+        self.assertEqual(len(self.canvas.shapes), 2)
+        self.assertEqual(created, [True, True])
+        self.assertEqual(mode_changes, [])
+        self.assertTrue(self.canvas.drawing())
+        self.assertTrue(self.canvas.is_magic_wand_mode)
+        self.assertFalse(self.canvas._magic_wand_active)
+        self.assertEqual(self.canvas._magic_wand_threshold, 15)
+        self.assertGreaterEqual(
+            min(point.x() for point in self.canvas.shapes[-1].points), 25
+        )
 
     def test_escape_cancels_preview(self):
         self.canvas.resize(40, 30)
