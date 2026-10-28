@@ -1,5 +1,32 @@
 # X-AnyLabeling Changelog
 
+## `v4.2.2` (Oct 28, 2026)
+
+X-AnyLabeling 4.2.2 expands canvas annotation and visualization controls and adds remote model result previews and task examples.
+
+### 🚀 New Features
+
+- Support square shape annotation and Shift-constrained square drawing.
+- Show live shape measurements on the canvas.
+- Add label, instance, group, and binary mask display modes.
+- Add WeVisOne-VL result previews and task examples.
+
+### 🐛 Bug Fixes
+
+- Enable horizontal toolbar scrolling with the mouse wheel.
+
+### 🛠️ Improvements
+
+- Add visualization controls to the main toolbar.
+- Enable the image tags panel by default.
+- Document Xiaomi-Lens-0 tasks with verified result screenshots.
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v4.2.1` (Oct 26, 2026)
 
 X-AnyLabeling 4.2.1 refreshes the application interface and improves annotation review, canvas interaction, and image switching performance.
