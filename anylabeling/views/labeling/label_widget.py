@@ -6793,8 +6793,9 @@ class LabelingWidget(LabelDialog):
             self._sidebar_width_ratio = self.right_sidebar.width() / available
 
     def _update_ui_density(self):
+        window = self.window()
         scale = min(
-            1.5, max(1.0, min(self.width() / 1920, self.height() / 1000))
+            1.5, max(1.0, min(window.width() / 1920, window.height() / 1000))
         )
         scale = round(scale * 8) / 8
         if scale != self._ui_scale:
