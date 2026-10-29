@@ -2500,7 +2500,11 @@ class PPOCRDialog(QDialog):
             return
         super().dropEvent(event)
 
+    def reject(self) -> None:
+        self.close()
+
     def closeEvent(self, event) -> None:
         self.cancel_event.set()
         self.stop_worker(wait=False)
-        super().closeEvent(event)
+        event.accept()
+        super().reject()

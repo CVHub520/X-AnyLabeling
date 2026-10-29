@@ -3952,8 +3952,13 @@ class LabelingWidget(LabelDialog):
             main_window = parent
         main_window.hide()
 
-        dialog = ClassifierDialog(self)
-        dialog.exec()
+        try:
+            dialog = ClassifierDialog(self)
+            dialog.exec()
+        finally:
+            main_window.show()
+            main_window.raise_()
+            main_window.activateWindow()
 
     def open_classifier(self):
         return self.open_image_classifier()

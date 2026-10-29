@@ -3171,9 +3171,13 @@ class VideoClassifierDialog(QDialog):
         self._video_load_workers = []
         self._video_load_worker = None
 
+    def reject(self):
+        self.close()
+
     def closeEvent(self, event):
         if not self._save_dirty_sidecar():
             event.ignore()
             return
         self.release_resources()
-        super().closeEvent(event)
+        event.accept()
+        super().reject()

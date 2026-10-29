@@ -93,22 +93,7 @@ class ClassifierDialog(QDialog):
         self.is_multiclass = True
         self.output_dir = DEFAULT_OUTPUT_DIR
         self.switching_image = False
-        self.top_window = None
         self._ai_workers = set()
-
-        if parent:
-            self.top_window = parent
-            current = self.top_window
-            while True:
-                parent_widget = (
-                    current.parent()
-                    if hasattr(current, "parent") and callable(current.parent)
-                    else getattr(current, "parent", None)
-                )
-                if parent_widget is None:
-                    break
-                current = parent_widget
-            self.top_window = current
 
         self.init_ui()
         self.load_initial_data()
@@ -1277,13 +1262,6 @@ class ClassifierDialog(QDialog):
         right_width = total_width - self.target_left_width
         if right_width > 0:
             self.main_splitter.setSizes([self.target_left_width, right_width])
-
-    def closeEvent(self, event):
-        if self.top_window:
-            self.top_window.show()
-            self.top_window.raise_()
-            self.top_window.activateWindow()
-        super().closeEvent(event)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)

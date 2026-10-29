@@ -2653,6 +2653,9 @@ class ChatbotDialog(QDialog):
                         if tooltip:
                             tooltip.hide()
 
+    def reject(self):
+        self.close()
+
     def closeEvent(self, event):
         """Handle dialog close event properly"""
         self.hideAllTooltips()
@@ -2661,7 +2664,8 @@ class ChatbotDialog(QDialog):
         if self.loading_timer and self.loading_timer.isActive():
             self.loading_timer.stop()
 
-        super().closeEvent(event)
+        event.accept()
+        super().reject()
 
     def wheelEvent(self, event):
         """Handle wheel events at dialog level"""

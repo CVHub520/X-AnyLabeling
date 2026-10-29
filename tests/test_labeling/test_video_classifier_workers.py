@@ -17,11 +17,12 @@ from anylabeling.views.labeling.widgets import video_classifier_dialog
 class TestStreamingVideoBody(unittest.TestCase):
     def test_streamed_body_contains_complete_video_data(self):
         source_data = b"video-payload!"
-        with tempfile.NamedTemporaryFile(suffix=".mp4") as source:
-            source.write(source_data)
-            source.flush()
+        with tempfile.TemporaryDirectory() as directory:
+            source_path = os.path.join(directory, "video.mp4")
+            with open(source_path, "wb") as source:
+                source.write(source_data)
             worker = video_classifier_dialog.VideoDescriptionWorker(
-                source.name, None, "describe"
+                source_path, None, "describe"
             )
             data = {
                 "video": "__XANYLABELING_VIDEO_DATA__",
@@ -30,7 +31,7 @@ class TestStreamingVideoBody(unittest.TestCase):
             with mock.patch.object(
                 video_classifier_dialog, "AI_VIDEO_CHUNK_BYTES", 6
             ):
-                body = worker._request_body(data, source.name, "video/mp4")
+                body = worker._request_body(data, source_path, "video/mp4")
                 payload = b"".join(body)
 
         self.assertEqual(len(body), len(payload))
@@ -41,11 +42,12 @@ class TestStreamingVideoBody(unittest.TestCase):
         self.assertEqual(base64.b64decode(encoded), source_data)
 
     def test_streaming_stops_when_cancelled(self):
-        with tempfile.NamedTemporaryFile(suffix=".mp4") as source:
-            source.write(b"video")
-            source.flush()
+        with tempfile.TemporaryDirectory() as directory:
+            source_path = os.path.join(directory, "video.mp4")
+            with open(source_path, "wb") as source:
+                source.write(b"video")
             body = video_classifier_dialog._StreamingVideoBody(
-                source.name,
+                source_path,
                 b'{"video":"',
                 b'"}',
                 "video/mp4",
