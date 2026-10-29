@@ -259,7 +259,7 @@ Locks protect editing only during the current session. They are not written to a
 
 When **Show Groups** is enabled, each group displays an interactive bounding frame and a compact badge such as `G3 · S5` (group 3 with 5 shapes). Clicking a shape still selects that shape first. Click the badge, frame, or empty area inside the frame to select the whole group, then drag it or use the arrow keys to move all members together (`Shift` accelerates keyboard movement). Copying and pasting a selected group assigns the pasted group the next available group ID and offsets it slightly. Deleting a selected group requires confirmation.
 
-- **Rectangles**: You can drag a rectangle's corner handles to resize it, or select multiple rectangles and merge them using the right-click menu. Mouse wheel editing is disabled by default; you can enable it in `Settings > Canvas > Wheel Editing > Enable Wheel Rectangle Editing`, or via the `wheel_rectangle_editing` setting. When enabled, select one unlocked rectangle and use `Ctrl + Wheel`: scrolling inside scales it, while scrolling outside adjusts the nearest edge. Plain wheel scrolling always zooms the canvas. Note: wheel rectangle editing is automatically disabled when `auto_highlight_shape` is enabled.
+- **Rectangles**: You can drag a rectangle's corner handles to resize it, or select multiple rectangles and merge them using the right-click menu. Mouse wheel editing is disabled by default; you can enable it in `Settings > Canvas > Wheel Editing > Enable Wheel Rectangle Editing`, or via the `wheel_rectangle_editing` setting. When enabled, select one unlocked rectangle and use `Ctrl + Wheel`: scrolling inside scales it, while scrolling outside adjusts the nearest edge. Plain wheel scrolling always scrolls the canvas. Note: wheel rectangle editing is automatically disabled when `auto_highlight_shape` is enabled.
 - **Polygons**: In Editing Mode, dragging an edge adds a new vertex, and holding `Shift` while clicking a vertex removes it. You can also double-click a vertex of an unlocked polygon to remove it, keeping at least 3 vertices. This supports undo and works even when **Double Click Edit Label** is disabled. When exactly one polygon or line strip is selected, you can hold `Alt` to enter eraser mode, then drag with the left mouse button across vertices to remove them and reconnect the remaining points. If a polygon has fewer than 3 points, or a line strip has fewer than 2 points, the object is removed and can be restored with undo. Polygons also support merging via the right-click menu. When exactly one `polygon` is selected, you can also activate **Edit Brush** from the toolbar, context menu, or with `Shift+B`: drag with the left mouse button to expand the region, hold `Ctrl` while dragging to erase, and use `Ctrl + Wheel` to resize the brush. Stroke-level undo and redo are supported, and the target remains locked while editing. Right-click or turn off Edit Brush to commit; press `Esc`, switch images, or select another tool to discard the changes and restore the original polygon. Brush point spacing and contour simplification tolerance are available under `Settings > Canvas > Interaction > Brush`; set the simplification tolerance to `0` to preserve the extracted contour points.
 - **Rotated Rectangles**: Select a rotated rectangle, drag the rotation handle above it for quick coarse angle adjustment, then press `Z`, `X`, `C`, or `V` for fine-grained rotation control. A real-time display of the rotation angle is available via the View menu.
 - **Cuboid**: In Edit Mode, cuboid controls include 11 visible handles: 4 front vertices, 4 front edge centers, 2 visible rear vertices, and 1 visible rear edge center (depth handle). Dragging the front face moves the whole cuboid. Dragging the left/right/back faces adjusts geometry. Dragging rear visible vertices adjusts vertical alignment of top/bottom planes, while dragging the rear center adjusts depth with geometric constraints. The visible rear side is determined automatically from the depth vector direction.
@@ -388,7 +388,7 @@ This section explains how to customize the view settings in X-AnyLabeling, inclu
 - **Zoom to Fit Window** (`Ctrl + F`)
 - **Zoom to Fit Width** (`Ctrl + Shift + F`)
 
-Scroll the mouse wheel to zoom smoothly around the cursor in all canvas tools, including rectangle editing and Edit Brush. The zoom range is **10%–1000% (0.1×–10×)**, for both the main canvas and navigator. Small wheel increments are preserved, and the image position under the cursor stays fixed while zooming. `Ctrl + Wheel` adjusts a selected rectangle when rectangle wheel editing is enabled, or the brush size in Edit Brush; otherwise, it also zooms the canvas. Hold `Shift` while scrolling to move the scrollbars; in compare view, `Shift + Wheel` moves the divider.
+Scroll the mouse wheel to scroll the canvas up and down; this also works in all canvas tools, including rectangle editing and Edit Brush. Hold `Ctrl` while scrolling to zoom smoothly around the cursor. The zoom range is **10%–1000% (0.1×–10×)**, for both the main canvas and navigator. Small wheel increments are preserved, and the image position under the cursor stays fixed while zooming. When rectangle wheel editing is enabled, `Ctrl + Wheel` adjusts a selected rectangle; in Edit Brush, `Ctrl + Wheel` adjusts the brush size; otherwise, `Ctrl + Wheel` zooms the canvas. Hold `Shift` while scrolling to move the scrollbars; in compare view, `Shift + Wheel` moves the divider.
 
 While drawing ordinary shapes, use `Right Drag`, `Alt + Left Drag`, or `Middle Drag` to pan freely, even when zoomed in: any image corner can be moved anywhere in the viewport. In Editing Mode, use the middle button, drag an empty area with the left button, or use right-button dragging. `Space + Left Drag` remains available for compatibility. The Magic Wand retains its right-button confirmation action. A right-click keeps its existing action, including opening the context menu or finishing brush/magic-wand editing. Use `Ctrl + Right Drag` for the annotation copy/move menu. Fit Window or Fit Width resets the pan offset.
 
@@ -468,7 +468,7 @@ To open the navigator, simply click `View` -> `Navigator` in the menu bar or pre
 
 You can click anywhere on the thumbnail to quickly jump to that location, or drag the red frame to move your view. The navigator also displays all your annotated objects in real-time, giving you a clear overview of your progress.
 
-At the bottom of the navigator, you can precisely set the zoom ratio through the input box (supporting 10% to 1000%), or drag the slider to adjust it. Additionally, you can use the mouse wheel to zoom directly in either the main canvas or the navigator window.
+At the bottom of the navigator, you can precisely set the zoom ratio through the input box (supporting 10% to 1000%), or drag the slider to adjust it. Additionally, you can use the mouse wheel to zoom directly in the navigator window.
 
 This feature is particularly useful when working with ultra-high resolution images, allowing you to maintain precise local operations while keeping the global perspective.
 
@@ -924,92 +924,92 @@ Most common options can now be changed directly in `Settings` (`Ctrl+0`), while 
 The default keyboard shortcuts are listed below. You can customize these in the `.xanylabelingrc` file if needed (e.g., to resolve conflicts with system shortcuts or match personal preferences).
 You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit them in the right-side `Shortcuts` panel.
 
-| Shortcut              | Function                                         | Notes                                      |
-|-----------------------|--------------------------------------------------|--------------------------------------------|
-| `d`                   | Next Image                                       |                                            |
-| `a`                   | Previous Image                                   |                                            |
-| `Ctrl+Shift+d`        | Next Unchecked Annotation                        | Uses the label JSON `checked` field        |
-| `Ctrl+Shift+a`        | Previous Unchecked Annotation                    | Uses the label JSON `checked` field        |
-| `Ctrl+Alt+u`          | Clear Annotation Check Status                    | Saves `checked: false`                     |
-| `Ctrl+Alt+k`          | Mark Annotation as Passed                        | Saves `checked: true`                      |
-| `Ctrl+Alt+j`          | Mark Annotation as Failed                        | Saves `checked: "failed"`                  |
-| `p`                   | Create Polygon Shape                             | Shortcut might vary (check interface)      |
-| `Ctrl+n`              | Create Brush Polygon                             | Toggle brush mode for polygon drawing      |
-| `o`                   | Create Rotated Rectangle Shape                   | Shortcut might vary                        |
-| `r`                   | Create Rectangle Shape                           | Shortcut might vary                        |
-| `Ctrl+r`              | Create Cuboid Shape                              | From rectangle                             |
-| `t`                   | Create Quadrilateral Shape                       | Shortcut might vary                        |
-| `Shift+p`             | Create Point Shape                               |                                            |
-| `Shift+l`             | Create Line Shape                                |                                            |
-| `Shift+s`             | Create Line Strip Shape                          |                                            |
-| `Shift+c`             | Create Circle Shape                              |                                            |
-| `i`                   | Run AI Model Inference                           | If model loaded                            |
-| `q`                   | Add Positive Point (SAM)                         | SAM Interactive Segmentation Mode          |
-| `e`                   | Add Negative Point (SAM)                         | SAM Interactive Segmentation Mode          |
-| `b`                   | Clear Points (SAM)                               | SAM Interactive Segmentation Mode          |
-| `f`                   | Finalize Shape (SAM)                             | SAM Interactive Segmentation Mode          |
-| `g`                   | Group Selected Shapes                            | Assigns next available group ID            |
-| `u`                   | Ungroup Selected Shapes                          | Sets group ID to null                      |
-| `s`                   | Hide Selected Shapes                             | Temporarily hide                           |
-| `w`                   | Show Hidden Shapes                               | Show previously hidden shapes              |
-| `Alt+d`               | Open Digit Shortcut Manager                      | Configure numeric key shortcuts            |
-| `Alt+g`               | Open Group ID Manager                            | Manually set group ID                      |
-| `Alt+l`               | Open Label Manager                               | Rename, Delete, Hide/Show, Lock/Unlock, Adjust Color    |
-| `Alt+s`               | Open Shape Manager                               | Add, Delete, Remove                        |
-| `Ctrl+0`              | Open Settings                                    | Shortcut settings can be edited in GUI     |
-| `Ctrl+Delete`         | Delete Current Label File (`.json`)              | **Irreversible**                           |
-| `Ctrl+Shift+Delete`   | Delete Current Image & Label File                | Moves to `_delete_` folder                 |
-| `Ctrl+1`              | Open Chatbot                                     |                                            |
-| `Ctrl+2`              | Open Visual Question Answering Dialog            |                                            |
-| `Ctrl+3`              | Open Image Classifier Dialog                     |                                            |
-| `Ctrl+4`              | Open PaddleOCR Dialog                            |                                            |
-| `Ctrl+5`              | Open Video Classifier Dialog                     |                                            |
-| `Ctrl+6`              | Open 3D Point Cloud Workspace                     |                                            |
-| `Ctrl+q`              | Quit Application                                 |                                            |
-| `Ctrl+i`              | Open Single Image File                           |                                            |
-| `Ctrl+o`              | Open Single Video File                           |                                            |
-| `Ctrl+u`              | Open Image Directory                             |                                            |
-| `Ctrl+e`              | Edit Selected Label                              | Opens the label editor                     |
-| `Ctrl+j`              | Toggle Edit Mode                                 | Switches between drawing and editing       |
-| `Ctrl+c`              | Copy Selection                                   | Copies selected shape(s)                   |
-| `Ctrl+v`              | Paste Selection                                  | Pastes copied shape(s)                     |
-| `Ctrl+d`              | Duplicate Selection                              | Creates copy of selected shape(s)          |
-| `Ctrl+g`              | Show Statistics (Overview Window)                | Opens Data Statistics Tool                 |
-| `Ctrl+h`              | Toggle All Shapes Visibility                     | Show/Hide all annotations on canvas        |
-| `Ctrl+p`              | Toggle Keep Previous Annotation                  | Reuses the previous frame's annotations    |
-| `Ctrl+y`              | Toggle 'Use Last Label'                          | Auto-fills next shape with previous label  |
-| `Ctrl+Shift+g`        | Toggle 'Use Last Group ID'                       | Reuses the previous group ID               |
-| `Ctrl+b`              | Run Batch Auto-Labeling                          | Runs the selected model on multiple images |
-| `Ctrl+a`              | Open Auto-Labeling Panel                         | Select and configure an AI model           |
-| `Ctrl+s`              | Save Current Annotations                         | Manual save (if auto-save is off)          |
-| `Ctrl+m`              | Toggle Mask Display                              | Show/Hide semi-transparent masks for shapes|
-| `Ctrl+l`              | Toggle Label Text Visibility                     | Show/Hide label names on shapes            |
-| `Ctrl+t`              | Toggle Description Text Visibility               | Show/Hide shape descriptions on shapes     |
-| `Ctrl+Shift+t`        | Show/Hide Image Tags Panel                       | Configurable in Settings                   |
-| `Ctrl+k`              | Toggle Linking Display                           | Show/Hide shape linking visualization      |
-| `Ctrl+Shift+l`        | Toggle Attributes Display                        | Show/Hide shape attributes on canvas       |
-| `Ctrl+Shift+s`        | Set Output Directory                             | Change where `.json` files are saved       |
-| `Wheel`               | Zoom Canvas                                      |                                            |
-| `Ctrl+Wheel`          | Adjust Rectangle or Brush Size                   | Rectangle wheel editing must be enabled     |
-| `Alt+Left Drag`       | Pan Canvas                                       | Drawing Mode                               |
-| `Middle Drag`         | Pan Canvas                                       |                                            |
-| `Right Drag`          | Pan Canvas                                       | Ordinary shape drawing and Editing Mode    |
-| `Ctrl+=`              | Zoom to Actual Size (100%)                       |                                            |
-| `Ctrl++`              | Zoom In                                          |                                            |
-| `Ctrl+-`              | Zoom Out                                         |                                            |
-| `Ctrl+f`              | Zoom to Fit Window                               |                                            |
-| `Ctrl+Shift+f`        | Zoom to Fit Width                                |                                            |
-| `Ctrl+Shift+m`        | Merge Selected Shapes                            | Creates bounding box around selection      |
-| `Ctrl+Shift+n`        | Cycle Through Shapes                             | Zoom in next shape on canvas               |
-| `Ctrl+Shift+c`        | Cycle Select Shapes                              | Selects next shape on canvas               |
-| `Ctrl+z`              | Undo Last Action                                 |                                            |
-| `Delete`              | Delete Selection                                 | Deletes selected shape(s)                  |
-| `Esc`                 | Deselect Object / Cancel Drawing                 |                                            |
-| `Backspace`           | Delete Selected Point (Polygon Edit)             | While editing polygon points (`Ctrl+J`)    |
-| `↑`, `→`, `↓`, `←`    | Move Selection (Arrow Keys)                      | Nudge selected shape(s)                    |
-| `z`, `x`, `c`, `v`    | Rotate Selection                                 | Rotates selected shape(s) (if applicable)  |
-| `F9`                  | Show/Hide Navigator                              | Toggle navigator window                    |
-| `Ctrl+Alt+c`          | Toggle Compare View                              | Split-screen image comparison              |
+| Shortcut            | Function                                     | Notes                                                |
+| ------------------- | -------------------------------------------- | ---------------------------------------------------- |
+| `d`                 | Next Image                                   |                                                      |
+| `a`                 | Previous Image                               |                                                      |
+| `Ctrl+Shift+d`      | Next Unchecked Annotation                    | Uses the label JSON `checked` field                  |
+| `Ctrl+Shift+a`      | Previous Unchecked Annotation                | Uses the label JSON `checked` field                  |
+| `Ctrl+Alt+u`        | Clear Annotation Check Status                | Saves `checked: false`                               |
+| `Ctrl+Alt+k`        | Mark Annotation as Passed                    | Saves `checked: true`                                |
+| `Ctrl+Alt+j`        | Mark Annotation as Failed                    | Saves `checked: "failed"`                            |
+| `p`                 | Create Polygon Shape                         | Shortcut might vary (check interface)                |
+| `Ctrl+n`            | Create Brush Polygon                         | Toggle brush mode for polygon drawing                |
+| `o`                 | Create Rotated Rectangle Shape               | Shortcut might vary                                  |
+| `r`                 | Create Rectangle Shape                       | Shortcut might vary                                  |
+| `Ctrl+r`            | Create Cuboid Shape                          | From rectangle                                       |
+| `t`                 | Create Quadrilateral Shape                   | Shortcut might vary                                  |
+| `Shift+p`           | Create Point Shape                           |                                                      |
+| `Shift+l`           | Create Line Shape                            |                                                      |
+| `Shift+s`           | Create Line Strip Shape                      |                                                      |
+| `Shift+c`           | Create Circle Shape                          |                                                      |
+| `i`                 | Run AI Model Inference                       | If model loaded                                      |
+| `q`                 | Add Positive Point (SAM)                     | SAM Interactive Segmentation Mode                    |
+| `e`                 | Add Negative Point (SAM)                     | SAM Interactive Segmentation Mode                    |
+| `b`                 | Clear Points (SAM)                           | SAM Interactive Segmentation Mode                    |
+| `f`                 | Finalize Shape (SAM)                         | SAM Interactive Segmentation Mode                    |
+| `g`                 | Group Selected Shapes                        | Assigns next available group ID                      |
+| `u`                 | Ungroup Selected Shapes                      | Sets group ID to null                                |
+| `s`                 | Hide Selected Shapes                         | Temporarily hide                                     |
+| `w`                 | Show Hidden Shapes                           | Show previously hidden shapes                        |
+| `Alt+d`             | Open Digit Shortcut Manager                  | Configure numeric key shortcuts                      |
+| `Alt+g`             | Open Group ID Manager                        | Manually set group ID                                |
+| `Alt+l`             | Open Label Manager                           | Rename, Delete, Hide/Show, Lock/Unlock, Adjust Color |
+| `Alt+s`             | Open Shape Manager                           | Add, Delete, Remove                                  |
+| `Ctrl+0`            | Open Settings                                | Shortcut settings can be edited in GUI               |
+| `Ctrl+Delete`       | Delete Current Label File (`.json`)          | **Irreversible**                                     |
+| `Ctrl+Shift+Delete` | Delete Current Image & Label File            | Moves to `_delete_` folder                           |
+| `Ctrl+1`            | Open Chatbot                                 |                                                      |
+| `Ctrl+2`            | Open Visual Question Answering Dialog        |                                                      |
+| `Ctrl+3`            | Open Image Classifier Dialog                 |                                                      |
+| `Ctrl+4`            | Open PaddleOCR Dialog                        |                                                      |
+| `Ctrl+5`            | Open Video Classifier Dialog                 |                                                      |
+| `Ctrl+6`            | Open 3D Point Cloud Workspace                |                                                      |
+| `Ctrl+q`            | Quit Application                             |                                                      |
+| `Ctrl+i`            | Open Single Image File                       |                                                      |
+| `Ctrl+o`            | Open Single Video File                       |                                                      |
+| `Ctrl+u`            | Open Image Directory                         |                                                      |
+| `Ctrl+e`            | Edit Selected Label                          | Opens the label editor                               |
+| `Ctrl+j`            | Toggle Edit Mode                             | Switches between drawing and editing                 |
+| `Ctrl+c`            | Copy Selection                               | Copies selected shape(s)                             |
+| `Ctrl+v`            | Paste Selection                              | Pastes copied shape(s)                               |
+| `Ctrl+d`            | Duplicate Selection                          | Creates copy of selected shape(s)                    |
+| `Ctrl+g`            | Show Statistics (Overview Window)            | Opens Data Statistics Tool                           |
+| `Ctrl+h`            | Toggle All Shapes Visibility                 | Show/Hide all annotations on canvas                  |
+| `Ctrl+p`            | Toggle Keep Previous Annotation              | Reuses the previous frame's annotations              |
+| `Ctrl+y`            | Toggle 'Use Last Label'                      | Auto-fills next shape with previous label            |
+| `Ctrl+Shift+g`      | Toggle 'Use Last Group ID'                   | Reuses the previous group ID                         |
+| `Ctrl+b`            | Run Batch Auto-Labeling                      | Runs the selected model on multiple images           |
+| `Ctrl+a`            | Open Auto-Labeling Panel                     | Select and configure an AI model                     |
+| `Ctrl+s`            | Save Current Annotations                     | Manual save (if auto-save is off)                    |
+| `Ctrl+m`            | Toggle Mask Display                          | Show/Hide semi-transparent masks for shapes          |
+| `Ctrl+l`            | Toggle Label Text Visibility                 | Show/Hide label names on shapes                      |
+| `Ctrl+t`            | Toggle Description Text Visibility           | Show/Hide shape descriptions on shapes               |
+| `Ctrl+Shift+t`      | Show/Hide Image Tags Panel                   | Configurable in Settings                             |
+| `Ctrl+k`            | Toggle Linking Display                       | Show/Hide shape linking visualization                |
+| `Ctrl+Shift+l`      | Toggle Attributes Display                    | Show/Hide shape attributes on canvas                 |
+| `Ctrl+Shift+s`      | Set Output Directory                         | Change where `.json` files are saved                 |
+| `Wheel`             | Scroll Canvas                                |                                                      |
+| `Ctrl+Wheel`        | Zoom Canvas / Adjust Rectangle or Brush Size | Rectangle wheel editing must be enabled              |
+| `Alt+Left Drag`     | Pan Canvas                                   | Drawing Mode                                         |
+| `Middle Drag`       | Pan Canvas                                   |                                                      |
+| `Right Drag`        | Pan Canvas                                   | Ordinary shape drawing and Editing Mode              |
+| `Ctrl+=`            | Zoom to Actual Size (100%)                   |                                                      |
+| `Ctrl++`            | Zoom In                                      |                                                      |
+| `Ctrl+-`            | Zoom Out                                     |                                                      |
+| `Ctrl+f`            | Zoom to Fit Window                           |                                                      |
+| `Ctrl+Shift+f`      | Zoom to Fit Width                            |                                                      |
+| `Ctrl+Shift+m`      | Merge Selected Shapes                        | Creates bounding box around selection                |
+| `Ctrl+Shift+n`      | Cycle Through Shapes                         | Zoom in next shape on canvas                         |
+| `Ctrl+Shift+c`      | Cycle Select Shapes                          | Selects next shape on canvas                         |
+| `Ctrl+z`            | Undo Last Action                             |                                                      |
+| `Delete`            | Delete Selection                             | Deletes selected shape(s)                            |
+| `Esc`               | Deselect Object / Cancel Drawing             |                                                      |
+| `Backspace`         | Delete Selected Point (Polygon Edit)         | While editing polygon points (`Ctrl+J`)              |
+| `↑`, `→`, `↓`, `←`  | Move Selection (Arrow Keys)                  | Nudge selected shape(s)                              |
+| `z`, `x`, `c`, `v`  | Rotate Selection                             | Rotates selected shape(s) (if applicable)            |
+| `F9`                | Show/Hide Navigator                          | Toggle navigator window                              |
+| `Ctrl+Alt+c`        | Toggle Compare View                          | Split-screen image comparison                        |
 
 ### 7.2 Custom Label Colors
 
