@@ -1072,6 +1072,11 @@ class SettingsDialog(QtWidgets.QDialog):
         self._register_wheel_block(editor)
         for option in field.options:
             text = self.tr("None") if option is None else str(option)
+            if field.key == "canvas.wheel_navigation_mode":
+                text = {
+                    "direct": self.tr("Direct Zoom"),
+                    "traditional": self.tr("Traditional Navigation"),
+                }[option]
             editor.addItem(text, option)
         self._prepare_combo_popup(editor)
         editor.currentIndexChanged.connect(

@@ -465,6 +465,9 @@ class LabelingWidget(LabelDialog):
             epsilon=self._config["canvas"]["epsilon"],
             double_click=self._config["canvas"]["double_click"],
             num_backups=self._config["canvas"]["num_backups"],
+            wheel_navigation_mode=self._config["canvas"].get(
+                "wheel_navigation_mode", "direct"
+            ),
             wheel_rectangle_editing=self._config["canvas"][
                 "wheel_rectangle_editing"
             ],
@@ -504,12 +507,13 @@ class LabelingWidget(LabelDialog):
 
         scroll_area = QScrollArea()
         scroll_area.setStyleSheet(get_scrollbar_style())
-        scroll_area.setHorizontalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        scroll_bar_policy = (
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+            if self.canvas.wheel_navigation_mode == "traditional"
+            else Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
-        scroll_area.setVerticalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-        )
+        scroll_area.setHorizontalScrollBarPolicy(scroll_bar_policy)
+        scroll_area.setVerticalScrollBarPolicy(scroll_bar_policy)
         scroll_area.setWidget(self.canvas)
         scroll_area.setWidgetResizable(True)
         self._canvas_scroll_area = scroll_area
@@ -1029,7 +1033,7 @@ class LabelingWidget(LabelDialog):
             "brush",
             self.tr(
                 "Select one polygon, then paint to add, hold Ctrl to erase, "
-                "and use Ctrl+Wheel to resize the brush"
+                "and use Alt+Wheel to resize the brush"
             ),
             enabled=False,
             checkable=True,
@@ -3512,6 +3516,9 @@ class LabelingWidget(LabelDialog):
     def reset_state(self):
         self._remember_shape_locks()
         self._zoom_animation.stop()
+        if self.filename is not None:
+            for orientation, bar in self.scroll_bars.items():
+                self.scroll_values[orientation][self.filename] = bar.value()
         self._reset_label_loop()
         self.select_loop_count = -1
         self.label_list.clear()
@@ -6381,10 +6388,27 @@ class LabelingWidget(LabelDialog):
             viewport_pos - QtCore.QPointF(self.canvas.pos()) - canvas_pos
         )
         self.zoom_values[self.filename] = (self.zoom_mode, value)
+        self.constrain_canvas_pan()
         self.pan_values[self.filename] = QtCore.QPointF(self.canvas.pan_offset)
         self.canvas.update()
         if hasattr(self, "navigator_dialog"):
             self.navigator_dialog.set_zoom_value(round(value))
+        self.update_navigator_viewport()
+
+    def constrain_canvas_pan(self):
+        if self.canvas.wheel_navigation_mode != "traditional":
+            return
+        offset = self.canvas.pan_offset
+        self.canvas.pan_offset = QtCore.QPointF()
+        area = self._canvas_scroll_area
+        for bar, delta in (
+            (area.horizontalScrollBar(), offset.x()),
+            (area.verticalScrollBar(), offset.y()),
+        ):
+            bar.setValue(round(bar.value() - delta))
+            self.scroll_values[bar.orientation()][self.filename] = bar.value()
+        self.pan_values[self.filename] = QtCore.QPointF()
+        self.canvas.update()
         self.update_navigator_viewport()
 
     def pan_canvas(self, delta):
@@ -6397,6 +6421,7 @@ class LabelingWidget(LabelDialog):
             self.canvas.scale * 100,
         )
         self.canvas.pan_offset += delta
+        self.constrain_canvas_pan()
         self.pan_values[self.filename] = QtCore.QPointF(self.canvas.pan_offset)
         self.canvas.update()
         self.update_navigator_viewport()
@@ -6713,6 +6738,11 @@ class LabelingWidget(LabelDialog):
         saved_pan = QtCore.QPointF(
             self.pan_values.get(self.filename, QtCore.QPointF())
         )
+        saved_scroll = {
+            orientation: values[self.filename]
+            for orientation, values in self.scroll_values.items()
+            if self.filename in values
+        }
         # set zoom values
         is_initial_load = not self.zoom_values
         if self.filename in self.zoom_values:
@@ -6721,13 +6751,11 @@ class LabelingWidget(LabelDialog):
         elif is_initial_load or not self._config["keep_prev_scale"]:
             self.adjust_scale(initial=True)
         # set scroll values
-        for orientation in self.scroll_values:
-            if self.filename in self.scroll_values[orientation]:
-                self.set_scroll(
-                    orientation, self.scroll_values[orientation][self.filename]
-                )
+        for orientation, value in saved_scroll.items():
+            self.set_scroll(orientation, value)
         self.canvas.pan_offset = saved_pan
         self.pan_values[self.filename] = QtCore.QPointF(saved_pan)
+        self.constrain_canvas_pan()
 
         # set brightness contrast values
         brightness, contrast = self.brightness_contrast_values.get(
@@ -6897,6 +6925,12 @@ class LabelingWidget(LabelDialog):
         # The epsilon does not seem to work too well here.
         w = self.central_widget().width() - 2.0
         pw = self.canvas.pixmap.width()
+        if self.canvas.wheel_navigation_mode == "traditional" and pw > 0:
+            area = self._canvas_scroll_area
+            available = area.maximumViewportSize()
+            w = available.width() - 2.0
+            if self.canvas.pixmap.height() * w / pw > available.height():
+                w -= area.verticalScrollBar().sizeHint().width()
         return w / pw if pw > 0 else 1.0
 
     # QT Overload

@@ -91,6 +91,7 @@ fit_to_content:
 
 # canvas
 canvas:
+  wheel_navigation_mode: direct
   label_font_size: 8
   epsilon: 10.0
   # None: do nothing

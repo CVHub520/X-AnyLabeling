@@ -3417,8 +3417,8 @@ Enter キーを押して検索します。</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1030" />
-      <source>Select one polygon, then paint to add, hold Ctrl to erase, and use Ctrl+Wheel to resize the brush</source>
-      <translation>ポリゴンを1つ選択し、塗って領域を追加します。Ctrlを押しながら消去し、Ctrl+ホイールでブラシサイズを調整します</translation>
+      <source>Select one polygon, then paint to add, hold Ctrl to erase, and use Alt+Wheel to resize the brush</source>
+      <translation>ポリゴンを1つ選択し、塗って領域を追加します。Ctrlを押しながら消去し、Alt+ホイールでブラシサイズを調整します</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1039" />
@@ -8178,8 +8178,8 @@ Changes will not be saved until you click Save.</source>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="183" />
-      <source>Use Ctrl+Wheel to adjust rectangle geometry while editing. Disabled by default.</source>
-      <translation>編集中にCtrl+ホイールで矩形の形状を調整します。既定では無効です。</translation>
+      <source>Use Alt+Wheel to adjust rectangle geometry while editing. Disabled by default.</source>
+      <translation>編集中にAlt+ホイールで矩形の形状を調整します。既定では無効です。</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="187" />
@@ -8695,6 +8695,22 @@ Changes will not be saved until you click Save.</source>
       <location filename="../../views/labeling/settings/schema.py" line="350" />
       <source>Zoom To Original</source>
       <translation>元のサイズ</translation>
+    </message>
+    <message>
+      <source>Wheel Navigation Mode</source>
+      <translation>Wheel Navigation Mode</translation>
+    </message>
+    <message>
+      <source>Direct Zoom</source>
+      <translation>Direct Zoom</translation>
+    </message>
+    <message>
+      <source>Traditional Navigation</source>
+      <translation>Traditional Navigation</translation>
+    </message>
+    <message>
+      <source>Wheel zooms in Direct Zoom mode; scrolls in Traditional Navigation mode.</source>
+      <translation>Wheel zooms in Direct Zoom mode; scrolls in Traditional Navigation mode.</translation>
     </message>
   </context>
   <context>

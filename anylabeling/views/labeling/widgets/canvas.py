@@ -103,6 +103,9 @@ class Canvas(
         self.double_click_edit_label = kwargs.pop(
             "double_click_edit_label", True
         )
+        self.wheel_navigation_mode = kwargs.pop(
+            "wheel_navigation_mode", "direct"
+        )
         self.num_backups = kwargs.pop("num_backups", 10)
         self.wheel_rectangle_editing = kwargs.pop(
             "wheel_rectangle_editing", {}
@@ -5282,7 +5285,7 @@ class Canvas(
 
         if (
             self.is_brush_mode
-            and mods & QtCore.Qt.KeyboardModifier.ControlModifier
+            and mods == QtCore.Qt.KeyboardModifier.AltModifier
         ):
             # Resize the brush instead of zooming/scrolling.
             if delta.y() == 0:
@@ -5302,7 +5305,7 @@ class Canvas(
             and len(self.selected_shapes) == 1
             and self.selected_shapes[0].shape_type == "rectangle"
             and not self.selected_shapes[0].locked
-            and mods & QtCore.Qt.KeyboardModifier.ControlModifier
+            and mods == QtCore.Qt.KeyboardModifier.AltModifier
         ):
             if delta.y() == 0:
                 ev.accept()
@@ -5327,16 +5330,19 @@ class Canvas(
             ev.accept()
             return
 
-        if mods & QtCore.Qt.KeyboardModifier.ControlModifier:
-            ev.accept()
-            return
-
         # Shift+wheel: adjust compare view split position
         if (
-            mods == QtCore.Qt.KeyboardModifier.ShiftModifier
+            mods
+            == (
+                QtCore.Qt.KeyboardModifier.AltModifier
+                | QtCore.Qt.KeyboardModifier.ShiftModifier
+            )
             and self.compare_pixmap is not None
             and not self.compare_pixmap.isNull()
         ):
+            if delta.y() == 0:
+                ev.accept()
+                return
             step = 0.02 if delta.y() > 0 else -0.02
             self.split_position = max(
                 0.0, min(1.0, self.split_position + step)
@@ -5346,12 +5352,19 @@ class Canvas(
             ev.accept()
             return
 
-        if not mods & QtCore.Qt.KeyboardModifier.ShiftModifier:
+        if mods == QtCore.Qt.KeyboardModifier.ControlModifier or (
+            mods == QtCore.Qt.KeyboardModifier.NoModifier
+            and self.wheel_navigation_mode == "direct"
+        ):
             # with Ctrl/Command key
             # zoom
             self.zoom_request.emit(delta.y(), ev.position())
-        else:
+        elif mods == QtCore.Qt.KeyboardModifier.ShiftModifier or (
+            mods == QtCore.Qt.KeyboardModifier.NoModifier
+            and self.wheel_navigation_mode == "traditional"
+        ):
             # scroll
+            self.interaction_started.emit()
             self.scroll_request.emit(
                 delta.x(), QtCore.Qt.Orientation.Horizontal, 0
             )

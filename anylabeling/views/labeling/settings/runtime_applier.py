@@ -216,6 +216,18 @@ class SettingsRuntimeApplier:
         )
 
     def apply_change(self, key: str, value: Any) -> None:
+        if key == "canvas.wheel_navigation_mode":
+            self._widget.canvas.wheel_navigation_mode = value
+            policy = (
+                Qt.ScrollBarPolicy.ScrollBarAsNeeded
+                if value == "traditional"
+                else Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            )
+            area = self._widget._canvas_scroll_area
+            area.setHorizontalScrollBarPolicy(policy)
+            area.setVerticalScrollBarPolicy(policy)
+            self._widget.constrain_canvas_pan()
+            return
         if key == "font_family":
             apply_application_font(value)
             return

@@ -22,6 +22,7 @@ class NavigationView(QtWidgets.QWidget):
     zoom_request = LabelingWidget.zoom_request
     _animate_zoom = LabelingWidget._animate_zoom
     _apply_zoom = LabelingWidget._apply_zoom
+    constrain_canvas_pan = LabelingWidget.constrain_canvas_pan
     pan_canvas = LabelingWidget.pan_canvas
     on_navigator_request = LabelingWidget.on_navigator_request
 
@@ -50,6 +51,10 @@ class NavigationView(QtWidgets.QWidget):
         self.zoom_mode = self.MANUAL_ZOOM
         self.zoom_values = {}
         self.pan_values = {}
+        self.scroll_values = {
+            QtCore.Qt.Orientation.Horizontal: {},
+            QtCore.Qt.Orientation.Vertical: {},
+        }
         self.update_navigator_viewport = Mock()
         self.canvas.menus = (Mock(), Mock())
         self.show()
@@ -285,7 +290,7 @@ def test_pan_interrupts_zoom_and_navigator_centers_image_coordinates(view):
     assert_point(image_position(view, center), QtCore.QPointF())
 
 
-def test_shift_wheel_scrolls_and_ctrl_wheel_does_not_zoom(view):
+def test_shift_wheel_scrolls_and_ctrl_wheel_zooms(view):
     scrolls = []
     view.canvas.scroll_request.connect(lambda *args: scrolls.append(args))
     wheel(view, modifiers=QtCore.Qt.KeyboardModifier.ShiftModifier)
@@ -295,12 +300,13 @@ def test_shift_wheel_scrolls_and_ctrl_wheel_does_not_zoom(view):
     )
     wheel(view, modifiers=QtCore.Qt.KeyboardModifier.ControlModifier)
     assert (
-        view._zoom_animation.state() == QtCore.QAbstractAnimation.State.Stopped
+        view._zoom_animation.state() == QtCore.QAbstractAnimation.State.Running
     )
 
 
+@pytest.mark.parametrize("mode", ["direct", "traditional"])
 def test_image_switch_restores_fractional_zoom_and_pan_and_fit_resets(
-    tmp_path, monkeypatch, navigation_app
+    tmp_path, monkeypatch, navigation_app, mode
 ):
     from anylabeling import config as app_config
     from anylabeling.views.labeling.settings.schema import load_template_config
@@ -324,6 +330,9 @@ def test_image_switch_restores_fractional_zoom_and_pan_and_fit_resets(
     window.show()
     app.processEvents()
     widget = window.labeling_widget.view
+    from anylabeling.views.labeling.settings.runtime_applier import SettingsRuntimeApplier
+
+    SettingsRuntimeApplier(widget).apply_change("canvas.wheel_navigation_mode", mode)
     try:
         paths = [str(tmp_path / f"image_{index}.png") for index in range(2)]
         image = QtGui.QImage(800, 600, QtGui.QImage.Format.Format_RGB32)
@@ -334,6 +343,13 @@ def test_image_switch_restores_fractional_zoom_and_pan_and_fit_resets(
         app.processEvents()
         widget.set_zoom(237.125)
         widget.pan_canvas(QtCore.QPointF(245.25, -170.75))
+        for bar in widget.scroll_bars.values():
+            bar.setValue(bar.maximum() // 2)
+            bar.triggerAction(QtWidgets.QAbstractSlider.SliderAction.SliderPageStepAdd)
+        saved_scroll = {
+            orientation: bar.value()
+            for orientation, bar in widget.scroll_bars.items()
+        }
         offset = QtCore.QPointF(widget.canvas.pan_offset)
         widget.zoom_request(120, QtCore.QPointF(100, 100))
         assert widget.load_file(paths[1])
@@ -342,15 +358,34 @@ def test_image_switch_restores_fractional_zoom_and_pan_and_fit_resets(
             widget._zoom_animation.state()
             == QtCore.QAbstractAnimation.State.Stopped
         )
+        widget.set_zoom(175)
         assert widget.load_file(paths[0])
         app.processEvents()
         assert widget.canvas.scale == pytest.approx(2.37125)
         assert_point(widget.canvas.pan_offset, offset)
+        assert {
+            orientation: bar.value()
+            for orientation, bar in widget.scroll_bars.items()
+        } == saved_scroll
         widget.actions.zoom_org.trigger()
         assert widget.canvas.scale == 1.0
         widget.set_fit_window()
         assert widget.canvas.pan_offset.isNull()
         assert all(bar.value() == 0 for bar in widget.scroll_bars.values())
+        if mode == "traditional":
+            tall = QtGui.QImage(800, 2400, QtGui.QImage.Format.Format_RGB32)
+            tall.fill(QtGui.QColor("white"))
+            path = str(tmp_path / "tall.png")
+            assert tall.save(path)
+            assert widget.load_file(path)
+            widget.set_fit_width()
+            for width in (1400, 1100, 1600):
+                window.resize(width, 900)
+                QtTest.QTest.qWait(150)
+                area = widget._canvas_scroll_area
+                assert widget.canvas.pixmap.width() * widget.canvas.scale <= area.viewport().width()
+                assert area.horizontalScrollBar().maximum() == 0
+                assert area.verticalScrollBar().maximum() > 0
     finally:
         widget.dirty = False
         window.close()
@@ -500,7 +535,7 @@ def test_rectangle_wheel_editing_is_disabled_by_default(view):
     ]
     shape = selected_rectangle(view)
     points = list(shape.points)
-    wheel(view, modifiers=QtCore.Qt.KeyboardModifier.ControlModifier)
+    wheel(view, modifiers=QtCore.Qt.KeyboardModifier.AltModifier)
     assert shape.points == points
     assert (
         view._zoom_animation.state() == QtCore.QAbstractAnimation.State.Stopped
@@ -520,7 +555,7 @@ def test_plain_wheel_zooms_even_when_rectangle_editing_is_enabled(view):
 
 @pytest.mark.parametrize("point", [(100, 100), (170, 100)])
 @pytest.mark.parametrize("delta", [-120, 120])
-def test_ctrl_wheel_edits_rectangle_and_records_undo(view, point, delta):
+def test_alt_wheel_edits_rectangle_and_records_undo(view, point, delta):
     shape = selected_rectangle(view)
     original = list(shape.points)
     view.canvas.store_shapes()
@@ -532,7 +567,7 @@ def test_ctrl_wheel_edits_rectangle_and_records_undo(view, point, delta):
     wheel(
         view,
         delta=delta,
-        modifiers=QtCore.Qt.KeyboardModifier.ControlModifier,
+        modifiers=QtCore.Qt.KeyboardModifier.AltModifier,
         point=local,
     )
     assert view.canvas.scale == 1
@@ -551,26 +586,26 @@ def test_ctrl_wheel_edits_rectangle_and_records_undo(view, point, delta):
     assert view.canvas.shapes[0].points == original
 
 
-def test_locked_rectangle_ctrl_wheel_does_not_zoom_or_modify_shape(view):
+def test_locked_rectangle_alt_wheel_does_not_zoom_or_modify_shape(view):
     shape = selected_rectangle(view)
     shape.locked = True
     points = list(shape.points)
     view.canvas.enable_wheel_rectangle_editing = True
-    wheel(view, modifiers=QtCore.Qt.KeyboardModifier.ControlModifier)
+    wheel(view, modifiers=QtCore.Qt.KeyboardModifier.AltModifier)
     assert shape.points == points
     assert (
         view._zoom_animation.state() == QtCore.QAbstractAnimation.State.Stopped
     )
 
 
-def test_brush_uses_plain_wheel_for_zoom_and_ctrl_wheel_for_radius(view):
+def test_brush_uses_plain_wheel_for_zoom_and_alt_wheel_for_radius(view):
     view.canvas.is_brush_mode = True
     radius = view.canvas.brush_radius
     wheel(view)
     view._zoom_animation.setCurrentTime(90)
     assert view.canvas.scale == pytest.approx(1.1)
     assert view.canvas.brush_radius == radius
-    wheel(view, modifiers=QtCore.Qt.KeyboardModifier.ControlModifier)
+    wheel(view, modifiers=QtCore.Qt.KeyboardModifier.AltModifier)
     assert view.canvas.scale == pytest.approx(1.1)
     assert view.canvas.brush_radius == radius + 1
 
@@ -687,3 +722,102 @@ def test_right_drag_pans_before_drawing_and_click_opens_menu(view, shape_type):
     mouse(view, QtCore.QEvent.Type.MouseButtonPress, point)
     mouse(view, QtCore.QEvent.Type.MouseButtonRelease, point)
     view.canvas.menus[0].exec.assert_called_once()
+
+
+@pytest.mark.parametrize("mode", ["direct", "traditional"])
+def test_navigation_mode_and_tool_modifiers(view, mode):
+    from anylabeling.views.labeling.settings.runtime_applier import SettingsRuntimeApplier
+
+    SettingsRuntimeApplier(view).apply_change("canvas.wheel_navigation_mode", mode)
+    policy = (
+        QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        if mode == "traditional"
+        else QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+    )
+    assert view._canvas_scroll_area.horizontalScrollBarPolicy() == policy
+    assert view._canvas_scroll_area.verticalScrollBarPolicy() == policy
+    scrolls = QtTest.QSignalSpy(view.canvas.scroll_request)
+    zooms = QtTest.QSignalSpy(view.canvas.zoom_request)
+    wheel(view)
+    assert len(zooms) == (1 if mode == "direct" else 0)
+    assert len(scrolls) == (0 if mode == "direct" else 2)
+    view.canvas.is_brush_mode = True
+    radius = view.canvas.brush_radius
+    wheel(view, modifiers=QtCore.Qt.KeyboardModifier.ControlModifier)
+    assert view.canvas.brush_radius == radius
+    assert len(zooms) == (2 if mode == "direct" else 1)
+    view.canvas.compare_pixmap = view.canvas.pixmap
+    split = view.canvas.split_position
+    wheel(view, modifiers=QtCore.Qt.KeyboardModifier.ShiftModifier)
+    assert view.canvas.split_position == split
+    wheel(view, modifiers=(
+        QtCore.Qt.KeyboardModifier.AltModifier
+        | QtCore.Qt.KeyboardModifier.ShiftModifier
+    ))
+    assert view.canvas.split_position == pytest.approx(split + 0.02)
+    assert view.canvas.brush_radius == radius
+    wheel(view, modifiers=QtCore.Qt.KeyboardModifier.AltModifier)
+    assert view.canvas.brush_radius == radius + 1
+    SettingsRuntimeApplier(view).apply_change("canvas.wheel_navigation_mode", "direct")
+    assert view._canvas_scroll_area.horizontalScrollBarPolicy() == QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+
+
+@pytest.mark.parametrize("scale", [25, 200])
+def test_traditional_pan_stays_within_image(view, scale):
+    from anylabeling.views.labeling.settings.runtime_applier import SettingsRuntimeApplier
+
+    SettingsRuntimeApplier(view).apply_change("canvas.wheel_navigation_mode", "traditional")
+    view.set_zoom(scale)
+    QtWidgets.QApplication.processEvents()
+    for delta in [QtCore.QPointF(10000, 10000), QtCore.QPointF(-20000, -20000)]:
+        view.pan_canvas(delta)
+        assert view.canvas.pan_offset.isNull()
+        origin = view.canvas.offset_to_center() * view.canvas.scale + QtCore.QPointF(view.canvas.pos())
+        viewport = view._canvas_scroll_area.viewport().size()
+        for start, extent, available in [
+            (origin.x(), 800 * scale / 100, viewport.width()),
+            (origin.y(), 600 * scale / 100, viewport.height()),
+        ]:
+            if extent >= available:
+                assert start <= 1
+                assert start + extent >= available - 1
+            else:
+                assert start == pytest.approx((available - extent) / 2, abs=1)
+
+
+def test_switch_to_traditional_clears_free_pan(view):
+    from anylabeling.views.labeling.settings.runtime_applier import SettingsRuntimeApplier
+
+    view.pan_canvas(QtCore.QPointF(10000, -10000))
+    assert not view.canvas.pan_offset.isNull()
+    SettingsRuntimeApplier(view).apply_change("canvas.wheel_navigation_mode", "traditional")
+    assert view.canvas.pan_offset.isNull()
+    SettingsRuntimeApplier(view).apply_change("canvas.wheel_navigation_mode", "direct")
+    view.pan_canvas(QtCore.QPointF(10000, -10000))
+    assert view.canvas.pan_offset == QtCore.QPointF(10000, -10000)
+
+
+@pytest.mark.parametrize("mode,modifiers", [
+    ("traditional", QtCore.Qt.KeyboardModifier.NoModifier),
+    ("direct", QtCore.Qt.KeyboardModifier.ShiftModifier),
+])
+def test_scroll_interrupts_zoom_animation(view, mode, modifiers):
+    from anylabeling.views.labeling.settings.runtime_applier import SettingsRuntimeApplier
+
+    SettingsRuntimeApplier(view).apply_change("canvas.wheel_navigation_mode", mode)
+    view.scroll_bars = {
+        QtCore.Qt.Orientation.Horizontal: view._canvas_scroll_area.horizontalScrollBar(),
+        QtCore.Qt.Orientation.Vertical: view._canvas_scroll_area.verticalScrollBar(),
+    }
+    view.set_scroll = lambda orientation, value: LabelingWidget.set_scroll(view, orientation, value)
+    view.canvas.scroll_request.connect(
+        lambda *args: LabelingWidget.scroll_request(view, *args)
+    )
+    view.set_zoom(300)
+    wheel(view, modifiers=QtCore.Qt.KeyboardModifier.ControlModifier)
+    view._zoom_animation.setCurrentTime(30)
+    wheel(view, delta=-120, modifiers=modifiers)
+    assert view._zoom_animation.state() == QtCore.QAbstractAnimation.State.Stopped
+    values = [bar.value() for bar in view.scroll_bars.values()]
+    QtTest.QTest.qWait(120)
+    assert [bar.value() for bar in view.scroll_bars.values()] == values

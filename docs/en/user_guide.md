@@ -218,7 +218,7 @@ You can create the following shape types using the tools in the left toolbar, th
 | `line` | `Shift+L` | Click to set the start point, move the cursor, and click again to set the end point. Hold `Shift` while drawing to snap horizontally or vertically. |
 | `linestrip` | `Shift+S` | Click to add connected vertices and double-click to finish. Hold `Shift` while drawing a segment to snap it horizontally or vertically. |
 | `circle` | `Shift+C` | Click to set the center, move the cursor to define the radius, and click again to finish. |
-| `cuboid` | `Ctrl+R` | Draw the front face as a rectangle. The rear face is generated from `canvas.cuboid.default_depth_vector`, configurable under `Settings > Canvas > Cuboid`; depths below the limit are constrained by `canvas.cuboid.min_depth`. |
+| `cuboid` | `Ctrl+R` | Draw the front face as a rectangle. The rear face is generated from `canvas.cuboid.default_depth_vector`, configurable under `Settings > Canvas`; depths below the limit are constrained by `canvas.cuboid.min_depth`. |
 
 In addition, X-AnyLabeling supports two assisted ways to create polygon objects:
 
@@ -259,12 +259,12 @@ Locks protect editing only during the current session. They are not written to a
 
 When **Show Groups** is enabled, each group displays an interactive bounding frame and a compact badge such as `G3 · S5` (group 3 with 5 shapes). Clicking a shape still selects that shape first. Click the badge, frame, or empty area inside the frame to select the whole group, then drag it or use the arrow keys to move all members together (`Shift` accelerates keyboard movement). Copying and pasting a selected group assigns the pasted group the next available group ID and offsets it slightly. Deleting a selected group requires confirmation.
 
-- **Rectangles**: You can drag a rectangle's corner handles to resize it, or select multiple rectangles and merge them using the right-click menu. Mouse wheel editing is disabled by default; you can enable it in `Settings > Canvas > Wheel Editing > Enable Wheel Rectangle Editing`, or via the `wheel_rectangle_editing` setting. When enabled, select one unlocked rectangle and use `Ctrl + Wheel`: scrolling inside scales it, while scrolling outside adjusts the nearest edge. Plain wheel scrolling always zooms the canvas. Note: wheel rectangle editing is automatically disabled when `auto_highlight_shape` is enabled.
-- **Polygons**: In Editing Mode, dragging an edge adds a new vertex, and holding `Shift` while clicking a vertex removes it. You can also double-click a vertex of an unlocked polygon to remove it, keeping at least 3 vertices. This supports undo and works even when **Double Click Edit Label** is disabled. When exactly one polygon or line strip is selected, you can hold `Alt` to enter eraser mode, then drag with the left mouse button across vertices to remove them and reconnect the remaining points. If a polygon has fewer than 3 points, or a line strip has fewer than 2 points, the object is removed and can be restored with undo. Polygons also support merging via the right-click menu. When exactly one `polygon` is selected, you can also activate **Edit Brush** from the toolbar, context menu, or with `Shift+B`: drag with the left mouse button to expand the region, hold `Ctrl` while dragging to erase, and use `Ctrl + Wheel` to resize the brush. Stroke-level undo and redo are supported, and the target remains locked while editing. Right-click or turn off Edit Brush to commit; press `Esc`, switch images, or select another tool to discard the changes and restore the original polygon. Brush point spacing and contour simplification tolerance are available under `Settings > Canvas > Interaction > Brush`; set the simplification tolerance to `0` to preserve the extracted contour points.
+- **Rectangles**: You can drag a rectangle's corner handles to resize it, or select multiple rectangles and merge them using the right-click menu. Mouse wheel editing is disabled by default; you can enable it in `Settings > Canvas > Enable Wheel Rectangle Editing`, or via the `wheel_rectangle_editing` setting. When enabled, select one unlocked rectangle and use `Alt + Wheel`: scrolling inside scales it, while scrolling outside adjusts the nearest edge. Wheel navigation follows the selected navigation mode. Note: wheel rectangle editing is automatically disabled when `auto_highlight_shape` is enabled.
+- **Polygons**: In Editing Mode, dragging an edge adds a new vertex, and holding `Shift` while clicking a vertex removes it. You can also double-click a vertex of an unlocked polygon to remove it, keeping at least 3 vertices. This supports undo and works even when **Double Click Edit Label** is disabled. When exactly one polygon or line strip is selected, you can hold `Alt` to enter eraser mode, then drag with the left mouse button across vertices to remove them and reconnect the remaining points. If a polygon has fewer than 3 points, or a line strip has fewer than 2 points, the object is removed and can be restored with undo. Polygons also support merging via the right-click menu. When exactly one `polygon` is selected, you can also activate **Edit Brush** from the toolbar, context menu, or with `Shift+B`: drag with the left mouse button to expand the region, hold `Ctrl` while dragging to erase, and use `Alt + Wheel` to resize the brush. Stroke-level undo and redo are supported, and the target remains locked while editing. Right-click or turn off Edit Brush to commit; press `Esc`, switch images, or select another tool to discard the changes and restore the original polygon. Brush point spacing and contour simplification tolerance are available under `Settings > Canvas`; set the simplification tolerance to `0` to preserve the extracted contour points.
 - **Rotated Rectangles**: Select a rotated rectangle, drag the rotation handle above it for quick coarse angle adjustment, then press `Z`, `X`, `C`, or `V` for fine-grained rotation control. A real-time display of the rotation angle is available via the View menu.
 - **Cuboid**: In Edit Mode, cuboid controls include 11 visible handles: 4 front vertices, 4 front edge centers, 2 visible rear vertices, and 1 visible rear edge center (depth handle). Dragging the front face moves the whole cuboid. Dragging the left/right/back faces adjusts geometry. Dragging rear visible vertices adjusts vertical alignment of top/bottom planes, while dragging the rear center adjusts depth with geometric constraints. The visible rear side is determined automatically from the depth vector direction.
 
-Additionally, you can quickly copy the coordinates of any selected shape to your clipboard using the **Copy Coordinates** option from the right-click context menu. For rectangles, this outputs the format `[x1, y1, x2, y2]` (top-left and bottom-right corners), while other shape types output `[x1, y1, x2, y2, x3, y3, ...]` (all vertex coordinates). In Editing Mode, double-clicking a shape on the canvas opens the label editor; you can disable this in `Settings > Canvas > Interaction > Double Click Edit Label`, or via the `double_click_edit_label` canvas setting (default: true).
+Additionally, you can quickly copy the coordinates of any selected shape to your clipboard using the **Copy Coordinates** option from the right-click context menu. For rectangles, this outputs the format `[x1, y1, x2, y2]` (top-left and bottom-right corners), while other shape types output `[x1, y1, x2, y2, x3, y3, ...]` (all vertex coordinates). In Editing Mode, double-clicking a shape on the canvas opens the label editor; you can disable this in `Settings > Canvas > Double Click Edit Label`, or via the `double_click_edit_label` canvas setting (default: true).
 
 In Editing Mode, drag an empty area with the left mouse button to pan the canvas. While drawing a shape, use `Right Drag`, `Alt + Left Drag`, or `Middle Drag` to pan without leaving Drawing Mode or changing the unfinished shape. These gestures allow free panning at any zoom level. In Editing Mode, `Alt + Left Drag` still erases polygon or line-strip vertices.
 
@@ -388,7 +388,7 @@ This section explains how to customize the view settings in X-AnyLabeling, inclu
 - **Zoom to Fit Window** (`Ctrl + F`)
 - **Zoom to Fit Width** (`Ctrl + Shift + F`)
 
-Scroll the mouse wheel to zoom smoothly around the cursor in all canvas tools, including rectangle editing and Edit Brush. The zoom range is **10%–1000% (0.1×–10×)**, for both the main canvas and navigator. Small wheel increments are preserved, and the image position under the cursor stays fixed while zooming. `Ctrl + Wheel` adjusts a selected rectangle when rectangle wheel editing is enabled, or the brush size in Edit Brush; otherwise, it also zooms the canvas. Hold `Shift` while scrolling to move the scrollbars; in compare view, `Shift + Wheel` moves the divider.
+Choose **Settings > Canvas > Wheel Navigation Mode**. **Direct Zoom** (default) uses the wheel to zoom. **Traditional Navigation** uses the wheel to scroll. In both modes, `Ctrl + Wheel` zooms around the cursor and `Shift + Wheel` scrolls. The main canvas and navigator support **10%–1000% (0.1×–10×)** zoom, including small wheel increments. `Alt + Wheel` adjusts the brush size or, when rectangle wheel editing is enabled, the selected unlocked rectangle. `Alt + Shift + Wheel` moves the compare divider. After saving settings, the mode takes effect without restarting; navigator wheel zoom is unchanged.
 
 While drawing ordinary shapes, use `Right Drag`, `Alt + Left Drag`, or `Middle Drag` to pan freely, even when zoomed in: any image corner can be moved anywhere in the viewport. In Editing Mode, use the middle button, drag an empty area with the left button, or use right-button dragging. `Space + Left Drag` remains available for compatibility. The Magic Wand retains its right-button confirmation action. A right-click keeps its existing action, including opening the context menu or finishing brush/magic-wand editing. Use `Ctrl + Right Drag` for the annotation copy/move menu. Fit Window or Fit Width resets the pan offset.
 
@@ -468,7 +468,7 @@ To open the navigator, simply click `View` -> `Navigator` in the menu bar or pre
 
 You can click anywhere on the thumbnail to quickly jump to that location, or drag the red frame to move your view. The navigator also displays all your annotated objects in real-time, giving you a clear overview of your progress.
 
-At the bottom of the navigator, you can precisely set the zoom ratio through the input box (supporting 10% to 1000%), or drag the slider to adjust it. Additionally, you can use the mouse wheel to zoom directly in either the main canvas or the navigator window.
+At the bottom of the navigator, you can precisely set the zoom ratio through the input box (supporting 10% to 1000%), or drag the slider to adjust it. The navigator wheel always zooms; the main canvas follows the selected wheel navigation mode.
 
 This feature is particularly useful when working with ultra-high resolution images, allowing you to maintain precise local operations while keeping the global perspective.
 
@@ -489,7 +489,7 @@ Compare View lets you compare two images side by side in a split-screen interfac
 1. Open an image directory and load an image.
 2. Select `File` > `Compare View` (or press `Ctrl+Alt+C`) to open the comparison directory selector.
 3. Select the directory containing the comparison image. Its filename must match that of the main image; the base filenames must be the same, but the extensions may differ.
-4. Use the slider at the bottom to adjust the split position, or hold `Shift` while scrolling the mouse wheel to move the divider.
+4. Use the slider at the bottom to adjust the split position, or hold `Alt + Shift` while scrolling the mouse wheel to move the divider.
 5. Click the close button (×) on the slider to exit Compare View.
 
 > [!NOTE]
@@ -989,8 +989,8 @@ You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit
 | `Ctrl+k`              | Toggle Linking Display                           | Show/Hide shape linking visualization      |
 | `Ctrl+Shift+l`        | Toggle Attributes Display                        | Show/Hide shape attributes on canvas       |
 | `Ctrl+Shift+s`        | Set Output Directory                             | Change where `.json` files are saved       |
-| `Wheel`               | Zoom Canvas                                      |                                            |
-| `Ctrl+Wheel`          | Adjust Rectangle or Brush Size                   | Rectangle wheel editing must be enabled     |
+| `Wheel`               | Zoom or Scroll Canvas                                      |                                            |
+| `Alt+Wheel`          | Adjust Rectangle or Brush Size                   | Rectangle wheel editing must be enabled     |
 | `Alt+Left Drag`       | Pan Canvas                                       | Drawing Mode                               |
 | `Middle Drag`         | Pan Canvas                                       |                                            |
 | `Right Drag`          | Pan Canvas                                       | Ordinary shape drawing and Editing Mode    |
@@ -1077,14 +1077,14 @@ Then upload it through the menu: `Upload` → `Upload Label Classes File`.
 
 ### 7.4 Auto-Switch to Edit Mode
 
-To streamline the annotation workflow, you can configure the application to automatically switch to **Edit Mode** immediately after a shape is created. This is useful if you frequently need to adjust a shape right after drawing it. You can change this in `Settings > General > Behavior > Auto Switch To Edit Mode`, or through the `auto_switch_to_edit_mode` setting in the `.xanylabelingrc` file.
+To streamline the annotation workflow, you can configure the application to automatically switch to **Edit Mode** immediately after a shape is created. This is useful if you frequently need to adjust a shape right after drawing it. You can change this in `Settings > General > Auto Switch To Edit Mode`, or through the `auto_switch_to_edit_mode` setting in the `.xanylabelingrc` file.
 
 - Set to `true` to enable automatic switching to Edit Mode.
 - Set to `false` to remain in Drawing Mode, which allows continuous creation of multiple shapes. The default is `true`.
 
 ### 7.5 Hover Auto-Highlight
 
-For quicker selection of shapes, you can enable **Hover Auto-Highlight**. When this feature is active, simply moving your mouse cursor over a shape will highlight it, making it clear which shape will be selected if you click. You can change this in `Settings > General > Behavior > Auto Highlight Shape`, or through the `auto_highlight_shape` setting in the `.xanylabelingrc` file.
+For quicker selection of shapes, you can enable **Hover Auto-Highlight**. When this feature is active, simply moving your mouse cursor over a shape will highlight it, making it clear which shape will be selected if you click. You can change this in `Settings > General > Auto Highlight Shape`, or through the `auto_highlight_shape` setting in the `.xanylabelingrc` file.
 
 - Set to `true` to highlight shapes on hover.
 - Set to `false` to highlight shapes only after clicking. The default is `true`.

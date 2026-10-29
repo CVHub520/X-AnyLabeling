@@ -3417,8 +3417,8 @@ Press Enter to search.</source>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1030" />
-      <source>Select one polygon, then paint to add, hold Ctrl to erase, and use Ctrl+Wheel to resize the brush</source>
-      <translation>选择一个多边形，然后绘制以添加区域，按住 Ctrl 绘制以擦除，使用 Ctrl+滚轮调整笔刷大小</translation>
+      <source>Select one polygon, then paint to add, hold Ctrl to erase, and use Alt+Wheel to resize the brush</source>
+      <translation>选择一个多边形，然后绘制以添加区域，按住 Ctrl 绘制以擦除，使用 Alt+滚轮调整笔刷大小</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1039" />
@@ -8178,8 +8178,8 @@ Changes will not be saved until you click Save.</source>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="183" />
-      <source>Use Ctrl+Wheel to adjust rectangle geometry while editing. Disabled by default.</source>
-      <translation>编辑矩形时使用 Ctrl+滚轮调整其几何形状。默认关闭。</translation>
+      <source>Use Alt+Wheel to adjust rectangle geometry while editing. Disabled by default.</source>
+      <translation>编辑矩形时使用 Alt+滚轮调整其几何形状。默认关闭。</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="187" />
@@ -8695,6 +8695,22 @@ Changes will not be saved until you click Save.</source>
       <location filename="../../views/labeling/settings/schema.py" line="350" />
       <source>Zoom To Original</source>
       <translation>原始大小</translation>
+    </message>
+    <message>
+      <source>Wheel Navigation Mode</source>
+      <translation>滚轮导航模式</translation>
+    </message>
+    <message>
+      <source>Direct Zoom</source>
+      <translation>直接缩放</translation>
+    </message>
+    <message>
+      <source>Traditional Navigation</source>
+      <translation>传统导航</translation>
+    </message>
+    <message>
+      <source>Wheel zooms in Direct Zoom mode; scrolls in Traditional Navigation mode.</source>
+      <translation>直接缩放模式下滚轮缩放；传统导航模式下滚轮滚动。</translation>
     </message>
   </context>
   <context>

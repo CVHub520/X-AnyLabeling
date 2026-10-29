@@ -54,6 +54,19 @@ class TestSettingsDialogLayout(unittest.TestCase):
         self._resources.append((dialog, controller))
         return dialog
 
+    def test_wheel_navigation_mode_choices(self):
+        dialog = self._create_dialog()
+        dialog._render_primary("Canvas")
+        combos = dialog.findChildren(QtWidgets.QComboBox)
+        editor = next(
+            combo for combo in combos
+            if combo.findData("traditional") >= 0
+        )
+        self.assertEqual(editor.currentData(), "direct")
+        self.assertEqual(editor.itemText(editor.findData("direct")), "Direct Zoom")
+        editor.setCurrentIndex(editor.findData("traditional"))
+        self.assertEqual(editor.currentData(), "traditional")
+
     def test_general_uses_viewport_gap_and_fixed_bottom_height(self):
         dialog = self._create_dialog()
         dialog._render_primary("General")

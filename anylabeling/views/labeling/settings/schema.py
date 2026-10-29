@@ -182,7 +182,7 @@ def _settings_translation_markers() -> None:
     )
     QCoreApplication.translate(
         "SettingsDialog",
-        "Use Ctrl+Wheel to adjust rectangle geometry while editing. Disabled by default.",
+        "Use Alt+Wheel to adjust rectangle geometry while editing. Disabled by default.",
     )
     QCoreApplication.translate(
         "SettingsDialog",
@@ -897,6 +897,21 @@ def _non_shortcut_fields() -> list[SettingField]:
             ),
         ),
         SettingField(
+            "canvas.wheel_navigation_mode",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Wheel Navigation Mode"
+            ),
+            "enum",
+            "Canvas",
+            "Interaction",
+            "Basic Interaction",
+            options=("direct", "traditional"),
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Wheel zooms in Direct Zoom mode; scrolls in Traditional Navigation mode.",
+            ),
+        ),
+        SettingField(
             "canvas.double_click",
             QT_TRANSLATE_NOOP(SETTINGS_TRANSLATION_CONTEXT, "Double Click"),
             "enum",
@@ -950,7 +965,7 @@ def _non_shortcut_fields() -> list[SettingField]:
             "Basic",
             description=QT_TRANSLATE_NOOP(
                 SETTINGS_TRANSLATION_CONTEXT,
-                "Use Ctrl+Wheel to adjust rectangle geometry while editing. Disabled by default.",
+                "Use Alt+Wheel to adjust rectangle geometry while editing. Disabled by default.",
             ),
         ),
         SettingField(
