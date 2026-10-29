@@ -1,5 +1,28 @@
 # X-AnyLabeling Changelog
 
+## `v4.2.3` (Oct 30, 2026)
+
+X-AnyLabeling 4.2.3 adds configurable wheel navigation modes, improves magic wand selection, and fixes interface scaling and workflow window handling.
+
+### 🚀 New Features
+
+- Add configurable wheel navigation modes for the canvas.
+
+### 🐛 Bug Fixes
+
+- Prevent UI scaling oscillation by using the top-level window size.
+- Unify workflow dialog exit handling and restore the main window when the dialog closes.
+
+### 🛠️ Improvements
+
+- Optimize magic wand selection and keep it active between shapes.
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v4.2.2` (Oct 28, 2026)
 
 X-AnyLabeling 4.2.2 expands canvas annotation and visualization controls and adds remote model result previews and task examples.
