@@ -54,6 +54,8 @@ capabilities:
 
 服务启动后，重新打开 PaddleOCR 标注面板，右侧顶部的 `解析模型` 下拉框会显示当前可用模型。选择不带 `(API)` 后缀的模型时，解析任务会自动发送至已部署的推理服务。
 
+Unlimited-OCR-2 也可通过 X-AnyLabeling-Server 接入本面板，支持 Transformers 和 SGLang 后端。PDF 各页会作为整份文档一次提交，进行多页联合解析。参见 [Unlimited-OCR-2 使用说明](../../examples/optical_character_recognition/unlimited_ocr_2/README.md)。
+
 ## 使用手册
 
 您可以通过以下任一方式打开 PaddleOCR：点击左侧工具栏中的 `PaddleOCR` 图标或直接使用快捷键 `Ctrl+4`。

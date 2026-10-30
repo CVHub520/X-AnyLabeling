@@ -54,6 +54,8 @@ capabilities:
 
 After the service starts, reopen the PaddleOCR annotation panel. The `Parsing Model` drop-down list at the top right displays the available models. Selecting a model without the `(API)` suffix sends parsing requests to the deployed inference service.
 
+Unlimited-OCR-2 is also available in this panel through X-AnyLabeling-Server, with Transformers and SGLang backends. Its PDF pages are submitted together for joint multi-page parsing. See the [Unlimited-OCR-2 guide](../../examples/optical_character_recognition/unlimited_ocr_2/README.md).
+
 ## User Guide
 
 You can open PaddleOCR in either of the following ways: click the `PaddleOCR` icon in the left toolbar, or use the `Ctrl+4` shortcut.

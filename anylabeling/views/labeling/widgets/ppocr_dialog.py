@@ -853,6 +853,8 @@ class PPOCRDialog(QDialog):
             self._prompting_api_settings = False
 
     def prompt_api_settings_if_needed(self) -> None:
+        if not is_ppocr_api_model_id(self.pipeline.pipeline_model):
+            return
         if self.pipeline.has_required_api_settings():
             return
         self.open_api_settings_dialog()
