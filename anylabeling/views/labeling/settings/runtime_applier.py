@@ -594,7 +594,7 @@ class SettingsRuntimeApplier:
         if widget is None:
             return
         button = getattr(widget, button_name, None)
-        if button is None or not button.isEnabled():
+        if button is None or not button.isVisible() or not button.isEnabled():
             return
         button.click()
 
