@@ -195,6 +195,7 @@ def get_normal_button_style():
             height: 24px;
             min-width: 80px;
             padding: 5px 8px;
+            text-align: center;
             border-radius: 8px;
             background-color: {t["surface"]};
             border: 1px solid {t["border_light"]};
@@ -404,6 +405,7 @@ def get_toggle_button_style(button_color: str):
             height: 24px;
             min-width: 80px;
             padding: 5px 8px;
+            text-align: center;
             border-radius: 8px;
             background-color: {button_color};
             border: 1px solid {t["border_light"]};

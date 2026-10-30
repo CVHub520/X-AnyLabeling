@@ -1490,19 +1490,18 @@ class LabelDialog(QtWidgets.QDialog):
 
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(10, 10, 10, 10)
+        layout_fields = QtWidgets.QGridLayout()
+        layout_fields.setHorizontalSpacing(6)
+        layout_fields.setColumnStretch(0, 4)
+        layout_fields.setColumnStretch(1, 2)
         if show_text_field:
-            layout_edit = QtWidgets.QHBoxLayout()
-            layout_edit.setSpacing(6)
-            layout_edit.addWidget(self.edit, 4)
-            layout_edit.addWidget(self.edit_group_id, 2)
-            layout.addLayout(layout_edit)
+            layout_fields.addWidget(self.edit, 0, 0)
+            layout_fields.addWidget(self.edit_group_id, 0, 1)
 
         # Add linking layout
-        layout_linking = QtWidgets.QHBoxLayout()
-        layout_linking.setSpacing(6)
-        layout_linking.addWidget(self.linking_input, 4)
-        layout_linking.addWidget(self.add_linking_button, 2)
-        layout.addLayout(layout_linking)
+        layout_fields.addWidget(self.linking_input, 1, 0)
+        layout_fields.addWidget(self.add_linking_button, 1, 1)
+        layout.addLayout(layout_fields)
         layout.addWidget(self.linking_list)
 
         # buttons

@@ -417,6 +417,28 @@ Review the prompt before generating.</source>
       <source>Existing unsupported shape type. Only rectangle, rotation and polygon shapes are supported for detection boxes.</source>
       <translation>지원되지 않는 도형 유형이 있습니다. 감지 상자는 사각형, 회전, 다각형만 지원합니다.</translation>
     </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" />
+      <source>Enter text prompt here. Use dots (.) to separate multiple classes.
+Example: person.car.bicycle</source>
+      <translation>텍스트 프롬프트를 입력하세요. 여러 클래스는 마침표(.)로 구분합니다.
+예: person.car.bicycle</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" />
+      <source>AMD (On)</source>
+      <translation>AMD (켜짐)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" />
+      <source>AMD (Off)</source>
+      <translation>AMD (꺼짐)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" />
+      <source>TinyObj</source>
+      <translation>작은 객체</translation>
+    </message>
   </context>
   <context>
     <name>BatchProcessDialog</name>
@@ -698,8 +720,8 @@ Review the prompt before generating.</source>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="1901" />
-      <source>Click &amp; drag to rotate shape '%s'</source>
-      <translation>'%s' 도형을 클릭하고 드래그하여 회전</translation>
+      <source>Click or drag to rotate shape '%s'</source>
+      <translation>클릭하거나 드래그하여 도형 '%s' 회전</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="2468" />
@@ -822,6 +844,11 @@ Review the prompt before generating.</source>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="347" />
       <source>Expand adjustments</source>
       <translation>조정 패널 펼치기</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="364" />
+      <source>Keep this value when switching images</source>
+      <translation>이미지를 전환할 때 이 값 유지</translation>
     </message>
   </context>
   <context>
@@ -4702,17 +4729,17 @@ This warning will only be shown once. Do you want to continue?</source>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="6083" />
       <source>X: %d, Y: %d | L: %.2f px | Total: %.2f px</source>
-      <translation type="unfinished" />
+      <translation>X: %d, Y: %d | 길이: %.2f px | 전체 길이: %.2f px</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="6088" />
       <source>X: %d, Y: %d | L: %.2f px</source>
-      <translation type="unfinished" />
+      <translation>X: %d, Y: %d | 길이: %.2f px</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="6094" />
       <source>X: %d, Y: %d | R: %.2f px | C: %.2f px</source>
-      <translation type="unfinished" />
+      <translation>X: %d, Y: %d | 반지름: %.2f px | 둘레: %.2f px</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="6120" />
@@ -5029,6 +5056,11 @@ Results have been saved to:
       <translation>주석을 성공적으로 내보냈습니다!
 결과가 다음 위치에 저장되었습니다:
 %s</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="2867" />
+      <source>Show/hide file list</source>
+      <translation>파일 목록 표시 또는 숨기기</translation>
     </message>
   </context>
   <context>
@@ -10448,6 +10480,124 @@ Response preview:
       <location filename="../../views/labeling/pointcloud/viewport.py" line="197" />
       <source>Could not create an OpenGL display context.</source>
       <translation>OpenGL 디스플레이 컨텍스트를 생성할 수 없습니다.</translation>
+    </message>
+  </context>
+  <context>
+    <name>auto_labeling_form</name>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Enter text prompt here, e.g., person.car.bicycle</source>
+      <translation>텍스트 프롬프트 입력 (예: person.car.bicycle)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Point (q)</source>
+      <translation>점 (q)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Point (e)</source>
+      <translation>점 (e)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>AMD (Off)</source>
+      <translation>AMD (꺼짐)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Set API Token</source>
+      <translation>API 토큰 설정</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Ready!</source>
+      <translation>준비 완료!</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>No Model</source>
+      <translation>모델 없음</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Output</source>
+      <translation>출력</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Run (i)</source>
+      <translation>실행 (i)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Send</source>
+      <translation>전송</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Box threshold</source>
+      <translation>박스 임계값</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Confidence</source>
+      <translation>신뢰도</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>IoU</source>
+      <translation>IoU</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>+Rect</source>
+      <translation>+사각형</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>-Rect</source>
+      <translation>-사각형</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Clear (b)</source>
+      <translation>지우기 (b)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Run Rect</source>
+      <translation>사각형 실행</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Finish (f)</source>
+      <translation>완료 (f)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>TinyObj (Off)</source>
+      <translation>작은 객체 (꺼짐)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Skip Det (Off)</source>
+      <translation>감지 건너뛰기 (꺼짐)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Replace (On)</source>
+      <translation>덮어쓰기 (켜짐)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Classes</source>
+      <translation>레이블 필터</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Reset Tracker</source>
+      <translation>트래커 재설정</translation>
     </message>
   </context>
 </TS>

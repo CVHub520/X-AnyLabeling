@@ -185,6 +185,22 @@ class TestAutoLabelingLayout(unittest.TestCase):
         )
         self.assertIsNone(form.findChild(QtWidgets.QSpinBox, "input_min_area"))
 
+    def test_toggle_buttons_keep_their_labels_when_state_changes(self):
+        widget = Mock()
+        widget.button_auto_decode = QtWidgets.QPushButton("AMD")
+        widget.button_auto_decode.setCheckable(True)
+        widget.button_cropping = QtWidgets.QPushButton("TinyObj")
+        widget.button_cropping.setCheckable(True)
+        for checked in (True, False):
+            widget.button_auto_decode.setChecked(checked)
+            widget.button_cropping.setChecked(checked)
+            AutoLabelingWidget.on_auto_decode_toggled(widget)
+            AutoLabelingWidget.on_cropping_toggled(widget)
+            self.assertEqual(widget.button_auto_decode.text(), "AMD")
+            self.assertEqual(widget.button_cropping.text(), "TinyObj")
+            widget.auto_decode_mode_changed.emit.assert_called_with(checked)
+            widget.cropping_mode_changed.emit.assert_called_with(checked)
+
     def test_amg_requires_confirmation_once_per_session(self):
         widget = Mock()
         widget.tr.side_effect = lambda text: text

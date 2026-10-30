@@ -107,6 +107,8 @@ Navigate between images in your dataset using these methods:
 - **Set Annotation Check Status**: Choose `Pending`, `Passed`, or `Failed` in the panel at the bottom-left of the canvas. You can also right-click the canvas and choose the corresponding option in the `Check Status` submenu.
 - **Jump to Specific Image**: Type the exact filename (including extension) into the file search bar at the bottom right and press `Enter`.
 
+The panel marks Pending, Passed, and Failed in blue, green, and red respectively. The file list icons and corresponding data are shown below:
+
 | Status | File list icon | Default shortcut | Top-level JSON `checked` value |
 | --- | --- | --- | --- |
 | Unchecked | Gray hollow circle | `Ctrl+Alt+U` | `false` |
@@ -261,7 +263,8 @@ When **Show Groups** is enabled, each group displays an interactive bounding fra
 
 - **Rectangles**: You can drag a rectangle's corner handles to resize it, or select multiple rectangles and merge them using the right-click menu. Mouse wheel editing is disabled by default; you can enable it in `Settings > Canvas > Enable Wheel Rectangle Editing`, or via the `wheel_rectangle_editing` setting. When enabled, select one unlocked rectangle and use `Alt + Wheel`: scrolling inside scales it, while scrolling outside adjusts the nearest edge. Wheel navigation follows the selected navigation mode. Note: wheel rectangle editing is automatically disabled when `auto_highlight_shape` is enabled.
 - **Polygons**: In Editing Mode, dragging an edge adds a new vertex, and holding `Shift` while clicking a vertex removes it. You can also double-click a vertex of an unlocked polygon to remove it, keeping at least 3 vertices. This supports undo and works even when **Double Click Edit Label** is disabled. When exactly one polygon or line strip is selected, you can hold `Alt` to enter eraser mode, then drag with the left mouse button across vertices to remove them and reconnect the remaining points. If a polygon has fewer than 3 points, or a line strip has fewer than 2 points, the object is removed and can be restored with undo. Polygons also support merging via the right-click menu. When exactly one `polygon` is selected, you can also activate **Edit Brush** from the toolbar, context menu, or with `Shift+B`: drag with the left mouse button to expand the region, hold `Ctrl` while dragging to erase, and use `Alt + Wheel` to resize the brush. Stroke-level undo and redo are supported, and the target remains locked while editing. Right-click or turn off Edit Brush to commit; press `Esc`, switch images, or select another tool to discard the changes and restore the original polygon. Brush point spacing and contour simplification tolerance are available under `Settings > Canvas`; set the simplification tolerance to `0` to preserve the extracted contour points.
-- **Rotated Rectangles**: Select a rotated rectangle, drag the rotation handle above it for quick coarse angle adjustment, then press `Z`, `X`, `C`, or `V` for fine-grained rotation control. A real-time display of the rotation angle is available via the View menu.
+- **Rotated Rectangles**: Select a rotated rectangle and drag its rotation handle to adjust the angle. Alternatively, click the handle, release the mouse button, and move the mouse to rotate; click again or press `Esc` to finish. Use `Z`, `X`, `C`, or `V` for fine-grained adjustment. The angle appears temporarily in the object label while rotating; enable `View` > `Show Degress` to keep it visible. The angle also appears during rotation when object labels are hidden.
+- **Quadrilaterals**: When selected, the hollow vertex marks the starting point, and the small arrow on the first edge indicates the direction from the first vertex to the second.
 - **Cuboid**: In Edit Mode, cuboid controls include 11 visible handles: 4 front vertices, 4 front edge centers, 2 visible rear vertices, and 1 visible rear edge center (depth handle). Dragging the front face moves the whole cuboid. Dragging the left/right/back faces adjusts geometry. Dragging rear visible vertices adjusts vertical alignment of top/bottom planes, while dragging the rear center adjusts depth with geometric constraints. The visible rear side is determined automatically from the depth vector direction.
 
 Additionally, you can quickly copy the coordinates of any selected shape to your clipboard using the **Copy Coordinates** option from the right-click context menu. For rectangles, this outputs the format `[x1, y1, x2, y2]` (top-left and bottom-right corners), while other shape types output `[x1, y1, x2, y2, x3, y3, ...]` (all vertex coordinates). In Editing Mode, double-clicking a shape on the canvas opens the label editor; you can disable this in `Settings > Canvas > Double Click Edit Label`, or via the `double_click_edit_label` canvas setting (default: true).
@@ -313,6 +316,8 @@ X-AnyLabeling allows you to add a description or caption to the entire image:
 ### 2.5 Searching Images
 
 The file search feature supports multiple search modes to help you quickly locate target images. Enter your search criteria in the search box above the file list on the right panel and press Enter to execute the search.
+
+Move the pointer over the file panel to reveal the collapse button on the right side of the search box. Click it to collapse or expand the file list; the search box remains available when the list is collapsed.
 
 You can also right-click an image in the file list to open a context menu for quick copy operations:
 
@@ -398,9 +403,9 @@ To maintain the current zoom level when switching between images, enable `View` 
 
 X-AnyLabeling allows you to adjust the appearance of the current image and the visibility of annotations:
 
-Use the panel at the bottom-left of the canvas to adjust annotation opacity, the appearance of the underlying image, and the current image’s check status. Click the caret button on the left to collapse or expand the panel.
+Use the panel at the bottom-left of the canvas to adjust annotation opacity, the appearance of the underlying image, and the current image’s check status. Click the caret button at the bottom to collapse or expand the panel.
 
-**Annotation opacity:** Drag the **Opacity** slider to make annotation shapes and masks more or less transparent. Label text remains fully visible so that categories are still easy to identify.
+**Annotation opacity:** Drag the **Opacity** slider to adjust the transparency of annotation shapes and masks from `0.00` to `1.00`. Label text remains fully visible so that categories are still easy to identify.
 
 <p align="center">
   <img src="../../assets/resources/annotation_opacity.gif" alt="Adjusting annotation shape and mask opacity from the panel at the bottom-left of the canvas">
@@ -418,7 +423,7 @@ Use the panel at the bottom-left of the canvas to adjust annotation opacity, the
   <img src="../../assets/resources/image_contrast.gif" alt="Adjusting image contrast from the panel at the bottom-left of the canvas">
 </p>
 
-To apply the current adjustments to all subsequent images in the session, enable `View` > `Keep Current Brightness` and `View` > `Keep Current Contrast`.
+The reset button to the right of each slider restores its default value. The lock button controls whether the current value is retained when switching images. Opacity is retained by default; when unlocked, it resets to `1.00` on switching images. The brightness and contrast lock buttons stay in sync with `View` > `Keep Previous Brightness` and `View` > `Keep Previous Contrast`. When unlocked, each image uses its existing adjustment values, or the defaults if it has not been adjusted.
 
 ### 3.3 Shape Display
 
@@ -497,7 +502,7 @@ Compare View lets you compare two images side by side in a split-screen interfac
 
 ### 3.7 Image Tags
 
-Use `View` > `Image Tags` or press `Ctrl+Shift+T` to show or hide the image tag panel below the canvas.
+Use the image tags button on the top toolbar, `View` > `Image Tags`, or `Ctrl+Shift+T` to show or hide the image tag panel below the canvas.
 
 The image tag panel supports the following operations:
 

@@ -417,6 +417,28 @@ Review the prompt before generating.</source>
       <source>Existing unsupported shape type. Only rectangle, rotation and polygon shapes are supported for detection boxes.</source>
       <translation>サポートされていない図形タイプが含まれています。検出ボックスとして使用できるのは、矩形、回転ボックス、ポリゴンのみです。</translation>
     </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" />
+      <source>Enter text prompt here. Use dots (.) to separate multiple classes.
+Example: person.car.bicycle</source>
+      <translation>テキストプロンプトを入力してください。複数のクラスはピリオド（.）で区切ります。
+例: person.car.bicycle</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" />
+      <source>AMD (On)</source>
+      <translation>AMD（オン）</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" />
+      <source>AMD (Off)</source>
+      <translation>AMD（オフ）</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" />
+      <source>TinyObj</source>
+      <translation>小物体</translation>
+    </message>
   </context>
   <context>
     <name>BatchProcessDialog</name>
@@ -698,8 +720,8 @@ Review the prompt before generating.</source>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="1901" />
-      <source>Click &amp; drag to rotate shape '%s'</source>
-      <translation>クリックしてドラッグし、図形「%s」を回転</translation>
+      <source>Click or drag to rotate shape '%s'</source>
+      <translation>クリックまたはドラッグして図形「%s」を回転</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="2468" />
@@ -822,6 +844,11 @@ Review the prompt before generating.</source>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="347" />
       <source>Expand adjustments</source>
       <translation>調整パネルを展開する</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="364" />
+      <source>Keep this value when switching images</source>
+      <translation>画像を切り替えてもこの値を保持</translation>
     </message>
   </context>
   <context>
@@ -4700,17 +4727,17 @@ This warning will only be shown once. Do you want to continue?</source>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="6083" />
       <source>X: %d, Y: %d | L: %.2f px | Total: %.2f px</source>
-      <translation type="unfinished" />
+      <translation>X: %d, Y: %d | 長さ: %.2f px | 合計: %.2f px</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="6088" />
       <source>X: %d, Y: %d | L: %.2f px</source>
-      <translation type="unfinished" />
+      <translation>X: %d, Y: %d | 長さ: %.2f px</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="6094" />
       <source>X: %d, Y: %d | R: %.2f px | C: %.2f px</source>
-      <translation type="unfinished" />
+      <translation>X: %d, Y: %d | 半径: %.2f px | 円周: %.2f px</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="6120" />
@@ -5027,6 +5054,11 @@ Results have been saved to:
       <translation>ラベルのエクスポートが完了しました！
 結果の保存先：
 %s</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="2867" />
+      <source>Show/hide file list</source>
+      <translation>ファイル一覧を表示または非表示</translation>
     </message>
   </context>
   <context>
@@ -10446,6 +10478,124 @@ Response preview:
       <location filename="../../views/labeling/pointcloud/viewport.py" line="197" />
       <source>Could not create an OpenGL display context.</source>
       <translation>OpenGL表示コンテキストを作成できません。</translation>
+    </message>
+  </context>
+  <context>
+    <name>auto_labeling_form</name>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Enter text prompt here, e.g., person.car.bicycle</source>
+      <translation>テキストプロンプトを入力（例: person.car.bicycle）</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Point (q)</source>
+      <translation>点 (q)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Point (e)</source>
+      <translation>点 (e)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>AMD (Off)</source>
+      <translation>AMD（オフ）</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Set API Token</source>
+      <translation>API トークンを設定</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Ready!</source>
+      <translation>準備完了！</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>No Model</source>
+      <translation>モデルなし</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Output</source>
+      <translation>出力</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Run (i)</source>
+      <translation>実行 (i)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Send</source>
+      <translation>送信</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Box threshold</source>
+      <translation>ボックスしきい値</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Confidence</source>
+      <translation>信頼度</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>IoU</source>
+      <translation>IoU</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>+Rect</source>
+      <translation>+矩形</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>-Rect</source>
+      <translation>-矩形</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Clear (b)</source>
+      <translation>クリア (b)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Run Rect</source>
+      <translation>矩形で実行</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Finish (f)</source>
+      <translation>完了 (f)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>TinyObj (Off)</source>
+      <translation>小物体（オフ）</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Skip Det (Off)</source>
+      <translation>検出スキップ（オフ）</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Replace (On)</source>
+      <translation>置換（オン）</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Classes</source>
+      <translation>クラス</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Reset Tracker</source>
+      <translation>トラッカーをリセット</translation>
     </message>
   </context>
 </TS>

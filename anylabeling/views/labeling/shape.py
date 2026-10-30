@@ -644,17 +644,6 @@ class Shape:
         if len(self.points) != 4:
             return
 
-        color = QtGui.QColor(0, 0, 0)
-        pen = QtGui.QPen(color)
-        pen.setWidthF(float(self.line_width))
-        pen.setCosmetic(True)
-        painter.setPen(pen)
-        painter.setBrush(QtCore.Qt.BrushStyle.NoBrush)
-
-        half_angle_rad = math.radians(40)
-        tip_len = max(4, 10 / self.scale)
-        arm_len = max(5, 12 / self.scale)
-
         # Only first edge: arrow from point 0 toward point 1
         from_pt = self.points[0]
         to_pt = self.points[1]
@@ -664,31 +653,24 @@ class Shape:
         if dist < 1e-6:
             return
         ux, uy = dx / dist, dy / dist
-        angle_rad = math.atan2(dy, dx)
         mx = (from_pt.x() + to_pt.x()) / 2
         my = (from_pt.y() + to_pt.y()) / 2
-        tip_x = mx + ux * tip_len
-        tip_y = my + uy * tip_len
-        back1_x = tip_x + arm_len * math.cos(
-            angle_rad + math.pi - half_angle_rad
-        )
-        back1_y = tip_y + arm_len * math.sin(
-            angle_rad + math.pi - half_angle_rad
-        )
-        back2_x = tip_x + arm_len * math.cos(
-            angle_rad + math.pi + half_angle_rad
-        )
-        back2_y = tip_y + arm_len * math.sin(
-            angle_rad + math.pi + half_angle_rad
-        )
-        painter.drawLine(
-            QtCore.QPointF(tip_x, tip_y),
-            QtCore.QPointF(back1_x, back1_y),
-        )
-        painter.drawLine(
-            QtCore.QPointF(tip_x, tip_y),
-            QtCore.QPointF(back2_x, back2_y),
-        )
+        size = min(dist * 0.22, 5.0 / self.scale)
+        tip = QtCore.QPointF(mx + ux * size / 2, my + uy * size / 2)
+        back = QtCore.QPointF(mx - ux * size / 2, my - uy * size / 2)
+        normal = QtCore.QPointF(-uy * size * 0.65, ux * size * 0.65)
+        arrow = QtGui.QPolygonF([back + normal, tip, back - normal])
+        painter.setBrush(QtCore.Qt.BrushStyle.NoBrush)
+        pen = QtGui.QPen(QtGui.QColor(255, 255, 255, 220), 3.0)
+        pen.setCosmetic(True)
+        pen.setCapStyle(QtCore.Qt.PenCapStyle.RoundCap)
+        pen.setJoinStyle(QtCore.Qt.PenJoinStyle.RoundJoin)
+        painter.setPen(pen)
+        painter.drawPolyline(arrow)
+        pen.setColor(QtGui.QColor(30, 30, 30, 210))
+        pen.setWidthF(1.4)
+        painter.setPen(pen)
+        painter.drawPolyline(arrow)
 
     def draw_vertex(self, path, i, show_difficult=False):
         """Draw a vertex"""

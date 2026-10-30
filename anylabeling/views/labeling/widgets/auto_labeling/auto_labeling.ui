@@ -397,7 +397,7 @@
      <item>
       <widget class="QPushButton" name="button_auto_decode">
        <property name="text">
-        <string>AMD (Off)</string>
+        <string notr="true">AMD</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -407,7 +407,7 @@
      <item>
       <widget class="QPushButton" name="button_cropping">
        <property name="text">
-        <string>TinyObj (Off)</string>
+        <string notr="true">TinyObj</string>
        </property>
        <property name="checkable">
         <bool>true</bool>

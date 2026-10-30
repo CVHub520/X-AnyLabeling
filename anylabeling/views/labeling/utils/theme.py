@@ -264,13 +264,14 @@ def get_app_stylesheet() -> str:
             color: {t["text"]};
             border: 1px solid {t["border"]};
             border-radius: 6px;
-            padding: 4px 0 4px 8px;
+            padding: 4px 6px;
         }}
         QMenu::item {{
-            padding: 6px 24px 6px 8px;
+            padding: 6px 12px 6px 8px;
         }}
         QMenu::item:selected {{
             background-color: {t["surface_hover"]};
+            border-radius: 5px;
         }}
         QMenu::icon {{
             padding: 2px;

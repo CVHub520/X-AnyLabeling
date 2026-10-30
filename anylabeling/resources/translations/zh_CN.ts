@@ -417,6 +417,28 @@ Review the prompt before generating.</source>
       <source>Existing unsupported shape type. Only rectangle, rotation and polygon shapes are supported for detection boxes.</source>
       <translation>存在不支持的对象类型。检测框仅支持矩形、旋转框和多边形对象。</translation>
     </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" />
+      <source>Enter text prompt here. Use dots (.) to separate multiple classes.
+Example: person.car.bicycle</source>
+      <translation>在此输入文本提示，多个类别之间用英文句点（.）分隔。
+例如：person.car.bicycle</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" />
+      <source>AMD (On)</source>
+      <translation>AMD（开启）</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" />
+      <source>AMD (Off)</source>
+      <translation>AMD（关闭）</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" />
+      <source>TinyObj</source>
+      <translation>小目标</translation>
+    </message>
   </context>
   <context>
     <name>BatchProcessDialog</name>
@@ -698,8 +720,8 @@ Review the prompt before generating.</source>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="1901" />
-      <source>Click &amp; drag to rotate shape '%s'</source>
-      <translation>点击并拖动以旋转形状“%s”</translation>
+      <source>Click or drag to rotate shape '%s'</source>
+      <translation>单击或拖动以旋转对象“%s”</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="2468" />
@@ -822,6 +844,11 @@ Review the prompt before generating.</source>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="347" />
       <source>Expand adjustments</source>
       <translation>展开调整面板</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="364" />
+      <source>Keep this value when switching images</source>
+      <translation>切换图片时保留此数值</translation>
     </message>
   </context>
   <context>
@@ -3137,19 +3164,19 @@ Press Enter to search.</source>
       <location filename="../../views/labeling/label_widget.py" line="4588" />
       <location filename="../../views/labeling/label_widget.py" line="730" />
       <source>Check Passed</source>
-      <translation>检查通过</translation>
+      <translation>合格</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="4587" />
       <location filename="../../views/labeling/label_widget.py" line="737" />
       <source>Unchecked</source>
-      <translation>未检查</translation>
+      <translation>未验收</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="4589" />
       <location filename="../../views/labeling/label_widget.py" line="744" />
       <source>Check Failed</source>
-      <translation>检查不通过</translation>
+      <translation>不合格</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="751" />
@@ -4700,17 +4727,17 @@ This warning will only be shown once. Do you want to continue?</source>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="6083" />
       <source>X: %d, Y: %d | L: %.2f px | Total: %.2f px</source>
-      <translation type="unfinished" />
+      <translation>X: %d, Y: %d | 长度: %.2f px | 总长度: %.2f px</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="6088" />
       <source>X: %d, Y: %d | L: %.2f px</source>
-      <translation type="unfinished" />
+      <translation>X: %d, Y: %d | 长度: %.2f px</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="6094" />
       <source>X: %d, Y: %d | R: %.2f px | C: %.2f px</source>
-      <translation type="unfinished" />
+      <translation>X: %d, Y: %d | 半径: %.2f px | 周长: %.2f px</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="6120" />
@@ -5027,6 +5054,11 @@ Results have been saved to:
       <translation>导出标签成功！
 结果已保存到：
 %s</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="2867" />
+      <source>Show/hide file list</source>
+      <translation>显示或隐藏文件列表</translation>
     </message>
   </context>
   <context>
@@ -10446,6 +10478,124 @@ Response preview:
       <location filename="../../views/labeling/pointcloud/viewport.py" line="197" />
       <source>Could not create an OpenGL display context.</source>
       <translation>无法创建 OpenGL 显示上下文。</translation>
+    </message>
+  </context>
+  <context>
+    <name>auto_labeling_form</name>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Enter text prompt here, e.g., person.car.bicycle</source>
+      <translation>在此输入文本提示，例如：person.car.bicycle</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Point (q)</source>
+      <translation>点 (q)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Point (e)</source>
+      <translation>点 (e)</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>AMD (Off)</source>
+      <translation>AMD（关闭）</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Set API Token</source>
+      <translation>设置 API 令牌</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Ready!</source>
+      <translation>就绪！</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>No Model</source>
+      <translation>无模型</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Output</source>
+      <translation>输出</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Run (i)</source>
+      <translation>运行（i）</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Send</source>
+      <translation>发送</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Box threshold</source>
+      <translation>框置信度</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Confidence</source>
+      <translation>置信度</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>IoU</source>
+      <translation>交并比</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>+Rect</source>
+      <translation>+矩形</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>-Rect</source>
+      <translation>-矩形</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Clear (b)</source>
+      <translation>清除</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Run Rect</source>
+      <translation>运行矩形</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Finish (f)</source>
+      <translation>完成</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>TinyObj (Off)</source>
+      <translation>小目标（关闭）</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Skip Det (Off)</source>
+      <translation>跳过检测（关闭）</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Replace (On)</source>
+      <translation>标签覆盖（开启）</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Classes</source>
+      <translation>标签过滤</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
+      <source>Reset Tracker</source>
+      <translation>重置跟踪器</translation>
     </message>
   </context>
 </TS>

@@ -186,6 +186,7 @@ class Canvas(
         self.rotating_shape = False
         self._rotation_drag_shape = None
         self._rotation_drag_prev_angle = None
+        self._rotation_release_pending = False
         self.snapping = True
         self.h_shape_is_selected = False
         self.h_shape_is_hovered = None
@@ -640,6 +641,8 @@ class Canvas(
 
     def focusOutEvent(self, _):
         """Window out of focus event"""
+        if self._rotation_drag_shape is not None:
+            self._finish_rotation_handle_drag()
         self._clear_space_pan_state()
         self._right_pan_start = None
         self._right_pan_prev_point = None
@@ -1643,6 +1646,8 @@ class Canvas(
         if value:
             self.cancel_drawing()
         if not value:  # Create
+            if self._rotation_drag_shape is not None:
+                self._finish_rotation_handle_drag()
             self.un_highlight()
             self.deselect_shape()
             self.is_move_editing = False
@@ -1906,7 +1911,7 @@ class Canvas(
         self.h_rotation_shape = shape
         self.override_cursor(CURSOR_POINT)
         self.setToolTip(
-            self.tr("Click & drag to rotate shape '%s'") % shape.label
+            self.tr("Click or drag to rotate shape '%s'") % shape.label
         )
         self.setStatusTip(self.toolTip())
         self.update()
@@ -1949,6 +1954,7 @@ class Canvas(
         self.prev_point = pos
         self.calculate_offsets(pos)
         self.override_cursor(CURSOR_MOVE)
+        self.grabMouse()
 
     def _update_rotation_handle_drag(self, pos, modifiers):
         shape = self._rotation_drag_shape
@@ -1961,6 +1967,7 @@ class Canvas(
             angle = self._snap_rotation_angle(angle)
         theta = self._rotation_drag_prev_angle - angle
         if abs(theta) < 1e-9:
+            self.update()
             return
         if self.bounded_rotate_shapes(0, shape, theta):
             self._rotation_drag_prev_angle = angle
@@ -1986,6 +1993,8 @@ class Canvas(
         shape = self._rotation_drag_shape
         self._rotation_drag_shape = None
         self._rotation_drag_prev_angle = None
+        if QtWidgets.QWidget.mouseGrabber() is self:
+            self.releaseMouse()
         if self.rotating_shape:
             self._store_rotated_shape(shape)
             self.rotating_shape = False
@@ -2291,11 +2300,8 @@ class Canvas(
             return
 
         if self._rotation_drag_shape is not None:
-            if QtCore.Qt.MouseButton.LeftButton & ev.buttons():
-                self.is_move_editing = False
-                self._update_rotation_handle_drag(pos, ev.modifiers())
-            else:
-                self._finish_rotation_handle_drag()
+            self.is_move_editing = False
+            self._update_rotation_handle_drag(pos, ev.modifiers())
             return
 
         # Polygon/Vertex moving.
@@ -2739,6 +2745,17 @@ class Canvas(
         if self.is_loading:
             return
         self.interaction_started.emit()
+        if (
+            ev.button() == QtCore.Qt.MouseButton.LeftButton
+            and self._rotation_drag_shape is not None
+        ):
+            self._update_rotation_handle_drag(
+                self.transform_pos(ev.position()), ev.modifiers()
+            )
+            self._finish_rotation_handle_drag()
+            self._rotation_release_pending = True
+            ev.accept()
+            return
         self._pending_edge_point = None
         if self._is_pan_gesture(ev) and self._start_space_pan(
             ev.globalPosition(), ev.button()
@@ -3053,8 +3070,13 @@ class Canvas(
                 self.selected_shapes_copy = []
                 self.repaint()
         elif ev.button() == QtCore.Qt.MouseButton.LeftButton:
+            if self._rotation_release_pending:
+                self._rotation_release_pending = False
+                ev.accept()
+                return
             if self._rotation_drag_shape is not None:
-                self._finish_rotation_handle_drag()
+                if self.rotating_shape:
+                    self._finish_rotation_handle_drag()
                 ev.accept()
                 return
             if self._vertex_erasing:
@@ -4508,44 +4530,11 @@ class Canvas(
                     (shape.points[0].x() + shape.points[2].x()) / 2,
                     (shape.points[0].y() + shape.points[2].y()) / 2,
                 )
-                if self.show_degrees:
-                    degrees = math.degrees(shape.direction)
-                    if abs(degrees - 360.0) < 0.1:
-                        degrees = 0.0
-                    degrees = f"{degrees:.2f}°"
-                    p.setFont(
-                        QtGui.QFont(
-                            "Arial",
-                            int(max(6.0, int(round(8.0 / Shape.scale)))),
-                        )
-                    )
-                    pen = QtGui.QPen(
-                        QtGui.QColor("#FF9900"),
-                        8,
-                        QtCore.Qt.PenStyle.SolidLine,
-                    )
-                    p.setPen(pen)
-                    fm = QtGui.QFontMetrics(p.font())
-                    rect = fm.boundingRect(degrees)
-                    p.fillRect(
-                        int(rect.x() + center.x() - d),
-                        int(rect.y() + center.y() + d),
-                        int(rect.width()),
-                        int(rect.height()),
-                        QtGui.QColor("#FF9900"),
-                    )
-                    pen = QtGui.QPen(
-                        QtGui.QColor("#FFFFFF"),
-                        7,
-                        QtCore.Qt.PenStyle.SolidLine,
-                    )
-                    p.setPen(pen)
-                    p.drawText(
-                        int(center.x() - d),
-                        int(center.y() + d),
-                        degrees,
-                    )
-                else:
+                if not (
+                    self.show_degrees
+                    or shape is self._rotation_drag_shape
+                    or (self.rotating_shape and shape in self.selected_shapes)
+                ):
                     cp = QtGui.QPainterPath()
                     cp.addRect(
                         int(center.x() - d / 2),
@@ -4618,7 +4607,13 @@ class Canvas(
 
         # Draw texts
         # Draw labels
-        if self.show_labels or self.show_texts:
+        if (
+            self.show_labels
+            or self.show_texts
+            or self.show_degrees
+            or self._rotation_drag_shape is not None
+            or self.rotating_shape
+        ):
             label_transform = p.transform()
             p.save()
             p.resetTransform()
@@ -4646,6 +4641,22 @@ class Canvas(
                         fields.append(label)
                     if shape.score is not None and self.show_scores:
                         fields.append(f"{float(shape.score):.2f}")
+                if (
+                    shape.shape_type == "rotation"
+                    and len(shape.points) == 4
+                    and (
+                        self.show_degrees
+                        or shape is self._rotation_drag_shape
+                        or (
+                            self.rotating_shape
+                            and shape in self.selected_shapes
+                        )
+                    )
+                ):
+                    degrees = math.degrees(shape.direction)
+                    if abs(degrees - 360.0) < 0.1:
+                        degrees = 0.0
+                    fields.append(f"{degrees:.2f}°")
                 if self.show_texts and shape.description:
                     fields.append(shape.description)
                 label_text = " · ".join(fields)
@@ -4657,6 +4668,7 @@ class Canvas(
                 padding_y = 2
                 rect_width = text_rect.width() + 2 * padding_x
                 rect_height = fm.height() + 2 * padding_y
+                label_rotation = None
 
                 if shape.shape_type in [
                     "rectangle",
@@ -4666,9 +4678,26 @@ class Canvas(
                         bbox = shape.bounding_rect()
                     except IndexError:
                         continue
-                    point = label_transform.map(bbox.topLeft())
-                    if shape.shape_type == "rectangle":
-                        point.setY(point.y() - rect_height)
+                    if (
+                        shape.shape_type == "rotation"
+                        and len(shape.points) == 4
+                    ):
+                        start = label_transform.map(shape.points[0])
+                        end = label_transform.map(shape.points[1])
+                        label_rotation = (
+                            start,
+                            math.degrees(
+                                math.atan2(
+                                    end.y() - start.y(), end.x() - start.x()
+                                )
+                            ),
+                        )
+                        point = QtCore.QPointF()
+                    else:
+                        point = label_transform.map(bbox.topLeft())
+                    half_line_width = shape.line_width / 2
+                    point.setX(point.x() - half_line_width)
+                    point.setY(point.y() - rect_height + half_line_width)
                     rect = QtCore.QRect(
                         int(point.x()),
                         int(point.y()),
@@ -4739,7 +4768,9 @@ class Canvas(
                     leaders.append((shape, point, elbow, end))
                 else:
                     continue
-                labels.append((shape, rect, text_pos, label_text))
+                labels.append(
+                    (shape, rect, text_pos, label_text, label_rotation)
+                )
 
             for shape, start, elbow, end in leaders:
                 color = QtGui.QColor(shape.line_color)
@@ -4750,18 +4781,35 @@ class Canvas(
                 p.drawPolyline(QtGui.QPolygonF([start, elbow, end]))
 
             p.setPen(Qt.PenStyle.NoPen)
-            for shape, rect, _, _ in labels:
+            for shape, rect, _, _, label_rotation in labels:
                 if not shape.visible:
                     continue
+                p.save()
+                if label_rotation is not None:
+                    p.translate(label_rotation[0])
+                    p.rotate(label_rotation[1])
                 p.setBrush(shape.line_color)
                 p.drawRoundedRect(QtCore.QRectF(rect), 4.0, 4.0)
+                if shape.shape_type in ("rectangle", "rotation"):
+                    p.fillRect(
+                        QtCore.QRect(
+                            rect.left(), rect.bottom() - 3, rect.width(), 4
+                        ),
+                        shape.line_color,
+                    )
+                p.restore()
 
             pen = QtGui.QPen(QtGui.QColor("#000000"), 8, Qt.PenStyle.SolidLine)
             p.setPen(pen)
-            for shape, _, text_pos, label_text in labels:
+            for shape, _, text_pos, label_text, label_rotation in labels:
                 if not shape.visible:
                     continue
+                p.save()
+                if label_rotation is not None:
+                    p.translate(label_rotation[0])
+                    p.rotate(label_rotation[1])
                 p.drawText(text_pos, label_text)
+                p.restore()
             p.restore()
 
         # Draw mouse coordinates
@@ -5519,14 +5567,18 @@ class Canvas(
                     self.bounded_rotate_shapes(i, shape, theta)
                     rotating_shape = True
             if rotating_shape:
-                self.repaint()
                 self.rotating_shape = True
+                self.repaint()
 
     # QT Overload
     def keyPressEvent(self, ev):  # noqa: C901
         """Key press event"""
         modifiers = ev.modifiers()
         key = ev.key()
+        if key == QtCore.Qt.Key.Key_Escape and self._rotation_drag_shape:
+            self._finish_rotation_handle_drag()
+            ev.accept()
+            return
         if key == QtCore.Qt.Key.Key_Space and not ev.isAutoRepeat():
             self._space_pressed = True
             self._clear_space_pan_hover_state()
@@ -5667,6 +5719,7 @@ class Canvas(
                     self.update()
                 if self.rotating_shape:
                     self.rotating_shape = False
+                    self.update()
 
     def set_last_label(self, text, flags, group_id):
         """Set label and flags for last shape"""
@@ -5774,6 +5827,12 @@ class Canvas(
 
     def reset_state(self):
         """Clear shapes and pixmap"""
+        if QtWidgets.QWidget.mouseGrabber() is self:
+            self.releaseMouse()
+        self._rotation_drag_shape = None
+        self._rotation_drag_prev_angle = None
+        self._rotation_release_pending = False
+        self.rotating_shape = False
         self._clear_space_pan_state()
         self.pan_offset = QtCore.QPointF()
         self._right_pan_start = None

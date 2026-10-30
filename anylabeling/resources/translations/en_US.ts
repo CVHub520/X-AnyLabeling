@@ -417,6 +417,11 @@ Review the prompt before generating.</translation>
       <source>Existing unsupported shape type. Only rectangle, rotation and polygon shapes are supported for detection boxes.</source>
       <translation>Existing unsupported shape type. Only rectangle, rotation and polygon shapes are supported for detection boxes.</translation>
     </message>
+    <message>
+      <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" />
+      <source>TinyObj</source>
+      <translation>TinyObj</translation>
+    </message>
   </context>
   <context>
     <name>BatchProcessDialog</name>

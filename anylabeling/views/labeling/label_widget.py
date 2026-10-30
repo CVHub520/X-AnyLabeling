@@ -48,7 +48,6 @@ from .utils.style import (
     get_dock_style,
     get_ok_btn_style,
     get_scrollbar_style,
-    get_settings_button_style,
     get_toolbar_scroll_area_style,
 )
 from ...config import get_config, save_config
@@ -167,6 +166,11 @@ def _create_file_status_icon(color, filled=True):
 class FileNameDelegate(QtWidgets.QStyledItemDelegate):
     def displayText(self, value, locale):
         return osp.basename(super().displayText(value, locale))
+
+    def sizeHint(self, option, index):
+        size = super().sizeHint(option, index)
+        size.setHeight(QtGui.QFontMetrics(option.font).height() + 4)
+        return size
 
 
 class FileListWidget(QtWidgets.QListWidget):
@@ -387,15 +391,16 @@ class LabelingWidget(LabelDialog):
         )
         self.file_search.returnPressed.connect(self.file_search_changed)
         self.file_search.returnPressed.connect(self.file_search.setFocus)
-        self.settings_button = QPushButton(self)
-        self.settings_button.setFixedSize(32, 32)
+        self.settings_button = QtWidgets.QToolButton(self)
+        self.settings_button.setFixedSize(26, 26)
         self.settings_button.setCursor(
             QtCore.Qt.CursorShape.PointingHandCursor
         )
         self.settings_button.setToolTip(self.tr("Settings"))
         self.settings_button.setIcon(utils.new_icon("settings", "svg"))
-        self.settings_button.setIconSize(QtCore.QSize(28, 28))
-        self.settings_button.setStyleSheet(get_settings_button_style())
+        self.settings_button.setIconSize(QtCore.QSize(18, 18))
+        self.settings_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.settings_button.setAccessibleName(self.settings_button.toolTip())
         self.settings_button.clicked.connect(self.open_settings_dialog)
         self.file_list_widget = FileListWidget()
         self.file_list_widget.setObjectName("FileList")
@@ -1385,6 +1390,14 @@ class LabelingWidget(LabelDialog):
             checked=self._config["keep_prev_contrast"],
             enabled=True,
         )
+        self.canvas_adjustment.opacity_pin.setChecked(True)
+        for button, keep_action in (
+            (self.canvas_adjustment.brightness_pin, keep_prev_brightness),
+            (self.canvas_adjustment.contrast_pin, keep_prev_contrast),
+        ):
+            button.setChecked(keep_action.isChecked())
+            button.clicked.connect(keep_action.trigger)
+            keep_action.toggled.connect(button.setChecked)
         fit_window = action(
             self.tr("Fit Window"),
             self.set_fit_window,
@@ -1893,6 +1906,20 @@ class LabelingWidget(LabelDialog):
             checked=True,
             enabled=True,
             icon="tags",
+        )
+        show_image_tags.setObjectName("toggleImageTags")
+        theme = get_theme()
+        show_image_tags.setIcon(
+            get_icon("panel-down", theme["text"], theme["primary"])
+        )
+        show_image_tags.toggled.connect(
+            lambda checked: show_image_tags.setIcon(
+                get_icon(
+                    "panel-down" if checked else "panel-up",
+                    theme["text"],
+                    theme["primary"],
+                )
+            )
         )
 
         # AI Actions
@@ -2410,6 +2437,8 @@ class LabelingWidget(LabelDialog):
             loop_thru_labels,
             loop_select_labels,
             select_toggle_shapes,
+            fit_window,
+            fit_width,
             None,
             toggle_auto_labeling_widget,
             run_all_images,
@@ -2578,7 +2607,11 @@ class LabelingWidget(LabelDialog):
         self.update_button.hide()
         instruction_layout.addWidget(self.update_button)
         utility_actions = []
-        for button in (self.shortcuts_button, self.sidebar_toggle_button):
+        for button in (
+            self.settings_button,
+            self.shortcuts_button,
+            self.sidebar_toggle_button,
+        ):
             button.setStyleSheet("")
             widget_action = QtWidgets.QWidgetAction(self)
             widget_action.setDefaultWidget(button)
@@ -2609,9 +2642,9 @@ class LabelingWidget(LabelDialog):
             None,
             *display_actions,
             None,
-            fit_window,
-            fit_width,
-            *utility_actions,
+            *utility_actions[:2],
+            show_image_tags,
+            *utility_actions[2:],
         )
         central_layout.addLayout(instruction_layout)
         central_layout.addWidget(self.auto_labeling_widget)
@@ -2650,6 +2683,7 @@ class LabelingWidget(LabelDialog):
         right_sidebar_layout = QVBoxLayout(self.right_sidebar)
         right_sidebar_layout.setContentsMargins(0, 0, 0, 0)
         right_sidebar_layout.setSpacing(4)
+        self.image_tags_widget.installEventFilter(self)
 
         # Thumbnail image display
         self.thumbnail_pixmap = None
@@ -2809,17 +2843,36 @@ class LabelingWidget(LabelDialog):
         ):
             HoverControl(panel, checkbox)
 
-        file_search_row_layout = QHBoxLayout()
-        file_search_row_layout.setContentsMargins(0, 0, 0, 0)
-        file_search_row_layout.setSpacing(6)
-        file_search_row_layout.addWidget(self.file_search, 1)
-        file_search_row_layout.addWidget(self.settings_button, 0)
-        right_sidebar_layout.addLayout(file_search_row_layout)
-
         files_panel = RoundedPanel()
         files_panel_layout = QVBoxLayout(files_panel)
         files_panel_layout.setContentsMargins(0, 0, 0, 0)
         files_panel_layout.setSpacing(0)
+        self.file_search.setStyleSheet(self.file_search.styleSheet() + f"""
+            QLineEdit {{
+                background-color: {theme["surface"]};
+                border: none;
+                border-bottom: 1px solid {theme["border"]};
+                border-radius: 0;
+            }}
+            QLineEdit:focus {{
+                border: none;
+                border-bottom: 1px solid {theme["border"]};
+            }}
+        """)
+        self.file_search.setTextMargins(0, 0, 30, 0)
+        self.files_checkbox = PanelCheckBox()
+        self.files_checkbox.setFixedSize(22, 22)
+        self.files_checkbox.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.files_checkbox.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+        self.files_checkbox.setToolTip(self.tr("Show/hide file list"))
+        self.files_checkbox.setChecked(True)
+        self.files_checkbox.toggled.connect(self.file_dock.setVisible)
+        file_search_layout = QHBoxLayout(self.file_search)
+        file_search_layout.setContentsMargins(0, 0, 4, 0)
+        file_search_layout.addStretch()
+        file_search_layout.addWidget(self.files_checkbox)
+        HoverControl(files_panel, self.files_checkbox)
+        files_panel_layout.addWidget(self.file_search)
         files_panel_layout.addWidget(self.file_dock)
         right_sidebar_layout.addWidget(files_panel)
         for area in (
@@ -6512,6 +6565,19 @@ class LabelingWidget(LabelDialog):
         self.canvas_adjustment.raise_()
 
     def eventFilter(self, obj, event):
+        if obj is getattr(
+            self, "image_tags_widget", None
+        ) and event.type() in (
+            QtCore.QEvent.Type.Show,
+            QtCore.QEvent.Type.Hide,
+            QtCore.QEvent.Type.Resize,
+        ):
+            height = (
+                0
+                if event.type() == QtCore.QEvent.Type.Hide
+                else self.image_tags_widget.height() + 4
+            )
+            self.right_sidebar.layout().setContentsMargins(0, 0, 0, height)
         if (
             hasattr(self, "_canvas_scroll_area")
             and obj is self._canvas_scroll_area.viewport()
@@ -6766,6 +6832,15 @@ class LabelingWidget(LabelDialog):
         self.canvas.pan_offset = saved_pan
         self.pan_values[self.filename] = QtCore.QPointF(saved_pan)
         self.constrain_canvas_pan()
+
+        if (
+            not self.canvas_adjustment.opacity_pin.isChecked()
+            and self.recent_files
+            and self.recent_files[0] != self.filename
+        ):
+            self.canvas_adjustment.opacity_slider.setValue(
+                self.canvas_adjustment.OPACITY_DEFAULT
+            )
 
         # set brightness contrast values
         brightness, contrast = self.brightness_contrast_values.get(

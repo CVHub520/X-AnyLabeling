@@ -77,6 +77,10 @@ class ToolBar(QtWidgets.QFrame):
             ToolBar QToolButton:pressed {{
                 background: {t["surface_pressed"]};
             }}
+            ToolBar QToolButton#toggleImageTags:checked:!hover:!pressed {{
+                border: none;
+                background: transparent;
+            }}
             {separator_qss}
             """)
 
