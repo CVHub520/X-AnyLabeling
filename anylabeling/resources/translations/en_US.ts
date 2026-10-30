@@ -2983,6 +2983,11 @@ Press Enter to search.</translation>
       <translation>Settings</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/label_widget.py" line="738" />
+      <source>Open the settings dialog</source>
+      <translation>Open the settings dialog</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/label_widget.py" line="623" />
       <source>Open File</source>
       <translation>Open File</translation>

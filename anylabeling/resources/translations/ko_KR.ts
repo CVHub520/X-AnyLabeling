@@ -2983,6 +2983,11 @@ Enter 키를 눌러 검색합니다.</translation>
       <translation>설정</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/label_widget.py" line="738" />
+      <source>Open the settings dialog</source>
+      <translation>설정 대화상자 열기</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/label_widget.py" line="623" />
       <source>Open File</source>
       <translation>파일 열기</translation>

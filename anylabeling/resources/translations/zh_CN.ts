@@ -2982,6 +2982,11 @@ Press Enter to search.</source>
       <translation>设置</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/label_widget.py" line="738" />
+      <source>Open the settings dialog</source>
+      <translation>打开设置对话框</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/label_widget.py" line="623" />
       <source>Open File</source>
       <translation>打开文件</translation>

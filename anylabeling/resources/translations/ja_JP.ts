@@ -2982,6 +2982,11 @@ Enter キーを押して検索します。</translation>
       <translation>設定</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/label_widget.py" line="738" />
+      <source>Open the settings dialog</source>
+      <translation>設定ダイアログを開く</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/label_widget.py" line="623" />
       <source>Open File</source>
       <translation>ファイルを開く</translation>
