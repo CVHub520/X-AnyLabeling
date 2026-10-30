@@ -757,6 +757,22 @@ Review the prompt before generating.</translation>
   <context>
     <name>CanvasAdjustmentWidget</name>
     <message>
+      <source>Status</source>
+      <translation>Status</translation>
+    </message>
+    <message>
+      <source>Pending</source>
+      <translation>Pending</translation>
+    </message>
+    <message>
+      <source>Passed</source>
+      <translation>Passed</translation>
+    </message>
+    <message>
+      <source>Failed</source>
+      <translation>Failed</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="155" />
       <source>Canvas Display</source>
       <translation>Canvas Display</translation>

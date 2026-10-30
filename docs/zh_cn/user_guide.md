@@ -109,7 +109,7 @@ X-AnyLabeling 提供数据删除功能，具体操作如下：
 | Ctrl+Shift+D | 跳转到下一张未检查的标注 |
 
 
-在画布右键菜单的“检查状态”二级菜单中，可以设置当前图像的检查结果：
+在画布左下角的面板中，可通过“状态”选择“未验收”“合格”或“不合格”。也可以在画布右键菜单的“检查状态”二级菜单中设置相应结果：
 
 | 状态 | 文件列表图标 | 默认快捷键 | JSON 顶层 `checked` 值 |
 | --- | --- | --- | --- |
@@ -400,24 +400,24 @@ X-AnyLabeling 默认开启自动保存功能，用户在初次启动界面时，
 
 X-AnyLabeling 支持调整当前图片的显示效果和标注对象的可见性。具体操作如下：
 
-通过画布左下角可折叠的 **Canvas Display** 面板，可以调整标注透明度和底图的显示效果。点击箭头按钮可折叠或展开面板。
+通过画布左下角的面板，可以调整标注透明度、底图显示效果和当前图片的验收状态。点击面板左侧的箭头按钮可折叠或展开面板。
 
 **标注透明度：**拖动 **Opacity** 滑块可调整标注对象和掩码的透明度。标签文字始终保持清晰可见，方便辨认对象类别。
 
 <p align="center">
-  <img src="../../assets/resources/annotation_opacity.gif" alt="通过 Canvas Display 面板调整标注对象和掩码的透明度">
+  <img src="../../assets/resources/annotation_opacity.gif" alt="通过画布左下角的面板调整标注对象和掩码的透明度">
 </p>
 
 **图片亮度：**拖动 **Brightness** 滑块可调亮或调暗底图，不会修改原始图片文件或标注数据。
 
 <p align="center">
-  <img src="../../assets/resources/image_brightness.gif" alt="通过 Canvas Display 面板调整图片亮度">
+  <img src="../../assets/resources/image_brightness.gif" alt="通过画布左下角的面板调整图片亮度">
 </p>
 
 **图片对比度：**拖动 **Contrast** 滑块可增强或减弱底图的明暗层次，便于区分对象边界。
 
 <p align="center">
-  <img src="../../assets/resources/image_contrast.gif" alt="通过 Canvas Display 面板调整图片对比度">
+  <img src="../../assets/resources/image_contrast.gif" alt="通过画布左下角的面板调整图片对比度">
 </p>
 
 如果想将此更改应用到全局，请勾选 `视图` 下拉选项中的 `保持当前亮度` 和 `保持当前对比度` 选项。

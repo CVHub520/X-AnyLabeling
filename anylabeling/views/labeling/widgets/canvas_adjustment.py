@@ -107,6 +107,7 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
     # (factor = value / 50).
     brightness_contrast_changed = QtCore.pyqtSignal(int, int)
     geometry_changed = QtCore.pyqtSignal()
+    status_changed = QtCore.pyqtSignal(object)
 
     SLIDER_WIDTH = 120
     BC_UPDATE_INTERVAL_MS = 33
@@ -123,10 +124,6 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
 
     _LABEL_CSS = (
         "QLabel { color: #333; font-size: 11px; background: transparent; }"
-    )
-    _TITLE_CSS = (
-        "QLabel { color: #333; font-size: 11px; font-weight: 600;"
-        " background: transparent; }"
     )
     _RESET_CSS = (
         "QPushButton { background: rgba(120, 120, 120, 60);"
@@ -152,8 +149,6 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
 
         header_layout = QtWidgets.QHBoxLayout()
         header_layout.setContentsMargins(0, 0, 0, 0)
-        self.title_label = QtWidgets.QLabel(self.tr("Canvas Display"))
-        self.title_label.setStyleSheet(self._TITLE_CSS)
         self.toggle_button = QtWidgets.QToolButton()
         self.toggle_button.setIcon(new_icon("caret-up", "svg"))
         self.toggle_button.setIconSize(QtCore.QSize(10, 10))
@@ -166,9 +161,8 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
             "QToolButton:hover { background: rgba(120, 120, 120, 60); }"
             "QToolButton:pressed { background: rgba(120, 120, 120, 100); }"
         )
-        header_layout.addWidget(self.title_label)
-        header_layout.addStretch()
         header_layout.addWidget(self.toggle_button)
+        header_layout.addStretch()
         layout.addLayout(header_layout)
 
         self.content_widget = QtWidgets.QWidget()
@@ -207,6 +201,29 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
             self.tr("Adjust the contrast of the underlying image."),
             display="factor",
         )
+        status_layout = QtWidgets.QHBoxLayout()
+        status_layout.setContentsMargins(0, 0, 0, 0)
+        status_layout.setSpacing(4)
+        status_label = QtWidgets.QLabel(self.tr("Status"))
+        status_label.setFixedWidth(64)
+        status_label.setStyleSheet(self._LABEL_CSS)
+        status_layout.addWidget(status_label)
+        self.status_buttons = {}
+        for status, text in (
+            (False, self.tr("Pending")),
+            (True, self.tr("Passed")),
+            ("failed", self.tr("Failed")),
+        ):
+            button = QtWidgets.QRadioButton(text)
+            button.clicked.connect(
+                lambda _checked, value=status: self.status_changed.emit(value)
+            )
+            if self.status_buttons:
+                status_layout.addStretch()
+            self.status_buttons[status] = button
+            status_layout.addWidget(button)
+        content_layout.addLayout(status_layout)
+        self.set_status(False)
         layout.addWidget(self.content_widget)
 
         self.setLayout(layout)
@@ -233,6 +250,26 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
         }}
         #canvas_adjustment[collapsed="true"] {{
             background: transparent;
+        }}
+        #canvas_adjustment QRadioButton {{
+            color: #333;
+            font-size: 11px;
+            background: transparent;
+            spacing: 3px;
+        }}
+        #canvas_adjustment QRadioButton::indicator {{
+            width: 12px;
+            height: 12px;
+            border: 1px solid #666;
+            border-radius: 7px;
+            background: white;
+        }}
+        #canvas_adjustment QRadioButton::indicator:checked {{
+            border: 4px solid {primary};
+            width: 6px;
+            height: 6px;
+            border-radius: 7px;
+            background: white;
         }}
         #canvas_adjustment QSlider::groove:horizontal {{
             height: 4px;
@@ -337,7 +374,6 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
     def _toggle_collapsed(self):
         self._collapsed = not self._collapsed
         self.setProperty("collapsed", self._collapsed)
-        self.title_label.setVisible(not self._collapsed)
         self.content_widget.setVisible(not self._collapsed)
         margins = (4, 4, 4, 4) if self._collapsed else (10, 8, 10, 8)
         self.layout().setContentsMargins(*margins)
@@ -354,6 +390,9 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
         self.layout().activate()
         self.adjustSize()
         self.geometry_changed.emit()
+
+    def set_status(self, status):
+        self.status_buttons[status].setChecked(True)
 
     def set_opacity(self, value):
         """Set the opacity slider without emitting ``opacity_changed``."""

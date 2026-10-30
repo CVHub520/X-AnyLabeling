@@ -526,6 +526,9 @@ class LabelingWidget(LabelDialog):
         self.canvas_adjustment.brightness_contrast_changed.connect(
             self._on_inline_brightness_contrast
         )
+        self.canvas_adjustment.status_changed.connect(
+            self.set_annotation_checked
+        )
         self.canvas_adjustment.geometry_changed.connect(
             self._position_canvas_adjustment
         )
@@ -4630,6 +4633,7 @@ class LabelingWidget(LabelDialog):
             self._set_file_item_checked(item, self._annotation_checked())
 
     def _sync_annotation_checked_state(self):
+        self.canvas_adjustment.set_status(self._annotation_checked())
         self._update_annotation_checked_action()
         self._update_current_file_checked_item()
         self.update_progress_title()

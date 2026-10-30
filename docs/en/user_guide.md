@@ -104,7 +104,7 @@ Navigate between images in your dataset using these methods:
 - **Jump by Annotation Check Status**:
     - `Ctrl+Shift+D`: Jump to the next unchecked annotation.
     - `Ctrl+Shift+A`: Jump to the previous unchecked annotation.
-- **Set Annotation Check Status**: Right-click the canvas and open the `Check Status` submenu to choose `Unchecked`, `Check Passed`, or `Check Failed`.
+- **Set Annotation Check Status**: Choose `Pending`, `Passed`, or `Failed` in the panel at the bottom-left of the canvas. You can also right-click the canvas and choose the corresponding option in the `Check Status` submenu.
 - **Jump to Specific Image**: Type the exact filename (including extension) into the file search bar at the bottom right and press `Enter`.
 
 | Status | File list icon | Default shortcut | Top-level JSON `checked` value |
@@ -398,24 +398,24 @@ To maintain the current zoom level when switching between images, enable `View` 
 
 X-AnyLabeling allows you to adjust the appearance of the current image and the visibility of annotations:
 
-Use the collapsible **Canvas Display** panel at the bottom-left of the canvas to adjust annotation opacity and the appearance of the underlying image. Click the caret button to collapse or expand the panel.
+Use the panel at the bottom-left of the canvas to adjust annotation opacity, the appearance of the underlying image, and the current image’s check status. Click the caret button on the left to collapse or expand the panel.
 
 **Annotation opacity:** Drag the **Opacity** slider to make annotation shapes and masks more or less transparent. Label text remains fully visible so that categories are still easy to identify.
 
 <p align="center">
-  <img src="../../assets/resources/annotation_opacity.gif" alt="Adjusting annotation shape and mask opacity from the Canvas Display panel">
+  <img src="../../assets/resources/annotation_opacity.gif" alt="Adjusting annotation shape and mask opacity from the panel at the bottom-left of the canvas">
 </p>
 
 **Image brightness:** Drag the **Brightness** slider to lighten or darken the underlying image without modifying the image file or annotation data.
 
 <p align="center">
-  <img src="../../assets/resources/image_brightness.gif" alt="Adjusting image brightness from the Canvas Display panel">
+  <img src="../../assets/resources/image_brightness.gif" alt="Adjusting image brightness from the panel at the bottom-left of the canvas">
 </p>
 
 **Image contrast:** Drag the **Contrast** slider to increase or reduce tonal separation in the underlying image, which can make object boundaries easier to distinguish.
 
 <p align="center">
-  <img src="../../assets/resources/image_contrast.gif" alt="Adjusting image contrast from the Canvas Display panel">
+  <img src="../../assets/resources/image_contrast.gif" alt="Adjusting image contrast from the panel at the bottom-left of the canvas">
 </p>
 
 To apply the current adjustments to all subsequent images in the session, enable `View` > `Keep Current Brightness` and `View` > `Keep Current Contrast`.

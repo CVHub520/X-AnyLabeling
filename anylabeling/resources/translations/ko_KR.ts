@@ -757,6 +757,22 @@ Review the prompt before generating.</source>
   <context>
     <name>CanvasAdjustmentWidget</name>
     <message>
+      <source>Status</source>
+      <translation>상태</translation>
+    </message>
+    <message>
+      <source>Pending</source>
+      <translation>검수 전</translation>
+    </message>
+    <message>
+      <source>Passed</source>
+      <translation>합격</translation>
+    </message>
+    <message>
+      <source>Failed</source>
+      <translation>불합격</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="155" />
       <source>Canvas Display</source>
       <translation>캔버스 표시</translation>
