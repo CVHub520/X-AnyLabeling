@@ -668,21 +668,21 @@ Supports importing and exporting labels for PaddleOCR (PPOCR) tasks.
 - **Key Information Extraction (KIE):** Extracts entities and relations from text regions.
 
 **Importing:**
-1. Select `Import Annotations` > `Import PPOCR Annotations`.
-2. Select the task (Recognition or KIE).
-3. Choose the appropriate label file (`Label.txt` for Rec, `kie.json` for KIE).
+1. Select `Upload` > `PPOCR Rec` or `PPOCR KIE`.
+2. Choose the appropriate label file (`Label.txt` for Rec, `ppocr_kie.json` for KIE).
 
 **Exporting:**
-1. Select `Export Annotations` > `Export PPOCR Annotations`.
-2. Select the task.
-3. Click OK.
+1. Select `Export` > `PPOCR Rec` or `PPOCR KIE`.
+2. Confirm or change the export path.
+
+Export looks for a JSON file with the same base name in the annotation directory set through `File` > `Change Output Dir`, or in the image directory if none is set.
 
 **Export Paths & Files:**
-- **Recognition:** Defaults to `ppocr-rec` subfolder. Contains:
+- **Recognition:** Defaults to `ppocr_rec` alongside the annotation directory, or the image directory if none is set. Contains:
     - `Label.txt`: Detection & transcription annotations.
-    - `rec_gt.txt`: Recognition ground truth (transcriptions only).
+    - `rec_gt.txt`: Cropped image paths and transcriptions.
     - `crop_img/`: Cropped images of text regions for recognition training.
-- **KIE:** Defaults to `ppocr-kie` subfolder. Contains:
+- **KIE:** Defaults to `ppocr_kie` in the same location. Contains:
     - `class_list.txt`: List of KIE entity classes.
     - `ppocr_kie.json`: KIE annotation results (linking text regions).
 
