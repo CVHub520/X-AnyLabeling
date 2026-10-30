@@ -730,6 +730,13 @@ class LabelingWidget(LabelDialog):
             self.tr("Delete current image file"),
             enabled=True,
         )
+        open_settings = action(
+            self.tr("Settings"),
+            self.open_settings_dialog,
+            None,  # Ctrl+0 已在 settings 模块绑定，这里不再重复注册
+            "settings",
+            self.tr("Open the settings dialog"),
+        )
         toggle_annotation_checked = action(
             self.tr("Check Passed"),
             lambda: self.set_annotation_checked(True),
@@ -1914,6 +1921,7 @@ class LabelingWidget(LabelDialog):
             toggle_compare_view=toggle_compare_view,
             delete_file=delete_file,
             delete_image_file=delete_image_file,
+            open_settings=open_settings,
             toggle_annotation_checked=toggle_annotation_checked,
             clear_annotation_checked=clear_annotation_checked,
             fail_annotation_checked=fail_annotation_checked,
@@ -2198,6 +2206,7 @@ class LabelingWidget(LabelDialog):
                 delete_file,
                 delete_image_file,
                 None,
+                open_settings,
             ),
         )
         utils.add_actions(self.menus.train, (ultralytics_train,))
