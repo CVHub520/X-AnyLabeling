@@ -730,6 +730,11 @@ class LabelingWidget(LabelDialog):
             self.tr("Delete current image file"),
             enabled=True,
         )
+        open_settings = action(
+            self.tr("Settings"),
+            self.open_settings_dialog,
+            icon="settings",
+        )
         toggle_annotation_checked = action(
             self.tr("Check Passed"),
             lambda: self.set_annotation_checked(True),
@@ -2198,6 +2203,7 @@ class LabelingWidget(LabelDialog):
                 delete_file,
                 delete_image_file,
                 None,
+                open_settings,
             ),
         )
         utils.add_actions(self.menus.train, (ultralytics_train,))
