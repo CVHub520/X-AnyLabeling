@@ -65,7 +65,7 @@ class TestPointCloudIntegration(unittest.TestCase):
                 assert view.actions.open_pointcloud.isEnabled()
                 actions = view.menus.workflow.actions()
                 assert actions.index(view.actions.open_pointcloud) == (
-                    actions.index(view.actions.open_vqa) + 1
+                    actions.index(view.actions.open_video_classifier) + 1
                 )
                 assert not {
                     name for name in sys.modules if 'pointcloud' in name

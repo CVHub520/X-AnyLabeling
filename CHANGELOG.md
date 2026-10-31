@@ -1,5 +1,34 @@
 # X-AnyLabeling Changelog
 
+## `v4.3.0` (Nov 1, 2026)
+
+X-AnyLabeling 4.3.0 adds object-level multi-task attribute annotation and expands OCR workflows, with improved canvas controls and navigation.
+
+### 🚀 New Features
+
+- Add object-level multi-task attribute annotation with AI-assisted labeling and concurrent inference.
+- Integrate Unlimited-OCR-2 with joint multi-page PDF document parsing.
+- Add annotation review status controls to the canvas panel.
+- Support a configurable image navigation step.
+
+### 🐛 Bug Fixes
+
+- Respect the annotation output directory when exporting PPOCR annotations. (#1482)
+- Prevent shortcuts from triggering hidden auto-labeling controls.
+- Limit annotation opacity adjustments to shape fills.
+
+### 🛠️ Improvements
+
+- Improve canvas controls and rotation interactions.
+- Add Settings to the File menu and clarify workflow names.
+- Refresh the interface screenshot in the English and Chinese README files.
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @CVHub520 and @zhixuwei
+
 ## `v4.2.3` (Oct 30, 2026)
 
 X-AnyLabeling 4.2.3 adds configurable wheel navigation modes, improves magic wand selection, and fixes interface scaling and workflow window handling.

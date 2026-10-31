@@ -19,7 +19,7 @@
 </p>
 
 <a href="https://mp.weixin.qq.com/s/RUb8ge-_7br0YeIImuK6YQ" target="_blank">
-  <img src="https://github.com/user-attachments/assets/aa819dae-e38c-4b1c-a4a7-53a873d870e3" alt="X-AnyLabeling 界面" width="100%" />
+  <img src="assets/resources/interface.webp" alt="X-AnyLabeling 界面" width="100%" />
 </a>
 
 <p align="center">
