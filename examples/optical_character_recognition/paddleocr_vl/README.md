@@ -26,7 +26,7 @@ PaddleOCR-VL-1.5 supports six distinct tasks:
 
 ## PP-DocLayoutV3 Label Routing
 
-When the PPOCR panel uses `PP-DocLayoutV3` for layout detection and then sends each cropped block to `PaddleOCR-VL-1.5`, labels are routed as follows:
+When the Document Parser uses `PP-DocLayoutV3` for layout detection and then sends each cropped block to `PaddleOCR-VL-1.5`, labels are routed as follows:
 
 | Routed Task | PP-DocLayoutV3 Labels |
 |-------------|------------------------|

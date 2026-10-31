@@ -231,7 +231,7 @@ class PPOCRWorkspaceSplitter(QSplitter):
 class PPOCRDialog(QDialog):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        self.setWindowTitle(DEFAULT_WINDOW_TITLE)
+        self.setWindowTitle(self.tr(DEFAULT_WINDOW_TITLE))
         self.setWindowFlags(
             Qt.WindowType.Window
             | Qt.WindowType.WindowMinimizeButtonHint

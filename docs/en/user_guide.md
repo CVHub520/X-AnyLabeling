@@ -967,7 +967,7 @@ You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit
 | `Ctrl+1`              | Open Chatbot                                     |                                            |
 | `Ctrl+2`              | Open Visual Question Answering Dialog            |                                            |
 | `Ctrl+3`              | Open Image Classifier Dialog                     |                                            |
-| `Ctrl+4`              | Open PaddleOCR Dialog                            |                                            |
+| `Ctrl+4`              | Open Document Parser Dialog                            |                                            |
 | `Ctrl+5`              | Open Video Classifier Dialog                     |                                            |
 | `Ctrl+6`              | Open 3D Point Cloud Workspace                     |                                            |
 | `Ctrl+q`              | Quit Application                                 |                                            |
@@ -1223,5 +1223,5 @@ For details on integrating and using your own custom AI models within X-AnyLabel
 - Image Classifier: [Link](./image_classifier.md)
 - Video Classifier: [Link](./video_classifier.md)
 - Ultralytics Training Platforms: [Link](../../examples/training/ultralytics/README.md)
-- Document Parsing and Intelligent Text Recognition: [Link](./paddle_ocr.md)
+- Document Parser: [Link](./document_parser.md)
 - 3D Point Cloud Annotation: [Link](./point_cloud.md)

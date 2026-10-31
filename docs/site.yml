@@ -17,7 +17,7 @@ workflows:
   - id: image-classifier
     document: image_classifier.md
   - id: paddle-ocr
-    document: paddle_ocr.md
+    document: document_parser.md
   - id: video-classifier
     document: video_classifier.md
   - id: vqa

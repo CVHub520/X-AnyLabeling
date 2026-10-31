@@ -1,10 +1,10 @@
-# PaddleOCR 文档解析与智能文字识别
+# 文档解析器
 
 ## 简介
 
 [PaddleOCR](https://aistudio.baidu.com/paddleocr) 是百度飞桨生态中的 OCR 与文档智能工具，覆盖通用文字识别、文档版面分析、表格解析、公式识别等能力，适用于扫描件、拍照文档、多页 PDF、技术文档等常见资料处理场景。
 
-X-AnyLabeling 集成了面向文档理解与文字识别工作流的 PaddleOCR 面板，支持对图片和 PDF 文件进行版面、文字、公式和表格识别，并可在识别后校对、编辑、复制和导出结果。
+X-AnyLabeling 集成了面向文档理解与文字识别工作流的文档解析器，支持对图片和 PDF 文件进行版面、文字、公式和表格识别，并可在识别后校对、编辑、复制和导出结果。
 
 面板支持 PaddleOCR 官方 API 和 X-AnyLabeling 远程推理服务两种接入方式。解析结果保存在本地 JSON 文件中，界面会同步显示源文件区域框、结构化内容和可编辑的结果块。
 
@@ -15,7 +15,7 @@ X-AnyLabeling 集成了面向文档理解与文字识别工作流的 PaddleOCR �
 
 ### 官方 API（推荐）
 
-X-AnyLabeling 客户端默认支持 PaddleOCR 官方 API 调用形式，无需额外部署推理服务。首次加载 PaddleOCR 面板且尚未配置 API 信息时，界面会自动弹出 `PPOCR API Settings` 配置窗口；用户只需填写相应的 `API_KEY` 即可启用官方 API 解析。后续如需修改配置，也可以点击右侧结果面板顶部的齿轮按钮手动打开该窗口。
+X-AnyLabeling 客户端默认支持 PaddleOCR 官方 API 调用形式，无需额外部署推理服务。首次加载文档解析器且尚未配置 API 信息时，界面会自动弹出 `PPOCR API Settings` 配置窗口；用户只需填写相应的 `API_KEY` 即可启用官方 API 解析。后续如需修改配置，也可以点击右侧结果面板顶部的齿轮按钮手动打开该窗口。
 
 右侧解析模型下拉框当前支持以下官方 API 选项：
 
@@ -41,9 +41,9 @@ ${workspace}/xanylabeling_data/paddleocr/api_settings.json
 
 ### 本地部署（可选）
 
-如需在本地或私有环境中运行 PaddleOCR，可通过 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 部署推理服务。安装依赖和启动服务的方法参见[多任务 OCR 示例](../../examples/optical_character_recognition/multi_task/README.md)。
+如需在本地或私有环境中运行 PaddleOCR，可通过 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 部署推理服务。安装依赖和启动服务的方法参见[PaddleOCR-VL-1.5 示例](../../examples/optical_character_recognition/paddleocr_vl/README.md)。
 
-请检查 X-AnyLabeling-Server 中是否存在 `ppocr_layoutstructv3_vl_1_5` 模型配置。如果您希望自行实现并集成 PaddleOCR 推理管道，请在模型配置中声明以下能力标识，客户端会据此判断该模型是否可用于 PaddleOCR 面板：
+请检查 X-AnyLabeling-Server 中是否存在 `ppocr_layoutstructv3_vl_1_5` 模型配置。如果您希望自行实现并集成 PaddleOCR 推理管道，请在模型配置中声明以下能力标识，客户端会据此判断该模型是否可用于文档解析器：
 
 ```yaml
 ...
@@ -52,17 +52,17 @@ capabilities:
 ...
 ```
 
-服务启动后，重新打开 PaddleOCR 标注面板，右侧顶部的 `解析模型` 下拉框会显示当前可用模型。选择不带 `(API)` 后缀的模型时，解析任务会自动发送至已部署的推理服务。
+服务启动后，重新打开文档解析器，右侧顶部的 `解析模型` 下拉框会显示当前可用模型。选择不带 `(API)` 后缀的模型时，解析任务会自动发送至已部署的推理服务。
 
 Unlimited-OCR-2 也可通过 X-AnyLabeling-Server 接入本面板，支持 Transformers 和 SGLang 后端。PDF 各页会作为整份文档一次提交，进行多页联合解析。参见 [Unlimited-OCR-2 使用说明](../../examples/optical_character_recognition/unlimited_ocr_2/README.md)。
 
 ## 使用手册
 
-您可以通过以下任一方式打开 PaddleOCR：点击左侧工具栏中的 `PaddleOCR` 图标或直接使用快捷键 `Ctrl+4`。
+您可以通过以下任一方式打开文档解析器：点击 `工作流` > `文档解析器` 或直接使用快捷键 `Ctrl+4`。
 
 打开后，点击左侧面板顶部的 `+ New Parsing` 选择文件。确认 `开始解析` 后才会导入文件；确认导入的文件会同步复制到本地 PaddleOCR 工作目录，并加入解析队列。
 
-PaddleOCR 面板支持导入以下文件：
+文档解析器支持导入以下文件：
 
 | 类型 | 后缀 |
 | :--- | :--- |
@@ -87,7 +87,7 @@ PDF 文件会先在本地渲染为逐页 PNG 预览图。官方 API 通过异步
 
 ### 整体布局
 
-PaddleOCR 面板由三部分组成：
+文档解析器由三部分组成：
 
 | 区域 | 说明 |
 | :--- | :--- |
@@ -156,7 +156,7 @@ PaddleOCR 面板由三部分组成：
 
 ### 数据保存与目录结构
 
-PaddleOCR 面板会把导入文件和解析结果保存在本地工作目录中：
+文档解析器会把导入文件和解析结果保存在本地工作目录中：
 
 ```text
 ${workspace}/xanylabeling_data/paddleocr/

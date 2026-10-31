@@ -18,7 +18,7 @@ For SGLang deployment and page-window settings, see the [Server deployment guide
 ## Usage
 
 1. Configure the X-AnyLabeling remote server address to point to X-AnyLabeling-Server.
-2. Open the **PaddleOCR** panel (`Ctrl+4`) and select **Unlimited-OCR-2** in **Parsing model**. This model uses the document panel, not the main-window annotation workflow.
+2. Open the **Document Parser** (`Ctrl+4`) and select **Unlimited-OCR-2** in **Parsing model**. This model uses the document panel, not the main-window annotation workflow.
 3. Click **+ New Parsing**, select an image or PDF, and start parsing. The client renders PDF previews locally, then sends all pages in order in one document request. It does not run independent inference on each page.
 4. Review the source page and structured content side by side. Use the page controls to navigate PDFs and select blocks to inspect their source regions.
 5. Correct individual blocks, copy recognized content, or export the document/JSON using the panel's existing controls. The JSON preserves page geometry and global group IDs for cross-page continuation blocks.

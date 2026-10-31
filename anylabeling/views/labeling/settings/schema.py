@@ -285,7 +285,7 @@ def _settings_translation_markers() -> None:
         "SettingsDialog", "Open Image Classifier Dialog"
     )
     QCoreApplication.translate("SettingsDialog", "Open Video Classifier")
-    QCoreApplication.translate("SettingsDialog", "Open PaddleOCR Dialog")
+    QCoreApplication.translate("SettingsDialog", "Open Document Parser Dialog")
     QCoreApplication.translate("SettingsDialog", "Open Overview Dialog")
     QCoreApplication.translate("SettingsDialog", "Show Navigator Dialog")
     QCoreApplication.translate(
@@ -505,7 +505,7 @@ def _shortcut_label(short_key: str) -> str:
             SETTINGS_TRANSLATION_CONTEXT, "Open Chatbot Dialog"
         ),
         "open_paddleocr": QT_TRANSLATE_NOOP(
-            SETTINGS_TRANSLATION_CONTEXT, "Open PaddleOCR Dialog"
+            SETTINGS_TRANSLATION_CONTEXT, "Open Document Parser Dialog"
         ),
         "edit_digit_shortcut": QT_TRANSLATE_NOOP(
             SETTINGS_TRANSLATION_CONTEXT,

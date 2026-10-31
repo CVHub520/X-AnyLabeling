@@ -3788,12 +3788,12 @@ Press Enter to search.</source>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1218" />
       <source>ChatBot</source>
-      <translation>聊天机器人</translation>
+      <translation>对话问答</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1222" />
       <source>Open chatbot dialog</source>
-      <translation>打开聊天机器人对话框</translation>
+      <translation>打开对话问答窗口</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1225" />
@@ -3817,7 +3817,7 @@ Press Enter to search.</source>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1239" />
-      <source>Classifier</source>
+      <source>Image Classifier</source>
       <translation>图像分类器</translation>
     </message>
     <message>
@@ -3837,13 +3837,13 @@ Press Enter to search.</source>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1255" />
-      <source>PaddleOCR</source>
-      <translation>PaddleOCR</translation>
+      <source>Document Parser</source>
+      <translation>文档解析器</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1259" />
-      <source>Open PaddleOCR dialog</source>
-      <translation>打开 PaddleOCR 对话框</translation>
+      <source>Open document parser dialog</source>
+      <translation>打开文档解析器窗口</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1262" />
@@ -5846,6 +5846,11 @@ Results have been saved to:
   </context>
   <context>
     <name>PPOCRDialog</name>
+    <message>
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="234" />
+      <source>Document Parser</source>
+      <translation>文档解析器</translation>
+    </message>
     <message>
       <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="316" />
       <source>+ New Parsing</source>
@@ -8512,7 +8517,7 @@ Changes will not be saved until you click Save.</source>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="278" />
       <source>Open Chatbot Dialog</source>
-      <translation>打开聊天助手</translation>
+      <translation>打开对话问答窗口</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="279" />
@@ -8531,8 +8536,8 @@ Changes will not be saved until you click Save.</source>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="284" />
-      <source>Open PaddleOCR Dialog</source>
-      <translation>打开 PaddleOCR</translation>
+      <source>Open Document Parser Dialog</source>
+      <translation>打开文档解析器窗口</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="285" />

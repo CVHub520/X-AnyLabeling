@@ -102,7 +102,7 @@
 7. [视觉问答](./docs/zh_cn/vqa.md)
 8. [图像分类器](./docs/zh_cn/image_classifier.md)
 9. [视频分类器](./docs/zh_cn/video_classifier.md)
-10. [文档解析与智能文字识别](./docs/zh_cn/paddle_ocr.md)
+10. [文档解析器](./docs/zh_cn/document_parser.md)
 11. [3D 点云标注](./docs/zh_cn/point_cloud.md)
 
 ## 示例

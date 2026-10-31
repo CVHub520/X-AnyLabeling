@@ -3736,12 +3736,12 @@ Enter キーを押して検索します。</translation>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1218" />
       <source>ChatBot</source>
-      <translation>チャットボット</translation>
+      <translation>対話型質疑応答</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1222" />
       <source>Open chatbot dialog</source>
-      <translation>チャットボットダイアログを開く</translation>
+      <translation>対話型質疑応答を開く</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1225" />
@@ -3765,8 +3765,8 @@ Enter キーを押して検索します。</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1239" />
-      <source>Classifier</source>
-      <translation>分類器</translation>
+      <source>Image Classifier</source>
+      <translation>画像分類器</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1245" />
@@ -3785,13 +3785,13 @@ Enter キーを押して検索します。</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1255" />
-      <source>PaddleOCR</source>
-      <translation>PaddleOCR</translation>
+      <source>Document Parser</source>
+      <translation>文書解析器</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1259" />
-      <source>Open PaddleOCR dialog</source>
-      <translation>PaddleOCRダイアログを開く</translation>
+      <source>Open document parser dialog</source>
+      <translation>文書解析器ダイアログを開く</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1262" />
@@ -5794,6 +5794,11 @@ Results have been saved to:
   </context>
   <context>
     <name>PPOCRDialog</name>
+    <message>
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="234" />
+      <source>Document Parser</source>
+      <translation>文書解析器</translation>
+    </message>
     <message>
       <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="316" />
       <source>+ New Parsing</source>
@@ -8460,7 +8465,7 @@ Changes will not be saved until you click Save.</source>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="278" />
       <source>Open Chatbot Dialog</source>
-      <translation>チャットボットを開く</translation>
+      <translation>対話型質疑応答を開く</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="279" />
@@ -8479,8 +8484,8 @@ Changes will not be saved until you click Save.</source>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="284" />
-      <source>Open PaddleOCR Dialog</source>
-      <translation>PaddleOCR を開く</translation>
+      <source>Open Document Parser Dialog</source>
+      <translation>文書解析器ダイアログを開く</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="285" />

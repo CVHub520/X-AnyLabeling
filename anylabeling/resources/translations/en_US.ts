@@ -3744,8 +3744,8 @@ Press Enter to search.</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1239" />
-      <source>Classifier</source>
-      <translation>Classifier</translation>
+      <source>Image Classifier</source>
+      <translation>Image Classifier</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1245" />
@@ -3764,13 +3764,13 @@ Press Enter to search.</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1255" />
-      <source>PaddleOCR</source>
-      <translation>PaddleOCR</translation>
+      <source>Document Parser</source>
+      <translation>Document Parser</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1259" />
-      <source>Open PaddleOCR dialog</source>
-      <translation>Open PaddleOCR dialog</translation>
+      <source>Open document parser dialog</source>
+      <translation>Open document parser dialog</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1262" />
@@ -5769,6 +5769,11 @@ Results have been saved to:
   </context>
   <context>
     <name>PPOCRDialog</name>
+    <message>
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="234" />
+      <source>Document Parser</source>
+      <translation>Document Parser</translation>
+    </message>
     <message>
       <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="316" />
       <source>+ New Parsing</source>
@@ -8454,8 +8459,8 @@ Changes will not be saved until you click Save.</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="284" />
-      <source>Open PaddleOCR Dialog</source>
-      <translation>Open PaddleOCR Dialog</translation>
+      <source>Open Document Parser Dialog</source>
+      <translation>Open Document Parser Dialog</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="285" />

@@ -1035,7 +1035,7 @@ digit_shortcuts:
 | Ctrl + 1              | 打开聊天机器人对话窗口                     |
 | Ctrl + 2              | 打开视觉问答窗口                        |
 | Ctrl + 3              | 打开图像分类器窗口                       |
-| Ctrl + 4              | 打开 PaddleOCR 窗口                    |
+| Ctrl + 4              | 打开文档解析器窗口                    |
 | Ctrl + 5              | 打开视频分类器窗口                       |
 | Ctrl + 6              | 打开 3D 点云工作区                     |
 | Ctrl + q              | 退出当前应用程序                        |
@@ -1298,5 +1298,5 @@ font_family: null  # null 表示使用系统默认字体，也可填写字体名
 - 图像分类器：[链接](./image_classifier.md)
 - 视频分类器：[链接](./video_classifier.md)
 - Ultralytics 训练平台：[链接](../../examples/training/ultralytics/README.md)
-- 文档解析与智能文字识别：[链接](./paddle_ocr.md)
+- 文档解析器：[链接](./document_parser.md)
 - 3D 点云标注：[链接](./point_cloud.md)

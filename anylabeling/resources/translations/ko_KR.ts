@@ -3737,12 +3737,12 @@ Enter 키를 눌러 검색합니다.</translation>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1218" />
       <source>ChatBot</source>
-      <translation>챗봇</translation>
+      <translation>대화형 질의응답</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1222" />
       <source>Open chatbot dialog</source>
-      <translation>챗봇 대화상자 열기</translation>
+      <translation>대화형 질의응답 열기</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1225" />
@@ -3766,8 +3766,8 @@ Enter 키를 눌러 검색합니다.</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1239" />
-      <source>Classifier</source>
-      <translation>분류기</translation>
+      <source>Image Classifier</source>
+      <translation>이미지 분류기</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1245" />
@@ -3786,13 +3786,13 @@ Enter 키를 눌러 검색합니다.</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1255" />
-      <source>PaddleOCR</source>
-      <translation>PaddleOCR</translation>
+      <source>Document Parser</source>
+      <translation>문서 분석기</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1259" />
-      <source>Open PaddleOCR dialog</source>
-      <translation>PaddleOCR 대화상자 열기</translation>
+      <source>Open document parser dialog</source>
+      <translation>문서 분석기 대화상자 열기</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="1262" />
@@ -5796,6 +5796,11 @@ Results have been saved to:
   </context>
   <context>
     <name>PPOCRDialog</name>
+    <message>
+      <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="234" />
+      <source>Document Parser</source>
+      <translation>문서 분석기</translation>
+    </message>
     <message>
       <location filename="../../views/labeling/widgets/ppocr_dialog.py" line="316" />
       <source>+ New Parsing</source>
@@ -8462,7 +8467,7 @@ Changes will not be saved until you click Save.</source>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="278" />
       <source>Open Chatbot Dialog</source>
-      <translation>챗봇 열기</translation>
+      <translation>대화형 질의응답 열기</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="279" />
@@ -8481,8 +8486,8 @@ Changes will not be saved until you click Save.</source>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="284" />
-      <source>Open PaddleOCR Dialog</source>
-      <translation>PaddleOCR 열기</translation>
+      <source>Open Document Parser Dialog</source>
+      <translation>문서 분석기 대화상자 열기</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="285" />

@@ -99,7 +99,7 @@
 6. [VQA](./docs/en/vqa.md)
 7. [Image Classifier](./docs/en/image_classifier.md)
 8. [Video Classifier](./docs/en/video_classifier.md)
-9. [Document Parsing and Intelligent Text Recognition](./docs/en/paddle_ocr.md)
+9. [Document Parser](./docs/en/document_parser.md)
 10. [3D Point Cloud Annotation](./docs/en/point_cloud.md)
 
 ## Examples

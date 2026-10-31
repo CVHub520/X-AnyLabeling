@@ -1255,7 +1255,7 @@ class LabelingWidget(LabelDialog):
             tip=self.tr("Open point cloud workspace"),
         )
         open_image_classifier = action(
-            self.tr("Classifier"),
+            self.tr("Image Classifier"),
             self.open_image_classifier,
             shortcuts.get(
                 "open_image_classifier", shortcuts.get("open_classifier")
@@ -1271,11 +1271,11 @@ class LabelingWidget(LabelDialog):
             tip=self.tr("Open video classifier dialog"),
         )
         open_paddleocr = action(
-            self.tr("PaddleOCR"),
+            self.tr("Document Parser"),
             self.open_paddleocr,
             shortcuts["open_paddleocr"],
             icon="scan-text",
-            tip=self.tr("Open PaddleOCR dialog"),
+            tip=self.tr("Open document parser dialog"),
         )
         documentation = action(
             self.tr("Documentation"),
@@ -2244,10 +2244,10 @@ class LabelingWidget(LabelDialog):
             (
                 open_chatbot,
                 open_vqa,
-                open_pointcloud,
                 open_image_classifier,
-                open_video_classifier,
                 open_paddleocr,
+                open_video_classifier,
+                open_pointcloud,
             ),
         )
         utils.add_actions(

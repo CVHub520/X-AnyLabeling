@@ -1,10 +1,10 @@
-# PaddleOCR Document Parsing and Intelligent Text Recognition
+# Document Parser
 
 ## Overview
 
 [PaddleOCR](https://aistudio.baidu.com/paddleocr) is an OCR and document intelligence toolkit in the Baidu PaddlePaddle ecosystem. It covers general text recognition, document layout analysis, table parsing, formula recognition, and other capabilities for common document-processing scenarios such as scanned documents, photographed documents, multi-page PDFs, and technical documents.
 
-X-AnyLabeling integrates these capabilities through a dedicated **PaddleOCR** panel for document understanding and intelligent text recognition workflows. The panel supports layout parsing, text recognition, formula recognition, and table recognition for images and PDF files. After parsing is complete, you can review, edit, copy, and export the recognized results.
+X-AnyLabeling integrates these capabilities through a dedicated **Document Parser** for document understanding and intelligent text recognition workflows. The panel supports layout parsing, text recognition, formula recognition, and table recognition for images and PDF files. After parsing is complete, you can review, edit, copy, and export the recognized results.
 
 Two service modes are supported: you can call the official PaddleOCR API directly, or connect to a PaddleOCR model served through an X-AnyLabeling-compatible remote inference service. Parsed results are saved as local JSON files and displayed in the interface together with source-file regions, structured content, and editable result blocks.
 
@@ -15,7 +15,7 @@ Two service modes are supported: you can call the official PaddleOCR API directl
 
 ### Official API (Recommended)
 
-The X-AnyLabeling client supports the official PaddleOCR API by default, so you do not need to deploy an additional inference service. When the PaddleOCR panel is opened for the first time and no API information has been configured, the `PPOCR API Settings` dialog appears automatically. Enter the corresponding `API_KEY` to enable official API parsing. To update the configuration later, click the gear button at the top of the right-side result panel.
+The X-AnyLabeling client supports the official PaddleOCR API by default, so you do not need to deploy an additional inference service. When the Document Parser is opened for the first time and no API information has been configured, the `PPOCR API Settings` dialog appears automatically. Enter the corresponding `API_KEY` to enable official API parsing. To update the configuration later, click the gear button at the top of the right-side result panel.
 
 The following official API model options are currently supported in the parsing-model drop-down list:
 
@@ -41,9 +41,9 @@ By default, `${workspace}` is the user's home directory, `~`. If X-AnyLabeling i
 
 ### Local Deployment (Optional)
 
-To run PaddleOCR locally or in a private environment, deploy an inference service with [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server). See the [multi-task OCR example](../../examples/optical_character_recognition/multi_task/README.md) for dependency installation and startup instructions.
+To run PaddleOCR locally or in a private environment, deploy an inference service with [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server). See the [PaddleOCR-VL-1.5 example](../../examples/optical_character_recognition/paddleocr_vl/README.md) for dependency installation and startup instructions.
 
-Make sure X-AnyLabeling-Server has been updated to the latest version, and check that the `ppocr_layoutstructv3_vl_1_5` model configuration is available. If you want to implement and integrate your own PaddleOCR inference pipeline, declare the following capability flag in the model configuration. The client uses this flag to determine whether the model can be used in the PaddleOCR panel:
+Make sure X-AnyLabeling-Server has been updated to the latest version, and check that the `ppocr_layoutstructv3_vl_1_5` model configuration is available. If you want to implement and integrate your own PaddleOCR inference pipeline, declare the following capability flag in the model configuration. The client uses this flag to determine whether the model can be used in the Document Parser:
 
 ```yaml
 ...
@@ -52,17 +52,17 @@ capabilities:
 ...
 ```
 
-After the service starts, reopen the PaddleOCR annotation panel. The `Parsing Model` drop-down list at the top right displays the available models. Selecting a model without the `(API)` suffix sends parsing requests to the deployed inference service.
+After the service starts, reopen the Document Parser. The `Parsing Model` drop-down list at the top right displays the available models. Selecting a model without the `(API)` suffix sends parsing requests to the deployed inference service.
 
 Unlimited-OCR-2 is also available in this panel through X-AnyLabeling-Server, with Transformers and SGLang backends. Its PDF pages are submitted together for joint multi-page parsing. See the [Unlimited-OCR-2 guide](../../examples/optical_character_recognition/unlimited_ocr_2/README.md).
 
 ## User Guide
 
-You can open PaddleOCR in either of the following ways: click the `PaddleOCR` icon in the left toolbar, or use the `Ctrl+4` shortcut.
+You can open Document Parser in either of the following ways: select `Workflow` > `Document Parser`, or use the `Ctrl+4` shortcut.
 
 After the panel opens, click `+ New Parsing` at the top of the left panel to select files. Confirm `Start Parsing` to import them; confirmed files are copied to the local PaddleOCR workspace and added to the parsing queue.
 
-The X-AnyLabeling PaddleOCR panel currently supports the following file types:
+The X-AnyLabeling Document Parser currently supports the following file types:
 
 | Type | Extensions |
 | :--- | :--- |
@@ -88,7 +88,7 @@ PDF files are first rendered locally into per-page PNG previews. Official API pa
 
 ### Overall Layout
 
-The PaddleOCR panel consists of three main areas:
+The Document Parser consists of three main areas:
 
 | Area | Description |
 | :--- | :--- |
@@ -157,7 +157,7 @@ The following editors are currently supported:
 
 ### Data Storage and Directory Structure
 
-The PaddleOCR panel saves imported files and parsed results in the local workspace:
+The Document Parser saves imported files and parsed results in the local workspace:
 
 ```text
 ${workspace}/xanylabeling_data/paddleocr/
