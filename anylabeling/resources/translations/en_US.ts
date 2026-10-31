@@ -3051,23 +3051,23 @@ Press Enter to search.</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="660" />
-      <source>Forward 10 Images</source>
-      <translation>Forward 10 Images</translation>
+      <source>Forward %s Images</source>
+      <translation>Forward %s Images</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="663" />
-      <source>Move forward by 10 images</source>
-      <translation>Move forward by 10 images</translation>
+      <source>Move forward by %s images</source>
+      <translation>Move forward by %s images</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="667" />
-      <source>Back 10 Images</source>
-      <translation>Back 10 Images</translation>
+      <source>Back %s Images</source>
+      <translation>Back %s Images</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="670" />
-      <source>Move back by 10 images</source>
-      <translation>Move back by 10 images</translation>
+      <source>Move back by %s images</source>
+      <translation>Move back by %s images</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="674" />
@@ -7543,6 +7543,14 @@ The main application remains available.</translation>
   </context>
   <context>
     <name>SettingsDialog</name>
+    <message>
+      <source>Number of images to skip when navigating.</source>
+      <translation>Number of images to skip when navigating.</translation>
+    </message>
+    <message>
+      <source>Image Jump Step</source>
+      <translation>Image Jump Step</translation>
+    </message>
     <message>
       <location filename="../../views/labeling/settings/dialog.py" line="393" />
       <location filename="../../views/labeling/settings/dialog.py" line="106" />

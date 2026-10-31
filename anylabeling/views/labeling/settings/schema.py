@@ -68,6 +68,10 @@ def _settings_translation_markers() -> None:
     QCoreApplication.translate("SettingsDialog", "Toggle Annotation Checked")
     QCoreApplication.translate("SettingsDialog", "Toggle Image Tags")
     QCoreApplication.translate("SettingsDialog", "File List Checkbox Editable")
+    QCoreApplication.translate("SettingsDialog", "Image Jump Step")
+    QCoreApplication.translate(
+        "SettingsDialog", "Number of images to skip when navigating."
+    )
     QCoreApplication.translate("SettingsDialog", "Use System Clipboard")
     QCoreApplication.translate("SettingsDialog", "Application Font")
     QCoreApplication.translate(
@@ -355,6 +359,7 @@ SETTINGS_GENERAL_KEYS = (
     "auto_switch_to_edit_mode",
     "exif_scan_enabled",
     "file_list_checkbox_editable",
+    "image_jump_step",
     "system_clipboard",
     "font_family",
     "model_hub",
@@ -640,6 +645,20 @@ def _non_shortcut_fields() -> list[SettingField]:
             description=QT_TRANSLATE_NOOP(
                 SETTINGS_TRANSLATION_CONTEXT,
                 "Allow checked state changes directly from the file list.",
+            ),
+        ),
+        SettingField(
+            "image_jump_step",
+            QT_TRANSLATE_NOOP(SETTINGS_TRANSLATION_CONTEXT, "Image Jump Step"),
+            "int",
+            "General",
+            "File List",
+            "Navigation",
+            minimum=1,
+            maximum=1000000,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Number of images to skip when navigating.",
             ),
         ),
         SettingField(

@@ -3072,23 +3072,23 @@ Enter キーを押して検索します。</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="660" />
-      <source>Forward 10 Images</source>
-      <translation>10枚先へ</translation>
+      <source>Forward %s Images</source>
+      <translation>%s枚先へ</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="663" />
-      <source>Move forward by 10 images</source>
-      <translation>10枚先の画像へ移動</translation>
+      <source>Move forward by %s images</source>
+      <translation>%s枚先の画像へ移動</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="667" />
-      <source>Back 10 Images</source>
-      <translation>10枚前へ</translation>
+      <source>Back %s Images</source>
+      <translation>%s枚前へ</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="670" />
-      <source>Move back by 10 images</source>
-      <translation>10枚前の画像へ移動</translation>
+      <source>Move back by %s images</source>
+      <translation>%s枚前の画像へ移動</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="674" />
@@ -7568,6 +7568,14 @@ The main application remains available.</source>
   </context>
   <context>
     <name>SettingsDialog</name>
+    <message>
+      <source>Number of images to skip when navigating.</source>
+      <translation>移動時にスキップする画像の枚数。</translation>
+    </message>
+    <message>
+      <source>Image Jump Step</source>
+      <translation>画像の移動枚数</translation>
+    </message>
     <message>
       <location filename="../../views/labeling/settings/dialog.py" line="393" />
       <location filename="../../views/labeling/settings/dialog.py" line="106" />

@@ -216,6 +216,9 @@ class SettingsRuntimeApplier:
         )
 
     def apply_change(self, key: str, value: Any) -> None:
+        if key == "image_jump_step":
+            self._widget.update_browse_actions()
+            return
         if key == "canvas.wheel_navigation_mode":
             self._widget.canvas.wheel_navigation_mode = value
             policy = (

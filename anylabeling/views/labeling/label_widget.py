@@ -669,17 +669,19 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         jump_next_images = action(
-            self.tr("Forward 10 Images"),
-            lambda: self.jump_images(10),
+            self.tr("Forward %s Images") % self._config["image_jump_step"],
+            lambda: self.jump_images(self._config["image_jump_step"]),
             icon="skip-next",
-            tip=self.tr("Move forward by 10 images"),
+            tip=self.tr("Move forward by %s images")
+            % self._config["image_jump_step"],
             enabled=False,
         )
         jump_prev_images = action(
-            self.tr("Back 10 Images"),
-            lambda: self.jump_images(-10),
+            self.tr("Back %s Images") % self._config["image_jump_step"],
+            lambda: self.jump_images(-self._config["image_jump_step"]),
             icon="skip-prev",
-            tip=self.tr("Move back by 10 images"),
+            tip=self.tr("Move back by %s images")
+            % self._config["image_jump_step"],
             enabled=False,
         )
         open_next_unchecked_image = action(
@@ -3523,8 +3525,27 @@ class LabelingWidget(LabelDialog):
         index = self.fn_to_index.get(str(self.filename), -1)
         count = self.file_list_widget.count()
         valid = 0 <= index < count
-        self.actions.jump_next_images.setEnabled(valid and index + 10 < count)
-        self.actions.jump_prev_images.setEnabled(valid and index >= 10)
+        step = self._config["image_jump_step"]
+        self.actions.jump_next_images.setEnabled(
+            valid and index + step < count
+        )
+        self.actions.jump_prev_images.setEnabled(valid and index >= step)
+        for action, text, tip in (
+            (
+                self.actions.jump_next_images,
+                self.tr("Forward %s Images"),
+                self.tr("Move forward by %s images"),
+            ),
+            (
+                self.actions.jump_prev_images,
+                self.tr("Back %s Images"),
+                self.tr("Move back by %s images"),
+            ),
+        ):
+            action.setText(text % step)
+            action.setIconText((text % step).replace(" ", "\n"))
+            action.setToolTip(tip % step)
+            action.setStatusTip(tip % step)
 
     def jump_images(self, offset):
         if not self.may_continue():

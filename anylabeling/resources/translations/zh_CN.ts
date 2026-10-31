@@ -3072,23 +3072,23 @@ Press Enter to search.</source>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="660" />
-      <source>Forward 10 Images</source>
-      <translation>向后切换 10 张</translation>
+      <source>Forward %s Images</source>
+      <translation>向后切换 %s 张</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="663" />
-      <source>Move forward by 10 images</source>
-      <translation>向后切换 10 张图片</translation>
+      <source>Move forward by %s images</source>
+      <translation>向后切换 %s 张图片</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="667" />
-      <source>Back 10 Images</source>
-      <translation>向前切换 10 张</translation>
+      <source>Back %s Images</source>
+      <translation>向前切换 %s 张</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="670" />
-      <source>Move back by 10 images</source>
-      <translation>向前切换 10 张图片</translation>
+      <source>Move back by %s images</source>
+      <translation>向前切换 %s 张图片</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="674" />
@@ -7568,6 +7568,14 @@ The main application remains available.</source>
   </context>
   <context>
     <name>SettingsDialog</name>
+    <message>
+      <source>Number of images to skip when navigating.</source>
+      <translation>设置每次跳转的图片数量。</translation>
+    </message>
+    <message>
+      <source>Image Jump Step</source>
+      <translation>图像跳转步数</translation>
+    </message>
     <message>
       <location filename="../../views/labeling/settings/dialog.py" line="393" />
       <location filename="../../views/labeling/settings/dialog.py" line="106" />

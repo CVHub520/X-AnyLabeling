@@ -73,6 +73,25 @@ def window(tmp_path, monkeypatch):
     app.sendPostedEvents(None, QtCore.QEvent.Type.DeferredDelete)
 
 
+def test_configured_image_jump_updates_navigation(window, tmp_path):
+    widget = window.labeling_widget.view
+    paths = generate_images(tmp_path / "images", range(6), 16)
+    widget.import_image_folder(str(tmp_path / "images"))
+    assert not widget.actions.jump_next_images.isEnabled()
+
+    controller = widget._settings_controller
+    controller.update_field("image_jump_step", 2, schedule_save=False)
+    controller.save_now()
+    assert widget.actions.jump_next_images.isEnabled()
+    assert "2" in widget.actions.jump_next_images.toolTip()
+
+    widget.actions.jump_next_images.trigger()
+    assert widget.filename == paths[2][0]
+    assert widget.actions.jump_prev_images.isEnabled()
+    widget.actions.jump_prev_images.trigger()
+    assert widget.filename == paths[0][0]
+
+
 def test_switch_drops_old_objects_and_batches_list_updates(window, tmp_path):
     app = QtWidgets.QApplication.instance()
     widget = window.labeling_widget.view

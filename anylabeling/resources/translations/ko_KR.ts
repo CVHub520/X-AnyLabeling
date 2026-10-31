@@ -3073,23 +3073,23 @@ Enter 키를 눌러 검색합니다.</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="660" />
-      <source>Forward 10 Images</source>
-      <translation>10장 다음으로</translation>
+      <source>Forward %s Images</source>
+      <translation>%s장 다음으로</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="663" />
-      <source>Move forward by 10 images</source>
-      <translation>10장 뒤의 이미지로 이동</translation>
+      <source>Move forward by %s images</source>
+      <translation>%s장 뒤의 이미지로 이동</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="667" />
-      <source>Back 10 Images</source>
-      <translation>10장 이전으로</translation>
+      <source>Back %s Images</source>
+      <translation>%s장 이전으로</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="670" />
-      <source>Move back by 10 images</source>
-      <translation>10장 앞의 이미지로 이동</translation>
+      <source>Move back by %s images</source>
+      <translation>%s장 앞의 이미지로 이동</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="674" />
@@ -7570,6 +7570,14 @@ The main application remains available.</source>
   </context>
   <context>
     <name>SettingsDialog</name>
+    <message>
+      <source>Number of images to skip when navigating.</source>
+      <translation>이동할 이미지 수를 설정합니다.</translation>
+    </message>
+    <message>
+      <source>Image Jump Step</source>
+      <translation>이미지 이동 간격</translation>
+    </message>
     <message>
       <location filename="../../views/labeling/settings/dialog.py" line="393" />
       <location filename="../../views/labeling/settings/dialog.py" line="106" />

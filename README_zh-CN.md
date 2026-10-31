@@ -31,7 +31,6 @@
 ## 🥳 新功能
 
 - `2026-10-30`：新增支持 [Unlimited-OCR-2](./examples/optical_character_recognition/unlimited_ocr_2/README.md) 模型，支持图像、PDF 文档解析与多页上下文识别。
-
 - `2026-10-28`：新增支持 [WeVisOne-VL](./examples/vision_foundation/wevisone_vl/README.md) 模型，支持目标检测、描述定位、目标指点、计数、OCR、文本定位、分割、文本及框提示抠图、参考框检测和自由提示。
 - `2026-10-28`：新增支持 [Xiaomi-Lens-0](./examples/vision_foundation/xiaomi_lens/README.md) 模型，支持描述理解与分割、多实例定位、推理分割、具身指令定位及细粒度感知。
 - `2026-10-27`：新增[标注显示模式](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#33-%E5%AF%B9%E8%B1%A1%E5%8F%AF%E8%A7%86%E5%8C%96)，支持按类别、实例或群组配色，以及黑色背景、白色前景的二值掩码视图。
@@ -138,7 +137,7 @@
   - [SAM3-Video](./examples/interactive_video_object_segmentation/sam3/README.md)
 - [Matting](./examples/matting/)
   - [Image Matting](./examples/matting/image_matting/README.md)
-- [视觉基础模型](./examples/vision_foundation/)
+- [VFM](./examples/vision_foundation/)
   - [Rex-Omni](./examples/vision_foundation/rexomni/README.md)
   - [Florence 2](./examples/vision_foundation/florence2/README.md)
   - [LocateAnything](./examples/vision_foundation/locateanything/README.md)
