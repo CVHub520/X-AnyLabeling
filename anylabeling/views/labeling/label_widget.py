@@ -2581,12 +2581,7 @@ class LabelingWidget(LabelDialog):
         self.shortcuts_button.setIconSize(QtCore.QSize(18, 18))
         self.shortcuts_button.setFixedSize(26, 26)
         self.shortcuts_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.shortcuts_button.setToolTip(
-            QtCore.QCoreApplication.translate(
-                "ShortcutsDialog", "Keyboard shortcuts"
-            )
-        )
-        self.shortcuts_button.setToolTip(self.get_labeling_instruction())
+        self.shortcuts_button.setToolTip(self.tr("Shortcuts"))
         self.shortcuts_button.setAccessibleName(
             self.shortcuts_button.toolTip()
         )
@@ -3238,7 +3233,6 @@ class LabelingWidget(LabelDialog):
         if not hasattr(self, "label_instruction"):
             return
         self.label_instruction.setText(self.get_labeling_instruction())
-        self.shortcuts_button.setToolTip(self.get_labeling_instruction())
         self.update_space_pan_tip()
 
     def _format_instruction_shortcut(self, value):
@@ -6552,7 +6546,7 @@ class LabelingWidget(LabelDialog):
         self.set_dirty()
 
     def _on_shape_opacity_changed(self, value):
-        """Update label/shape opacity from the slider value (0-100)."""
+        """Update annotation fill opacity from the slider value (0-100)."""
         self.canvas.shape_opacity = value / 100.0
         self.canvas.update()
 

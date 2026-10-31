@@ -807,13 +807,13 @@ Example: person.car.bicycle</source>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="182" />
-      <source>Opacity</source>
-      <translation>透明度</translation>
+      <source>Fill Opacity</source>
+      <translation>填充不透明度</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="186" />
-      <source>Adjust the transparency of annotation shapes and masks. Label text remains fully visible.</source>
-      <translation>调整标注对象和掩码的透明度。标签文字始终保持完全可见。</translation>
+      <source>Adjust annotation fills relative to their default opacity. Outlines, control points, and text remain visible.</source>
+      <translation>相对于默认不透明度调整标注填充。轮廓、控制点和文字始终可见。</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="194" />
@@ -4508,6 +4508,11 @@ Press Enter to search.</source>
       <location filename="../../views/labeling/label_widget.py" line="3094" />
       <source>OK</source>
       <translation>确认</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="2584" />
+      <source>Shortcuts</source>
+      <translation>快捷键</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="3120" />

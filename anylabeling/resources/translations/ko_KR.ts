@@ -807,13 +807,13 @@ Example: person.car.bicycle</source>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="182" />
-      <source>Opacity</source>
-      <translation>불투명도</translation>
+      <source>Fill Opacity</source>
+      <translation>채우기 불투명도</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="186" />
-      <source>Adjust the transparency of annotation shapes and masks. Label text remains fully visible.</source>
-      <translation>주석 도형과 마스크의 불투명도를 조정합니다. 레이블 텍스트는 항상 그대로 표시됩니다.</translation>
+      <source>Adjust annotation fills relative to their default opacity. Outlines, control points, and text remain visible.</source>
+      <translation>기본 불투명도를 기준으로 주석 채우기를 조정합니다. 윤곽선, 제어점 및 텍스트는 계속 표시됩니다.</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="194" />
@@ -4509,6 +4509,11 @@ Enter 키를 눌러 검색합니다.</translation>
       <location filename="../../views/labeling/label_widget.py" line="3094" />
       <source>OK</source>
       <translation>확인</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="2584" />
+      <source>Shortcuts</source>
+      <translation>단축키</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="3120" />

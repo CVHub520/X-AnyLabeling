@@ -43,8 +43,9 @@ class TestCanvasAdjustmentWidget(unittest.TestCase):
 
     def test_defaults_and_tooltips_describe_adjustment_targets(self):
         self.assertEqual(self.widget.opacity_slider.value(), 100)
-        self.assertIn("shapes", self.widget.opacity_slider.toolTip())
-        self.assertIn("Label text", self.widget.opacity_slider.toolTip())
+        self.assertIn("fills", self.widget.opacity_slider.toolTip())
+        self.assertIn("Outlines", self.widget.opacity_slider.toolTip())
+        self.assertEqual(self.widget.opacity_value_label.text(), "100%")
         self.assertIn("image", self.widget.brightness_slider.toolTip())
         self.assertIn("image", self.widget.contrast_slider.toolTip())
 

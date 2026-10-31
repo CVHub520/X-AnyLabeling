@@ -429,7 +429,9 @@ class Shape:
         x2, y2 = pt2.x(), pt2.y()
         return QtCore.QRectF(x1, y1, x2 - x1, y2 - y1)
 
-    def paint(self, painter: QtGui.QPainter):  # noqa: max-complexity: 18
+    def paint(
+        self, painter: QtGui.QPainter, fill_opacity=1.0
+    ):  # noqa: max-complexity: 18
         """Paint shape using QPainter"""
         if self.points:
             color = (
@@ -593,6 +595,8 @@ class Shape:
                     if self.selected
                     else self.fill_color
                 )
+                color = QtGui.QColor(color)
+                color.setAlpha(round(color.alpha() * fill_opacity))
                 painter.fillPath(line_path, color)
             if self.selected:
                 vertex_color = QtGui.QColor(self.vertex_fill_color)

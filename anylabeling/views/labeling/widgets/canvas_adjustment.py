@@ -174,13 +174,13 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
         self.opacity_slider, self.opacity_value_label, self.opacity_pin = (
             self._build_row(
                 content_layout,
-                self.tr("Opacity"),
+                self.tr("Fill Opacity"),
                 self.OPACITY_MIN,
                 self.OPACITY_MAX,
                 self.OPACITY_DEFAULT,
                 self.tr(
-                    "Adjust the transparency of annotation shapes and masks. "
-                    "Label text remains fully visible."
+                    "Adjust annotation fills relative to their default opacity. "
+                    "Outlines, control points, and text remain visible."
                 ),
                 display="opacity",
             )
@@ -386,7 +386,7 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
         if label.property("display") == "factor":
             label.setText(f"{value / 50:.2f}")
         elif label.property("display") == "opacity":
-            label.setText(f"{value / 100:.2f}")
+            label.setText(f"{value}%")
         else:
             label.setText(f"{value}%")
 

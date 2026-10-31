@@ -59,7 +59,7 @@ class TestCanvasGroups(unittest.TestCase):
     def test_group_label_uses_compact_group_and_shape_count(self):
         self.assertEqual(self.canvas._group_label(3, 5), "G3 · S5")
 
-    def test_shape_opacity_applies_to_kie_linking(self):
+    def test_fill_opacity_does_not_affect_kie_linking(self):
         first = self.make_shape(20, 20, 40, 40, group_id=3)
         second = self.make_shape(120, 20, 140, 40, group_id=4)
         first.kie_linking = [[3, 4]]
@@ -84,9 +84,27 @@ class TestCanvasGroups(unittest.TestCase):
         self.app.processEvents()
         image = self.canvas.grab().toImage()
 
-        self.assertEqual(
-            image.pixelColor(80, 30), QtGui.QColor(QtCore.Qt.GlobalColor.black)
-        )
+        self.assertEqual(image.pixelColor(80, 30), opaque_image.pixelColor(80, 30))
+
+    def test_fill_opacity_changes_mask_without_fading_outline(self):
+        shape = self.make_shape(20, 20, 80, 80, group_id=None)
+        self.canvas.shapes = [shape]
+        self.canvas.show_masks = True
+        self.canvas.show_groups = False
+        self.canvas.show_labels = False
+        self.canvas.cross_line_show = False
+        self.canvas.show()
+        self.app.processEvents()
+        opaque = self.canvas.grab().toImage()
+
+        self.canvas.shape_opacity = 0.0
+        self.canvas.update()
+        self.app.processEvents()
+        transparent = self.canvas.grab().toImage()
+
+        self.assertNotEqual(opaque.pixelColor(50, 50), transparent.pixelColor(50, 50))
+        self.assertEqual(transparent.pixelColor(50, 50), QtGui.QColor("black"))
+        self.assertNotEqual(transparent.pixelColor(20, 50), QtGui.QColor("black"))
 
     def test_group_label_keeps_fixed_screen_font_and_touches_frame(self):
         shape = self.make_shape(20, 30, 40, 50)

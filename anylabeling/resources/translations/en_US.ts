@@ -790,13 +790,13 @@ Review the prompt before generating.</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="182" />
-      <source>Opacity</source>
-      <translation>Opacity</translation>
+      <source>Fill Opacity</source>
+      <translation>Fill Opacity</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="186" />
-      <source>Adjust the transparency of annotation shapes and masks. Label text remains fully visible.</source>
-      <translation>Adjust the transparency of annotation shapes and masks. Label text remains fully visible.</translation>
+      <source>Adjust annotation fills relative to their default opacity. Outlines, control points, and text remain visible.</source>
+      <translation>Adjust annotation fills relative to their default opacity. Outlines, control points, and text remain visible.</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="194" />
@@ -4487,6 +4487,11 @@ Press Enter to search.</translation>
       <location filename="../../views/labeling/label_widget.py" line="3094" />
       <source>OK</source>
       <translation>OK</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="2584" />
+      <source>Shortcuts</source>
+      <translation>Shortcuts</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="3120" />

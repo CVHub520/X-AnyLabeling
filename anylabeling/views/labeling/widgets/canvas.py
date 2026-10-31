@@ -255,7 +255,7 @@ class Canvas(
         # Set mask opacity options.
         self.mask_opacity = self.mask_config.get("opacity", 80)
 
-        # Global opacity multiplier for labels/shapes (1.0 = fully opaque).
+        # Global opacity multiplier for annotation fills.
         # Controlled by the canvas adjustment panel's opacity slider.
         self.shape_opacity = 1.0
 
@@ -1551,7 +1551,9 @@ class Canvas(
                     pen.setStyle(Qt.PenStyle.DashLine)
                 p.setPen(pen)
                 fill_color = QtGui.QColor(outline_color)
-                fill_color.setAlpha(int(self.mask_opacity))
+                fill_color.setAlpha(
+                    round(self.mask_opacity * self.shape_opacity)
+                )
                 p.setBrush(fill_color)
                 p.drawPath(outline_path)
 
@@ -4338,11 +4340,6 @@ class Canvas(
             self.update()
             return
 
-        # Apply the global label/shape opacity to every annotation drawn
-        # below (masks, shapes, degrees, groups, brush overlays). Image text
-        # labels are restored to full opacity before being painted.
-        p.setOpacity(self.shape_opacity)
-
         # Draw KIE linking
         if self.show_linking:
             pen = QtGui.QPen(QtGui.QColor("#AAAAAA"), 2, Qt.PenStyle.SolidLine)
@@ -4484,7 +4481,7 @@ class Canvas(
                     fill_color.red(),
                     fill_color.green(),
                     fill_color.blue(),
-                    self.mask_opacity,
+                    round(self.mask_opacity * self.shape_opacity),
                 )
                 if not (self.moving_shape and shape.selected):
                     p.setPen(Qt.PenStyle.NoPen)
@@ -4518,7 +4515,7 @@ class Canvas(
                 )
                 # Brush-edited shapes are drawn from their mask instead.
                 if not getattr(shape, "_brush_using_mask", False):
-                    shape.paint(p)
+                    shape.paint(p, self.shape_opacity)
 
             if (
                 shape.shape_type == "rotation"
@@ -4554,8 +4551,8 @@ class Canvas(
         self._paint_magic_wand_overlay(p)
 
         if self.current:
-            self.current.paint(p)
-            self.line.paint(p)
+            self.current.paint(p, self.shape_opacity)
+            self.line.paint(p, self.shape_opacity)
 
             if (
                 self.create_mode == "quadrilateral"
@@ -4575,7 +4572,7 @@ class Canvas(
                 p.drawLine(QtCore.QLineF(self.line[1], self.current.points[0]))
         if self.selected_shapes_copy:
             for s in self.selected_shapes_copy:
-                s.paint(p)
+                s.paint(p, self.shape_opacity)
 
         if (
             self.fill_drawing()
@@ -4586,7 +4583,7 @@ class Canvas(
             drawing_shape = copy.copy(self.current)
             drawing_shape.points = self.current.points + [self.line[1]]
             drawing_shape.fill = True
-            drawing_shape.paint(p)
+            drawing_shape.paint(p, self.shape_opacity)
         if (
             self.fill_drawing()
             and self.create_mode == "quadrilateral"
@@ -4600,10 +4597,7 @@ class Canvas(
             ]
             drawing_shape.fill = True
             drawing_shape._closed = True
-            drawing_shape.paint(p)
-
-        # Restore full opacity so labels/scores/attributes stay readable.
-        p.setOpacity(1.0)
+            drawing_shape.paint(p, self.shape_opacity)
 
         # Draw texts
         # Draw labels

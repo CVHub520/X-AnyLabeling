@@ -807,13 +807,13 @@ Example: person.car.bicycle</source>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="182" />
-      <source>Opacity</source>
-      <translation>不透明度</translation>
+      <source>Fill Opacity</source>
+      <translation>塗りつぶしの不透明度</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="186" />
-      <source>Adjust the transparency of annotation shapes and masks. Label text remains fully visible.</source>
-      <translation>アノテーション図形とマスクの不透明度を調整します。ラベルのテキストは常に完全に表示されます。</translation>
+      <source>Adjust annotation fills relative to their default opacity. Outlines, control points, and text remain visible.</source>
+      <translation>既定の不透明度を基準にアノテーションの塗りつぶしを調整します。輪郭、制御点、テキストは表示されたままです。</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas_adjustment.py" line="194" />
@@ -4508,6 +4508,11 @@ Enter キーを押して検索します。</translation>
       <location filename="../../views/labeling/label_widget.py" line="3094" />
       <source>OK</source>
       <translation>OK</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="2584" />
+      <source>Shortcuts</source>
+      <translation>ショートカット</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="3120" />
