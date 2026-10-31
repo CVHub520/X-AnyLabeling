@@ -3340,20 +3340,37 @@ class Canvas(
         return font
 
     def _group_label_rect(self, group_id, shape_count, group_rect):
-        font = self._group_label_font()
-        metrics = QtGui.QFontMetricsF(font)
-        padding_x = 5.0 / self.scale
-        padding_y = 2.0 / self.scale
+        font = QtGui.QFont("Arial", self.label_font_size)
+        metrics = QtGui.QFontMetrics(font)
         text = self._group_label(group_id, shape_count)
-        width = metrics.horizontalAdvance(text) + 2 * padding_x
-        height = metrics.height() + 2 * padding_y
-        top = group_rect.top() - height
-        return QtCore.QRectF(group_rect.left(), top, width, height)
+        width = (metrics.tightBoundingRect(text).width() + 8) / self.scale
+        height = (metrics.height() + 4) / self.scale
+        left = group_rect.center().x() - width / 2
+        top = group_rect.top() - 2 * height
+        return QtCore.QRectF(left, top, width, height)
+
+    @staticmethod
+    def _group_label_text_color(background):
+        channels = [background.redF(), background.greenF(), background.blueF()]
+        linear = [
+            (
+                value / 12.92
+                if value <= 0.04045
+                else ((value + 0.055) / 1.055) ** 2.4
+            )
+            for value in channels
+        ]
+        luminance = (
+            0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+        )
+        return QtGui.QColor("black" if luminance > 0.179 else "white")
 
     def _group_at_point(self, point):
         candidates = []
         tolerance = max(0.5, 6.0 / self.scale)
         for group_id, group_shapes in self._grouped_shapes().items():
+            if len(group_shapes) < 2:
+                continue
             visible_shapes = [shape for shape in group_shapes if shape.visible]
             if not visible_shapes:
                 continue
@@ -4085,9 +4102,9 @@ class Canvas(
             return
 
         painter.save()
-        theme = get_theme()
-        active_shapes = self._active_group_shapes()
         for group_id, group_shapes in self._grouped_shapes().items():
+            if len(group_shapes) < 2:
+                continue
             visible_shapes = [shape for shape in group_shapes if shape.visible]
             if not visible_shapes:
                 continue
@@ -4099,11 +4116,6 @@ class Canvas(
                     *LABEL_COLORMAP[int(group_id) % len(LABEL_COLORMAP)]
                 )
             )
-            selected = bool(
-                active_shapes and group_id == self._selected_group_id
-            )
-            hovered = group_id == self._hovered_group_id
-
             for shape in visible_shapes:
                 rect = shape.bounding_rect()
                 center = rect.center()
@@ -4122,48 +4134,58 @@ class Canvas(
                 )
                 painter.drawPolygon(triangle)
 
-            if selected or hovered:
-                color = QtGui.QColor(
-                    theme["selection" if selected else "primary_hover"]
+            painter.setPen(
+                QtGui.QPen(
+                    QtGui.QColor("#EEEEEE"),
+                    1.0 / self.scale,
+                    Qt.PenStyle.DashLine,
                 )
-                glow = QtGui.QColor(color)
-                glow.setAlpha(80 if selected else 50)
-                painter.setPen(
-                    QtGui.QPen(
-                        glow,
-                        (6.0 if selected else 4.0) / self.scale,
-                        Qt.PenStyle.SolidLine,
-                    )
-                )
-                painter.setBrush(Qt.BrushStyle.NoBrush)
-                painter.drawRect(group_rect)
-                width = (2.5 if selected else 2.0) / self.scale
-                style = Qt.PenStyle.SolidLine
-            else:
-                color = QtGui.QColor("#EEEEEE")
-                width = 1.0 / self.scale
-                style = Qt.PenStyle.DashLine
-
-            painter.setPen(QtGui.QPen(color, width, style))
+            )
             painter.setBrush(Qt.BrushStyle.NoBrush)
             painter.drawRect(group_rect)
 
             label_rect = self._group_label_rect(
                 group_id, len(group_shapes), group_rect
             )
-            label_color = color if selected or hovered else group_color
+            label_color = group_color
+            anchor = QtCore.QPointF(group_rect.center().x(), group_rect.top())
+            end = QtCore.QPointF(label_rect.center().x(), label_rect.bottom())
+            painter.setPen(
+                QtGui.QPen(label_color, 1.0 / self.scale, Qt.PenStyle.DashLine)
+            )
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+            painter.drawLine(anchor, end)
             painter.setPen(Qt.PenStyle.NoPen)
             painter.setBrush(label_color)
-            painter.drawRoundedRect(
-                label_rect, 3.0 / self.scale, 3.0 / self.scale
+            painter.drawEllipse(anchor, 2.0 / self.scale, 2.0 / self.scale)
+            painter.save()
+            screen_rect = painter.transform().mapRect(label_rect)
+            painter.resetTransform()
+            painter.setFont(QtGui.QFont("Arial", self.label_font_size))
+            metrics = QtGui.QFontMetrics(painter.font())
+            label_text = self._group_label(group_id, len(group_shapes))
+            rect = QtCore.QRect(
+                int(screen_rect.left()),
+                int(screen_rect.top()),
+                metrics.tightBoundingRect(label_text).width() + 8,
+                metrics.height() + 4,
             )
-            painter.setFont(self._group_label_font())
-            painter.setPen(QtGui.QColor(theme["selection_text"]))
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(label_color)
+            painter.drawRoundedRect(QtCore.QRectF(rect), 4.0, 4.0)
+            painter.fillRect(
+                QtCore.QRect(rect.left(), rect.bottom() - 3, rect.width(), 4),
+                label_color,
+            )
+            painter.setPen(self._group_label_text_color(label_color))
             painter.drawText(
-                label_rect,
-                Qt.AlignmentFlag.AlignCenter,
-                self._group_label(group_id, len(group_shapes)),
+                QtCore.QPoint(
+                    rect.left() + 4,
+                    rect.bottom() + 1 - 2 - metrics.descent(),
+                ),
+                label_text,
             )
+            painter.restore()
         painter.restore()
 
     def set_display_mode(self, mode):

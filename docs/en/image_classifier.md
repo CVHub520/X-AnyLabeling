@@ -1,192 +1,95 @@
-# Overview
+# Image Classifier
 
-The X-AnyLabeling Image Classifier is a dedicated annotation window for multi-class (single-label) and multi-label classification. It supports label management, AI-assisted classification for individual images or batches, dataset statistics, keyboard navigation, and category-based image export.
+The Image Classifier provides three annotation modes:
 
-<video src="https://github.com/user-attachments/assets/0652adfb-48a4-4219-9b18-16ff5ce31be0" width="100%" controls>
-</video>
+| Mode | Target | Purpose |
+| --- | --- | --- |
+| MultiClass | Whole image | Select one category per image |
+| MultiLabel | Whole image | Select multiple categories per image |
+| MultiTask | Existing objects | Assign multiple attributes to each object |
 
-# Getting Started
+## Getting Started
 
-To open the Image Classifier window, first load an image directory in the main window, then click the Image Classifier icon in the left toolbar, or use the shortcut  `Ctrl+3` (Windows/Linux) / `⌘+3` (macOS).
-
-> [!NOTE]
-> The main window will be automatically hidden when opening the Image Classifier window. If the taskbar icon disappears after minimizing, use `Alt` + `Tab` (Windows) or `⌘` + `Tab` (macOS) to switch back to the window. The main window will reappear after closing the classifier window.
-
-# Tutorial
-
-The Image Classifier features a dual-panel design with the image preview area on the left and the annotation control panel on the right.
+Load an image directory in the main window, then click the Image Classifier icon or press `Ctrl+3` (Windows/Linux) / `⌘+3` (macOS). Closing the classifier returns to the main window.
 
 <img src="../../assets/resources/image_classifier/entire_panel.png" width="100%" />
 
-## Left Panel - Image Preview Area
+The left panel shows the image and its annotation status. The right panel provides mode selection, annotation controls, and image navigation. **Pending**, **Passed**, and **Failed** are synchronized with the main window's review status.
 
-- **Filename and Progress Indicator**: Displays the current image filename and its position in the dataset (for example, `husky.png (1/3)`).
-- **Image Preview Area**: Centers the image with adaptive scaling. When labels are selected, the label text appears in real-time at the top-right corner of the preview area for quick verification.
+## Image-level Classification
 
-> [!TIP]
-> ✅ indicates an annotated image; ❌ indicates an unannotated image.
+### Configure Categories
 
-## Right Panel - Annotation Control Area
+In MultiClass or MultiLabel mode, use the category toolbar's add button to enter categories, one per line, or import a text file. Category search is case-insensitive; separate multiple keywords with spaces. Searching does not change existing selections.
 
-- **Function Components**:
+### Annotate and Manage Categories
 
-| Button | Description |
-|--------|-------------|
-| Export | Export classified images into category-specific folders (MultiClass mode only) |
-| MultiClass | Multi-class classification mode, only one label per image |
-| MultiLabel | Multi-label classification mode, multiple labels per image |
-| AutoRun | Use AI models to automatically classify all images in batch |
+Choose MultiClass or MultiLabel and select categories on the right. MultiClass allows one category per image; MultiLabel allows multiple categories. Switching from MultiLabel to MultiClass does not clean up other images automatically, so review them individually.
 
-> [!NOTE]
-> - MultiClass mode: Suitable for mutually exclusive classification tasks, such as animal species recognition (one image can only be one species)
-> - MultiLabel mode: Suitable for multi-attribute annotation tasks, such as image tagging (one image can have multiple attributes)
-> - After switching from MultiLabel to MultiClass, review existing multilabel annotations image by image and select the category to keep. Switching modes does not automatically clean up annotations across all images.
+The category toolbar also provides add, delete, rename, and statistics actions. Deleting or renaming categories updates related annotations, so confirm the operation before proceeding. You can also run a classification model in the main window and review its predictions in the classifier; see the [image-level example](../../examples/classification/image-level/README.md#model-assisted-classification).
 
-Classification edits follow the main window's autosave setting. If autosave is disabled, close the classifier and return to the main window to save the current changes before exporting. Export reads saved annotation files and copies classified images into category-specific folders, leaving the original images unchanged:
+## Object-level MultiTask
 
-```bash
-classified/
-├── husky/
-│   ├── husky_playing.jpg
-│   └── husky_sleeping.jpg
-├── psyduck/
-│   ├── psyduck_swimming.png
-│   └── psyduck_standing.png
-└── ragdoll/
-    ├── ragdoll_grooming.jpg
-    └── ragdoll_sitting.jpg
-```
+### Prepare Objects and Attributes
 
-- **Annotation Components**:
-
-The right center panel contains the title and the following 5 annotation components.
-
-Use the category search box for case-insensitive keyword matching. Separate multiple keywords with spaces; category names must contain all keywords. Searching only filters the displayed categories and preserves selections. Clear the search to restore the full list. The search and action row stays fixed while the category list scrolls.
-
-### AI Assistance
-
-#### Image Classification Models
-
-Run single-image or batch pre-annotation with image classification model in the main window, then open the Image Classifier to review and correct the predictions. See the [image classification example](../../examples/classification/image-level/README.md#model-assisted-classification) for supported models and the workflow.
-
-#### Vision Language Models
-
-Before using AI assistance, configure a model as described in the [Chatbot guide](./chatbot.md).
-
-<img src="../../assets/resources/vqa/chatbot.png" width="100%" />
-
-Once configured, click the magic-wand icon on the right side of the annotation area to open the AI dialog.
-
-<img src="../../assets/resources/image_classifier/assistance.png" width="100%" />
-
-The software includes a built-in standard prompt template that automatically adjusts based on the current mode (MultiClass or MultiLabel). You can use it directly or customize according to your specific requirements.
-
-**MultiClass Mode Example:**
-
-```prompt
-@image
-You are an expert image classifier. Your task is to perform multi-class classification.
-
-Task Definition: Analyze the given image and classify it based on the provided categories.
-
-Available Categories: ["husky", "psyduck", "ragdoll"]
-
-Instructions:
-1. Carefully examine the image and identify the main subject and their activity
-2. Be precise - only select categories that clearly match what you observe
-
-Return your result in strict JSON format:
-{"husky": false, "psyduck": false, "ragdoll": false}
-
-Set exactly ONE category to 'true' that best matches the image, keep all others as 'false'.
-```
-
-**MultiLabel Mode Example:**
-
-```prompt
-@image
-You are an expert image classifier. Your task is to perform multi-label classification.
-
-Task Definition: Analyze the given image and classify it based on the provided categories.
-
-Available Categories: ["outdoor", "sunny", "people", "building"]
-
-Instructions:
-1. Carefully examine the image and identify the main subject and their activity
-2. Be precise - only select categories that clearly match what you observe
-
-Return your result in strict JSON format:
-{"outdoor": false, "sunny": false, "people": false, "building": false}
-
-Set ALL applicable categories to 'true', keep non-applicable ones as 'false'.
-```
-
-> For advanced usage of the intelligent dialog, including special references and template library settings, please refer to the [VQA Annotation Documentation](./vqa.md).
-
-### Add Labels
-
-<img src="../../assets/resources/image_classifier/add_label.png" width="100%" />
-
-The software provides two methods for adding labels:
-
-1. **Manual Input**: Suitable for small numbers of labels. Enter label names directly in the text field, one per line. Label names must be unique.
-2. **File Import**: Suitable for large numbers of labels. Prepare a [classes.txt](../../assets/classes.txt) file in advance (one label per line) and import it using the upload button on the left. The file content will be automatically parsed into the text field.
-
-After confirming the label list is correct, click the Add button to complete the label addition.
-
-> [!NOTE]
-> This interface only supports adding new labels, not modifying existing ones. To edit or delete existing labels, please refer to the following sections.
-
-### Delete Labels
-
-<img src="../../assets/resources/image_classifier/delete_label.png" width="100%" />
-
-The delete labels component allows you to remove existing labels. Select one or more labels by clicking (selected labels will be highlighted), then click the delete button. After confirming in the confirmation dialog, the system will automatically traverse all label files in the current task and remove all content related to the selected labels.
-
-### Edit Labels
-
-<img src="../../assets/resources/image_classifier/edit_label.png" width="100%" />
-
-The label editing component displays labels in table format, with current labels shown in the left column (read-only) and editable new label names in the right column. To modify a label, double-click the right cell to enter edit mode and input the new label name. After completing all modifications, click the Save button to apply the changes.
-
-### Dataset Statistics
-
-<img src="../../assets/resources/image_classifier/dataset_statistics.png" width="100%" />
-
-The dataset statistics component provides statistical information about the current task's dataset, including:
-
-1. **Overall Statistics**: Shows total samples, annotated count, and unannotated count in the dataset.
-2. **Label Distribution**: Displays the usage frequency and percentage of each label in a horizontal bar chart format. Different colors distinguish different labels, with specific counts and percentages shown after each label.
-
-- **Navigation Components**
-
-Users can manually click the left/right arrows to switch between previous/next images, or use the page number input box to jump to a specific image. Additionally, the following keyboard shortcuts are available for quick image navigation:
-
-| Shortcut | Function |
-|----------|----------|
-| A | Previous image |
-| D | Next image |
-| Ctrl+A or ⌘+A | Previous unlabeled image |
-| Ctrl+D or ⌘+D | Next unlabeled image |
-| 0–9 | Select or deselect categories numbered 0–9 in the original category list |
-
-# Data Format
-
-The Image Classifier's annotation information is stored in the `flags` field of X-AnyLabeling label files. For details, please refer to the [User Guide - 1.4 Saving Label Data](./user_guide.md#14-saving-label-data) section.
+Annotate or load objects in the main window, select **MultiTask**, and use the upload icon beside the object selector to load an [attributes JSON file](../../examples/classification/shape-level/attributes.json). Configuration keys must match object labels. For example:
 
 ```json
 {
-  "version": "4.0.0",
-  "flags": {
-    "husky": true,
-    "psyduck": false,
-    "ragdoll": false
-  },
-  "shapes": [],
-  "imagePath": "husky.png",
-  "imageData": null,
-  "imageHeight": 200,
-  "imageWidth": 200,
-  "description": ""
+  "vehicle": {
+    "bodyColor": ["red", "white", "blue"],
+    "vehicleType": ["SUV", "sedan", "truck"]
+  }
 }
 ```
+
+Use `__widget_types__` to configure dropdowns, radio buttons, text inputs, or `group_id` selectors. See the [shape-level example](../../examples/classification/shape-level/README.md) for the full format. The loaded configuration is also available in the main window.
+
+### Select Objects and Edit Attributes
+
+Select an object from the dropdown or click it in the preview to edit its attributes. Select **All objects** to view the whole image. Use the previous/next object buttons or `Shift+A` / `Shift+D` to navigate. Double-click an object or select it from the dropdown to focus it.
+
+<img src="../../examples/classification/shape-level/.data/annotated_attributes.png" width="100%" />
+
+Preview controls show labels, mask the background, and fit the image to the window or width. Use the mouse wheel to zoom and drag to pan. Fit shortcuts follow the main window's configuration and default to `Ctrl+F` and `Ctrl+Shift+F`.
+
+## AI-assisted Labeling
+
+### Configure a Model
+
+Configure a vision-language model in [Chatbot](./chatbot.md). The batch AI panel lets you search and select a model, edit the prompt, and set concurrency. The settings icon opens Chatbot settings, and changing the model also updates the Chatbot selection.
+
+<img src="../../assets/resources/image_classifier/batch_assistance.png" width="60%" />
+
+### Process the Current Image
+
+- **MultiClass / MultiLabel**: Click the category toolbar's AI icon and use or edit the default prompt to classify the current image.
+- **MultiTask**: After loading an attributes configuration, use the AI icon to process the selected object. Select **All objects** to process all configured objects in the current image.
+
+MultiTask inference uses an object crop, its category, and attribute configuration. Choice results must match configured options; uncertain values can remain unset, and `group_id` is not inferred. In batch prompts, `@object` and `@attributes` are replaced with each object's category and attribute configuration.
+
+### Run a Batch
+
+Click **AutoRun** and select an inclusive image range, which defaults to the current image through the last image. Confirm the model and prompt in the AI panel, set 1–8 concurrent requests (default 2), and click **Generate**. MultiClass / MultiLabel processes whole images; MultiTask processes configured objects in the selected images.
+
+Confirm the overwrite warning before generation, or select **Don't show again**. The progress dialog supports cancellation and reports completed, skipped, and failed items; completed results are retained. After a MultiTask batch with successful results, the first object in the current image is selected. Single-object inference keeps the current selection. Review AI results before use.
+
+## Saving and Exporting
+
+Image-level classifications are stored in the annotation file's top-level `flags`; MultiTask values are stored in each object's `shapes[].attributes`. Changes to the current image follow the main window's autosave setting. If autosave is disabled, return to the main window and save manually.
+
+Batch results for other images are written directly to their annotation files. If a file changes during processing, its result is skipped and reported as a failure. MultiTask also skips images without annotation files and objects without matching attributes.
+
+**Export** supports MultiClass only. It reads saved annotations and copies images into `classified/<category>/` without changing the originals. Save current changes before exporting.
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+| --- | --- |
+| `A` / `D` | Previous / next image |
+| `Ctrl+A` / `Ctrl+D` | Previous / next unlabeled image (image-level classification) |
+| `0–9` | Select or deselect the corresponding image category |
+| `Shift+A` / `Shift+D` | Previous / next object (MultiTask) |
+| `Ctrl+F` / `Ctrl+Shift+F` | Fit window / fit width (MultiTask, default configuration) |
+
+On macOS, use the corresponding `⌘` combinations. See the [User Guide](./user_guide.md#14-saving-label-data) for more on the annotation format.

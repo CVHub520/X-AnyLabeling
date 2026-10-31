@@ -2,163 +2,45 @@
 
 ## Multi-task Classification
 
-### Introduction
-
-**Multi-task Classification** involves training a model to perform multiple classification tasks simultaneously. For example, a model could be trained to classify both the type of person and vehicle attributes in a single image.
+Multi-task classification assigns multiple attributes to each object, such as vehicle color and type.
 
 <img src=".data/annotated_attributes.png" width="100%" />
 
-### Usage
-
-**Step 0: Preparation**
-
-Prepare an attributes file such as [attributes.json](./attributes.json):
+Prepare an [attributes.json](./attributes.json) file whose keys match the object labels:
 
 ```json
 {
+  "vehicle": {
+    "bodyColor": ["red", "white", "blue"],
+    "vehicleType": ["SUV", "sedan", "bus", "truck"],
+    "occluded_by": [],
+    "note": ""
+  },
+  "__widget_types__": {
     "vehicle": {
-        "bodyColor": [
-            "red",
-            "white",
-            "blue"
-        ],
-        "vehicleType": [
-            "SUV",
-            "sedan",
-            "bus",
-            "truck"
-        ]
-    },
-    "person": {
-        "wearsGlasses": ["yes", "no"],
-        "wearsMask": ["yes", "no"],
-        "clothingColor": [
-            "red",
-            "green",
-            "blue"
-        ]
-    },
-    "__widget_types__": {
-        "vehicle": {
-            "bodyColor": "radiobutton",
-            "vehicleType": "combobox"
-        },
-        "person": {
-            "wearsGlasses": "radiobutton",
-            "wearsMask": "radiobutton",
-            "clothingColor": "combobox"
-        }
+      "bodyColor": "radiobutton",
+      "vehicleType": "combobox",
+      "occluded_by": "group_id",
+      "note": "lineedit"
     }
-}
-
-```
-
-> [!NOTE]
-> **Widget type configuration**
->
-> You can specify the widget type for each attribute using the `__widget_types__` section:
-> - `"radiobutton"`: Single-click selection, ideal for yes/no or few options
-> - `"group_id"`: Dropdown selection containing the `group_id`s of all objects, if any
-> - `"lineedit"`: Free-form text input
-> - `"combobox"`: Dropdown selection, suitable for many options (default)
->
-> If `__widget_types__` is not specified, all attributes default to combobox.
-
-Example of group_id and lineedit attributes:
-
-```json
-{
-    "vehicle": {
-        "occluded_by": [],
-        "occluded_by_string": ""
-    },
-    "__widget_types__": {
-      "vehicle": {
-        "occluded_by": "group_id",
-        "occluded_by_string": "lineedit"
-      }
-    }
+  }
 }
 ```
 
-**Step 1: Run the Application**
+Supported widget types are `combobox` (default), `radiobutton`, `group_id`, and `lineedit`. See the [output example](./sources/multi-task/elon-musk-tesla.json).
 
-```bash
-python anylabeling/app.py
-```
+Open an image folder with object annotations, launch the Image Classifier (`Ctrl+3` / `⌘+3`), and select **MultiTask**. Use the upload icon beside the object selector to load the attributes file, then select an object to edit its attributes. The configuration is also available in the main window.
 
-**Step 2: Upload the Configuration File**
+Alternatively, configure a VLM in [Chatbot](../../../docs/en/chatbot.md) for AI-assisted attribute annotation. See the [Image Classifier guide](../../../docs/en/image_classifier.md#ai-assisted-labeling) for details.
 
-Click on `Upload -> Upload Attributes File` in the top menu bar and select the prepared configuration file to upload.
+To customize attribute label colors on the canvas, set `background_color`, `border_color`, and `text_color` under `canvas.attributes` in `.xanylabelingrc`, using RGBA values.
 
-> [!TIP]
-> Use **Loop Select Shapes** (`Ctrl+Shift+C`) to select shapes sequentially while assigning attributes.
-
-> [!NOTE]
-> **Attribute label color customization**
->
-> You can customize the colors of attribute labels displayed on the canvas by configuring the `.xanylabelingrc` file in your user directory. Add or modify the following settings under the `canvas` section:
->
-> ```yaml
-> canvas:
->   attributes:
->     background_color: [33, 33, 33, 255]  # Background color (RGBA)
->     border_color: [66, 66, 66, 255]      # Border color (RGBA)
->     text_color: [33, 150, 243, 255]      # Text color (RGBA)
-> ```
->
-> Color values use RGBA format: `[R, G, B, A]`, where each value ranges from 0-255.
-
-For detailed output examples, refer to [this file](./sources/multi-task/elon-musk-tesla.json).
 ## Multiclass & Multilabel Classification
 
-As with [image-level classification](../image-level/README.md), shape-level annotations support multiclass and multilabel flags.
-
-## Usage
-
-### GUI Import (Recommended)
-
-**Step 0: Preparation**
-
-Prepare a flags file like [label_flags.yaml](./label_flags.yaml). An example is shown below:
-
-```YAML
-person:
-  - male
-  - female
-helmet:
-  - white
-  - red
-  - blue
-  - yellow
-  - green
-```
-
-**Step 1: Run the Application**
-
-```bash
-python anylabeling/app.py
-```
-
-**Step 2: Upload the Configuration File**
-
-Click on `Upload -> Upload Label Flags File` in the top menu bar and select the prepared configuration file to upload.
-
-### Command Line Loading
-
-**Option 1: Quick Start**
-
-```bash
-python anylabeling/app.py --labels person,helmet --labelflags "{'person': ['male', 'female'], 'helmet': ['white', 'red', 'blue', 'yellow', 'green']}" --validatelabel exact
-```
-
-> [!TIP]
-> The `labelflags` key field supports regular expressions. For instance, you can use patterns like `{person-\d+: [male, tall], "dog-\d+": [black, brown, white], .*: [occluded]}`.
-
-**Option 2: Using a Configuration File**
+Shape-level annotations also support multiclass and multilabel flags. Prepare a [label_flags.yaml](./label_flags.yaml) file and load it through **Upload → Label Flags**, or pass it on the command line:
 
 ```bash
 python anylabeling/app.py --labels labels.txt --labelflags label_flags.yaml --validatelabel exact
 ```
 
-For detailed output examples, refer to [this file](./sources/multi-label/worker.json).
+The `labelflags` keys support regular expressions. See the [output example](./sources/multi-label/worker.json) and the [image-level classification example](../image-level/README.md).

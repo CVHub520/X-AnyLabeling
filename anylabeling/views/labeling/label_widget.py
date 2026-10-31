@@ -2291,7 +2291,6 @@ class LabelingWidget(LabelDialog):
             (
                 upload_image_flags_file,
                 upload_label_flags_file,
-                upload_shape_attrs_file,
                 upload_label_classes_file,
                 None,
                 upload_yolo_hbb_annotation,
@@ -2714,13 +2713,8 @@ class LabelingWidget(LabelDialog):
         self.grid_layout_container = QWidget()
         self.grid_layout_container.setLayout(self.grid_layout)
         self.scroll_area.setWidget(self.grid_layout_container)
-        if not self.attributes:
-            self.shape_attributes.hide()
-            self.scroll_area.hide()
-        right_sidebar_layout.addWidget(
-            self.shape_attributes, 0, Qt.AlignmentFlag.AlignCenter
-        )
-        right_sidebar_layout.addWidget(self.scroll_area)
+        self.shape_attributes.hide()
+        self.scroll_area.hide()
 
         description_header_widget = PanelHeader(
             self.shape_text_label, [self.description_checkbox]
@@ -4025,24 +4019,19 @@ class LabelingWidget(LabelDialog):
             )
             return
 
-        main_window = self
-        while True:
-            try:
-                parent = main_window.parent()
-            except TypeError:
-                parent = getattr(main_window, "parent", None)
-            if parent is None:
-                break
-            main_window = parent
-        main_window.hide()
-
-        try:
-            dialog = ClassifierDialog(self)
-            dialog.exec()
-        finally:
-            main_window.show()
-            main_window.raise_()
-            main_window.activateWindow()
+        if (
+            not hasattr(self, "image_classifier_window")
+            or self.image_classifier_window is None
+        ):
+            self.image_classifier_window = ClassifierDialog(self)
+            self.image_classifier_window.setAttribute(
+                Qt.WidgetAttribute.WA_DeleteOnClose, False
+            )
+        if self.image_classifier_window.isVisible():
+            self.image_classifier_window.raise_()
+            self.image_classifier_window.activateWindow()
+        else:
+            self.image_classifier_window.show()
 
     def open_classifier(self):
         return self.open_image_classifier()
@@ -5006,10 +4995,6 @@ class LabelingWidget(LabelDialog):
         self.set_dirty()
         self._refresh_shape_filters()
 
-        # update top-right attributes panel
-        selected_idx = self.canvas.shapes.index(selected_shapes[0])
-        self.update_attributes(selected_idx)
-
     def file_search_changed(self):
         search_text = self.file_search.text()
         self.import_image_folder(
@@ -5032,17 +5017,6 @@ class LabelingWidget(LabelDialog):
             filename = self.image_list[current_index]
             if filename:
                 self.load_file(filename)
-                if self.attributes:
-                    # Clear the history widgets from the QGridLayout
-                    self.grid_layout = QGridLayout()
-                    self.grid_layout_container = QWidget()
-                    self.grid_layout_container.setLayout(self.grid_layout)
-                    self.scroll_area.setWidget(self.grid_layout_container)
-                    self.scroll_area.setWidgetResizable(True)
-                    # Create a container widget for the grid layout
-                    self.grid_layout_container = QWidget()
-                    self.grid_layout_container.setLayout(self.grid_layout)
-                    self.scroll_area.setWidget(self.grid_layout_container)
 
     def attribute_selection_changed(self, i, property, combo):
         selected_option = combo.currentText()
@@ -5586,18 +5560,6 @@ class LabelingWidget(LabelDialog):
         )
         self.refresh_shape_lock_action()
         self.set_text_editing(True)
-
-        selected_count = len(self.canvas.selected_shapes)
-        is_drawing_mode = (
-            hasattr(self.canvas, "current") and self.canvas.current is not None
-        )
-        if self.attributes and selected_count == 1 and not is_drawing_mode:
-            for i in range(len(self.canvas.shapes)):
-                if self.canvas.shapes[i].selected:
-                    self.update_attributes(i)
-                    break
-        else:
-            self.hide_attributes_panel()
 
     def add_label(self, shape, update_last_label=True, refresh_filters=True):
         if shape.label in self.unique_label_list.lock_states:
@@ -6151,14 +6113,6 @@ class LabelingWidget(LabelDialog):
             ):
                 self.canvas._brush_drawing = True
 
-            if self.attributes and text in self.attributes:
-                shape.selected = True
-                self.shape_attributes.show()
-                self.scroll_area.show()
-                for i, canvas_shape in enumerate(self.canvas.shapes):
-                    if canvas_shape is shape:
-                        self.update_attributes(i)
-                        break
         else:
             if self.canvas.is_magic_wand_mode:
                 self.canvas.shapes.pop()

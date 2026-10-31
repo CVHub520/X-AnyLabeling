@@ -1483,6 +1483,46 @@ Example: person.car.bicycle</source>
       <source>Error occurred while updating label files: %s</source>
       <translation>라벨 파일을 업데이트하는 동안 오류가 발생했습니다: %s</translation>
     </message>
+    <message>
+      <source>MultiTask</source>
+      <translation>멀티태스크</translation>
+    </message>
+    <message>
+      <source>Object</source>
+      <translation>객체</translation>
+    </message>
+    <message>
+      <source>Previous object (Shift+A)</source>
+      <translation>이전 객체 (Shift+A)</translation>
+    </message>
+    <message>
+      <source>Next object (Shift+D)</source>
+      <translation>다음 객체 (Shift+D)</translation>
+    </message>
+    <message>
+      <source>Load Attributes</source>
+      <translation>속성 설정 불러오기</translation>
+    </message>
+    <message>
+      <source>Fit Window</source>
+      <translation>창에 맞추기</translation>
+    </message>
+    <message>
+      <source>Fit Width</source>
+      <translation>너비에 맞추기</translation>
+    </message>
+    <message>
+      <source>Use the mouse wheel to zoom and drag with the middle mouse button to pan.</source>
+      <translation>마우스 휠로 확대 또는 축소하고 가운데 버튼을 끌어 이동합니다.</translation>
+    </message>
+    <message>
+      <source>Show Labels</source>
+      <translation>레이블 표시</translation>
+    </message>
+    <message>
+      <source>User Manual</source>
+      <translation>사용자 설명서</translation>
+    </message>
   </context>
   <context>
     <name>ComponentDialog</name>
@@ -10611,6 +10651,25 @@ Response preview:
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
       <source>Reset Tracker</source>
       <translation>트래커 재설정</translation>
+    </message>
+  </context>
+  <context>
+    <name>MultiTaskForm</name>
+    <message>
+      <source>No objects in this image.</source>
+      <translation>이 이미지에 객체가 없습니다.</translation>
+    </message>
+    <message>
+      <source>Please load an object attributes configuration file first.</source>
+      <translation>먼저 객체 속성 설정 파일을 불러오세요.</translation>
+    </message>
+    <message>
+      <source>Select an object.</source>
+      <translation>객체를 선택하세요.</translation>
+    </message>
+    <message>
+      <source>Search options...</source>
+      <translation>옵션 검색...</translation>
     </message>
   </context>
 </TS>

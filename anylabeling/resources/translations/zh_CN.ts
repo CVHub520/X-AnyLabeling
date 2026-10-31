@@ -1234,6 +1234,58 @@ Example: person.car.bicycle</source>
   <context>
     <name>ClassifierDialog</name>
     <message>
+      <source>Process %d images with AI?</source>
+      <translation>使用 AI 处理 %d 张图片吗？</translation>
+    </message>
+    <message>
+      <source>All objects</source>
+      <translation>全部对象</translation>
+    </message>
+    <message>
+      <source>Use AI to process objects in all images</source>
+      <translation>使用 AI 批量处理所有图片中的对象</translation>
+    </message>
+    <message>
+      <source>Scope: all images</source>
+      <translation>处理范围：所有图片</translation>
+    </message>
+    <message>
+      <source>Scope: all objects in this image</source>
+      <translation>处理范围：当前图片的全部对象</translation>
+    </message>
+    <message>
+      <source>Select an object with configured attributes first.</source>
+      <translation>请先选择已配置属性的对象。</translation>
+    </message>
+    <message>
+      <source>Replace existing attribute values?</source>
+      <translation>替换已有的属性值吗？</translation>
+    </message>
+    <message>
+      <source>No supported attributes available.</source>
+      <translation>没有可供 AI 处理的属性。</translation>
+    </message>
+    <message>
+      <source>Cannot crop the selected object.</source>
+      <translation>无法裁剪选中的对象。</translation>
+    </message>
+    <message>
+      <source>The selected object is no longer available.</source>
+      <translation>选中的对象已不可用。</translation>
+    </message>
+    <message>
+      <source>Skipped attributes:</source>
+      <translation>已跳过的属性：</translation>
+    </message>
+    <message>
+      <source>No applicable suggestions.</source>
+      <translation>没有可应用的建议。</translation>
+    </message>
+    <message>
+      <source>Apply these suggestions to empty attributes?</source>
+      <translation>将这些建议应用到空属性吗？</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/widgets/classifier_dialog.py" line="1068" />
       <location filename="../../views/labeling/widgets/classifier_dialog.py" line="132" />
       <source>No image loaded</source>
@@ -1481,6 +1533,46 @@ Example: person.car.bicycle</source>
       <location filename="../../views/labeling/widgets/classifier_dialog.py" line="1254" />
       <source>Error occurred while updating label files: %s</source>
       <translation>更新标签文件时发生错误：%s</translation>
+    </message>
+    <message>
+      <source>MultiTask</source>
+      <translation>多任务</translation>
+    </message>
+    <message>
+      <source>Object</source>
+      <translation>对象</translation>
+    </message>
+    <message>
+      <source>Previous object (Shift+A)</source>
+      <translation>上一个对象（Shift+A）</translation>
+    </message>
+    <message>
+      <source>Next object (Shift+D)</source>
+      <translation>下一个对象（Shift+D）</translation>
+    </message>
+    <message>
+      <source>Load Attributes</source>
+      <translation>加载属性配置</translation>
+    </message>
+    <message>
+      <source>Fit Window</source>
+      <translation>适应窗口</translation>
+    </message>
+    <message>
+      <source>Fit Width</source>
+      <translation>适应宽度</translation>
+    </message>
+    <message>
+      <source>Use the mouse wheel to zoom and drag with the middle mouse button to pan.</source>
+      <translation>使用鼠标滚轮缩放，按住鼠标中键拖动画面。</translation>
+    </message>
+    <message>
+      <source>Show Labels</source>
+      <translation>显示标签</translation>
+    </message>
+    <message>
+      <source>User Manual</source>
+      <translation>用户手册</translation>
     </message>
   </context>
   <context>
@@ -10609,6 +10701,192 @@ Response preview:
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
       <source>Reset Tracker</source>
       <translation>重置跟踪器</translation>
+    </message>
+  </context>
+  <context>
+    <name>MultiTaskForm</name>
+    <message>
+      <source>No objects in this image.</source>
+      <translation>当前图像没有标注对象。</translation>
+    </message>
+    <message>
+      <source>Please load an object attributes configuration file first.</source>
+      <translation>请先加载对象属性配置文件。</translation>
+    </message>
+    <message>
+      <source>Select an object.</source>
+      <translation>请选择一个对象。</translation>
+    </message>
+    <message>
+      <source>Search options...</source>
+      <translation>搜索选项...</translation>
+    </message>
+  </context>
+  <context>
+    <name>AIWorkerThread</name>
+    <message>
+      <source>Cannot connect to the AI service at %s. Check that the service is running and its address is correct, or select another provider in Chatbot (Ctrl+0).</source>
+      <translation>无法连接到 %s 的 AI 服务。请检查服务是否已启动、地址是否正确，或在智能对话（Ctrl+0）中选择其他服务提供商。</translation>
+    </message>
+  </context>
+  <context>
+    <name>MultiTaskAIDialog</name>
+    <message>
+      <source>AI results will overwrite existing classification values for images in the selected range.</source>
+      <translation>AI 结果将覆盖所选范围内图片已有的分类结果。</translation>
+    </message>
+    <message>
+      <source>Search models...</source>
+      <translation>搜索模型...</translation>
+    </message>
+    <message>
+      <source>Concurrent requests</source>
+      <translation>并发数</translation>
+    </message>
+    <message>
+      <source>AI results will overwrite existing attribute values for all objects in the selected range.</source>
+      <translation>AI 结果将覆盖所选范围内所有对象已有的属性值。</translation>
+    </message>
+    <message>
+      <source>Confirm</source>
+      <translation>确认</translation>
+    </message>
+    <message>
+      <source>AI results will overwrite existing values for the selected object's attributes.</source>
+      <translation>AI 结果将覆盖所选对象已有的属性值。</translation>
+    </message>
+    <message>
+      <source>Don't show again</source>
+      <translation>不再提醒</translation>
+    </message>
+    <message>
+      <source>Current model</source>
+      <translation>当前模型</translation>
+    </message>
+    <message>
+      <source>Chatbot Settings</source>
+      <translation>Chatbot 设置</translation>
+    </message>
+    <message>
+      <source>Prompt</source>
+      <translation>提示词</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>取消</translation>
+    </message>
+    <message>
+      <source>Generate</source>
+      <translation>生成</translation>
+    </message>
+    <message>
+      <source>Select a model</source>
+      <translation>请选择模型</translation>
+    </message>
+    <message>
+      <source>AI Assistant</source>
+      <translation>AI 助手</translation>
+    </message>
+    <message>
+      <source>Error</source>
+      <translation>错误</translation>
+    </message>
+  </context>
+  <context>
+    <name>MultiTaskBatch</name>
+    <message>
+      <source>Processing cancelled.</source>
+      <translation>处理已取消。</translation>
+    </message>
+    <message>
+      <source>Processing objects...</source>
+      <translation>正在处理对象...</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>取消</translation>
+    </message>
+    <message>
+      <source>Progress</source>
+      <translation>进度</translation>
+    </message>
+    <message>
+      <source>AI Assistant</source>
+      <translation>AI 助手</translation>
+    </message>
+    <message>
+      <source>No supported objects to process.</source>
+      <translation>没有可处理的对象。</translation>
+    </message>
+    <message>
+      <source>Processed %d / %d objects</source>
+      <translation>已处理 %d / %d 个对象</translation>
+    </message>
+    <message>
+      <source>Completed: %d
+Skipped: %d
+Failed: %d</source>
+      <translation>已完成：%d
+已跳过：%d
+失败：%d</translation>
+    </message>
+  </context>
+  <context>
+    <name>OverwriteConfirmationDialog</name>
+    <message>
+      <source>AI Assistant</source>
+      <translation>AI 助手</translation>
+    </message>
+    <message>
+      <source>Don't show again</source>
+      <translation>不再提醒</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>取消</translation>
+    </message>
+    <message>
+      <source>Confirm</source>
+      <translation>确认</translation>
+    </message>
+  </context>
+  <context>
+    <name>ClassificationBatch</name>
+    <message>
+      <source>Processing objects...</source>
+      <translation>正在处理对象...</translation>
+    </message>
+    <message>
+      <source>Processing images...</source>
+      <translation>正在处理图片...</translation>
+    </message>
+    <message>
+      <source>Processed %d / %d images</source>
+      <translation>已处理 %d / %d 张图片</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>取消</translation>
+    </message>
+    <message>
+      <source>Progress</source>
+      <translation>进度</translation>
+    </message>
+    <message>
+      <source>AI Assistant</source>
+      <translation>AI 助手</translation>
+    </message>
+    <message>
+      <source>Completed: %d
+Skipped: %d
+Failed: %d</source>
+      <translation>已完成：%d
+已跳过：%d
+失败：%d</translation>
+    </message>
+    <message>
+      <source>Processing cancelled.</source>
+      <translation>处理已取消。</translation>
     </message>
   </context>
 </TS>

@@ -30,6 +30,7 @@
 
 ## 🥳 新功能
 
+- `2026-10-31`：新增对象级多任务属性标注，支持 AI 标注及并发推理。
 - `2026-10-30`：新增支持 [Unlimited-OCR-2](./examples/optical_character_recognition/unlimited_ocr_2/README.md) 模型，支持图像、PDF 文档解析与多页上下文识别。
 - `2026-10-28`：新增支持 [WeVisOne-VL](./examples/vision_foundation/wevisone_vl/README.md) 模型，支持目标检测、描述定位、目标指点、计数、OCR、文本定位、分割、文本及框提示抠图、参考框检测和自由提示。
 - `2026-10-28`：新增支持 [Xiaomi-Lens-0](./examples/vision_foundation/xiaomi_lens/README.md) 模型，支持描述理解与分割、多实例定位、推理分割、具身指令定位及细粒度感知。

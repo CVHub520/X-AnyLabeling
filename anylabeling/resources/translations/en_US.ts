@@ -1461,6 +1461,46 @@ Review the prompt before generating.</translation>
       <source>Error occurred while updating label files: %s</source>
       <translation>Error occurred while updating label files: %s</translation>
     </message>
+    <message>
+      <source>MultiTask</source>
+      <translation>MultiTask</translation>
+    </message>
+    <message>
+      <source>Object</source>
+      <translation>Object</translation>
+    </message>
+    <message>
+      <source>Previous object (Shift+A)</source>
+      <translation>Previous object (Shift+A)</translation>
+    </message>
+    <message>
+      <source>Next object (Shift+D)</source>
+      <translation>Next object (Shift+D)</translation>
+    </message>
+    <message>
+      <source>Load Attributes</source>
+      <translation>Load Attributes</translation>
+    </message>
+    <message>
+      <source>Fit Window</source>
+      <translation>Fit Window</translation>
+    </message>
+    <message>
+      <source>Fit Width</source>
+      <translation>Fit Width</translation>
+    </message>
+    <message>
+      <source>Use the mouse wheel to zoom and drag with the middle mouse button to pan.</source>
+      <translation>Use the mouse wheel to zoom and drag with the middle mouse button to pan.</translation>
+    </message>
+    <message>
+      <source>Show Labels</source>
+      <translation>Show Labels</translation>
+    </message>
+    <message>
+      <source>User Manual</source>
+      <translation>User Manual</translation>
+    </message>
   </context>
   <context>
     <name>ComponentDialog</name>
@@ -10466,6 +10506,25 @@ Response preview:
       <location filename="../../views/labeling/pointcloud/viewport.py" line="197" />
       <source>Could not create an OpenGL display context.</source>
       <translation>Could not create an OpenGL display context.</translation>
+    </message>
+  </context>
+  <context>
+    <name>MultiTaskForm</name>
+    <message>
+      <source>No objects in this image.</source>
+      <translation>No objects in this image.</translation>
+    </message>
+    <message>
+      <source>Please load an object attributes configuration file first.</source>
+      <translation>Please load an object attributes configuration file first.</translation>
+    </message>
+    <message>
+      <source>Select an object.</source>
+      <translation>Select an object.</translation>
+    </message>
+    <message>
+      <source>Search options...</source>
+      <translation>Search options...</translation>
     </message>
   </context>
 </TS>

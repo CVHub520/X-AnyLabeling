@@ -1482,6 +1482,46 @@ Example: person.car.bicycle</source>
       <source>Error occurred while updating label files: %s</source>
       <translation>ラベルファイルの更新中にエラーが発生しました：%s</translation>
     </message>
+    <message>
+      <source>MultiTask</source>
+      <translation>マルチタスク</translation>
+    </message>
+    <message>
+      <source>Object</source>
+      <translation>オブジェクト</translation>
+    </message>
+    <message>
+      <source>Previous object (Shift+A)</source>
+      <translation>前のオブジェクト（Shift+A）</translation>
+    </message>
+    <message>
+      <source>Next object (Shift+D)</source>
+      <translation>次のオブジェクト（Shift+D）</translation>
+    </message>
+    <message>
+      <source>Load Attributes</source>
+      <translation>属性設定を読み込む</translation>
+    </message>
+    <message>
+      <source>Fit Window</source>
+      <translation>ウィンドウに合わせる</translation>
+    </message>
+    <message>
+      <source>Fit Width</source>
+      <translation>幅に合わせる</translation>
+    </message>
+    <message>
+      <source>Use the mouse wheel to zoom and drag with the middle mouse button to pan.</source>
+      <translation>マウスホイールで拡大・縮小し、中ボタンでドラッグして移動します。</translation>
+    </message>
+    <message>
+      <source>Show Labels</source>
+      <translation>ラベルを表示</translation>
+    </message>
+    <message>
+      <source>User Manual</source>
+      <translation>ユーザーマニュアル</translation>
+    </message>
   </context>
   <context>
     <name>ComponentDialog</name>
@@ -10609,6 +10649,25 @@ Response preview:
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
       <source>Reset Tracker</source>
       <translation>トラッカーをリセット</translation>
+    </message>
+  </context>
+  <context>
+    <name>MultiTaskForm</name>
+    <message>
+      <source>No objects in this image.</source>
+      <translation>この画像にオブジェクトはありません。</translation>
+    </message>
+    <message>
+      <source>Please load an object attributes configuration file first.</source>
+      <translation>先にオブジェクト属性の設定ファイルを読み込んでください。</translation>
+    </message>
+    <message>
+      <source>Select an object.</source>
+      <translation>オブジェクトを選択してください。</translation>
+    </message>
+    <message>
+      <source>Search options...</source>
+      <translation>選択肢を検索...</translation>
     </message>
   </context>
 </TS>

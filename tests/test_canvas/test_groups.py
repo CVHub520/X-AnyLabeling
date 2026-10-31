@@ -84,7 +84,9 @@ class TestCanvasGroups(unittest.TestCase):
         self.app.processEvents()
         image = self.canvas.grab().toImage()
 
-        self.assertEqual(image.pixelColor(80, 30), opaque_image.pixelColor(80, 30))
+        self.assertEqual(
+            image.pixelColor(80, 30), opaque_image.pixelColor(80, 30)
+        )
 
     def test_fill_opacity_changes_mask_without_fading_outline(self):
         shape = self.make_shape(20, 20, 80, 80, group_id=None)
@@ -102,11 +104,15 @@ class TestCanvasGroups(unittest.TestCase):
         self.app.processEvents()
         transparent = self.canvas.grab().toImage()
 
-        self.assertNotEqual(opaque.pixelColor(50, 50), transparent.pixelColor(50, 50))
+        self.assertNotEqual(
+            opaque.pixelColor(50, 50), transparent.pixelColor(50, 50)
+        )
         self.assertEqual(transparent.pixelColor(50, 50), QtGui.QColor("black"))
-        self.assertNotEqual(transparent.pixelColor(20, 50), QtGui.QColor("black"))
+        self.assertNotEqual(
+            transparent.pixelColor(20, 50), QtGui.QColor("black")
+        )
 
-    def test_group_label_keeps_fixed_screen_font_and_touches_frame(self):
+    def test_group_label_keeps_fixed_screen_font_and_clears_shape_label(self):
         shape = self.make_shape(20, 30, 40, 50)
         self.canvas.label_font_size = 12
         self.canvas.scale = 3.0
@@ -118,7 +124,33 @@ class TestCanvasGroups(unittest.TestCase):
             12.0,
         )
         self.assertEqual(self.canvas.label_font_size, 12)
-        self.assertEqual(label_rect.bottom(), group_rect.top())
+        object_height = (
+            QtGui.QFontMetrics(QtGui.QFont("Arial", 12)).height() + 4
+        )
+        self.assertGreaterEqual(
+            (group_rect.top() - label_rect.bottom()) * self.canvas.scale,
+            object_height,
+        )
+        self.assertAlmostEqual(
+            label_rect.center().x(), group_rect.center().x()
+        )
+        self.assertAlmostEqual(
+            label_rect.height() * self.canvas.scale, object_height
+        )
+        self.assertLessEqual(
+            (group_rect.top() - label_rect.bottom()) * self.canvas.scale,
+            object_height + 1.01,
+        )
+
+    def test_group_label_text_contrasts_with_background(self):
+        self.assertEqual(
+            self.canvas._group_label_text_color(QtGui.QColor("#80ffff")),
+            QtGui.QColor("black"),
+        )
+        self.assertEqual(
+            self.canvas._group_label_text_color(QtGui.QColor("#142040")),
+            QtGui.QColor("white"),
+        )
 
     def test_shape_label_keeps_fixed_screen_size_while_zooming(self):
         shape = self.make_shape(20, 30, 30, 40, group_id=None)
@@ -230,6 +262,15 @@ class TestCanvasGroups(unittest.TestCase):
         )
         self.assertIsNone(self.canvas._group_at_point(QtCore.QPointF(90, 90)))
 
+    def test_group_label_hit_tracks_offset_position(self):
+        first = self.make_shape(50, 60, 70, 80)
+        second = self.make_shape(90, 100, 110, 120)
+        self.canvas.shapes = [first, second]
+        rect = self.canvas._group_label_rect(
+            3, 2, self.canvas._group_rect([first, second])
+        )
+        self.assertEqual(self.canvas._group_at_point(rect.center()), 3)
+
     def test_shape_click_keeps_individual_selection(self):
         first = self.make_shape(20, 20, 40, 40)
         second = self.make_shape(80, 80, 100, 100)
@@ -311,6 +352,21 @@ class TestCanvasGroups(unittest.TestCase):
         self.assertEqual(pasted[1].points[0], QtCore.QPointF(80, 80))
         self.assertIsNot(pasted[0], first)
 
+    def test_single_object_group_has_no_overlay_or_group_hit(self):
+        shape = self.make_shape(20, 20, 40, 40)
+        self.canvas.shapes = [shape]
+        image = QtGui.QImage(
+            200, 200, QtGui.QImage.Format.Format_ARGB32_Premultiplied
+        )
+        image.fill(QtGui.QColor("black"))
+        painter = QtGui.QPainter(image)
+        self.canvas._paint_groups(painter)
+        painter.end()
+        self.assertEqual(image.pixelColor(20, 20), QtGui.QColor("black"))
+        self.assertEqual(image.pixelColor(30, 30), QtGui.QColor("black"))
+        self.assertIsNone(self.canvas._group_at_point(QtCore.QPointF(30, 30)))
+        self.assertEqual(shape.group_id, 3)
+
     def test_group_overlay_paints(self):
         first = self.make_shape(20, 20, 40, 40)
         second = self.make_shape(80, 80, 100, 100)
@@ -325,6 +381,34 @@ class TestCanvasGroups(unittest.TestCase):
         painter.end()
 
         self.assertNotEqual(image.pixelColor(20, 60), QtGui.QColor("black"))
+
+    def test_selected_group_frame_remains_dashed_and_unexpanded(self):
+        from unittest.mock import Mock
+
+        first = self.make_shape(20, 20, 40, 40)
+        second = self.make_shape(80, 80, 100, 100)
+        self.canvas.shapes = [first, second]
+        self.canvas.selected_shapes = [first, second]
+        self.canvas._selected_group_id = 3
+        painter = Mock()
+        painter.transform.return_value = QtGui.QTransform()
+        painter.font.return_value = QtGui.QFont(
+            "Arial", self.canvas.label_font_size
+        )
+        self.canvas._paint_groups(painter)
+        frame = painter.drawRect.call_args_list[-1].args[0]
+        self.assertEqual(frame, QtCore.QRectF(20, 20, 80, 80))
+        painter.drawRect.assert_called_once()
+        pens = [call.args[0] for call in painter.setPen.call_args_list]
+        self.assertTrue(
+            any(
+                isinstance(pen, QtGui.QPen)
+                and pen.color() == QtGui.QColor("#EEEEEE")
+                and pen.style() == QtCore.Qt.PenStyle.DashLine
+                for pen in pens
+            )
+        )
+        self.assertEqual(first.points[0], QtCore.QPointF(20, 20))
 
     def test_group_overlay_restores_painter_state(self):
         first = self.make_shape(20, 20, 40, 40)

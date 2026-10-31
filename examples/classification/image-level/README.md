@@ -27,6 +27,8 @@ The following models support automatic multiclass classification:
 
 Load a classification model in the main window and run automatic labeling on a single image or a batch. Predictions are saved in the image-level `flags` field. After automatic labeling, open the [Image Classifier](../../../docs/en/image_classifier.md) (`Ctrl+3` on Windows/Linux or `⌘+3` on macOS) to review and correct the predictions. Save the corrected annotations before exporting images by category.
 
+Alternatively, configure a VLM in [Chatbot](../../../docs/en/chatbot.md) for AI-assisted classification in the Image Classifier. See the [Image Classifier guide](../../../docs/en/image_classifier.md#ai-assisted-labeling) for details.
+
 ### GUI Import
 
 **Step 0: Preparation**

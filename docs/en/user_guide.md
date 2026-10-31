@@ -1094,8 +1094,6 @@ For quicker selection of shapes, you can enable **Hover Auto-Highlight**. When t
 - Set to `true` to highlight shapes on hover.
 - Set to `false` to highlight shapes only after clicking. The default is `true`.
 
-*Note: When working on multi-label classification tasks with a custom attributes file loaded, this setting is automatically disabled to prevent accidentally changing the active shape while interacting with the attributes panel.*
-
 ### 7.6 Shape Appearance
 
 Customize the default appearance of shapes (colors during drawing/selection, point size, line width) in `Settings > Shape`, or by editing the `shape:` section in the `.xanylabelingrc` file:

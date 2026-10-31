@@ -28,6 +28,7 @@
 
 ## 🥳 What's New
 
+- `2026-10-31`: Add object-level multi-task attribute annotation with AI-assisted labeling and concurrent inference.
 - `2026-10-30`: Add support for the [Unlimited-OCR-2](./examples/optical_character_recognition/unlimited_ocr_2/README.md) model with image and PDF document parsing with multi-page context.
 - `2026-10-28`: Add support for the [WeVisOne-VL](./examples/vision_foundation/wevisone_vl/README.md) model with detection, referring localization, pointing, counting, OCR, text grounding, segmentation, text and box matting, visual prompting, and freeform instructions.
 - `2026-10-28`: Add support for the [Xiaomi-Lens-0](./examples/vision_foundation/xiaomi_lens/README.md) model with referring comprehension and segmentation, multi-instance grounding, reasoning segmentation, embodied referring, and fine-grained perception.
