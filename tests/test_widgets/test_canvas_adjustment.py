@@ -25,24 +25,40 @@ except Exception:
 )
 class TestCanvasAdjustmentWidget(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(
+            []
+        )
+
     def setUp(self):
-        self.app = QtWidgets.QApplication.instance()
-        if self.app is None:
-            self.app = QtWidgets.QApplication([])
         self.widget = CanvasAdjustmentWidget()
         self.widget.show()
         self.app.processEvents()
 
     def tearDown(self):
         self.widget.close()
+        self.widget.deleteLater()
         self.app.processEvents()
 
     def test_defaults_and_tooltips_describe_adjustment_targets(self):
         self.assertEqual(self.widget.opacity_slider.value(), 100)
-        self.assertIn("shapes", self.widget.opacity_slider.toolTip())
-        self.assertIn("Label text", self.widget.opacity_slider.toolTip())
+        self.assertIn("fills", self.widget.opacity_slider.toolTip())
+        self.assertIn("Outlines", self.widget.opacity_slider.toolTip())
+        self.assertEqual(self.widget.opacity_value_label.text(), "100%")
         self.assertIn("image", self.widget.brightness_slider.toolTip())
         self.assertIn("image", self.widget.contrast_slider.toolTip())
+
+    def test_status_selection_and_programmatic_sync(self):
+        signal_spy = QtTest.QSignalSpy(self.widget.status_changed)
+        self.assertTrue(self.widget.status_buttons[False].isChecked())
+        self.widget.status_buttons["failed"].click()
+        self.assertEqual(list(signal_spy[0]), ["failed"])
+        self.assertTrue(self.widget.status_buttons["failed"].isChecked())
+        self.widget.set_status(True)
+        self.assertTrue(self.widget.status_buttons[True].isChecked())
+        self.assertFalse(self.widget.status_buttons["failed"].isChecked())
+        self.assertEqual(len(signal_spy), 1)
 
     def test_toggle_collapses_to_button_and_restores_content(self):
         geometry_spy = QtTest.QSignalSpy(self.widget.geometry_changed)
@@ -52,11 +68,21 @@ class TestCanvasAdjustmentWidget(unittest.TestCase):
         self.app.processEvents()
 
         self.assertTrue(self.widget.content_widget.isHidden())
-        self.assertTrue(self.widget.title_label.isHidden())
         self.assertTrue(self.widget.toggle_button.isVisible())
         self.assertTrue(self.widget.property("collapsed"))
-        self.assertEqual(self.widget.sizeHint().width(), 28)
-        self.assertEqual(self.widget.sizeHint().height(), 28)
+        margins = self.widget.layout().contentsMargins()
+        self.assertEqual(
+            self.widget.sizeHint().width(),
+            self.widget.toggle_button.width()
+            + margins.left()
+            + margins.right(),
+        )
+        self.assertEqual(
+            self.widget.sizeHint().height(),
+            self.widget.toggle_button.height()
+            + margins.top()
+            + margins.bottom(),
+        )
         self.assertEqual(len(geometry_spy), 1)
         self.assertIn("Expand", self.widget.toggle_button.toolTip())
 
@@ -64,7 +90,6 @@ class TestCanvasAdjustmentWidget(unittest.TestCase):
         self.app.processEvents()
 
         self.assertTrue(self.widget.content_widget.isVisible())
-        self.assertTrue(self.widget.title_label.isVisible())
         self.assertFalse(self.widget.property("collapsed"))
         self.assertEqual(self.widget.sizeHint(), expanded_size)
         self.assertIn("Collapse", self.widget.toggle_button.toolTip())

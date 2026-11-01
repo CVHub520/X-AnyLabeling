@@ -15,6 +15,8 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [2.3 Editing Labels](#23-editing-labels)
       * [2.4 Adding Image Captions](#24-adding-image-captions)
       * [2.5 Searching Images](#25-searching-images)
+      * [2.6 Editing Text Descriptions](#26-editing-text-descriptions)
+      * [2.7 Reviewing Objects](#27-reviewing-objects)
    * [3. View Options](#3-view-options)
       * [3.1 Canvas Controls](#31-canvas-controls)
       * [3.2 Image Display](#32-image-display)
@@ -102,8 +104,18 @@ Navigate between images in your dataset using these methods:
 - **Jump by Annotation Check Status**:
     - `Ctrl+Shift+D`: Jump to the next unchecked annotation.
     - `Ctrl+Shift+A`: Jump to the previous unchecked annotation.
-- **Toggle Annotation Check Status**: Right-click the canvas and choose `Mark as Checked` or `Mark as Unchecked`, or press `Ctrl+Alt+K`. The file list shows this review state with a colored dot: green means checked, gray means unchecked.
+- **Set Annotation Check Status**: Choose `Pending`, `Passed`, or `Failed` in the panel at the bottom-left of the canvas. You can also right-click the canvas and choose the corresponding option in the `Check Status` submenu.
 - **Jump to Specific Image**: Type the exact filename (including extension) into the file search bar at the bottom right and press `Enter`.
+
+The panel marks Pending, Passed, and Failed in blue, green, and red respectively. The file list icons and corresponding data are shown below:
+
+| Status | File list icon | Default shortcut | Top-level JSON `checked` value |
+| --- | --- | --- | --- |
+| Unchecked | Gray hollow circle | `Ctrl+Alt+U` | `false` |
+| Check Passed | Green filled circle | `Ctrl+Alt+K` | `true` |
+| Check Failed | Red filled circle | `Ctrl+Alt+J` | `"failed"` |
+
+Each shortcut sets a specific status; pressing it again does not toggle the status. Shortcuts can be customized in Settings. Setting a status saves the current annotation. Existing `checked: true` values mean passed; `false` or a missing field means unchecked. Navigation to the next or previous unchecked image skips both passed and failed images.
 
 The checkboxes in the file list are not editable by default. To enable editing, open `Settings` (`Ctrl+0`) and enable `File List Checkbox Editable` under `General`, or set `file_list_checkbox_editable` to `true` in the configuration file.
 These checkboxes indicate whether a label file exists and are separate from the annotation check status dot.
@@ -200,15 +212,15 @@ You can create the following shape types using the tools in the left toolbar, th
 
 | Shape Type | Shortcut | Drawing Method |
 | --- | --- | --- |
-| `rectangle` | `R` | Click to set the first corner, move the cursor, and click again to set the opposite corner. |
-| `rotation` | `O` | Draw an initially horizontal or vertical box as you would a rectangle. In editing mode, select the shape and press `Z`, `X`, `C`, or `V` to adjust its angle. |
+| `rectangle` | `R` | Click to set the first corner, move the cursor, and click again to set the opposite corner. Hold `Shift` while drawing to constrain the rectangle to a square. |
+| `rotation` | `O` | Draw an initially horizontal or vertical box as you would a rectangle. Hold `Shift` while drawing to constrain it to a square. In editing mode, select the shape and press `Z`, `X`, `C`, or `V` to adjust its angle. |
 | `polygon` | `P` | Click along the boundary to add vertices, then click the starting vertex or double-click the last vertex to finish. At least three vertices are required. |
 | `quadrilateral` | `T` | Click four corners in sequence; the fourth click completes the shape. |
 | `point` | `Shift+P` | Click to place one keypoint. |
 | `line` | `Shift+L` | Click to set the start point, move the cursor, and click again to set the end point. Hold `Shift` while drawing to snap horizontally or vertically. |
 | `linestrip` | `Shift+S` | Click to add connected vertices and double-click to finish. Hold `Shift` while drawing a segment to snap it horizontally or vertically. |
 | `circle` | `Shift+C` | Click to set the center, move the cursor to define the radius, and click again to finish. |
-| `cuboid` | `Ctrl+R` | Draw the front face as a rectangle. The rear face is generated from `canvas.cuboid.default_depth_vector`, configurable under `Settings > Canvas > Cuboid`; depths below the limit are constrained by `canvas.cuboid.min_depth`. |
+| `cuboid` | `Ctrl+R` | Draw the front face as a rectangle. The rear face is generated from `canvas.cuboid.default_depth_vector`, configurable under `Settings > Canvas`; depths below the limit are constrained by `canvas.cuboid.min_depth`. |
 
 In addition, X-AnyLabeling supports two assisted ways to create polygon objects:
 
@@ -243,16 +255,21 @@ Additional object-specific operations:
 
 To protect completed annotations, select one or more shapes and check **Lock Shape** in the canvas right-click menu. You can also right-click selected items in the **Shapes** panel to invert each item's lock state; locked items display a lock icon. Locked shapes remain selectable and allow label and attribute edits, while geometry changes and deletion are disabled.
 
+Right-click a category in **Labels** to lock or unlock all shapes of that category. Category rules apply across images during the current session, including subsequently loaded and newly created shapes. Hover over **Labels** or **Shapes** to reveal the header lock button: click to lock all when any are unlocked, or to unlock all when all are locked. Bulk operations replace previous states within their scope; clicking again does not restore earlier individual locks.
+
+Locks protect editing only during the current session. They are not written to annotation JSON and do not mark the file as unsaved. Object locks are retained when switching images and reset when the application closes. Legacy `locked` fields in annotation files are ignored and removed on normal save.
+
 When **Show Groups** is enabled, each group displays an interactive bounding frame and a compact badge such as `G3 · S5` (group 3 with 5 shapes). Clicking a shape still selects that shape first. Click the badge, frame, or empty area inside the frame to select the whole group, then drag it or use the arrow keys to move all members together (`Shift` accelerates keyboard movement). Copying and pasting a selected group assigns the pasted group the next available group ID and offsets it slightly. Deleting a selected group requires confirmation.
 
-- **Rectangles**: You can drag a rectangle's corner handles to resize it, or select multiple rectangles and merge them using the right-click menu. Mouse wheel editing is also supported; you can enable it in `Settings > Canvas > Wheel Editing > Enable Wheel Rectangle Editing`, or via the `wheel_rectangle_editing` setting. When enabled, scrolling inside the rectangle scales it, while scrolling outside adjusts the nearest edge. Note: wheel rectangle editing is automatically disabled when `auto_highlight_shape` is enabled.
-- **Polygons**: In Editing Mode, dragging an edge adds a new vertex, and holding `Shift` while clicking a vertex removes it. When exactly one polygon or line strip is selected, you can hold `Alt` to enter eraser mode, then drag with the left mouse button across vertices to remove them and reconnect the remaining points. If a polygon has fewer than 3 points, or a line strip has fewer than 2 points, the object is removed and can be restored with undo. Polygons also support merging via the right-click menu. When exactly one `polygon` is selected, you can also activate **Edit Brush** from the toolbar, context menu, or with `Shift+B`: drag with the left mouse button to expand the region, hold `Ctrl` while dragging to erase, and use the mouse wheel to resize the brush. Stroke-level undo and redo are supported, and the target remains locked while editing. Right-click or turn off Edit Brush to commit; press `Esc`, switch images, or select another tool to discard the changes and restore the original polygon. Brush point spacing and contour simplification tolerance are available under `Settings > Canvas > Interaction > Brush`; set the simplification tolerance to `0` to preserve the extracted contour points.
-- **Rotated Rectangles**: Select a rotated rectangle, drag the rotation handle above it for quick coarse angle adjustment, then press `Z`, `X`, `C`, or `V` for fine-grained rotation control. A real-time display of the rotation angle is available via the View menu.
+- **Rectangles**: You can drag a rectangle's corner handles to resize it, or select multiple rectangles and merge them using the right-click menu. Mouse wheel editing is disabled by default; you can enable it in `Settings > Canvas > Enable Wheel Rectangle Editing`, or via the `wheel_rectangle_editing` setting. When enabled, select one unlocked rectangle and use `Alt + Wheel`: scrolling inside scales it, while scrolling outside adjusts the nearest edge. Wheel navigation follows the selected navigation mode. Note: wheel rectangle editing is automatically disabled when `auto_highlight_shape` is enabled.
+- **Polygons**: In Editing Mode, dragging an edge adds a new vertex, and holding `Shift` while clicking a vertex removes it. You can also double-click a vertex of an unlocked polygon to remove it, keeping at least 3 vertices. This supports undo and works even when **Double Click Edit Label** is disabled. When exactly one polygon or line strip is selected, you can hold `Alt` to enter eraser mode, then drag with the left mouse button across vertices to remove them and reconnect the remaining points. If a polygon has fewer than 3 points, or a line strip has fewer than 2 points, the object is removed and can be restored with undo. Polygons also support merging via the right-click menu. When exactly one `polygon` is selected, you can also activate **Edit Brush** from the toolbar, context menu, or with `Shift+B`: drag with the left mouse button to expand the region, hold `Ctrl` while dragging to erase, and use `Alt + Wheel` to resize the brush. Stroke-level undo and redo are supported, and the target remains locked while editing. Right-click or turn off Edit Brush to commit; press `Esc`, switch images, or select another tool to discard the changes and restore the original polygon. Brush point spacing and contour simplification tolerance are available under `Settings > Canvas`; set the simplification tolerance to `0` to preserve the extracted contour points.
+- **Rotated Rectangles**: Select a rotated rectangle and drag its rotation handle to adjust the angle. Alternatively, click the handle, release the mouse button, and move the mouse to rotate; click again or press `Esc` to finish. Use `Z`, `X`, `C`, or `V` for fine-grained adjustment. The angle appears temporarily in the object label while rotating; enable `View` > `Show Degress` to keep it visible. The angle also appears during rotation when object labels are hidden.
+- **Quadrilaterals**: When selected, the hollow vertex marks the starting point, and the small arrow on the first edge indicates the direction from the first vertex to the second.
 - **Cuboid**: In Edit Mode, cuboid controls include 11 visible handles: 4 front vertices, 4 front edge centers, 2 visible rear vertices, and 1 visible rear edge center (depth handle). Dragging the front face moves the whole cuboid. Dragging the left/right/back faces adjusts geometry. Dragging rear visible vertices adjusts vertical alignment of top/bottom planes, while dragging the rear center adjusts depth with geometric constraints. The visible rear side is determined automatically from the depth vector direction.
 
-Additionally, you can quickly copy the coordinates of any selected shape to your clipboard using the **Copy Coordinates** option from the right-click context menu. For rectangles, this outputs the format `[x1, y1, x2, y2]` (top-left and bottom-right corners), while other shape types output `[x1, y1, x2, y2, x3, y3, ...]` (all vertex coordinates). In Editing Mode, double-clicking a shape on the canvas opens the label editor; you can disable this in `Settings > Canvas > Interaction > Double Click Edit Label`, or via the `double_click_edit_label` canvas setting (default: true).
+Additionally, you can quickly copy the coordinates of any selected shape to your clipboard using the **Copy Coordinates** option from the right-click context menu. For rectangles, this outputs the format `[x1, y1, x2, y2]` (top-left and bottom-right corners), while other shape types output `[x1, y1, x2, y2, x3, y3, ...]` (all vertex coordinates). In Editing Mode, double-clicking a shape on the canvas opens the label editor; you can disable this in `Settings > Canvas > Double Click Edit Label`, or via the `double_click_edit_label` canvas setting (default: true).
 
-When drawing a shape on a zoomed canvas with scrollbars, hold `Space` and drag with the left mouse button to temporarily pan the canvas without leaving Drawing Mode.
+In Editing Mode, drag an empty area with the left mouse button to pan the canvas. While drawing a shape, use `Right Drag`, `Alt + Left Drag`, or `Middle Drag` to pan without leaving Drawing Mode or changing the unfinished shape. These gestures allow free panning at any zoom level. In Editing Mode, `Alt + Left Drag` still erases polygon or line-strip vertices.
 
 > [!TIP]
 > When an image contains many shapes, use the following navigation tools to review them one by one without manually locating each shape.
@@ -271,17 +288,22 @@ When drawing a shape on a zoomed canvas with scrollbars, hold `Space` and drag w
 
 ### 2.3 Editing Labels
 
-When you create a shape or select an existing one in Edit Mode, the label panel appears (usually on the right), allowing you to edit its properties:
+When you create a shape (with automatic reuse of the last label disabled) or edit a shape's label, the label dialog opens to edit its properties:
 
-| Field              | Description                                                          |
-|--------------------|----------------------------------------------------------------------|
-| **Shape Label**    | Enter or select the object's category label (supports fuzzy search). |
-| **Group ID**       | Assign a numeric ID to group related shapes (e.g., for poses, tracking). |
-| **Difficult**      | Check this box if the object is difficult to recognize.             |
-| **Label List**     | Displays available labels, allowing selection.                      |
-| **Description**    | Add optional text notes specific to this shape instance.             |
-| **Label Linking**  | Used for linking shapes in tasks like Key Information Extraction (KIE). |
-| **Attributes**     | (If configured) Set custom attributes for the shape.               |
+<p align="center">
+  <img src="../../assets/resources/label_editor.png" alt="Label editor with object review status">
+</p>
+
+| Field | Description |
+| --- | --- |
+| **Shape Label** | Enter or select the object's category label (supports fuzzy search). |
+| **Group ID** | Assign a numeric ID to group related shapes (e.g., for poses, tracking). |
+| **Difficult** | Check this box if the object is difficult to recognize. |
+| **Review Status** | Pending (default), Missed, or False Positive. See [2.7 Reviewing Objects](#27-reviewing-objects). |
+| **Label List** | Displays available labels, allowing selection. |
+| **Description** | Add optional text notes specific to this shape instance. |
+| **Label Linking** | Used for linking shapes in tasks like Key Information Extraction (KIE). |
+| **Attributes** | (If configured) Set custom attributes for the shape. |
 
 ### 2.4 Adding Image Captions
 
@@ -294,6 +316,8 @@ X-AnyLabeling allows you to add a description or caption to the entire image:
 ### 2.5 Searching Images
 
 The file search feature supports multiple search modes to help you quickly locate target images. Enter your search criteria in the search box above the file list on the right panel and press Enter to execute the search.
+
+Move the pointer over the file panel to reveal the collapse button on the right side of the search box. Click it to collapse or expand the file list; the search box remains available when the list is collapsed.
 
 You can also right-click an image in the file list to open a context menu for quick copy operations:
 
@@ -332,8 +356,30 @@ Filter images by object attributes using the format `attribute::value`:
 - `score::[0,0.6)`: Find images containing objects with scores in the range [0, 0.6) (left-closed, right-open)
 - `score::(0,0.6)`: Find images containing objects with scores in the range (0, 0.6) (open interval)
 - `description::1` or `description::true`: Find images containing objects with non-empty descriptions
-- `checked::1` or `checked::true`: Find checked images
-- `checked::0` or `checked::false`: Find unchecked images; images without generated label files are also treated as unchecked
+- `checked::passed`: Find only images that passed review
+- `checked::failed`: Find only images that failed review
+- `checked::unchecked`: Find unchecked images; images with a missing `checked` field or no label file are also treated as unchecked
+- `checked::1` or `checked::true`: Find all reviewed images, including both passed and failed images
+- `checked::0` or `checked::false`: Same as `checked::unchecked`
+- `review::pending`: Find images containing Pending objects
+- `review::missed`: Find images containing Missed objects
+- `review::false_positive`: Find images containing False Positive objects
+
+For object review searches, objects in older annotations without a status are treated as Pending; images without objects do not match.
+
+### 2.6 Editing Text Descriptions
+
+Use the description panel on the right to edit text for an image or an individual shape. In edit mode, click an empty area of the canvas to edit the image description, or select a single shape to edit its description.
+
+Hover over the description field to reveal the expand icon in its bottom-right corner. Click it to open a centered editor for longer, multiline text. Click **Confirm** to apply the text to the panel, or click **Cancel** or press `Esc` to discard changes made in the dialog.
+
+After confirming, save the annotations as usual. Image descriptions are stored in the top-level `description` field of the label JSON; shape descriptions are stored in the `description` field of the corresponding `shapes` entry.
+
+### 2.7 Reviewing Objects
+
+In the label dialog, select **Pending** (default), **Missed**, or **False Positive** for an object. Click **OK** to confirm, then save the annotations; click **Cancel** to discard changes. Both individual and batch editing are supported. The status is stored in each object's `review_status` field.
+
+To filter images by object review status, see **Attribute Search** in [2.5 Searching Images](#25-searching-images) above.
 
 ## 3. View Options
 
@@ -347,7 +393,9 @@ This section explains how to customize the view settings in X-AnyLabeling, inclu
 - **Zoom to Fit Window** (`Ctrl + F`)
 - **Zoom to Fit Width** (`Ctrl + Shift + F`)
 
-In addition to using menu options and shortcuts, you can zoom dynamically by holding `Ctrl` and using the mouse scroll wheel. This is useful for precise annotations, especially on small objects.
+Choose **Settings > Canvas > Wheel Navigation Mode**. **Direct Zoom** (default) uses the wheel to zoom. **Traditional Navigation** uses the wheel to scroll. In both modes, `Ctrl + Wheel` zooms around the cursor and `Shift + Wheel` scrolls. The main canvas and navigator support **10%–1000% (0.1×–10×)** zoom, including small wheel increments. `Alt + Wheel` adjusts the brush size or, when rectangle wheel editing is enabled, the selected unlocked rectangle. `Alt + Shift + Wheel` moves the compare divider. After saving settings, the mode takes effect without restarting; navigator wheel zoom is unchanged.
+
+While drawing ordinary shapes, use `Right Drag`, `Alt + Left Drag`, or `Middle Drag` to pan freely, even when zoomed in: any image corner can be moved anywhere in the viewport. In Editing Mode, use the middle button, drag an empty area with the left button, or use right-button dragging. `Space + Left Drag` remains available for compatibility. The Magic Wand retains its right-button confirmation action. A right-click keeps its existing action, including opening the context menu or finishing brush/magic-wand editing. Use `Ctrl + Right Drag` for the annotation copy/move menu. Fit Window or Fit Width resets the pan offset.
 
 To maintain the current zoom level when switching between images, enable `View` > `Keep Previous Zoom Ratio`.
 
@@ -355,29 +403,36 @@ To maintain the current zoom level when switching between images, enable `View` 
 
 X-AnyLabeling allows you to adjust the appearance of the current image and the visibility of annotations:
 
-Use the collapsible **Canvas Display** panel at the bottom-left of the canvas to adjust annotation opacity and the appearance of the underlying image. Click the caret button to collapse or expand the panel.
+Use the panel at the bottom-left of the canvas to adjust annotation opacity, the appearance of the underlying image, and the current image’s check status. Click the caret button at the bottom to collapse or expand the panel.
 
-**Annotation opacity:** Drag the **Opacity** slider to make annotation shapes and masks more or less transparent. Label text remains fully visible so that categories are still easy to identify.
+**Annotation opacity:** Drag the **Opacity** slider to adjust the transparency of annotation shapes and masks from `0.00` to `1.00`. Label text remains fully visible so that categories are still easy to identify.
 
 <p align="center">
-  <img src="../../assets/resources/annotation_opacity.gif" alt="Adjusting annotation shape and mask opacity from the Canvas Display panel">
+  <img src="../../assets/resources/annotation_opacity.gif" alt="Adjusting annotation shape and mask opacity from the panel at the bottom-left of the canvas">
 </p>
 
 **Image brightness:** Drag the **Brightness** slider to lighten or darken the underlying image without modifying the image file or annotation data.
 
 <p align="center">
-  <img src="../../assets/resources/image_brightness.gif" alt="Adjusting image brightness from the Canvas Display panel">
+  <img src="../../assets/resources/image_brightness.gif" alt="Adjusting image brightness from the panel at the bottom-left of the canvas">
 </p>
 
 **Image contrast:** Drag the **Contrast** slider to increase or reduce tonal separation in the underlying image, which can make object boundaries easier to distinguish.
 
 <p align="center">
-  <img src="../../assets/resources/image_contrast.gif" alt="Adjusting image contrast from the Canvas Display panel">
+  <img src="../../assets/resources/image_contrast.gif" alt="Adjusting image contrast from the panel at the bottom-left of the canvas">
 </p>
 
-To apply the current adjustments to all subsequent images in the session, enable `View` > `Keep Current Brightness` and `View` > `Keep Current Contrast`.
+The reset button to the right of each slider restores its default value. The lock button controls whether the current value is retained when switching images. Opacity is retained by default; when unlocked, it resets to `1.00` on switching images. The brightness and contrast lock buttons stay in sync with `View` > `Keep Previous Brightness` and `View` > `Keep Previous Contrast`. When unlocked, each image uses its existing adjustment values, or the defaults if it has not been adjusted.
 
 ### 3.3 Shape Display
+
+The main window toolbar provides four mutually exclusive display modes, from left to right:
+
+- **Color by label** (default): Uses the existing category colors.
+- **Color by instance**: Assigns different colors to individual annotations, including those with the same label.
+- **Color by group**: Uses the same color for annotations sharing a group ID; ungrouped annotations use individual colors.
+- **Binary mask**: Shows visible annotations as white foreground on a black background, hiding the source image and text overlays. Annotation opacity does not affect this view.
 
 You can control the visibility of various shape attributes:
 
@@ -388,8 +443,17 @@ You can control the visibility of various shape attributes:
 When you hover over a shape, its dimensions (width and height) are displayed in the status bar.
 
 > [!TIP]
-> In the **Shapes** list on the right panel, right-click and select **Filter by Label** or **Filter by Group ID** to filter objects.
+> Use **Filter by Label** or **Filter by Group ID** in the canvas right-click menu to filter objects.
 > The global show/hide control for all shapes is available in the left toolbar as an **eye/hidden** toggle button (click once to hide all, click again to show all).
+
+The right panels also provide visibility controls:
+
+- **Labels item checkbox**: Show or hide an entire category. The setting is retained across images during the current session.
+- **Shapes item checkbox**: Show or hide an individual shape in the current image.
+- **Header eye button**: Appears on hover and toggles visibility in bulk. Labels controls all categories; Shapes controls all shapes in the current image. Click to hide all when any are visible, or to show all when all are hidden.
+- **Rightmost header checkbox**: Expand or hide the panel contents without changing shape visibility on the canvas.
+
+Visibility and locking are independent. Hiding shapes does not delete annotations.
 
 ### 3.4 Crosshair Customization
 
@@ -409,7 +473,7 @@ To open the navigator, simply click `View` -> `Navigator` in the menu bar or pre
 
 You can click anywhere on the thumbnail to quickly jump to that location, or drag the red frame to move your view. The navigator also displays all your annotated objects in real-time, giving you a clear overview of your progress.
 
-At the bottom of the navigator, you can precisely set the zoom ratio through the input box (supporting 1% to 1000%), or drag the slider to adjust it. Additionally, you can use the mouse wheel to zoom directly in either the main canvas or the navigator window.
+At the bottom of the navigator, you can precisely set the zoom ratio through the input box (supporting 10% to 1000%), or drag the slider to adjust it. The navigator wheel always zooms; the main canvas follows the selected wheel navigation mode.
 
 This feature is particularly useful when working with ultra-high resolution images, allowing you to maintain precise local operations while keeping the global perspective.
 
@@ -430,7 +494,7 @@ Compare View lets you compare two images side by side in a split-screen interfac
 1. Open an image directory and load an image.
 2. Select `File` > `Compare View` (or press `Ctrl+Alt+C`) to open the comparison directory selector.
 3. Select the directory containing the comparison image. Its filename must match that of the main image; the base filenames must be the same, but the extensions may differ.
-4. Use the slider at the bottom to adjust the split position, or hold `Shift` while scrolling the mouse wheel to move the divider.
+4. Use the slider at the bottom to adjust the split position, or hold `Alt + Shift` while scrolling the mouse wheel to move the divider.
 5. Click the close button (×) on the slider to exit Compare View.
 
 > [!NOTE]
@@ -438,7 +502,7 @@ Compare View lets you compare two images side by side in a split-screen interfac
 
 ### 3.7 Image Tags
 
-Use `View` > `Image Tags` or press `Ctrl+Shift+T` to show or hide the image tag panel below the canvas.
+Use the image tags button on the top toolbar, `View` > `Image Tags`, or `Ctrl+Shift+T` to show or hide the image tag panel below the canvas.
 
 The image tag panel supports the following operations:
 
@@ -609,21 +673,21 @@ Supports importing and exporting labels for PaddleOCR (PPOCR) tasks.
 - **Key Information Extraction (KIE):** Extracts entities and relations from text regions.
 
 **Importing:**
-1. Select `Import Annotations` > `Import PPOCR Annotations`.
-2. Select the task (Recognition or KIE).
-3. Choose the appropriate label file (`Label.txt` for Rec, `kie.json` for KIE).
+1. Select `Upload` > `PPOCR Rec` or `PPOCR KIE`.
+2. Choose the appropriate label file (`Label.txt` for Rec, `ppocr_kie.json` for KIE).
 
 **Exporting:**
-1. Select `Export Annotations` > `Export PPOCR Annotations`.
-2. Select the task.
-3. Click OK.
+1. Select `Export` > `PPOCR Rec` or `PPOCR KIE`.
+2. Confirm or change the export path.
+
+Export looks for a JSON file with the same base name in the annotation directory set through `File` > `Change Output Dir`, or in the image directory if none is set.
 
 **Export Paths & Files:**
-- **Recognition:** Defaults to `ppocr-rec` subfolder. Contains:
+- **Recognition:** Defaults to `ppocr_rec` alongside the annotation directory, or the image directory if none is set. Contains:
     - `Label.txt`: Detection & transcription annotations.
-    - `rec_gt.txt`: Recognition ground truth (transcriptions only).
+    - `rec_gt.txt`: Cropped image paths and transcriptions.
     - `crop_img/`: Cropped images of text regions for recognition training.
-- **KIE:** Defaults to `ppocr-kie` subfolder. Contains:
+- **KIE:** Defaults to `ppocr_kie` in the same location. Contains:
     - `class_list.txt`: List of KIE entity classes.
     - `ppocr_kie.json`: KIE annotation results (linking text regions).
 
@@ -724,13 +788,15 @@ You can also use **Tools** > **Save Visualization Image** or **Save Visualizatio
 - **Delete Labels**: Remove specific label classes entirely from the list of available labels.
 - **Rename Labels**: Replace an existing label name throughout the selected annotation range.
 - **Control Label Visibility**: Use the `Visible` column checkboxes to show or hide specific labels on the canvas.
+- **Lock Categories**: Use the `Lock` column checkboxes to lock or unlock an entire category, sharing the current session state with the Labels panel.
 - **Change Label Colors**: Modify the display color for specific label classes *for the current session only*. (For persistent changes, see [7.2 Custom Label Colors](#72-custom-label-colors)).
 
-**Visibility Quick Actions**:
-- Right-click on the `Visible` column to quickly:
-  - **Select All**: Show all labels at once
-  - **Deselect All**: Hide all labels at once
-- Visibility settings persist across image switches and take effect after clicking the `Go` button.
+**Visibility and Lock Quick Actions**:
+
+- Right-click the `Visible` or `Lock` column and choose **Select All** or **Deselect All** to check or uncheck the entire column.
+- Changes take effect after clicking `Go`. `Visible` and `Lock` settings apply only to the current session, independently of the `From` / `To` file range.
+- The file range applies to annotation changes such as deletion and renaming. Changing only visibility or locking does not rewrite annotation JSON.
+- The `Delete` column uses centered checkboxes; check a box to mark its category for deletion.
 
 ### 5.4 Shape Type Conversion
 
@@ -869,7 +935,9 @@ You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit
 | `a`                   | Previous Image                                   |                                            |
 | `Ctrl+Shift+d`        | Next Unchecked Annotation                        | Uses the label JSON `checked` field        |
 | `Ctrl+Shift+a`        | Previous Unchecked Annotation                    | Uses the label JSON `checked` field        |
-| `Ctrl+Alt+k`          | Toggle Annotation Check Status                   | Saved as `checked` in the label JSON        |
+| `Ctrl+Alt+u`          | Clear Annotation Check Status                    | Saves `checked: false`                     |
+| `Ctrl+Alt+k`          | Mark Annotation as Passed                        | Saves `checked: true`                      |
+| `Ctrl+Alt+j`          | Mark Annotation as Failed                        | Saves `checked: "failed"`                  |
 | `p`                   | Create Polygon Shape                             | Shortcut might vary (check interface)      |
 | `Ctrl+n`              | Create Brush Polygon                             | Toggle brush mode for polygon drawing      |
 | `o`                   | Create Rotated Rectangle Shape                   | Shortcut might vary                        |
@@ -891,7 +959,7 @@ You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit
 | `w`                   | Show Hidden Shapes                               | Show previously hidden shapes              |
 | `Alt+d`               | Open Digit Shortcut Manager                      | Configure numeric key shortcuts            |
 | `Alt+g`               | Open Group ID Manager                            | Manually set group ID                      |
-| `Alt+l`               | Open Label Manager                               | Rename, Delete, Hide/Show, Adjust Color    |
+| `Alt+l`               | Open Label Manager                               | Rename, Delete, Hide/Show, Lock/Unlock, Adjust Color    |
 | `Alt+s`               | Open Shape Manager                               | Add, Delete, Remove                        |
 | `Ctrl+0`              | Open Settings                                    | Shortcut settings can be edited in GUI     |
 | `Ctrl+Delete`         | Delete Current Label File (`.json`)              | **Irreversible**                           |
@@ -899,7 +967,7 @@ You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit
 | `Ctrl+1`              | Open Chatbot                                     |                                            |
 | `Ctrl+2`              | Open Visual Question Answering Dialog            |                                            |
 | `Ctrl+3`              | Open Image Classifier Dialog                     |                                            |
-| `Ctrl+4`              | Open PaddleOCR Dialog                            |                                            |
+| `Ctrl+4`              | Open Document Parser Dialog                            |                                            |
 | `Ctrl+5`              | Open Video Classifier Dialog                     |                                            |
 | `Ctrl+6`              | Open 3D Point Cloud Workspace                     |                                            |
 | `Ctrl+q`              | Quit Application                                 |                                            |
@@ -926,6 +994,11 @@ You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit
 | `Ctrl+k`              | Toggle Linking Display                           | Show/Hide shape linking visualization      |
 | `Ctrl+Shift+l`        | Toggle Attributes Display                        | Show/Hide shape attributes on canvas       |
 | `Ctrl+Shift+s`        | Set Output Directory                             | Change where `.json` files are saved       |
+| `Wheel`               | Zoom or Scroll Canvas                                      |                                            |
+| `Alt+Wheel`          | Adjust Rectangle or Brush Size                   | Rectangle wheel editing must be enabled     |
+| `Alt+Left Drag`       | Pan Canvas                                       | Drawing Mode                               |
+| `Middle Drag`         | Pan Canvas                                       |                                            |
+| `Right Drag`          | Pan Canvas                                       | Ordinary shape drawing and Editing Mode    |
 | `Ctrl+=`              | Zoom to Actual Size (100%)                       |                                            |
 | `Ctrl++`              | Zoom In                                          |                                            |
 | `Ctrl+-`              | Zoom Out                                         |                                            |
@@ -1009,19 +1082,17 @@ Then upload it through the menu: `Upload` → `Upload Label Classes File`.
 
 ### 7.4 Auto-Switch to Edit Mode
 
-To streamline the annotation workflow, you can configure the application to automatically switch to **Edit Mode** immediately after a shape is created. This is useful if you frequently need to adjust a shape right after drawing it. You can change this in `Settings > General > Behavior > Auto Switch To Edit Mode`, or through the `auto_switch_to_edit_mode` setting in the `.xanylabelingrc` file.
+To streamline the annotation workflow, you can configure the application to automatically switch to **Edit Mode** immediately after a shape is created. This is useful if you frequently need to adjust a shape right after drawing it. You can change this in `Settings > General > Auto Switch To Edit Mode`, or through the `auto_switch_to_edit_mode` setting in the `.xanylabelingrc` file.
 
 - Set to `true` to enable automatic switching to Edit Mode.
 - Set to `false` to remain in Drawing Mode, which allows continuous creation of multiple shapes. The default is `true`.
 
 ### 7.5 Hover Auto-Highlight
 
-For quicker selection of shapes, you can enable **Hover Auto-Highlight**. When this feature is active, simply moving your mouse cursor over a shape will highlight it, making it clear which shape will be selected if you click. You can change this in `Settings > General > Behavior > Auto Highlight Shape`, or through the `auto_highlight_shape` setting in the `.xanylabelingrc` file.
+For quicker selection of shapes, you can enable **Hover Auto-Highlight**. When this feature is active, simply moving your mouse cursor over a shape will highlight it, making it clear which shape will be selected if you click. You can change this in `Settings > General > Auto Highlight Shape`, or through the `auto_highlight_shape` setting in the `.xanylabelingrc` file.
 
 - Set to `true` to highlight shapes on hover.
 - Set to `false` to highlight shapes only after clicking. The default is `true`.
-
-*Note: When working on multi-label classification tasks with a custom attributes file loaded, this setting is automatically disabled to prevent accidentally changing the active shape while interacting with the attributes panel.*
 
 ### 7.6 Shape Appearance
 
@@ -1152,5 +1223,5 @@ For details on integrating and using your own custom AI models within X-AnyLabel
 - Image Classifier: [Link](./image_classifier.md)
 - Video Classifier: [Link](./video_classifier.md)
 - Ultralytics Training Platforms: [Link](../../examples/training/ultralytics/README.md)
-- Document Parsing and Intelligent Text Recognition: [Link](./paddle_ocr.md)
+- Document Parser: [Link](./document_parser.md)
 - 3D Point Cloud Annotation: [Link](./point_cloud.md)

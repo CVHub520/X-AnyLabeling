@@ -464,7 +464,7 @@ class ChatbotDialog(QDialog):
             import_media_btn_modes, import_media_btn_names
         ):
             btn = QPushButton()
-            icon_name = "folder-chatbot" if btn_mode == "folder" else btn_mode
+            icon_name = "open" if btn_mode == "folder" else btn_mode
             btn.setIcon(QIcon(new_icon(icon_name, "svg")))
             btn.setFixedSize(*ICON_SIZE_NORMAL)
             btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
@@ -2653,6 +2653,9 @@ class ChatbotDialog(QDialog):
                         if tooltip:
                             tooltip.hide()
 
+    def reject(self):
+        self.close()
+
     def closeEvent(self, event):
         """Handle dialog close event properly"""
         self.hideAllTooltips()
@@ -2661,7 +2664,8 @@ class ChatbotDialog(QDialog):
         if self.loading_timer and self.loading_timer.isActive():
             self.loading_timer.stop()
 
-        super().closeEvent(event)
+        event.accept()
+        super().reject()
 
     def wheelEvent(self, event):
         """Handle wheel events at dialog level"""

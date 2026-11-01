@@ -1626,7 +1626,9 @@ def export_pporc_annotation(self, mode):
         for i, image_file in enumerate(image_list):
             image_file_name = osp.basename(image_file)
             label_file_name = osp.splitext(image_file_name)[0] + ".json"
-            label_file = osp.join(osp.dirname(image_file), label_file_name)
+            label_file = osp.join(
+                self.output_dir or osp.dirname(image_file), label_file_name
+            )
             if mode == "rec":
                 converter.custom_to_ppocr(
                     image_file, label_file, save_path, mode

@@ -47,7 +47,7 @@ from anylabeling.views.labeling.widgets.remote_server_dialog import (
     RemoteServerDialog,
 )
 from anylabeling.views.labeling.widgets.popup import Popup
-from anylabeling.views.labeling.utils.qt import new_icon_path
+from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 from anylabeling.views.labeling.widgets.searchable_model_dropdown import (
     load_json,
     save_json,
@@ -302,8 +302,10 @@ class AutoLabelingWidget(QWidget):
         # --- Configuration for: edit_text ---
         self.edit_text.setStyleSheet(get_lineedit_style())
         self.edit_text.setToolTip(
-            "Enter text prompt here. Use dots (.) to separate multiple classes.\n"
-            "Example: person.car.bicycle"
+            self.tr(
+                "Enter text prompt here. Use dots (.) to separate multiple classes.\n"
+                "Example: person.car.bicycle"
+            )
         )
 
         # --- Configuration for: button_add_point ---
@@ -346,6 +348,7 @@ class AutoLabelingWidget(QWidget):
         self.button_finish_object.clicked.connect(self.on_finish_clicked)
 
         # --- Configuration for: button_auto_decode ---
+        self.button_auto_decode.setText("AMD")
         self.button_auto_decode.setStyleSheet(get_normal_button_style())
         self.button_auto_decode.clicked.connect(self.on_auto_decode_toggled)
         self.button_auto_decode.setToolTip(
@@ -355,6 +358,7 @@ class AutoLabelingWidget(QWidget):
         )
 
         # --- Configuration for: button_cropping ---
+        self.button_cropping.setText(self.tr("TinyObj"))
         self.button_cropping.setStyleSheet(get_normal_button_style())
         self.button_cropping.clicked.connect(self.on_cropping_toggled)
         self.button_cropping.setToolTip(
@@ -442,6 +446,7 @@ class AutoLabelingWidget(QWidget):
         self.hide_labeling_widgets()
 
         # Handle close button
+        self.button_close.setIcon(new_icon("circle-x"))
         self.button_close.hide()
         self.button_close.clicked.connect(self.unload_and_hide)
 
@@ -706,7 +711,7 @@ class AutoLabelingWidget(QWidget):
         self.model_manager.unload_model()
         self.hide_labeling_widgets()
         if not self.model_manager.load_custom_model(config_file):
-            self.model_selection_button.setText("No Model")
+            self.model_selection_button.setText(self.tr("No Model"))
             return False
 
         with open(config_file, "r", encoding="utf-8") as stream:
@@ -1802,10 +1807,6 @@ class AutoLabelingWidget(QWidget):
     def on_auto_decode_toggled(self):
         """Handle AMD button toggle"""
         is_checked = self.button_auto_decode.isChecked()
-        self.button_auto_decode.setText(
-            "AMD (On)" if is_checked else "AMD (Off)"
-        )
-
         if is_checked:
             self.button_auto_decode.setStyleSheet(
                 get_toggle_button_style(button_color="#87CEEB")
@@ -1818,10 +1819,6 @@ class AutoLabelingWidget(QWidget):
     def on_cropping_toggled(self):
         """Handle TinyObj button toggle"""
         is_checked = self.button_cropping.isChecked()
-        self.button_cropping.setText(
-            self.tr("TinyObj (On)") if is_checked else self.tr("TinyObj (Off)")
-        )
-
         if is_checked:
             self.button_cropping.setStyleSheet(
                 get_toggle_button_style(button_color="#F8E003")

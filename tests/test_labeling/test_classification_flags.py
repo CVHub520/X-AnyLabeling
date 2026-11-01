@@ -114,7 +114,7 @@ class ClassificationFlagsTest(unittest.TestCase):
             ],
         )
         dialog = SimpleNamespace(
-            parent=lambda: widget,
+            label_widget=widget,
             update_image_display=mock.Mock(),
             update_navigation_state=mock.Mock(),
             page_input=mock.Mock(),

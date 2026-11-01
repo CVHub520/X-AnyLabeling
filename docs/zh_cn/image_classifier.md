@@ -1,192 +1,95 @@
-# 概述
+# 图像分类器
 
-X-AnyLabeling 的图像分类器是独立的图像分类标注窗口，支持多类分类（单标签）和多标签分类。用户可以管理标签、对单张或多张图像进行 AI 辅助分类、查看数据集统计信息，并将已分类图像按类别导出到对应目录。
+图像分类器提供三种标注模式：
 
-<video src="https://github.com/user-attachments/assets/0652adfb-48a4-4219-9b18-16ff5ce31be0" width="100%" controls>
-</video>
+| 模式 | 标注对象 | 用途 |
+| --- | --- | --- |
+| MultiClass | 整张图片 | 每张图片选择一个类别 |
+| MultiLabel | 整张图片 | 每张图片选择多个类别 |
+| MultiTask | 图片中的已有对象 | 为每个对象填写多个属性 |
 
-# 启动
+## 启动与界面
 
-要打开图像分类器窗口，请先在主窗口加载图像目录，然后点击左侧工具栏中的图像分类器图标，或使用快捷键 `Ctrl+3` (Windows/Linux) / `⌘+3` (macOS)。
-
-> [!NOTE]
-> 打开图像分类器窗口时主窗口会自动隐藏。如果最小化本窗口后任务栏图标消失，可使用 `Alt` + `Tab`（Windows）或 `⌘` + `Tab`（macOS）切换回窗口。关闭分类器窗口后主窗口会重新显示。
-
-# 教程
-
-图像分类器采用双面板设计，左侧为图像预览区，右侧为标注控制区。
+先在主窗口加载图片目录，然后点击图像分类器图标，或使用 `Ctrl+3`（Windows/Linux）／`⌘+3`（macOS）打开。关闭分类器后会返回主窗口。
 
 <img src="../../assets/resources/image_classifier/entire_panel.png" width="100%" />
 
-## 左侧面板：图像预览区
+左侧显示图片和标注状态；右侧用于切换模式、编辑分类或属性，以及导航图片。状态栏中的 **Pending**、**Passed**、**Failed** 与主窗口的审核状态同步。
 
-- **文件名与进度指示**：显示当前图像文件名及其在数据集中的位置（如 `husky.png (1/3)`）。
-- **图像预览区域**：居中显示图像，支持自适应缩放。当选中标签时，标签文字会实时显示在预览区域右上角，便于快速查看和确认。
+## 图像级分类
 
-> [!TIP]
-> ✅ 表示当前图像已标注，❌ 表示当前图像未标注。
+### 配置类别
 
-## 右侧面板：标注控制区
+在 MultiClass 或 MultiLabel 模式下，通过类别工具栏的添加按钮输入类别，每行一个；也可以从文本文件导入。类别搜索支持不区分大小写的关键词匹配，多个关键词以空格分隔，搜索不会改变已有选择。
 
-- **功能组件区**：
+### 标注与管理
 
-| 功能按钮 | 说明 |
-|----------|------|
-| Export | 将已分类的图像按类别导出到文件夹中（仅支持 MultiClass 模式） |
-| MultiClass | 多类分类模式，每张图片只能选择一个标签 |
-| MultiLabel | 多标签分类模式，每张图片可以选择多个标签 |
-| AutoRun | 使用 AI 模型批量分类所有图像 |
+选择 MultiClass 或 MultiLabel，在右侧勾选类别。MultiClass 一张图片只能选择一个类别；MultiLabel 可选择多个。从 MultiLabel 切换到 MultiClass 不会自动清理其他图片的多标签结果，请逐张复核。
 
-> [!NOTE]
-> - MultiClass 模式：适用于互斥分类任务，如动物种类识别（一张图片只能是一种动物）
-> - MultiLabel 模式：适用于多属性标注任务，如图片标签标注（一张图片可以同时具有多个属性）
-> - 从 MultiLabel 切换到 MultiClass 后，请逐张复核已有的多标签标注，并选择需要保留的类别；切换模式不会自动批量清理所有图片的标注。
+类别工具栏还支持添加、删除、重命名和查看统计。删除或重命名类别会更新相关标注，请在操作前确认。也可以先在主窗口使用分类模型预标注，再打开分类器复核；模型列表见[图像级分类示例](../../examples/classification/image-level/README.md#model-assisted-classification)。
 
-分类修改沿用主窗口的自动保存设置。若未启用自动保存，请关闭分类器返回主窗口保存当前修改，再进行导出。Export 读取已保存的标注文件，将已分类图片复制到对应类别目录，原始图片保持不变。
+## 对象级多任务
 
-```bash
-classified/
-├── husky/
-│   ├── husky_playing.jpg
-│   └── husky_sleeping.jpg
-├── psyduck/
-│   ├── psyduck_swimming.png
-│   └── psyduck_standing.png
-└── ragdoll/
-    ├── ragdoll_grooming.jpg
-    └── ragdoll_sitting.jpg
-```
+### 准备对象和属性配置
 
-- **标注组件区**：
-
-右侧中间面板包含标题和以下 5 个标注组件。
-
-可通过类别搜索框进行不区分大小写的关键词匹配；多个关键词用空格分隔，类别名称需包含所有关键词。搜索仅过滤显示，不改变勾选状态；清空搜索可恢复完整列表。搜索框和操作图标所在行固定，仅类别列表随滚动条滚动。
-
-### AI 辅助
-
-#### 图像分类模型预标注
-
-可先在主窗口使用图像分类模型进行单张或批量预标注，再打开图像分类器进行二次复核和修正。支持的模型及使用流程见[图像分类示例](../../examples/classification/image-level/README.md#model-assisted-classification)。
-
-#### 多模态大模型预标注
-
-如需使用 AI 辅助功能，请先按照[聊天机器人文档](./chatbot.md)完成模型配置。
-
-<img src="../../assets/resources/vqa/chatbot.png" width="100%" />
-
-完成配置后，点击标注组件区右侧的魔法棒图标即可打开 AI 对话框。
-
-<img src="../../assets/resources/image_classifier/assistance.png" width="100%" />
-
-软件内置了一套标准的提示词模板，会根据当前选择的模式（MultiClass 或 MultiLabel）自动调整提示内容。你可以直接使用或根据实际需求自定义。
-
-**MultiClass 模式示例：**
-
-```prompt
-@image
-You are an expert image classifier. Your task is to perform multi-class classification.
-
-Task Definition: Analyze the given image and classify it based on the provided categories.
-
-Available Categories: ["husky", "psyduck", "ragdoll"]
-
-Instructions:
-1. Carefully examine the image and identify the main subject and their activity
-2. Be precise - only select categories that clearly match what you observe
-
-Return your result in strict JSON format:
-{"husky": false, "psyduck": false, "ragdoll": false}
-
-Set exactly ONE category to 'true' that best matches the image, keep all others as 'false'.
-```
-
-**MultiLabel 模式示例：**
-
-```prompt
-@image
-You are an expert image classifier. Your task is to perform multi-label classification.
-
-Task Definition: Analyze the given image and classify it based on the provided categories.
-
-Available Categories: ["outdoor", "sunny", "people", "building"]
-
-Instructions:
-1. Carefully examine the image and identify the main subject and their activity
-2. Be precise - only select categories that clearly match what you observe
-
-Return your result in strict JSON format:
-{"outdoor": false, "sunny": false, "people": false, "building": false}
-
-Set ALL applicable categories to 'true', keep non-applicable ones as 'false'.
-```
-
-> 有关特殊引用和提示模板库等用法，请参考[视觉问答文档](./vqa.md)。
-
-### 添加标签
-
-<img src="../../assets/resources/image_classifier/add_label.png" width="100%" />
-
-软件提供了两种添加标签的方式：
-
-1. **手动输入**：适用于少量标签的情况，直接在编辑框中输入标签名称，每行一个，且标签名之间不允许重复。
-2. **文件导入**：标签较多时，可提前准备 [classes.txt](../../assets/classes.txt)（每行一个标签），再通过左侧的上传按钮导入。文件内容会自动解析到编辑框中。
-
-确认标签列表无误后，点击添加按钮完成标签添加。
-
-> [!NOTE]
-> 此处仅支持添加新标签，不支持修改已有标签，如需编辑或删除现有标签，请参考后续小节。
-
-### 删除标签
-
-<img src="../../assets/resources/image_classifier/delete_label.png" width="100%" />
-
-删除标签组件用于移除已有的标签。你可以通过点击选择一个或多个标签（被选中的标签会以高亮显示），然后点击删除按钮。在确认对话框中再次确认后，系统将自动遍历当前任务中的所有标签文件，并删除所选标签相关的所有内容。
-
-### 编辑标签
-
-<img src="../../assets/resources/image_classifier/edit_label.png" width="100%" />
-
-标签编辑组件以表格形式展示，左侧列显示当前标签（只读），右侧列用于输入新的标签名称。要修改标签，只需双击右侧单元格进入编辑模式，输入新的标签名称即可。完成所有修改后，点击保存按钮使更改生效。
-
-### 数据统计
-
-<img src="../../assets/resources/image_classifier/dataset_statistics.png" width="100%" />
-
-数据统计组件提供了当前任务的数据集统计信息，包括：
-
-1. **总体统计**：显示数据集中的总样本数、已标注数量和未标注数量。
-2. **标签分布**：以水平条形图的形式展示每个标签的使用频次及占比。图中使用不同颜色区分不同标签，每个标签后显示具体的数量和百分比。
-
-- **导航组件区**
-
-支持用户手动点击左/右箭头来手动切换上/下一张图片，或通过中间页码输入框输入指定数字跳转到指定图片。此外，提供以下快捷键方便快速切换图片：
-
-| 快捷键 | 功能 |
-|--------|------|
-| A | 上一张图片 |
-| D | 下一张图片 |
-| Ctrl+A 或 ⌘+A | 上一张未标注的图片 |
-| Ctrl+D 或 ⌘+D | 下一张未标注的图片 |
-| 0–9 | 选择或取消选择原始类别列表中编号为 0–9 的类别 |
-
-# 数据
-
-图像分类器的标注信息保存在 X-AnyLabeling 标签文件的 `flags` 字段中，详情参见《用户手册》中的[保存标签数据](./user_guide.md#14-保存标签数据)。
+先在主窗口标注或加载对象，然后切换到 **MultiTask**，点击对象选择框旁的上传图标，加载[属性 JSON 文件](../../examples/classification/shape-level/attributes.json)。配置中的类别名称必须与对象标签一致。例如：
 
 ```json
 {
-  "version": "4.0.0",
-  "flags": {
-    "husky": true,
-    "psyduck": false,
-    "ragdoll": false
-  },
-  "shapes": [],
-  "imagePath": "husky.png",
-  "imageData": null,
-  "imageHeight": 200,
-  "imageWidth": 200,
-  "description": ""
+  "vehicle": {
+    "bodyColor": ["red", "white", "blue"],
+    "vehicleType": ["SUV", "sedan", "truck"]
+  }
 }
 ```
+
+可通过 `__widget_types__` 配置下拉框、单选按钮、文本输入框或 `group_id` 选择框。完整格式见[对象级分类示例](../../examples/classification/shape-level/README.md)。加载的配置也可在主窗口使用。
+
+### 选择对象并编辑属性
+
+在下拉框中选择对象，或在预览中点击对象，即可编辑其属性。选择 **All objects** 查看整张图片；使用上一个、下一个按钮或 `Shift+A`、`Shift+D` 切换对象。双击对象或从下拉框选择对象可聚焦预览。
+
+<img src="../../examples/classification/shape-level/.data/annotated_attributes.png" width="100%" />
+
+预览工具可显示标签、遮罩背景、适应窗口或宽度；也可通过滚轮缩放、拖动平移。适应快捷键使用主窗口配置，默认分别为 `Ctrl+F` 和 `Ctrl+Shift+F`。
+
+## AI 辅助标注
+
+### 配置模型
+
+在 [Chatbot](./chatbot.md) 中配置可用的视觉语言模型。批量 AI 面板可搜索并选择模型、编辑提示词、设置并发数；齿轮按钮打开 Chatbot 设置，切换模型会同步到 Chatbot 当前配置。
+
+<img src="../../assets/resources/image_classifier/batch_assistance.png" width="60%" />
+
+### 处理当前图片
+
+- **MultiClass / MultiLabel**：点击类别工具栏的 AI 图标，使用或编辑默认提示词，处理当前图片。
+- **MultiTask**：加载属性配置后，点击 AI 图标处理选中对象；选择 **All objects** 时处理当前图片中已配置属性的所有对象。
+
+多任务推理使用对象裁剪图、类别和属性配置。候选项结果必须匹配配置；无法判断的值可留空，`group_id` 不参与 AI 推理。批量提示词中的 `@object` 和 `@attributes` 会替换为对应对象的类别及属性配置。
+
+### 批量自动运行
+
+点击 **AutoRun**，选择起止图片；范围包含两端，默认从当前图片到最后一张。在 AI 面板确认模型和提示词，并设置 1～8 个并发请求（默认 2），点击 **Generate**。MultiClass / MultiLabel 处理整张图片，MultiTask 处理所选图片中已配置属性的对象。
+
+生成前可确认覆盖提示，也可勾选 **Don't show again**。进度窗口支持取消并报告完成、跳过和失败数量；已完成的结果会保留。多任务批处理结束且有成功结果时，会选中当前图片的第一个对象；单对象推理保持原选择。请复核 AI 结果。
+
+## 保存与导出
+
+图像级分类存储在标注文件顶层的 `flags` 中，多任务属性存储在各对象的 `shapes[].attributes` 中，两者相互独立。当前图片的修改遵循主窗口自动保存设置；未开启时需返回主窗口手动保存。
+
+批量处理其他图片时，结果直接写入标注文件。如果文件在处理期间被修改，该结果会跳过并报告失败；MultiTask 会跳过没有标注文件或没有对应属性配置的项。
+
+**Export** 仅支持 MultiClass：它读取已保存的标注，将图片复制到 `classified/<类别>/` 目录，不改变原图。导出前请先保存当前修改。
+
+## 快捷键
+
+| 快捷键 | 功能 |
+| --- | --- |
+| `A` / `D` | 上一张 / 下一张图片 |
+| `Ctrl+A` / `Ctrl+D` | 上一张 / 下一张未标注图片（图像级分类） |
+| `0–9` | 选择或取消选择对应编号的图像类别 |
+| `Shift+A` / `Shift+D` | 上一个 / 下一个对象（MultiTask） |
+| `Ctrl+F` / `Ctrl+Shift+F` | 适应窗口 / 适应宽度（MultiTask，默认配置） |
+
+macOS 上使用对应的 `⌘` 组合键。更多数据格式说明见[用户手册](./user_guide.md#14-保存标签数据)。

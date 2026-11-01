@@ -18,11 +18,14 @@ from anylabeling.views.labeling import utils
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.widgets.popup import Popup
+from anylabeling.views.labeling.widgets.panel import RoundedPanel
 from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import (
     get_cancel_btn_style,
+    get_checkbox_indicator_style,
     get_dialog_style,
     get_ok_btn_style,
+    get_scrollbar_style,
     get_settings_combo_style,
     get_spinbox_style,
     get_table_item_bg_color,
@@ -776,6 +779,8 @@ class LabelModifyDialog(QtWidgets.QDialog):
         super(LabelModifyDialog, self).__init__(parent)
         self.parent = parent
         self.opacity = opacity
+        self._lock_changes = {}
+        self.annotations_changed = False
         self.image_file_list = self.get_image_file_list()
         self.start_index = 1
         self.end_index = len(self.image_file_list)
@@ -784,6 +789,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
     def init_ui(self):
         """Initialize the user interface."""
+
         self.setWindowTitle(self.tr("Label Change Manager"))
         self.setWindowFlags(
             self.windowFlags()
@@ -793,10 +799,22 @@ class LabelModifyDialog(QtWidgets.QDialog):
         self.resize(700, 400)
         self.move_to_center()
 
-        title_list = ["Category", "Delete", "New Value", "Visible", "Color"]
+        title_list = [
+            "Category",
+            "Delete",
+            "New Value",
+            "Visible",
+            "Lock",
+            "Color",
+        ]
         self.table_widget = QTableWidget(self)
         self.table_widget.setColumnCount(len(title_list))
         self.table_widget.setHorizontalHeaderLabels(title_list)
+        self.table_widget.horizontalHeaderItem(4).setToolTip(
+            self.tr(
+                "Session-only category lock; independent of the file range"
+            )
+        )
         self.table_widget.setEditTriggers(
             QtWidgets.QAbstractItemView.EditTrigger.DoubleClicked
         )
@@ -898,7 +916,6 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
             delete_checkbox = QCheckBox()
             delete_checkbox.setChecked(info["delete"])
-            delete_checkbox.setIcon(QtGui.QIcon(":/images/images/delete.png"))
             delete_checkbox.stateChanged.connect(
                 lambda state, row=i: self.on_delete_checkbox_changed(
                     row, state
@@ -948,15 +965,45 @@ class LabelModifyDialog(QtWidgets.QDialog):
             visible_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             visible_layout.addWidget(visible_checkbox)
 
+            lock_checkbox = QCheckBox()
+            lock_checkbox.setChecked(info.get("locked", False))
+            lock_checkbox.toggled.connect(
+                lambda locked, label=label: self._lock_changes.update(
+                    {label: locked}
+                )
+            )
+
             color = QColor(*info["color"])
             color.setAlpha(info["opacity"])
             color_button = LabelColorButton(color, self)
             color_button.setParent(self.table_widget)
             self.table_widget.setItem(i, 0, class_item)
-            self.table_widget.setCellWidget(i, 1, delete_checkbox)
+            self.table_widget.setCellWidget(
+                i, 1, self._checkbox_container(delete_checkbox)
+            )
             self.table_widget.setCellWidget(i, 2, value_edit)
             self.table_widget.setCellWidget(i, 3, visible_container)
-            self.table_widget.setCellWidget(i, 4, color_button)
+            self.table_widget.setCellWidget(
+                i, 4, self._checkbox_container(lock_checkbox)
+            )
+            self.table_widget.setCellWidget(i, 5, color_button)
+
+    @staticmethod
+    def _checkbox_container(checkbox):
+        container = QtWidgets.QWidget()
+        layout = QtWidgets.QHBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(checkbox)
+        return container
+
+    def _get_checkbox(self, row, column):
+        return (
+            self.table_widget.cellWidget(row, column)
+            .layout()
+            .itemAt(0)
+            .widget()
+        )
 
     def _get_value_edit(self, row):
         return self.table_widget.cellWidget(row, 2)
@@ -987,7 +1034,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
             f"QLineEdit:focus {{ background-color: {t['background_secondary']}; }}"
         )
         value_edit = self._get_value_edit(row)
-        if state == QtCore.Qt.CheckState.Checked:
+        if state == QtCore.Qt.CheckState.Checked.value:
             value_edit.setReadOnly(True)
             value_edit.setStyleSheet(
                 _base + f"QLineEdit {{ background-color: {t['surface']};"
@@ -998,7 +1045,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
             value_edit.setStyleSheet(_base)
 
     def on_value_edit_changed(self, row, text):
-        delete_checkbox = self.table_widget.cellWidget(row, 1)
+        delete_checkbox = self._get_checkbox(row, 1)
         delete_checkbox.setEnabled(not bool(text))
 
     def on_visible_checkbox_changed(self, row, state):
@@ -1025,7 +1072,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
     def show_context_menu(self, pos):
         column = self.table_widget.columnAt(pos.x())
-        if column != 3:
+        if column not in (3, 4):
             return
 
         menu = QtWidgets.QMenu(self)
@@ -1034,9 +1081,11 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
         action = menu.exec(self.table_widget.mapToGlobal(pos))
         if action == select_all_action:
-            self.select_all_visible()
+            for row in range(self.table_widget.rowCount()):
+                self._get_checkbox(row, column).setChecked(True)
         elif action == deselect_all_action:
-            self.deselect_all_visible()
+            for row in range(self.table_widget.rowCount()):
+                self._get_checkbox(row, column).setChecked(False)
 
     def select_all_visible(self):
         for i in range(self.table_widget.rowCount()):
@@ -1069,7 +1118,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
         for i in range(total_num):
             label = self.table_widget.item(i, 0).text()
-            delete_checkbox = self.table_widget.cellWidget(i, 1)
+            delete_checkbox = self._get_checkbox(i, 1)
             value_edit = self._get_value_edit(i)
 
             is_delete = delete_checkbox.isChecked()
@@ -1078,11 +1127,14 @@ class LabelModifyDialog(QtWidgets.QDialog):
             visible_container = self.table_widget.cellWidget(i, 3)
             visible_checkbox = visible_container.layout().itemAt(0).widget()
             is_visible = visible_checkbox.isChecked()
+            lock_checkbox = self._get_checkbox(i, 4)
+            locked = lock_checkbox.isChecked()
 
             # Update the label info in the temporary dictionary
             self.parent.label_info[label]["delete"] = is_delete
             self.parent.label_info[label]["value"] = new_value
             self.parent.label_info[label]["visible"] = is_visible
+            self.parent.label_info[label]["locked"] = locked
 
             # Update the color
             color = self.parent.label_info[label]["color"]
@@ -1103,8 +1155,37 @@ class LabelModifyDialog(QtWidgets.QDialog):
             else:
                 updated_label_info[label] = self.parent.label_info[label]
 
+        self.annotations_changed = any(
+            info["delete"] or info["value"]
+            for info in self.parent.label_info.values()
+        )
         if self.modify_label(start_index, end_index):
+            applied_locks = {}
+            states = self.parent.unique_label_list.lock_states
+            for label, info in self.parent.label_info.items():
+                if info["delete"]:
+                    states.pop(label, None)
+                    continue
+                target = info["value"] or label
+                if target != label and label in states:
+                    states[target] = states.pop(label)
+                if label in self._lock_changes:
+                    states[target] = self._lock_changes[label]
+                    applied_locks[target] = self._lock_changes[label]
+                for item in self.parent.unique_label_list.find_items_by_label(
+                    target
+                ):
+                    self.parent.unique_label_list.set_item_locked(
+                        item, states.get(target, False)
+                    )
             self.parent.label_info = updated_label_info
+            for label, locked in applied_locks.items():
+                items = self.parent.unique_label_list.find_items_by_label(
+                    label
+                )
+                self.parent.toggle_unique_label_items_lock(
+                    items, locked=locked
+                )
             if hasattr(self.parent, "apply_label_visibility"):
                 self.parent.apply_label_visibility()
             popup = Popup(
@@ -1124,6 +1205,11 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
     def modify_label(self, start_index: int = -1, end_index: int = -1):
         try:
+            if not any(
+                info["delete"] or info["value"]
+                for info in self.parent.label_info.values()
+            ):
+                return True
             if start_index == -1:
                 start_index = self.start_index
             if end_index == -1:
@@ -1146,7 +1232,9 @@ class LabelModifyDialog(QtWidgets.QDialog):
                     label = shape["label"]
                     if self.parent.label_info[label][
                         "delete"
-                    ] and not shape.get("locked", False):
+                    ] and not self.parent.unique_label_list.lock_states.get(
+                        label, False
+                    ):
                         continue
                     if self.parent.label_info[label]["value"]:
                         shape["label"] = self.parent.label_info[label]["value"]
@@ -1181,7 +1269,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
         for i in range(self.parent.unique_label_list.count()):
             item = self.parent.unique_label_list.item(i)
             if item:
-                label_text = item.text()
+                label_text = item.data(Qt.ItemDataRole.UserRole)
                 if label_text:
                     classes.add(label_text)
 
@@ -1216,6 +1304,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 color=color,
                 opacity=opacity,
                 visible=visible,
+                locked=self.parent.unique_label_list.lock_states.get(c, False),
             )
 
     def update_range(self):
@@ -1290,19 +1379,37 @@ class LabelDialog(QtWidgets.QDialog):
         t = get_theme()
         self.setStyleSheet(f"""
             QDialog#LabelDialog QLineEdit,
-            QDialog#LabelDialog QTextEdit {{
+            QDialog#LabelDialog QTextEdit,
+            QDialog#LabelDialog QListWidget {{
                 background-color: {t["background_secondary"]};
                 color: {t["text"]};
                 border: 1px solid {t["border"]};
-                border-radius: 0px;
+                border-radius: 8px;
                 margin: 0px;
                 selection-background-color: {t["selection"]};
+                selection-color: {t["selection_text"]};
             }}
             QDialog#LabelDialog QLineEdit {{
                 padding: 2px 4px;
             }}
             QDialog#LabelDialog QTextEdit {{
                 padding: 4px;
+            }}
+            QDialog#LabelDialog QListWidget {{
+                padding: 0px;
+                outline: none;
+            }}
+            QDialog#LabelDialog QListWidget#labelChoices {{
+                border: none;
+                border-radius: 0px;
+            }}
+            QDialog#LabelDialog QListWidget::item {{
+                padding: 2px 4px;
+                border-radius: 0px;
+            }}
+            QDialog#LabelDialog QListWidget::item:selected {{
+                background-color: {t["selection"]};
+                color: {t["selection_text"]};
             }}
             QDialog#LabelDialog QLineEdit:hover,
             QDialog#LabelDialog QTextEdit:hover {{
@@ -1316,7 +1423,7 @@ class LabelDialog(QtWidgets.QDialog):
                 background-color: {t["surface"]};
                 color: {t["text"]};
                 border: 1px solid {t["border"]};
-                border-radius: 0px;
+                border-radius: 8px;
                 margin: 0px;
                 min-width: 72px;
                 min-height: 22px;
@@ -1329,6 +1436,7 @@ class LabelDialog(QtWidgets.QDialog):
             QDialog#LabelDialog QPushButton:pressed {{
                 background-color: {t["surface_pressed"]};
             }}
+            {get_scrollbar_style()}
         """)
         control_height = 24
         self.edit = LabelQLineEdit()
@@ -1350,6 +1458,13 @@ class LabelDialog(QtWidgets.QDialog):
 
         # Add difficult checkbox
         self.edit_difficult = QtWidgets.QCheckBox(self.tr("useDifficult"))
+        self.edit_difficult.setStyleSheet(get_checkbox_indicator_style() + f"""
+                QCheckBox::indicator:checked {{
+                    background-color: {t["primary"]};
+                    border-color: {t["primary"]};
+                    image: url(:/images/images/checkmark-white.svg);
+                }}
+            """)
         self.edit_difficult.setChecked(difficult)
 
         # Add linking input
@@ -1375,34 +1490,30 @@ class LabelDialog(QtWidgets.QDialog):
 
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(10, 10, 10, 10)
+        layout_fields = QtWidgets.QGridLayout()
+        layout_fields.setHorizontalSpacing(6)
+        layout_fields.setColumnStretch(0, 4)
+        layout_fields.setColumnStretch(1, 2)
         if show_text_field:
-            layout_edit = QtWidgets.QHBoxLayout()
-            layout_edit.setSpacing(6)
-            layout_edit.addWidget(self.edit, 4)
-            layout_edit.addWidget(self.edit_group_id, 2)
-            layout.addLayout(layout_edit)
+            layout_fields.addWidget(self.edit, 0, 0)
+            layout_fields.addWidget(self.edit_group_id, 0, 1)
 
         # Add linking layout
-        layout_linking = QtWidgets.QHBoxLayout()
-        layout_linking.setSpacing(6)
-        layout_linking.addWidget(self.linking_input, 4)
-        layout_linking.addWidget(self.add_linking_button, 2)
-        layout.addLayout(layout_linking)
+        layout_fields.addWidget(self.linking_input, 1, 0)
+        layout_fields.addWidget(self.add_linking_button, 1, 1)
+        layout.addLayout(layout_fields)
         layout.addWidget(self.linking_list)
 
         # buttons
-        self.button_box = bb = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.StandardButton.Ok
-            | QtWidgets.QDialogButtonBox.StandardButton.Cancel,
-            QtCore.Qt.Orientation.Horizontal,
-            self,
-        )
-        bb.button(bb.StandardButton.Ok).setIcon(utils.new_icon("done"))
-        bb.button(bb.StandardButton.Cancel).setIcon(utils.new_icon("undo"))
-        bb.button(bb.StandardButton.Ok).setFixedHeight(control_height)
-        bb.button(bb.StandardButton.Cancel).setFixedHeight(control_height)
-        bb.accepted.connect(self.validate)
-        bb.rejected.connect(self.reject)
+        ok_button = QtWidgets.QPushButton(self.tr("OK"))
+        cancel_button = QtWidgets.QPushButton(self.tr("Cancel"))
+        ok_button.setIcon(utils.new_icon("check"))
+        cancel_button.setIcon(utils.new_icon("undo"))
+        ok_button.setFixedHeight(control_height)
+        cancel_button.setFixedHeight(control_height)
+        ok_button.setDefault(True)
+        ok_button.clicked.connect(self.validate)
+        cancel_button.clicked.connect(self.reject)
 
         # text edit
         self.edit_description = QtWidgets.QTextEdit()
@@ -1411,13 +1522,53 @@ class LabelDialog(QtWidgets.QDialog):
         layout.addWidget(self.edit_description)
 
         # difficult & confirm button
-        layout_button = QtWidgets.QHBoxLayout()
-        layout_button.addWidget(self.edit_difficult)
-        layout_button.addWidget(self.button_box)
+        layout_button = QtWidgets.QGridLayout()
+        layout_button.setHorizontalSpacing(6)
+        self.review_group = QtWidgets.QButtonGroup(self)
+        self.review_buttons = {}
+        for column, (status, title, control) in enumerate(
+            (
+                ("pending", self.tr("Pending"), self.edit_difficult),
+                ("missed", self.tr("Missed"), ok_button),
+                ("false_positive", self.tr("False Positive"), cancel_button),
+            )
+        ):
+            radio = QtWidgets.QRadioButton(title)
+            radio.setStyleSheet(f"""
+                QRadioButton {{ color: {t["text"]}; spacing: 6px; }}
+                QRadioButton::indicator {{
+                    width: 14px;
+                    height: 14px;
+                    border: 1px solid {t["border_light"]};
+                    border-radius: 8px;
+                    background-color: {t["background_secondary"]};
+                }}
+                QRadioButton::indicator:checked {{
+                    border-color: {t["primary"]};
+                    background: qradialgradient(
+                        cx: 0.5, cy: 0.5, radius: 0.5,
+                        fx: 0.5, fy: 0.5,
+                        stop: 0 {t["primary"]},
+                        stop: 0.5 {t["primary"]},
+                        stop: 0.6 {t["background_secondary"]},
+                        stop: 1 {t["background_secondary"]});
+                }}
+                QRadioButton::indicator:hover {{
+                    border-color: {t["primary"]};
+                }}
+                QRadioButton:focus {{ color: {t["primary"]}; }}
+            """)
+            self.review_group.addButton(radio)
+            self.review_buttons[status] = radio
+            layout_button.addWidget(radio, 0, column)
+            layout_button.addWidget(control, 1, column)
+            layout_button.setColumnStretch(column, 1)
+        self.review_buttons["pending"].setChecked(True)
         layout.addLayout(layout_button)
 
         # label_list
         self.label_list = QtWidgets.QListWidget()
+        self.label_list.setObjectName("labelChoices")
         if self._fit_to_content["row"]:
             self.label_list.setHorizontalScrollBarPolicy(
                 QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
@@ -1438,7 +1589,12 @@ class LabelDialog(QtWidgets.QDialog):
         self.label_list.currentItemChanged.connect(self.label_selected)
         self.label_list.itemDoubleClicked.connect(self.label_double_clicked)
         self.edit.set_list_widget(self.label_list)
-        layout.addWidget(self.label_list)
+        label_panel = RoundedPanel(radius=8)
+        label_panel_layout = QtWidgets.QVBoxLayout(label_panel)
+        label_panel_layout.setContentsMargins(0, 0, 0, 0)
+        label_panel_layout.setSpacing(0)
+        label_panel_layout.addWidget(self.label_list)
+        layout.addWidget(label_panel)
         # label_flags
         if flags is None:
             flags = {}
@@ -1661,6 +1817,13 @@ class LabelDialog(QtWidgets.QDialog):
     def get_difficult_state(self):
         return self.edit_difficult.isChecked()
 
+    def get_review_status(self):
+        return next(
+            status
+            for status, button in self.review_buttons.items()
+            if button.isChecked()
+        )
+
     def get_kie_linking(self):
         kie_linking = []
         for index in range(self.linking_list.count()):
@@ -1678,7 +1841,11 @@ class LabelDialog(QtWidgets.QDialog):
         description=None,
         difficult=False,
         kie_linking=None,
+        review_status="pending",
     ):
+        self.review_buttons.get(
+            review_status, self.review_buttons["pending"]
+        ).setChecked(True)
         if kie_linking is None:
             kie_linking = []
         if self._fit_to_content["row"]:

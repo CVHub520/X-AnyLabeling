@@ -1869,6 +1869,9 @@ class VQADialog(QDialog):
         else:
             self.page_input.setText("1")
 
+    def reject(self):
+        self.close()
+
     def closeEvent(self, event):
         """
         Handle dialog close event and save configuration.

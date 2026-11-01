@@ -3,6 +3,7 @@ import json
 import os
 import re
 import requests
+from urllib.parse import urlsplit
 
 from PyQt6.QtCore import QThread, pyqtSignal
 
@@ -104,6 +105,22 @@ class AIWorkerThread(QThread):
             if not self._cancel_requested():
                 self.finished.emit(result, True, "")
 
+        except requests.exceptions.ConnectionError:
+            if not self._cancel_requested():
+                address = urlsplit(api_address)
+                endpoint = address.hostname or ""
+                if address.port:
+                    endpoint += f":{address.port}"
+                self.finished.emit(
+                    "",
+                    False,
+                    self.tr(
+                        "Cannot connect to the AI service at %s. "
+                        "Check that the service is running and its address is correct, "
+                        "or select another provider in Chatbot (Ctrl+0)."
+                    )
+                    % endpoint,
+                )
         except Exception as e:
             if not self._cancel_requested():
                 self.finished.emit("", False, f"API call failed: {str(e)}")

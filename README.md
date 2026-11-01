@@ -18,7 +18,7 @@
     <a href="https://modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43"><img src="https://img.shields.io/badge/modelscope-X--AnyLabeling-6750FF?link=https%3A%2F%2Fmodelscope.cn%2Fcollections%2FX-AnyLabeling-7b0e1798bcda43"></a>
 </p>
 
-<img src="https://github.com/user-attachments/assets/aa819dae-e38c-4b1c-a4a7-53a873d870e3" alt="X-AnyLabeling interface" width="100%" />
+<img src="assets/resources/interface.webp" alt="X-AnyLabeling interface" width="100%" />
 
 <p align="center">
   <a href="https://xanylabeling.com/docs/x-anylabeling/point_cloud" target="_blank"><img src="assets/resources/pointcloud/pointcloud-3d-det.png" alt="3D Point Cloud Detection" width="50%" /></a><a href="https://xanylabeling.com/docs/x-anylabeling/point_cloud" target="_blank"><img src="assets/resources/pointcloud/pointcloud-3d-seg.png" alt="3D Point Cloud Segmentation" width="50%" /></a>
@@ -28,8 +28,15 @@
 
 ## 🥳 What's New
 
+- `2026-10-31`: Add object-level multi-task attribute annotation with AI-assisted labeling and concurrent inference.
+- `2026-10-30`: Add support for the [Unlimited-OCR-2](./examples/optical_character_recognition/unlimited_ocr_2/README.md) model with image and PDF document parsing with multi-page context.
+- `2026-10-28`: Add support for the [WeVisOne-VL](./examples/vision_foundation/wevisone_vl/README.md) model with detection, referring localization, pointing, counting, OCR, text grounding, segmentation, text and box matting, visual prompting, and freeform instructions.
+- `2026-10-28`: Add support for the [Xiaomi-Lens-0](./examples/vision_foundation/xiaomi_lens/README.md) model with referring comprehension and segmentation, multi-instance grounding, reasoning segmentation, embodied referring, and fine-grained perception.
+- `2026-10-27`: Add [annotation display modes](https://xanylabeling.com/docs/x-anylabeling/user_guide#33-shape-display): color by label, instance, or group, and a binary mask view with white foreground on a black background.
+- `2026-10-27`: Add square annotation support.
+- `2026-10-24`: Add support for smooth zoom, free panning, and boundary clipping on the canvas.
 - `2026-10-18`: Add support for [GroundingPI, GroundAnything, and GroundAnything-VLM](./examples/vision_foundation/groundingpi/README.md) with detection, grounding, referring and category-based pointing, OCR, document layout, GUI grounding, and visual prompting.
-- `2026-10-01`: Add [3D point cloud annotation](./docs/en/point_cloud.md), supporting 3D point cloud detection and segmentation.
+- `2026-10-01`: Add [3D point cloud annotation](https://xanylabeling.com/docs/x-anylabeling/point_cloud), supporting 3D point cloud detection and segmentation.
 - `2026-08-19`: Add support for [image tagging](https://xanylabeling.com/docs/x-anylabeling/user_guide#37-image-tags), with tag creation, editing, reordering, and batch deletion.
 - `2026-08-12`: Add support for [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg) instance segmentation models.
 - `2026-08-08`: Add support for the [RT-DETRv2-OBB](https://xanylabeling.com/examples/detection/obb) rotated object detection model.
@@ -73,8 +80,8 @@
 | 🏷️ Tagging | RAM, RAM++ |
 | 📄 OCR | PP-OCRv4, PP-OCRv5, PP-OCRv6 |
 | 🧾 Layout Analysis | PP-DocLayoutV3 |
-| 📑 Document Parsing | PaddleOCR-VL, PaddleOCR-VL-1.6 |
-| 🗣️ Vision Foundation Models | Rex-Omni, Florence2, LocateAnything, GroundingPI, GroundAnything, GroundAnything-VLM |
+| 📑 Document Parsing | PaddleOCR-VL, PaddleOCR-VL-1.6, Unlimited-OCR-2 |
+| 🗣️ Vision Foundation Models | Rex-Omni, Florence2, LocateAnything, GroundingPI, GroundAnything, GroundAnything-VLM, Xiaomi-Lens-0, WeVisOne-VL |
 | 👁️ Vision Language Models | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ Lane Detection | CLRNet |
 | 🔢 Object Counting | CountGD, GeCO, GeCo2 |
@@ -92,7 +99,7 @@
 6. [VQA](./docs/en/vqa.md)
 7. [Image Classifier](./docs/en/image_classifier.md)
 8. [Video Classifier](./docs/en/video_classifier.md)
-9. [Document Parsing and Intelligent Text Recognition](./docs/en/paddle_ocr.md)
+9. [Document Parser](./docs/en/document_parser.md)
 10. [3D Point Cloud Annotation](./docs/en/point_cloud.md)
 
 ## Examples
@@ -116,6 +123,7 @@
   - [Depth Estimation](./examples/estimation/depth_estimation/README.md)
 - [OCR](./examples/optical_character_recognition/)
   - [Text Recognition](./examples/optical_character_recognition/text_recognition/)
+  - [Unlimited-OCR-2](./examples/optical_character_recognition/unlimited_ocr_2/README.md)
   - [Key Information Extraction](./examples/optical_character_recognition/key_information_extraction/README.md)
 - [MOT](./examples/multiple_object_tracking/README.md)
   - [Tracking by HBB Object Detection](./examples/multiple_object_tracking/README.md)
@@ -127,10 +135,12 @@
   - [SAM3-Video](./examples/interactive_video_object_segmentation/sam3/README.md)
 - [Matting](./examples/matting/)
   - [Image Matting](./examples/matting/image_matting/README.md)
-- [Vision Foundation Models](./examples/vision_foundation/)
+- [VFM](./examples/vision_foundation/)
   - [Rex-Omni](./examples/vision_foundation/rexomni/README.md)
   - [Florence 2](./examples/vision_foundation/florence2/README.md)
   - [LocateAnything](./examples/vision_foundation/locateanything/README.md)
+  - [WeVisOne-VL](./examples/vision_foundation/wevisone_vl/README.md)
+  - [Xiaomi-Lens-0](./examples/vision_foundation/xiaomi_lens/README.md)
   - [GroundingPI / GroundAnything / GroundAnything-VLM](./examples/vision_foundation/groundingpi/README.md)
 - [Counting](./examples/counting/)
   - [GeCo](./examples/counting/geco/README.md)

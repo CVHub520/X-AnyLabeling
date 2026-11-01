@@ -231,7 +231,7 @@ class PPOCRWorkspaceSplitter(QSplitter):
 class PPOCRDialog(QDialog):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        self.setWindowTitle(DEFAULT_WINDOW_TITLE)
+        self.setWindowTitle(self.tr(DEFAULT_WINDOW_TITLE))
         self.setWindowFlags(
             Qt.WindowType.Window
             | Qt.WindowType.WindowMinimizeButtonHint
@@ -853,6 +853,8 @@ class PPOCRDialog(QDialog):
             self._prompting_api_settings = False
 
     def prompt_api_settings_if_needed(self) -> None:
+        if not is_ppocr_api_model_id(self.pipeline.pipeline_model):
+            return
         if self.pipeline.has_required_api_settings():
             return
         self.open_api_settings_dialog()
@@ -1152,7 +1154,9 @@ class PPOCRDialog(QDialog):
         else:
             icon_name, icon_ext = "file", "png"
         self.file_icon_label.setPixmap(
-            QPixmap(new_icon_path(icon_name, icon_ext)).scaled(
+            new_icon(icon_name, icon_ext)
+            .pixmap(16, 16)
+            .scaled(
                 16,
                 16,
                 Qt.AspectRatioMode.KeepAspectRatio,
@@ -2498,7 +2502,11 @@ class PPOCRDialog(QDialog):
             return
         super().dropEvent(event)
 
+    def reject(self) -> None:
+        self.close()
+
     def closeEvent(self, event) -> None:
         self.cancel_event.set()
         self.stop_worker(wait=False)
-        super().closeEvent(event)
+        event.accept()
+        super().reject()

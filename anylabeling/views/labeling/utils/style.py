@@ -195,6 +195,7 @@ def get_normal_button_style():
             height: 24px;
             min-width: 80px;
             padding: 5px 8px;
+            text-align: center;
             border-radius: 8px;
             background-color: {t["surface"]};
             border: 1px solid {t["border_light"]};
@@ -231,6 +232,27 @@ def get_toolbar_scroll_area_style():
     return f"""
         QScrollArea {{
             border: none;
+            background-color: transparent;
+        }}
+        QScrollBar:horizontal {{
+            background-color: transparent;
+            height: 6px;
+            margin: 0;
+        }}
+        QScrollBar::handle:horizontal {{
+            background-color: {t["scrollbar"]};
+            border-radius: 3px;
+            min-width: 20px;
+        }}
+        QScrollBar::handle:horizontal:hover {{
+            background-color: {t["scrollbar_hover"]};
+        }}
+        QScrollBar::add-line:horizontal,
+        QScrollBar::sub-line:horizontal {{
+            width: 0;
+        }}
+        QScrollBar::add-page:horizontal,
+        QScrollBar::sub-page:horizontal {{
             background-color: transparent;
         }}
         QScrollBar:vertical {{
@@ -383,6 +405,7 @@ def get_toggle_button_style(button_color: str):
             height: 24px;
             min-width: 80px;
             padding: 5px 8px;
+            text-align: center;
             border-radius: 8px;
             background-color: {button_color};
             border: 1px solid {t["border_light"]};
@@ -478,6 +501,51 @@ def get_double_spinbox_style():
     """
 
 
+def get_scrollbar_style() -> str:
+    t = get_theme()
+    return f"""
+        QScrollBar:vertical {{
+            background-color: {t["background_secondary"]};
+            width: 8px;
+            margin: 0;
+        }}
+        QScrollBar::handle:vertical {{
+            background-color: {t["scrollbar"]};
+            border-radius: 4px;
+            min-height: 20px;
+        }}
+        QScrollBar::handle:vertical:hover {{
+            background-color: {t["scrollbar_hover"]};
+        }}
+        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
+            height: 0;
+        }}
+        QScrollBar:horizontal {{
+            background-color: {t["background_secondary"]};
+            height: 8px;
+            margin: 0;
+        }}
+        QScrollBar::handle:horizontal {{
+            background-color: {t["scrollbar"]};
+            border-radius: 4px;
+            min-width: 20px;
+        }}
+        QScrollBar::handle:horizontal:hover {{
+            background-color: {t["scrollbar_hover"]};
+        }}
+        QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{
+            width: 0;
+        }}
+        QScrollBar::add-page, QScrollBar::sub-page {{
+            background: transparent;
+        }}
+        QAbstractScrollArea::corner {{
+            background-color: {t["background_secondary"]};
+            border: none;
+        }}
+    """
+
+
 def get_dock_style() -> str:
     """
     Returns a theme-aware stylesheet for QDockWidget and its child widgets.
@@ -562,38 +630,7 @@ def get_dock_style() -> str:
             background-color: transparent;
             color: {t["text"]};
         }}
-        QScrollBar:vertical {{
-            background-color: {t["background_secondary"]};
-            width: 8px;
-            margin: 0;
-        }}
-        QScrollBar::handle:vertical {{
-            background-color: {t["scrollbar"]};
-            border-radius: 4px;
-            min-height: 20px;
-        }}
-        QScrollBar::handle:vertical:hover {{
-            background-color: {t["scrollbar_hover"]};
-        }}
-        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
-            height: 0;
-        }}
-        QScrollBar:horizontal {{
-            background-color: {t["background_secondary"]};
-            height: 8px;
-            margin: 0;
-        }}
-        QScrollBar::handle:horizontal {{
-            background-color: {t["scrollbar"]};
-            border-radius: 4px;
-            min-width: 20px;
-        }}
-        QScrollBar::handle:horizontal:hover {{
-            background-color: {t["scrollbar_hover"]};
-        }}
-        QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{
-            width: 0;
-        }}
+        {get_scrollbar_style()}
         QCheckBox {{
             color: {t["text"]};
         }}
@@ -649,7 +686,7 @@ def get_dock_style() -> str:
     """
 
 
-def get_panel_style() -> str:
+def get_panel_style(radius=12) -> str:
     """
     Returns a stylesheet for a sidebar panel QFrame container.
 
@@ -665,7 +702,7 @@ def get_panel_style() -> str:
         f"QFrame#sidebarPanel {{"
         f" background-color: {t['surface']};"
         f" border: 1px solid {t['border']};"
-        f" border-radius: 6px;"
+        f" border-radius: {radius}px;"
         f" }}"
     )
 
@@ -918,38 +955,7 @@ def get_dialog_style() -> str:
             border-bottom: 1px solid {t["border"]};
             padding: 4px 8px;
         }}
-        QScrollBar:vertical {{
-            background-color: {t["background_secondary"]};
-            width: 8px;
-            margin: 0;
-        }}
-        QScrollBar::handle:vertical {{
-            background-color: {t["scrollbar"]};
-            border-radius: 4px;
-            min-height: 20px;
-        }}
-        QScrollBar::handle:vertical:hover {{
-            background-color: {t["scrollbar_hover"]};
-        }}
-        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
-            height: 0;
-        }}
-        QScrollBar:horizontal {{
-            background-color: {t["background_secondary"]};
-            height: 8px;
-            margin: 0;
-        }}
-        QScrollBar::handle:horizontal {{
-            background-color: {t["scrollbar"]};
-            border-radius: 4px;
-            min-width: 20px;
-        }}
-        QScrollBar::handle:horizontal:hover {{
-            background-color: {t["scrollbar_hover"]};
-        }}
-        QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{
-            width: 0;
-        }}
+        {get_scrollbar_style()}
     """
 
 

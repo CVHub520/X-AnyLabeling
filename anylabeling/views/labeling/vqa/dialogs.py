@@ -14,7 +14,6 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QMessageBox,
     QPushButton,
-    QGraphicsDropShadowEffect,
     QTableWidget,
     QTableWidgetItem,
     QTextEdit,
@@ -29,6 +28,7 @@ from anylabeling.views.labeling.vqa.config import (
     get_prompts_config_path,
     SUPPORTED_WIDGETS,
 )
+from anylabeling.views.labeling.utils.theme import get_theme
 from anylabeling.views.labeling.vqa.style import (
     get_content_input_style,
     get_component_dialog_combobox_style,
@@ -485,16 +485,9 @@ class AILoadingDialog(QDialog):
 
         layout.addLayout(button_layout)
 
-        self.setWindowFlags(
-            Qt.WindowType.Dialog
-            | Qt.WindowType.FramelessWindowHint
-            | Qt.WindowType.WindowStaysOnTopHint
+        self.setStyleSheet(
+            f"AILoadingDialog {{ background-color: {get_theme()['background']}; }}"
         )
-        shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(15)
-        shadow.setColor(QColor(0, 0, 0, 25))
-        shadow.setOffset(0, 4)
-        self.setGraphicsEffect(shadow)
 
     def setup_animation(self):
         self.timer = QTimer()

@@ -29,6 +29,7 @@ qt_image_allocation_limit: null  # null keeps Qt default (256 MB); 0 disables th
 system_clipboard: false
 switch_to_checked: false
 file_list_checkbox_editable: false
+image_jump_step: 10
 
 flags: null
 label_flags: null
@@ -91,6 +92,7 @@ fit_to_content:
 
 # canvas
 canvas:
+  wheel_navigation_mode: direct
   label_font_size: 8
   epsilon: 10.0
   # None: do nothing
@@ -102,7 +104,7 @@ canvas:
   # The max number of edits we can undo
   num_backups: 10
   wheel_rectangle_editing:
-    enable: true
+    enable: false
     adjust_step: 2.0
     scale_step: 0.05
   crosshair:
@@ -160,6 +162,8 @@ shortcuts:
   open_next_unchecked: Ctrl+Shift+D
   open_prev_unchecked: Ctrl+Shift+A
   toggle_annotation_checked: Ctrl+Alt+K
+  clear_annotation_checked: Ctrl+Alt+U
+  fail_annotation_checked: Ctrl+Alt+J
 
   zoom_in: [Ctrl++]
   zoom_out: Ctrl+-

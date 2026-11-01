@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-DEFAULT_WINDOW_TITLE = "PaddleOCR"
+DEFAULT_WINDOW_TITLE = "Document Parser"
 DEFAULT_WINDOW_SIZE = (1560, 920)
 LEFT_PANEL_WIDTH = 240
 MIN_DIALOG_WIDTH = 1200

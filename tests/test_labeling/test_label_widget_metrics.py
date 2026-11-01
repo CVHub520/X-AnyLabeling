@@ -1,6 +1,7 @@
 import os
 from types import SimpleNamespace
 import unittest
+from unittest.mock import Mock
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -180,12 +181,19 @@ class TestLabelWidgetMetrics(unittest.TestCase):
             tr=lambda text: text,
         )
 
-        for checked, status in ((True, "Checked"), (False, "Unchecked")):
+        widget._annotation_checked_text = lambda: (
+            LabelingWidget._annotation_checked_text(widget)
+        )
+        for checked, status in (
+            (True, "Check Passed"),
+            (False, "Unchecked"),
+            ("failed", "Check Failed"),
+        ):
             widget._annotation_checked = lambda value=checked: value
             title = LabelingWidget._window_title(widget)
             self.assertEqual(
                 title,
-                f"X-AnyLabeling - image.jpg [{status}] [640x480] [2/10]",
+                f"X-AnyLabeling - /tmp/image.jpg [{status}] [640x480] [2/10]",
             )
 
     def test_checked_state_sync_refreshes_window_title(self):
@@ -193,6 +201,10 @@ class TestLabelWidgetMetrics(unittest.TestCase):
 
         calls = []
         widget = SimpleNamespace(
+            canvas_adjustment=SimpleNamespace(
+                set_status=lambda status: calls.append(status)
+            ),
+            _annotation_checked=lambda: "failed",
             _update_annotation_checked_action=lambda: calls.append("action"),
             _update_current_file_checked_item=lambda: calls.append("item"),
             update_progress_title=lambda: calls.append("title"),
@@ -200,7 +212,7 @@ class TestLabelWidgetMetrics(unittest.TestCase):
 
         LabelingWidget._sync_annotation_checked_state(widget)
 
-        self.assertEqual(calls, ["action", "item", "title"])
+        self.assertEqual(calls, ["failed", "action", "item", "title"])
 
     def test_right_double_click_does_not_emit_item_double_clicked(self):
         from anylabeling.views.labeling.widgets import (
@@ -279,6 +291,7 @@ class TestLabelWidgetMetrics(unittest.TestCase):
         widget = SimpleNamespace(
             label_list=SimpleNamespace(selected_items=lambda: [item]),
             actions=SimpleNamespace(toggle_shape_lock=action),
+            refresh_panel_controls=Mock(),
         )
 
         LabelingWidget.refresh_shape_lock_action(widget)

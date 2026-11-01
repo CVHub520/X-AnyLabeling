@@ -55,7 +55,7 @@ class TestCuboidInteraction(unittest.TestCase):
         self.assertNotIn(4, visible_controls)
         self.assertNotIn(7, visible_controls)
 
-    def test_hovered_cuboid_draws_visible_controls(self):
+    def test_cuboid_controls_require_selection(self):
         shape = self.create_cuboid_shape(depth_x=24.0, depth_y=-12.0)
         shape.selected = False
         shape.hovered = True
@@ -70,6 +70,9 @@ class TestCuboidInteraction(unittest.TestCase):
         image = QtGui.QImage(256, 256, QtGui.QImage.Format.Format_ARGB32)
         image.fill(QtGui.QColor(0, 0, 0, 0))
         painter = QtGui.QPainter(image)
+        shape.paint(painter)
+        self.assertEqual(drawn_indices, [])
+        shape.selected = True
         shape.paint(painter)
         painter.end()
 

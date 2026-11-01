@@ -1,5 +1,120 @@
 # X-AnyLabeling Changelog
 
+## `v4.3.0` (Nov 1, 2026)
+
+X-AnyLabeling 4.3.0 adds object-level multi-task attribute annotation and expands OCR workflows, with improved canvas controls and navigation.
+
+### 🚀 New Features
+
+- Add object-level multi-task attribute annotation with AI-assisted labeling and concurrent inference.
+- Integrate Unlimited-OCR-2 with joint multi-page PDF document parsing.
+- Add annotation review status controls to the canvas panel.
+- Support a configurable image navigation step.
+
+### 🐛 Bug Fixes
+
+- Respect the annotation output directory when exporting PPOCR annotations. (#1482)
+- Prevent shortcuts from triggering hidden auto-labeling controls.
+- Limit annotation opacity adjustments to shape fills.
+
+### 🛠️ Improvements
+
+- Improve canvas controls and rotation interactions.
+- Add Settings to the File menu and clarify workflow names.
+- Refresh the interface screenshot in the English and Chinese README files.
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @CVHub520 and @zhixuwei
+
+## `v4.2.3` (Oct 30, 2026)
+
+X-AnyLabeling 4.2.3 adds configurable wheel navigation modes, improves magic wand selection, and fixes interface scaling and workflow window handling.
+
+### 🚀 New Features
+
+- Add configurable wheel navigation modes for the canvas.
+
+### 🐛 Bug Fixes
+
+- Prevent UI scaling oscillation by using the top-level window size.
+- Unify workflow dialog exit handling and restore the main window when the dialog closes.
+
+### 🛠️ Improvements
+
+- Optimize magic wand selection and keep it active between shapes.
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+## `v4.2.2` (Oct 28, 2026)
+
+X-AnyLabeling 4.2.2 expands canvas annotation and visualization controls and adds remote model result previews and task examples.
+
+### 🚀 New Features
+
+- Support square shape annotation and Shift-constrained square drawing.
+- Show live shape measurements on the canvas.
+- Add label, instance, group, and binary mask display modes.
+- Add WeVisOne-VL result previews and task examples.
+
+### 🐛 Bug Fixes
+
+- Enable horizontal toolbar scrolling with the mouse wheel.
+
+### 🛠️ Improvements
+
+- Add visualization controls to the main toolbar.
+- Enable the image tags panel by default.
+- Document Xiaomi-Lens-0 tasks with verified result screenshots.
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+## `v4.2.1` (Oct 26, 2026)
+
+X-AnyLabeling 4.2.1 refreshes the application interface and improves annotation review, canvas interaction, and image switching performance.
+
+### 🚀 New Features
+
+- Add three-state annotation review and object review statuses with shortcuts and search filters.
+- Add session-only locking and bulk visibility controls for labels and shapes.
+- Add an expandable description editor and document text editing.
+- Support smooth zoom, free panning, boundary clipping, and right-button panning while drawing shapes.
+- Support deleting polygon vertices by double-clicking.
+- Adapt interface density to the window size.
+
+### 🐛 Bug Fixes
+
+- Import COCO RLE annotations without silently losing annotations.
+- Translate the video classifier interface through embedded resources.
+- Preserve error fallbacks while allowing interrupts.
+- Prevent false edge hits caused by duplicate polygon vertices and require explicit selection before editing shape vertices.
+- Unlock all items when any label or shape is locked.
+- Fix panel icon visibility and hover behavior in dark themes.
+- Prevent the point cloud shortcuts dialog close button from shrinking.
+
+### 🛠️ Improvements
+
+- Refresh the application interface with rounded panels, hover controls, overlay scrollbars, and refined sidebar and file list interactions.
+- Improve shape metadata labels, vertex colors, and hover outlines, and hide idle polygon start vertices.
+- Optimize image switching and shape rendering.
+- Unify vision foundation model categories in the documentation.
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v4.2.0` (Oct 18, 2026)
 
 X-AnyLabeling 4.2.0 adds PCD point cloud support and expands remote grounding model workflows.

@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from anylabeling.app_info import __version__
 
@@ -19,7 +19,7 @@ IMAGE_TAGS_FIELD = "tags"
 def create_xlabel_template(
     version: str = __version__,
     flags: Optional[Dict[str, Any]] = None,
-    checked: bool = False,
+    checked: Union[bool, str] = False,
     shapes: Optional[List[Dict[str, Any]]] = None,
     image_path: str = "",
     image_data: Optional[str] = None,

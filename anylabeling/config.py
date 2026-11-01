@@ -160,6 +160,13 @@ def get_default_config():
 
 
 def validate_config_item(key, value):
+    if key == "wheel_navigation_mode" and value not in (
+        "direct",
+        "traditional",
+    ):
+        raise ValueError(
+            f"Unexpected value for config key 'wheel_navigation_mode': {value}"
+        )
     if (
         key == "font_family"
         and value is not None

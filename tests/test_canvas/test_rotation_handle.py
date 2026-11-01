@@ -69,6 +69,33 @@ class TestCanvasRotationHandle(unittest.TestCase):
             self.assertAlmostEqual(point.x(), expected_x, places=6)
             self.assertAlmostEqual(point.y(), expected_y, places=6)
 
+    def test_drag_shows_degrees_when_setting_is_disabled(self):
+        shape = self.make_rotation()
+        shape.line_color = QtGui.QColor("cyan")
+        self.canvas.shapes = [shape]
+        self.canvas.show_degrees = False
+        self.canvas.show_labels = False
+        self.canvas.show_masks = False
+
+        def render_label():
+            image = QtGui.QImage(
+                self.canvas.size(), QtGui.QImage.Format.Format_RGB32
+            )
+            self.canvas.render(image)
+            return image.copy(40, 25, 15, 12)
+
+        hidden = render_label()
+        self.canvas._rotation_drag_shape = shape
+        during_drag = render_label()
+        self.canvas._rotation_drag_shape = None
+        self.canvas.show_degrees = True
+        always_visible = render_label()
+
+        self.assertNotEqual(hidden, during_drag)
+        self.assertEqual(during_drag, always_visible)
+        self.canvas.show_degrees = False
+        self.assertEqual(hidden, render_label())
+
     def test_selected_rotation_shape_exposes_handle_above_top_edge(self):
         shape = self.make_rotation()
         self.canvas.shapes = [shape]
@@ -89,6 +116,65 @@ class TestCanvasRotationHandle(unittest.TestCase):
             ),
             shape,
         )
+
+    def test_click_rotation_handle_follows_mouse_until_next_click(self):
+        shape = self.make_rotation()
+        self.canvas.shapes = [shape]
+        self._set_selection([shape])
+        self.canvas.store_shapes()
+        _, handle, center = self.canvas._rotation_handle_geometry(shape)
+        target = QtCore.QPointF(center.x() + 32.0, center.y())
+
+        self.canvas.mousePressEvent(
+            self.mouse_event(
+                QtCore.QEvent.Type.MouseButtonPress,
+                handle,
+                QtCore.Qt.MouseButton.LeftButton,
+                QtCore.Qt.MouseButton.LeftButton,
+            )
+        )
+        self.canvas.mouseReleaseEvent(
+            self.mouse_event(
+                QtCore.QEvent.Type.MouseButtonRelease,
+                handle,
+                QtCore.Qt.MouseButton.LeftButton,
+                QtCore.Qt.MouseButton.NoButton,
+            )
+        )
+        self.assertIs(self.canvas._rotation_drag_shape, shape)
+        cursor = QtWidgets.QApplication.overrideCursor()
+        self.assertEqual(
+            cursor.shape(), QtCore.Qt.CursorShape.ClosedHandCursor
+        )
+        self.canvas.mouseMoveEvent(
+            self.mouse_event(
+                QtCore.QEvent.Type.MouseMove,
+                target,
+                QtCore.Qt.MouseButton.NoButton,
+                QtCore.Qt.MouseButton.NoButton,
+            )
+        )
+        self.assertAlmostEqual(shape.direction, math.pi / 2.0, places=6)
+        self.assertEqual(self.canvas.prev_move_point, target)
+        self.canvas.mousePressEvent(
+            self.mouse_event(
+                QtCore.QEvent.Type.MouseButtonPress,
+                target,
+                QtCore.Qt.MouseButton.LeftButton,
+                QtCore.Qt.MouseButton.LeftButton,
+            )
+        )
+        self.canvas.mouseReleaseEvent(
+            self.mouse_event(
+                QtCore.QEvent.Type.MouseButtonRelease,
+                target,
+                QtCore.Qt.MouseButton.LeftButton,
+                QtCore.Qt.MouseButton.NoButton,
+            )
+        )
+        self.assertIsNone(self.canvas._rotation_drag_shape)
+        self.assertEqual(len(self.canvas.shapes_backups), 2)
+        self.assertIn(shape, self.canvas.selected_shapes)
 
     def test_rotation_handle_drag_rotates_shape_and_stores_history(self):
         shape = self.make_rotation()

@@ -45,14 +45,16 @@ class TestCanvasShapeLock(unittest.TestCase):
         shape.close()
         return shape
 
-    def test_lock_state_round_trip(self):
+    def test_lock_state_is_not_serialized(self):
         shape = self.make_shape(locked=True)
 
         data = shape.to_dict()
         loaded = Shape().load_from_dict(data)
 
-        self.assertTrue(data["locked"])
-        self.assertTrue(loaded.locked)
+        self.assertNotIn("locked", data)
+        self.assertFalse(loaded.locked)
+        data["locked"] = True
+        self.assertFalse(Shape().load_from_dict(data).locked)
         self.assertNotIn("locked", self.make_shape().to_dict())
 
     def test_locked_shape_cannot_move_or_rotate(self):
@@ -136,7 +138,7 @@ class TestCanvasShapeLock(unittest.TestCase):
         self.assertFalse(pasted[0].locked)
         self.assertEqual(pasted[0].points, original_points)
 
-    def test_bulk_conversion_skips_locked_shapes(self):
+    def test_bulk_conversion_ignores_legacy_serialized_locks(self):
         points = [[10, 10], [30, 10], [30, 30], [10, 30]]
         data = {
             "shapes": [
@@ -151,5 +153,5 @@ class TestCanvasShapeLock(unittest.TestCase):
 
         _apply_shape_conversion(data, "rectangle_to_rotation", {})
 
-        self.assertEqual(data["shapes"][0]["shape_type"], "rectangle")
+        self.assertEqual(data["shapes"][0]["shape_type"], "rotation")
         self.assertEqual(data["shapes"][1]["shape_type"], "rotation")

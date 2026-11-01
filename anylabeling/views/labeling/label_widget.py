@@ -16,7 +16,6 @@ from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtGui import QFontMetrics
 from PyQt6.QtWidgets import (
     QButtonGroup,
-    QCheckBox,
     QComboBox,
     QDockWidget,
     QFrame,
@@ -24,7 +23,6 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMessageBox,
-    QPlainTextEdit,
     QPushButton,
     QRadioButton,
     QScrollArea,
@@ -43,15 +41,13 @@ from ...app_info import (
     __preferred_device__,
 )
 from . import utils
+from .utils.qt import apply_application_font
 from .utils.style import (
     get_cancel_btn_style,
-    get_checkbox_indicator_style,
     get_dialog_style,
     get_dock_style,
     get_ok_btn_style,
-    get_panel_style,
-    get_plain_text_edit_style,
-    get_settings_button_style,
+    get_scrollbar_style,
     get_toolbar_scroll_area_style,
 )
 from ...config import get_config, save_config
@@ -74,6 +70,15 @@ from .utils.file_search import (
 from .utils.qt import new_icon_path
 from .utils.theme import get_theme
 from .pointcloud.icons import get_icon
+from .widgets.description_editor import DescriptionEditor
+from .widgets.toolbar import ToolBarScrollArea
+from .widgets.panel import (
+    PanelCheckBox,
+    HoverControl,
+    HoverScrollBars,
+    PanelHeader,
+    RoundedPanel,
+)
 from .widgets import (
     AboutDialog,
     AutoLabelingWidget,
@@ -111,8 +116,9 @@ LABEL_COLORMAP = utils.label_colormap()
 LABEL_OPACITY = 128
 CHECKED_FIELD = "checked"
 FILE_CHECKED_COLOR = "#22A06B"
+FILE_FAILED_COLOR = "#DE350B"
 FILE_UNCHECKED_COLOR = "#8C98A4"
-CHECKED_FIELD_PATTERN = re.compile(r'"checked"\s*:\s*(true|false)')
+CHECKED_FIELD_PATTERN = re.compile(r'"checked"\s*:\s*(true|false|"failed")')
 
 
 def _measure_text_width(font_metrics, text):
@@ -142,7 +148,7 @@ def _find_next_label_loop_shape(shapes, start_index, canvas_shapes):
 
 
 def _create_file_status_icon(color, filled=True):
-    pixmap = QtGui.QPixmap(12, 12)
+    pixmap = QtGui.QPixmap(10, 12)
     pixmap.fill(Qt.GlobalColor.transparent)
     painter = QtGui.QPainter(pixmap)
     painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
@@ -152,9 +158,43 @@ def _create_file_status_icon(color, filled=True):
     else:
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.setPen(QtGui.QPen(QtGui.QColor(color), 1.5))
-    painter.drawEllipse(2, 2, 8, 8)
+    painter.drawEllipse(1, 2, 8, 8)
     painter.end()
     return QtGui.QIcon(pixmap)
+
+
+class FileNameDelegate(QtWidgets.QStyledItemDelegate):
+    def displayText(self, value, locale):
+        return osp.basename(super().displayText(value, locale))
+
+    def sizeHint(self, option, index):
+        size = super().sizeHint(option, index)
+        size.setHeight(QtGui.QFontMetrics(option.font).height() + 4)
+        return size
+
+
+class FileListWidget(QtWidgets.QListWidget):
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.RightButton:
+            event.accept()
+            return
+        super().mousePressEvent(event)
+
+
+class SidebarSplitterHandle(QtWidgets.QSplitterHandle):
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QtGui.QColor(get_theme()["text_secondary"]))
+        center = QtCore.QPointF(self.width() / 2, self.height() / 2)
+        for offset in (-5, 0, 5):
+            painter.drawEllipse(center + QtCore.QPointF(0, offset), 1, 1)
+
+
+class SidebarSplitter(QtWidgets.QSplitter):
+    def createHandle(self):
+        return SidebarSplitterHandle(self.orientation(), self)
 
 
 class LabelingWidget(LabelDialog):
@@ -245,6 +285,7 @@ class LabelingWidget(LabelDialog):
         self.dirty = False
 
         self._no_selection_slot = False
+        self._session_shape_locks = {}
         self._copied_shapes = None
         self._copied_group_id = None
         self._batch_edit_warning_shown = False
@@ -300,11 +341,11 @@ class LabelingWidget(LabelDialog):
         self.shape_dock.setStyleSheet(get_dock_style())
 
         self.unique_label_list = UniqueLabelQListWidget()
-        self.unique_label_list.setToolTip(
-            self.tr(
-                "Select label to start annotating for it. "
-                "Press 'Esc' to deselect."
-            )
+        self.unique_label_list.items_lock_requested.connect(
+            self.toggle_unique_label_items_lock
+        )
+        self.unique_label_list.label_visibility_changed.connect(
+            self.set_label_visibility
         )
         self.load_labels(self._config["labels"])
         self.label_dock = QtWidgets.QDockWidget(self.tr("Labels"), self)
@@ -316,13 +357,11 @@ class LabelingWidget(LabelDialog):
         )
 
         self.shape_text_label = QLabel("Object Text")
-        self.shape_text_edit = QPlainTextEdit()
-        self.shape_text_edit.setStyleSheet(get_plain_text_edit_style())
-        self.description_checkbox = QCheckBox()
+        self.shape_text_edit = DescriptionEditor()
+        self.description_checkbox = PanelCheckBox()
         self.description_checkbox.setChecked(
             self._config["description_dock"]["show"]
         )
-        self.description_checkbox.setStyleSheet(get_checkbox_indicator_style())
         self.description_checkbox.toggled.connect(
             self.toggle_description_visibility
         )
@@ -344,27 +383,37 @@ class LabelingWidget(LabelDialog):
                 "- Attributes: difficult::1, gid::0, shape::1, label::xxx, type::xxx\n"
                 "- Score range: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)\n"
                 "- Description: description::1, description::true, description::yes\n"
-                "- Checked status: checked::1, checked::0\n"
+                "- Check result: checked::passed, checked::failed, checked::unchecked\n"
+                "- Reviewed (passed or failed): checked::1; unchecked: checked::0\n"
+                "- Object review: review::pending, review::missed, review::false_positive\n"
                 "Press Enter to search."
             )
         )
         self.file_search.returnPressed.connect(self.file_search_changed)
         self.file_search.returnPressed.connect(self.file_search.setFocus)
-        self.settings_button = QPushButton(self)
-        self.settings_button.setFixedSize(32, 32)
+        self.settings_button = QtWidgets.QToolButton(self)
+        self.settings_button.setFixedSize(26, 26)
         self.settings_button.setCursor(
             QtCore.Qt.CursorShape.PointingHandCursor
         )
         self.settings_button.setToolTip(self.tr("Settings"))
         self.settings_button.setIcon(utils.new_icon("settings", "svg"))
-        self.settings_button.setIconSize(QtCore.QSize(28, 28))
-        self.settings_button.setStyleSheet(get_settings_button_style())
+        self.settings_button.setIconSize(QtCore.QSize(18, 18))
+        self.settings_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.settings_button.setAccessibleName(self.settings_button.toolTip())
         self.settings_button.clicked.connect(self.open_settings_dialog)
-        self.file_list_widget = QtWidgets.QListWidget()
+        self.file_list_widget = FileListWidget()
         self.file_list_widget.setObjectName("FileList")
-        self.file_list_widget.setIconSize(QtCore.QSize(12, 12))
+        self.file_list_widget.setItemDelegate(
+            FileNameDelegate(self.file_list_widget)
+        )
+        self.file_list_widget.setIconSize(QtCore.QSize(10, 12))
+        self.file_list_widget.setStyleSheet(
+            "QListWidget#FileList::indicator { margin-right: 0; }"
+        )
         self.file_status_icons = {
             True: _create_file_status_icon(FILE_CHECKED_COLOR),
+            "failed": _create_file_status_icon(FILE_FAILED_COLOR),
             False: _create_file_status_icon(
                 FILE_UNCHECKED_COLOR, filled=False
             ),
@@ -391,6 +440,10 @@ class LabelingWidget(LabelDialog):
         self.file_dock.setStyleSheet(get_dock_style())
 
         self.zoom_widget = ZoomWidget()
+        self._zoom_animation = QtCore.QVariantAnimation(self)
+        self._zoom_animation.setDuration(90)
+        self._zoom_animation.setEasingCurve(QtCore.QEasingCurve.Type.OutCubic)
+        self._zoom_animation.valueChanged.connect(self._animate_zoom)
 
         self.navigator_dialog = NavigatorDialog(self)
         self.navigator_dialog.navigator.navigation_requested.connect(
@@ -417,6 +470,9 @@ class LabelingWidget(LabelDialog):
             epsilon=self._config["canvas"]["epsilon"],
             double_click=self._config["canvas"]["double_click"],
             num_backups=self._config["canvas"]["num_backups"],
+            wheel_navigation_mode=self._config["canvas"].get(
+                "wheel_navigation_mode", "direct"
+            ),
             wheel_rectangle_editing=self._config["canvas"][
                 "wheel_rectangle_editing"
             ],
@@ -435,6 +491,8 @@ class LabelingWidget(LabelDialog):
             ),
         )
         self.canvas.zoom_request.connect(self.zoom_request)
+        self.canvas.pan_request.connect(self.pan_canvas)
+        self.canvas.interaction_started.connect(self._zoom_animation.stop)
 
         # Compare view support
         self.compare_view_manager = CompareViewManager(self.canvas, self)
@@ -454,6 +512,14 @@ class LabelingWidget(LabelDialog):
         )
 
         scroll_area = QScrollArea()
+        scroll_area.setStyleSheet(get_scrollbar_style())
+        scroll_bar_policy = (
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+            if self.canvas.wheel_navigation_mode == "traditional"
+            else Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        scroll_area.setHorizontalScrollBarPolicy(scroll_bar_policy)
+        scroll_area.setVerticalScrollBarPolicy(scroll_bar_policy)
         scroll_area.setWidget(self.canvas)
         scroll_area.setWidgetResizable(True)
         self._canvas_scroll_area = scroll_area
@@ -465,6 +531,9 @@ class LabelingWidget(LabelDialog):
         )
         self.canvas_adjustment.brightness_contrast_changed.connect(
             self._on_inline_brightness_contrast
+        )
+        self.canvas_adjustment.status_changed.connect(
+            self.set_annotation_checked
         )
         self.canvas_adjustment.geometry_changed.connect(
             self._position_canvas_adjustment
@@ -498,6 +567,8 @@ class LabelingWidget(LabelDialog):
         self.canvas.scroll_request.connect(self.scroll_request)
         self.canvas.new_shape.connect(self.new_shape)
         self.canvas.show_shape.connect(self.show_shape)
+        self.canvas.show_line_length.connect(self.show_line_length)
+        self.canvas.show_circle_radius.connect(self.show_circle_radius)
         self.canvas.shape_moved.connect(self.set_dirty)
         self.canvas.shape_rotated.connect(self.set_dirty)
         self.canvas.shapes_deleted.connect(self.on_canvas_shapes_deleted)
@@ -534,7 +605,7 @@ class LabelingWidget(LabelDialog):
         )
         self.image_tags_widget.status_message.connect(self.status)
         self.image_tags_widget.set_interactions_enabled(False)
-        self.image_tags_widget.hide()
+        self.image_tags_widget.show()
 
         features = QtWidgets.QDockWidget.DockWidgetFeature(0)
         for dock in [
@@ -587,7 +658,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Open Video"),
             lambda: utils.open_video_file(self),
             shortcuts["open_video"],
-            "video",
+            "file-video-camera",
             self.tr("Open video file"),
         )
         opendir = action(
@@ -611,6 +682,22 @@ class LabelingWidget(LabelDialog):
             shortcuts["open_prev"],
             "prev",
             self.tr("Open prev image"),
+            enabled=False,
+        )
+        jump_next_images = action(
+            self.tr("Forward %s Images") % self._config["image_jump_step"],
+            lambda: self.jump_images(self._config["image_jump_step"]),
+            icon="skip-next",
+            tip=self.tr("Move forward by %s images")
+            % self._config["image_jump_step"],
+            enabled=False,
+        )
+        jump_prev_images = action(
+            self.tr("Back %s Images") % self._config["image_jump_step"],
+            lambda: self.jump_images(-self._config["image_jump_step"]),
+            icon="skip-prev",
+            tip=self.tr("Move back by %s images")
+            % self._config["image_jump_step"],
             enabled=False,
         )
         open_next_unchecked_image = action(
@@ -665,25 +752,54 @@ class LabelingWidget(LabelDialog):
             self.tr("Delete Image File"),
             self.delete_image_file,
             shortcuts["delete_image_file"],
-            "delete",
+            "image-off",
             self.tr("Delete current image file"),
             enabled=True,
         )
+        open_settings = action(
+            self.tr("Settings"),
+            self.open_settings_dialog,
+            icon="settings",
+        )
         toggle_annotation_checked = action(
-            self.tr("Mark as Checked"),
-            self.set_annotation_checked,
+            self.tr("Check Passed"),
+            lambda: self.set_annotation_checked(True),
             shortcuts.get("toggle_annotation_checked"),
-            None,
-            self.tr("Mark current annotation as checked"),
             checkable=True,
             enabled=False,
         )
+        clear_annotation_checked = action(
+            self.tr("Unchecked"),
+            lambda: self.set_annotation_checked(False),
+            shortcuts.get("clear_annotation_checked"),
+            checkable=True,
+            enabled=False,
+        )
+        fail_annotation_checked = action(
+            self.tr("Check Failed"),
+            lambda: self.set_annotation_checked("failed"),
+            shortcuts.get("fail_annotation_checked"),
+            checkable=True,
+            enabled=False,
+        )
+        self.annotation_check_menu = QtWidgets.QMenu(
+            self.tr("Check Status"), self
+        )
+        self.annotation_check_group = QtGui.QActionGroup(self)
+        for check_action in (
+            clear_annotation_checked,
+            toggle_annotation_checked,
+            fail_annotation_checked,
+        ):
+            self.annotation_check_group.addAction(check_action)
+            self.annotation_check_menu.addAction(check_action)
+            self.addAction(check_action)
 
         toggle_compare_view = action(
             self.tr("Compare View"),
             self.toggle_compare_view,
             shortcuts.get("toggle_compare_view"),
-            "compare",
+            "columns-2",
             self.tr("Toggle split-screen compare view"),
             enabled=True,
         )
@@ -867,70 +983,70 @@ class LabelingWidget(LabelDialog):
             self.tr("Digit Shortcut 0"),
             lambda: self.create_digit_mode(0),
             "0",
-            "digit0",
+            None,
             enabled=False,
         )
         digit_shortcut_1 = action(
             self.tr("Digit Shortcut 1"),
             lambda: self.create_digit_mode(1),
             "1",
-            "digit1",
+            None,
             enabled=False,
         )
         digit_shortcut_2 = action(
             self.tr("Digit Shortcut 2"),
             lambda: self.create_digit_mode(2),
             "2",
-            "digit2",
+            None,
             enabled=False,
         )
         digit_shortcut_3 = action(
             self.tr("Digit Shortcut 3"),
             lambda: self.create_digit_mode(3),
             "3",
-            "digit3",
+            None,
             enabled=False,
         )
         digit_shortcut_4 = action(
             self.tr("Digit Shortcut 4"),
             lambda: self.create_digit_mode(4),
             "4",
-            "digit4",
+            None,
             enabled=False,
         )
         digit_shortcut_5 = action(
             self.tr("Digit Shortcut 5"),
             lambda: self.create_digit_mode(5),
             "5",
-            "digit5",
+            None,
             enabled=False,
         )
         digit_shortcut_6 = action(
             self.tr("Digit Shortcut 6"),
             lambda: self.create_digit_mode(6),
             "6",
-            "digit6",
+            None,
             enabled=False,
         )
         digit_shortcut_7 = action(
             self.tr("Digit Shortcut 7"),
             lambda: self.create_digit_mode(7),
             "7",
-            "digit7",
+            None,
             enabled=False,
         )
         digit_shortcut_8 = action(
             self.tr("Digit Shortcut 8"),
             lambda: self.create_digit_mode(8),
             "8",
-            "digit8",
+            None,
             enabled=False,
         )
         digit_shortcut_9 = action(
             self.tr("Digit Shortcut 9"),
             lambda: self.create_digit_mode(9),
             "9",
-            "digit9",
+            None,
             enabled=False,
         )
         edit_mode = action(
@@ -948,7 +1064,7 @@ class LabelingWidget(LabelDialog):
             "brush",
             self.tr(
                 "Select one polygon, then paint to add, hold Ctrl to erase, "
-                "and scroll to resize the brush"
+                "and use Alt+Wheel to resize the brush"
             ),
             enabled=False,
             checkable=True,
@@ -958,7 +1074,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Group Selected Shapes"),
             self.group_selected_shapes,
             shortcuts["group_selected_shapes"],
-            "group-shapes",
+            "group",
             self.tr("Group shapes by assigning a same group_id"),
             enabled=True,
         )
@@ -966,7 +1082,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Ungroup Selected Shapes"),
             self.ungroup_selected_shapes,
             shortcuts["ungroup_selected_shapes"],
-            "ungroup-shapes",
+            "ungroup",
             self.tr("Ungroup shapes"),
             enabled=True,
         )
@@ -983,7 +1099,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Duplicate Polygons"),
             self.duplicate_selected_shape,
             shortcuts["duplicate_polygon"],
-            "copy",
+            "copy-plus",
             self.tr("Create a duplicate of the selected polygons"),
             enabled=False,
         )
@@ -999,7 +1115,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Paste Object"),
             self.paste_selected_shape,
             shortcuts["paste_polygon"],
-            "paste",
+            "clipboard-paste",
             self.tr("Paste copied polygons"),
             enabled=self._config["system_clipboard"],
         )
@@ -1015,7 +1131,7 @@ class LabelingWidget(LabelDialog):
             text=self.tr("Remove Selected Point"),
             slot=self.remove_selected_point,
             shortcut=shortcuts["remove_selected_point"],
-            icon="edit",
+            icon="circle-minus",
             tip=self.tr("Remove selected point from polygon"),
             enabled=False,
         )
@@ -1032,7 +1148,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Hide Selected Polygons"),
             self.hide_selected_polygons,
             shortcuts["hide_selected_polygons"],
-            "hide-selected",
+            "eye-off",
             self.tr("Hide selected polygons"),
             enabled=True,
         )
@@ -1040,7 +1156,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Show Hidden Polygons"),
             self.show_hidden_polygons,
             shortcuts["show_hidden_polygons"],
-            "show-hidden",
+            "eye",
             self.tr("Show hidden polygons"),
             enabled=True,
         )
@@ -1049,7 +1165,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Overview"),
             self.overview,
             shortcuts["show_overview"],
-            icon="overview",
+            icon="chart-column",
             tip=self.tr("Show annotations statistics"),
         )
         save_crop = action(
@@ -1063,7 +1179,7 @@ class LabelingWidget(LabelDialog):
         save_visualization_image = action(
             self.tr("Save Visualization Image"),
             lambda: utils.save_visualization(self, export_type="image"),
-            icon="file",
+            icon="image-down",
             tip=self.tr("Save visualization image"),
         )
         save_visualization_video = action(
@@ -1108,7 +1224,7 @@ class LabelingWidget(LabelDialog):
         copy_coordinates = action(
             self.tr("Copy Coordinates"),
             self.copy_shape_coordinates,
-            icon="copy",
+            icon="map-pin",
             tip=self.tr("Copy shape coordinates to clipboard"),
             enabled=False,
         )
@@ -1116,7 +1232,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Union Selection"),
             self.union_selection,
             shortcuts["union_selected_shapes"],
-            icon="union",
+            icon="combine",
             tip=self.tr("Union multiple selected rectangle shapes"),
             enabled=False,
         )
@@ -1130,69 +1246,69 @@ class LabelingWidget(LabelDialog):
         shape_converter = action(
             self.tr("Shape Converter"),
             lambda: utils.open_shape_converter(self),
-            icon="convert",
+            icon="file-cog",
             tip=self.tr("Open shape converter"),
         )
         open_chatbot = action(
             self.tr("ChatBot"),
             self.open_chatbot,
             shortcuts["open_chatbot"],
-            icon="psyduck",
+            icon="message-circle",
             tip=self.tr("Open chatbot dialog"),
         )
         open_vqa = action(
             self.tr("VQA"),
             self.open_vqa,
             shortcuts["open_vqa"],
-            icon="husky",
+            icon="message-circle-question-mark",
             tip=self.tr("Open VQA dialog"),
         )
         open_pointcloud = action(
             self.tr("Point Cloud"),
             self.open_pointcloud,
             shortcuts.get("open_pointcloud"),
-            icon="cartesian",
+            icon="chart-scatter",
             tip=self.tr("Open point cloud workspace"),
         )
         open_image_classifier = action(
-            self.tr("Classifier"),
+            self.tr("Image Classifier"),
             self.open_image_classifier,
             shortcuts.get(
                 "open_image_classifier", shortcuts.get("open_classifier")
             ),
-            icon="ragdoll",
+            icon="folder-tree",
             tip=self.tr("Open image classifier dialog"),
         )
         open_video_classifier = action(
             self.tr("Video Classifier"),
             self.open_video_classifier,
             shortcuts.get("open_video_classifier"),
-            icon="cavy",
+            icon="clapperboard",
             tip=self.tr("Open video classifier dialog"),
         )
         open_paddleocr = action(
-            self.tr("PaddleOCR"),
+            self.tr("Document Parser"),
             self.open_paddleocr,
             shortcuts["open_paddleocr"],
-            icon="paddlepaddle",
-            tip=self.tr("Open PaddleOCR dialog"),
+            icon="scan-text",
+            tip=self.tr("Open document parser dialog"),
         )
         documentation = action(
             self.tr("Documentation"),
             self.documentation,
-            icon="docs",
+            icon="book-open",
             tip=self.tr("Show documentation"),
         )
         sponsor = action(
             self.tr("Sponsor"),
             self.sponsor,
-            icon="brush_polygon",
+            icon="heart-handshake",
             tip=self.tr("Open sponsor page"),
         )
         about = action(
             self.tr("About"),
             self.about,
-            icon="help",
+            icon="info",
             tip=self.tr("Open about dialog"),
         )
 
@@ -1224,7 +1340,7 @@ class LabelingWidget(LabelDialog):
         ultralytics_train = action(
             "Ultralytics",
             lambda: self.start_training("ultralytics"),
-            icon="ultralytics",
+            icon="cpu-ai",
         )
 
         zoom = QtWidgets.QWidgetAction(self)
@@ -1239,7 +1355,7 @@ class LabelingWidget(LabelDialog):
                 utils.fmt_shortcut(
                     f"{shortcuts['zoom_in']},{shortcuts['zoom_out']}"
                 ),
-                utils.fmt_shortcut(self.tr("Ctrl+Wheel")),
+                self.tr("Wheel"),
             )
         )
         self.zoom_widget.setEnabled(False)
@@ -1264,7 +1380,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Original Size"),
             functools.partial(self.set_zoom, 100),
             shortcuts["zoom_to_original"],
-            "zoom",
+            "scan-search",
             self.tr("Zoom to original size"),
             enabled=False,
         )
@@ -1292,6 +1408,14 @@ class LabelingWidget(LabelDialog):
             checked=self._config["keep_prev_contrast"],
             enabled=True,
         )
+        self.canvas_adjustment.opacity_pin.setChecked(True)
+        for button, keep_action in (
+            (self.canvas_adjustment.brightness_pin, keep_prev_brightness),
+            (self.canvas_adjustment.contrast_pin, keep_prev_contrast),
+        ):
+            button.setChecked(keep_action.isChecked())
+            button.clicked.connect(keep_action.trigger)
+            keep_action.toggled.connect(button.setChecked)
         fit_window = action(
             self.tr("Fit Window"),
             self.set_fit_window,
@@ -1301,6 +1425,7 @@ class LabelingWidget(LabelDialog):
             checkable=True,
             enabled=False,
         )
+        fit_window.setObjectName("fitWindow")
         fit_width = action(
             self.tr("Fit Width"),
             self.set_fit_width,
@@ -1314,7 +1439,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Show Groups"),
             lambda x: self.set_canvas_params("show_groups", x),
             tip=self.tr("Show shape groups"),
-            icon=None,
+            icon="tags",
             checkable=True,
             checked=self._config["show_groups"],
             enabled=True,
@@ -1325,7 +1450,7 @@ class LabelingWidget(LabelDialog):
             lambda x: self.set_canvas_params("show_masks", x),
             shortcut=shortcuts["show_masks"],
             tip=self.tr("Show semi-transparent masks for shapes"),
-            icon=None,
+            icon="layers",
             checkable=True,
             checked=self._config["show_masks"],
             enabled=True,
@@ -1336,7 +1461,7 @@ class LabelingWidget(LabelDialog):
             lambda x: self.set_canvas_params("show_texts", x),
             shortcut=shortcuts["show_texts"],
             tip=self.tr("Show text above shapes"),
-            icon=None,
+            icon="scan-text",
             checkable=True,
             checked=self._config["show_texts"],
             enabled=True,
@@ -1347,7 +1472,7 @@ class LabelingWidget(LabelDialog):
             lambda x: self.set_canvas_params("show_labels", x),
             shortcut=shortcuts["show_labels"],
             tip=self.tr("Show label inside shapes"),
-            icon=None,
+            icon="tag",
             checkable=True,
             checked=self._config["show_labels"],
             enabled=True,
@@ -1357,7 +1482,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Show Scores"),
             lambda x: self.set_canvas_params("show_scores", x),
             tip=self.tr("Show score inside shapes"),
-            icon=None,
+            icon="badge-percent",
             checkable=True,
             checked=self._config["show_scores"],
             enabled=True,
@@ -1368,7 +1493,7 @@ class LabelingWidget(LabelDialog):
             lambda x: self.set_canvas_params("show_attributes", x),
             shortcut=shortcuts["show_attributes"],
             tip=self.tr("Show attribute inside shapes"),
-            icon=None,
+            icon="list-checks",
             checkable=True,
             checked=self._config["show_attributes"],
             enabled=True,
@@ -1378,7 +1503,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Show Degress"),
             lambda x: self.set_canvas_params("show_degrees", x),
             tip=self.tr("Show degrees above rotated shapes"),
-            icon=None,
+            icon="ruler",
             checkable=True,
             checked=self._config["show_degrees"],
             enabled=True,
@@ -1389,7 +1514,7 @@ class LabelingWidget(LabelDialog):
             lambda x: self.set_canvas_params("show_linking", x),
             shortcut=shortcuts["show_linking"],
             tip=self.tr("Show KIE linking between key and value"),
-            icon=None,
+            icon="link",
             checkable=True,
             checked=self._config["show_linking"],
             enabled=True,
@@ -1400,7 +1525,6 @@ class LabelingWidget(LabelDialog):
         select_lang_en = action(
             "English",
             functools.partial(self.set_language, "en_US"),
-            icon="us",
             checkable=True,
             checked=self._config["language"] == "en_US",
             enabled=self._config["language"] != "en_US",
@@ -1408,7 +1532,6 @@ class LabelingWidget(LabelDialog):
         select_lang_zh = action(
             "中文",
             functools.partial(self.set_language, "zh_CN"),
-            icon="cn",
             checkable=True,
             checked=self._config["language"] == "zh_CN",
             enabled=self._config["language"] != "zh_CN",
@@ -1417,7 +1540,6 @@ class LabelingWidget(LabelDialog):
         select_lang_jp = action(
             "日本語",
             functools.partial(self.set_language, "ja_JP"),
-            icon="ja",
             checkable=True,
             checked=self._config["language"] == "ja_JP",
             enabled=self._config["language"] != "ja_JP",
@@ -1425,7 +1547,6 @@ class LabelingWidget(LabelDialog):
         select_lang_ko = action(
             "한국어",
             functools.partial(self.set_language, "ko_KR"),
-            icon="ko",
             checkable=True,
             checked=self._config["language"] == "ko_KR",
             enabled=self._config["language"] != "ko_KR",
@@ -1437,16 +1558,16 @@ class LabelingWidget(LabelDialog):
         theme_group.setExclusive(True)
         self._theme_actions = {}
         current_appearance = self._config.get("theme", "auto")
-        for _mode, _label in (
-            ("auto", self.tr("System")),
-            ("light", self.tr("Light")),
-            ("dark", self.tr("Dark")),
+        for _mode, _label, _icon in (
+            ("auto", self.tr("System"), "monitor"),
+            ("light", self.tr("Light"), "sun"),
+            ("dark", self.tr("Dark"), "moon"),
         ):
             _act = QtGui.QAction(_label, theme_group)
             _act.setCheckable(True)
             _act.setChecked(current_appearance == _mode)
             _act.setData(_mode)
-            _act.setIcon(utils.new_icon(f"theme-{_mode}"))
+            _act.setIcon(utils.new_icon(_icon))
             _act.triggered.connect(
                 functools.partial(self._on_theme_changed, _mode)
             )
@@ -1454,7 +1575,7 @@ class LabelingWidget(LabelDialog):
             self._theme_actions[_mode] = _act
 
         # Upload
-        upload_export_icon = "label"
+        upload_export_icon = "tag"
         upload_image_flags_file = action(
             self.tr("Image Flags"),
             lambda: utils.upload_image_flags_file(self),
@@ -1777,7 +1898,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Fill Drawing Polygon"),
             self.canvas.set_fill_drawing,
             None,
-            "color",
+            "palette",
             self.tr("Fill polygon while drawing"),
             checkable=True,
             enabled=True,
@@ -1788,7 +1909,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Navigator"),
             self.toggle_navigator,
             shortcuts["show_navigator"],
-            "navigator",
+            "compass",
             self.tr("Show/hide the navigator window"),
             checkable=True,
             enabled=True,
@@ -1800,8 +1921,23 @@ class LabelingWidget(LabelDialog):
             shortcuts["toggle_image_tags"],
             tip=self.tr("Show or hide image tags"),
             checkable=True,
-            checked=False,
+            checked=True,
             enabled=True,
+            icon="tags",
+        )
+        show_image_tags.setObjectName("toggleImageTags")
+        theme = get_theme()
+        show_image_tags.setIcon(
+            get_icon("panel-down", theme["text"], theme["primary"])
+        )
+        show_image_tags.toggled.connect(
+            lambda checked: show_image_tags.setIcon(
+                get_icon(
+                    "panel-down" if checked else "panel-up",
+                    theme["text"],
+                    theme["primary"],
+                )
+            )
         )
 
         # AI Actions
@@ -1832,6 +1968,8 @@ class LabelingWidget(LabelDialog):
             delete_file=delete_file,
             delete_image_file=delete_image_file,
             toggle_annotation_checked=toggle_annotation_checked,
+            clear_annotation_checked=clear_annotation_checked,
+            fail_annotation_checked=fail_annotation_checked,
             keep_prev_mode=keep_prev_mode,
             auto_use_last_label_mode=auto_use_last_label_mode,
             auto_use_last_gid_mode=auto_use_last_gid_mode,
@@ -1933,6 +2071,8 @@ class LabelingWidget(LabelDialog):
             show_navigator=show_navigator,
             show_image_tags=show_image_tags,
             zoom_actions=zoom_actions,
+            jump_next_images=jump_next_images,
+            jump_prev_images=jump_prev_images,
             open_next_image=open_next_image,
             open_prev_image=open_prev_image,
             open_next_unchecked_image=open_next_unchecked_image,
@@ -2037,6 +2177,8 @@ class LabelingWidget(LabelDialog):
                 digit_shortcut_9,
                 edit_mode,
                 toggle_annotation_checked,
+                clear_annotation_checked,
+                fail_annotation_checked,
                 shape_manager,
                 loop_thru_labels,
                 loop_select_labels,
@@ -2062,7 +2204,6 @@ class LabelingWidget(LabelDialog):
             self.actions.digit_shortcut_9,
         ):
             self.addAction(digit_action)
-        self.addAction(self.actions.toggle_annotation_checked)
 
         self.canvas.vertex_selected.connect(
             self.actions.remove_point.setEnabled
@@ -2077,11 +2218,12 @@ class LabelingWidget(LabelDialog):
             upload=self.menu(self.tr("Upload")),
             export=self.menu(self.tr("Export")),
             tool=self.menu(self.tr("Tool")),
+            workflow=self.menu(self.tr("Workflow")),
             train=self.menu(self.tr("Train")),
             help=self.menu(self.tr("Help")),
             recent_files=QtWidgets.QMenu(self.tr("Open Recent")),
         )
-        self.menus.recent_files.setIcon(utils.new_icon("recent"))
+        self.menus.recent_files.setIcon(utils.new_icon("rotate-ccw-clock"))
         self.menus.recent_files.aboutToShow.connect(self.update_file_menu)
         self.canvas_label_filter_menu_0 = None
         self.canvas_gid_filter_menu_0 = None
@@ -2103,15 +2245,27 @@ class LabelingWidget(LabelDialog):
                 save,
                 save_as,
                 save_auto,
-                change_output_dir,
                 save_with_image_data,
+                change_output_dir,
                 close,
                 delete_file,
                 delete_image_file,
                 None,
+                open_settings,
             ),
         )
         utils.add_actions(self.menus.train, (ultralytics_train,))
+        utils.add_actions(
+            self.menus.workflow,
+            (
+                open_chatbot,
+                open_vqa,
+                open_image_classifier,
+                open_paddleocr,
+                open_video_classifier,
+                open_pointcloud,
+            ),
+        )
         utils.add_actions(
             self.menus.tool,
             (
@@ -2153,7 +2307,6 @@ class LabelingWidget(LabelDialog):
             (
                 upload_image_flags_file,
                 upload_label_flags_file,
-                upload_shape_attrs_file,
                 upload_label_classes_file,
                 None,
                 upload_yolo_hbb_annotation,
@@ -2263,7 +2416,7 @@ class LabelingWidget(LabelDialog):
         ) = self._append_filter_submenus(
             self.canvas.menus[0],
             prepend=True,
-            after_filter_actions=(self.actions.toggle_annotation_checked,),
+            after_filter_actions=(self.annotation_check_menu.menuAction(),),
         )
         self.canvas.menus[0].aboutToShow.connect(self.refresh_filter_menus)
         self.canvas.menus[0].aboutToShow.connect(
@@ -2275,8 +2428,10 @@ class LabelingWidget(LabelDialog):
         self.actions.tool = (
             # open_,
             opendir,
+            jump_next_images,
             open_next_image,
             open_prev_image,
+            jump_prev_images,
             save,
             delete_file,
             None,
@@ -2299,29 +2454,34 @@ class LabelingWidget(LabelDialog):
             loop_thru_labels,
             loop_select_labels,
             select_toggle_shapes,
-            run_all_images,
-            toggle_auto_labeling_widget,
-            None,
-            open_chatbot,
-            open_vqa,
-            open_pointcloud,
-            open_image_classifier,
-            open_video_classifier,
-            open_paddleocr,
-            None,
+            fit_window,
             fit_width,
-            zoom,
+            None,
+            toggle_auto_labeling_widget,
+            run_all_images,
+            None,
+            show_masks,
+            show_texts,
+            show_labels,
+            show_scores,
+            show_degrees,
+            show_attributes,
+            show_linking,
+            show_groups,
+            group_selected_shapes,
+            ungroup_selected_shapes,
         )
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
 
         self.tools_scroll_area = self.toolbar_scroll_area(self.tools)
-        layout.addWidget(self.tools_scroll_area)
         central_layout = QVBoxLayout()
         central_layout.setContentsMargins(0, 0, 0, 0)
-        self.label_instruction = QLabel(self.get_labeling_instruction())
+        central_layout.setSpacing(4)
+        self.label_instruction = QLabel(self.get_labeling_instruction(), self)
         self.label_instruction.setContentsMargins(0, 0, 0, 0)
+        self.label_instruction.hide()
         self.auto_labeling_widget = AutoLabelingWidget(self)
         self.auto_labeling_widget.auto_segmentation_requested.connect(
             self.on_auto_segmentation_requested
@@ -2381,6 +2541,12 @@ class LabelingWidget(LabelDialog):
         self.auto_labeling_widget.model_manager.model_loaded.connect(
             self.update_thumbnail_display
         )
+        self.auto_labeling_widget.remote_server_select_combobox.currentIndexChanged.connect(
+            self.update_thumbnail_display
+        )
+        self.auto_labeling_widget.remote_task_select_combobox.currentIndexChanged.connect(
+            self.update_thumbnail_display
+        )
         self.next_files_changed.connect(
             self.auto_labeling_widget.model_manager.on_next_files_changed
         )
@@ -2392,7 +2558,7 @@ class LabelingWidget(LabelDialog):
         instruction_layout = QHBoxLayout()
         instruction_layout.setContentsMargins(0, 0, 0, 0)
         instruction_layout.setSpacing(2)
-        instruction_layout.addWidget(self.label_instruction, 1)
+        instruction_layout.addWidget(self.tools_scroll_area, 1)
         theme = get_theme()
         self.sidebar_toggle_button = QtWidgets.QToolButton()
         self.sidebar_toggle_button.setIcon(
@@ -2430,11 +2596,7 @@ class LabelingWidget(LabelDialog):
         self.shortcuts_button.setIconSize(QtCore.QSize(18, 18))
         self.shortcuts_button.setFixedSize(26, 26)
         self.shortcuts_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.shortcuts_button.setToolTip(
-            QtCore.QCoreApplication.translate(
-                "ShortcutsDialog", "Keyboard shortcuts"
-            )
-        )
+        self.shortcuts_button.setToolTip(self.tr("Shortcuts"))
         self.shortcuts_button.setAccessibleName(
             self.shortcuts_button.toolTip()
         )
@@ -2456,16 +2618,69 @@ class LabelingWidget(LabelDialog):
         )
         self.update_button.hide()
         instruction_layout.addWidget(self.update_button)
-        instruction_layout.addWidget(self.shortcuts_button)
-        instruction_layout.addWidget(self.sidebar_toggle_button)
+        utility_actions = []
+        for button in (
+            self.settings_button,
+            self.shortcuts_button,
+            self.sidebar_toggle_button,
+        ):
+            button.setStyleSheet("")
+            widget_action = QtWidgets.QWidgetAction(self)
+            widget_action.setDefaultWidget(button)
+            utility_actions.append(widget_action)
+        self.display_mode_group = QtGui.QActionGroup(self)
+        self.display_mode_group.setExclusive(True)
+        display_actions = []
+        for mode, title, icon in (
+            ("label", self.tr("Color by label"), "swatch-book"),
+            ("instance", self.tr("Color by instance"), "component"),
+            ("group", self.tr("Color by group"), "network"),
+            ("bitmap", self.tr("Binary mask"), "contrast"),
+        ):
+            display_action = action(
+                title,
+                icon=icon,
+                tip=title,
+                checkable=True,
+                checked=mode == "label",
+            )
+            display_action.setData(mode)
+            self.display_mode_group.addAction(display_action)
+            display_actions.append(display_action)
+        self.display_mode_group.triggered.connect(
+            lambda selected: self.canvas.set_display_mode(selected.data())
+        )
+        self.actions.tool += (
+            None,
+            *display_actions,
+            None,
+            *utility_actions[:2],
+            show_image_tags,
+            *utility_actions[2:],
+        )
         central_layout.addLayout(instruction_layout)
         central_layout.addWidget(self.auto_labeling_widget)
-        central_layout.addWidget(scroll_area)
+        canvas_panel = RoundedPanel()
+        canvas_panel_layout = QVBoxLayout(canvas_panel)
+        canvas_panel_layout.setContentsMargins(0, 0, 0, 0)
+        canvas_panel_layout.setSpacing(0)
+        scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        canvas_panel_layout.addWidget(scroll_area)
+        central_layout.addWidget(canvas_panel, 1)
         central_layout.addWidget(self.compare_view_slider)
         central_layout.addWidget(self.image_tags_widget)
         central_widget = QWidget()
         central_widget.setLayout(central_layout)
-        self.sidebar_splitter = QtWidgets.QSplitter(Qt.Orientation.Horizontal)
+        self.sidebar_splitter = SidebarSplitter(Qt.Orientation.Horizontal)
+        self.sidebar_splitter.setObjectName("SidebarSplitter")
+        self.sidebar_splitter.setHandleWidth(9)
+        self.sidebar_splitter.setStyleSheet("""
+            QSplitter#SidebarSplitter::handle:horizontal {
+                background-color: transparent;
+                width: 9px;
+                border: none;
+            }
+        """)
         self.sidebar_splitter.setChildrenCollapsible(False)
         self.sidebar_splitter.addWidget(central_widget)
         layout.addWidget(self.sidebar_splitter)
@@ -2480,6 +2695,7 @@ class LabelingWidget(LabelDialog):
         right_sidebar_layout = QVBoxLayout(self.right_sidebar)
         right_sidebar_layout.setContentsMargins(0, 0, 0, 0)
         right_sidebar_layout.setSpacing(4)
+        self.image_tags_widget.installEventFilter(self)
 
         # Thumbnail image display
         self.thumbnail_pixmap = None
@@ -2513,30 +2729,18 @@ class LabelingWidget(LabelDialog):
         self.grid_layout_container = QWidget()
         self.grid_layout_container.setLayout(self.grid_layout)
         self.scroll_area.setWidget(self.grid_layout_container)
-        if not self.attributes:
-            self.shape_attributes.hide()
-            self.scroll_area.hide()
-        right_sidebar_layout.addWidget(
-            self.shape_attributes, 0, Qt.AlignmentFlag.AlignCenter
-        )
-        right_sidebar_layout.addWidget(self.scroll_area)
+        self.shape_attributes.hide()
+        self.scroll_area.hide()
 
-        description_header_layout = QHBoxLayout()
-        description_header_layout.setContentsMargins(0, 2, 0, 2)
-        description_header_layout.addStretch()
-        description_header_layout.addWidget(self.shape_text_label)
-        description_header_layout.addStretch()
-        description_header_layout.addWidget(self.description_checkbox)
-        description_header_widget = QWidget()
-        description_header_widget.setLayout(description_header_layout)
+        description_header_widget = PanelHeader(
+            self.shape_text_label, [self.description_checkbox]
+        )
 
         description_empty_widget = QWidget()
         description_empty_widget.setFixedHeight(0)
         self.description_dock.setTitleBarWidget(description_empty_widget)
 
-        desc_panel = QFrame()
-        desc_panel.setObjectName("sidebarPanel")
-        desc_panel.setStyleSheet(get_panel_style())
+        desc_panel = RoundedPanel()
         desc_panel_layout = QVBoxLayout(desc_panel)
         desc_panel_layout.setContentsMargins(0, 0, 0, 0)
         desc_panel_layout.setSpacing(0)
@@ -2547,29 +2751,44 @@ class LabelingWidget(LabelDialog):
         right_sidebar_layout.addWidget(self.flag_dock)
 
         # Labels with checkbox
-        self.labels_checkbox = QCheckBox()
+        self.labels_checkbox = PanelCheckBox()
         self.labels_checkbox.setChecked(True)
-        self.labels_checkbox.setStyleSheet(get_checkbox_indicator_style())
         self.labels_checkbox.toggled.connect(self.toggle_labels_visibility)
 
-        labels_header_layout = QHBoxLayout()
-        labels_header_layout.setContentsMargins(0, 2, 0, 2)
-        labels_header_layout.addStretch()
-        labels_title = QLabel(self.tr("Labels"))
-        labels_header_layout.addWidget(labels_title)
-        labels_header_layout.addStretch()
-        labels_header_layout.addWidget(self.labels_checkbox)
-        labels_header_widget = QWidget()
-        labels_header_widget.setLayout(labels_header_layout)
+        self.labels_visibility_button = QtWidgets.QToolButton()
+        self.labels_visibility_button.setIcon(
+            get_icon("eye", theme["text"], theme["primary"])
+        )
+        self.labels_visibility_button.setAutoRaise(True)
+        self.labels_visibility_button.setToolTip(
+            self.tr("Show/hide all labels")
+        )
+        self.labels_visibility_button.clicked.connect(
+            self.toggle_all_labels_visibility
+        )
+        self.labels_lock_button = QtWidgets.QToolButton()
+        self.labels_lock_button.setIcon(
+            get_icon("unlock", theme["text"], theme["primary"])
+        )
+        self.labels_lock_button.setAutoRaise(True)
+        self.labels_lock_button.setCheckable(True)
+        self.labels_lock_button.setToolTip(self.tr("Lock/unlock all labels"))
+        self.labels_lock_button.clicked.connect(self.toggle_all_labels_lock)
+        labels_header_widget = PanelHeader(
+            QLabel(self.tr("Labels")),
+            [
+                self.labels_visibility_button,
+                self.labels_lock_button,
+                self.labels_checkbox,
+            ],
+        )
 
         # Hide the original dock title bar
         empty_widget = QWidget()
         empty_widget.setFixedHeight(0)
         self.label_dock.setTitleBarWidget(empty_widget)
 
-        labels_panel = QFrame()
-        labels_panel.setObjectName("sidebarPanel")
-        labels_panel.setStyleSheet(get_panel_style())
+        labels_panel = RoundedPanel()
         labels_panel_layout = QVBoxLayout(labels_panel)
         labels_panel_layout.setContentsMargins(0, 0, 0, 0)
         labels_panel_layout.setSpacing(0)
@@ -2577,50 +2796,100 @@ class LabelingWidget(LabelDialog):
         labels_panel_layout.addWidget(self.label_dock)
         right_sidebar_layout.addWidget(labels_panel)
 
-        self.shapes_checkbox = QCheckBox()
+        self.shapes_checkbox = PanelCheckBox()
         self.shapes_checkbox.setChecked(True)
-        self.shapes_checkbox.setStyleSheet(get_checkbox_indicator_style())
         self.shapes_checkbox.toggled.connect(self.toggle_shapes_visibility)
 
-        shapes_header_layout = QHBoxLayout()
-        shapes_header_layout.setContentsMargins(0, 2, 0, 2)
-        shapes_header_layout.addStretch()
-        shapes_title = QLabel(self.tr("Shapes"))
-        shapes_header_layout.addWidget(shapes_title)
-        shapes_header_layout.addStretch()
-        shapes_header_layout.addWidget(self.shapes_checkbox)
-        shapes_header_widget = QWidget()
-        shapes_header_widget.setLayout(shapes_header_layout)
+        self.shapes_visibility_button = QtWidgets.QToolButton()
+        self.shapes_visibility_button.setIcon(
+            get_icon("eye", theme["text"], theme["primary"])
+        )
+        self.shapes_visibility_button.setAutoRaise(True)
+        self.shapes_visibility_button.setToolTip(
+            self.tr("Show/hide all shapes")
+        )
+        self.shapes_visibility_button.clicked.connect(
+            self.toggle_all_shapes_visibility
+        )
+        self.shapes_lock_button = QtWidgets.QToolButton()
+        self.shapes_lock_button.setIcon(
+            get_icon("unlock", theme["text"], theme["primary"])
+        )
+        self.shapes_lock_button.setAutoRaise(True)
+        self.shapes_lock_button.setCheckable(True)
+        self.shapes_lock_button.setToolTip(self.tr("Lock/unlock all shapes"))
+        self.shapes_lock_button.clicked.connect(self.toggle_all_shapes_lock)
+        shapes_header_widget = PanelHeader(
+            QLabel(self.tr("Shapes")),
+            [
+                self.shapes_visibility_button,
+                self.shapes_lock_button,
+                self.shapes_checkbox,
+            ],
+        )
 
         shape_empty_widget = QWidget()
         shape_empty_widget.setFixedHeight(0)
         self.shape_dock.setTitleBarWidget(shape_empty_widget)
 
-        objects_panel = QFrame()
-        objects_panel.setObjectName("sidebarPanel")
-        objects_panel.setStyleSheet(get_panel_style())
+        objects_panel = RoundedPanel()
         objects_panel_layout = QVBoxLayout(objects_panel)
         objects_panel_layout.setContentsMargins(0, 0, 0, 0)
         objects_panel_layout.setSpacing(0)
         objects_panel_layout.addWidget(shapes_header_widget)
         objects_panel_layout.addWidget(self.shape_dock)
         right_sidebar_layout.addWidget(objects_panel)
+        for panel, checkbox in (
+            (desc_panel, self.description_checkbox),
+            (labels_panel, self.labels_checkbox),
+            (objects_panel, self.shapes_checkbox),
+            (labels_panel, self.labels_lock_button),
+            (objects_panel, self.shapes_lock_button),
+            (labels_panel, self.labels_visibility_button),
+            (objects_panel, self.shapes_visibility_button),
+        ):
+            HoverControl(panel, checkbox)
 
-        file_search_row_layout = QHBoxLayout()
-        file_search_row_layout.setContentsMargins(0, 0, 0, 0)
-        file_search_row_layout.setSpacing(6)
-        file_search_row_layout.addWidget(self.file_search, 1)
-        file_search_row_layout.addWidget(self.settings_button, 0)
-        right_sidebar_layout.addLayout(file_search_row_layout)
-
-        files_panel = QFrame()
-        files_panel.setObjectName("sidebarPanel")
-        files_panel.setStyleSheet(get_panel_style())
+        files_panel = RoundedPanel()
         files_panel_layout = QVBoxLayout(files_panel)
         files_panel_layout.setContentsMargins(0, 0, 0, 0)
         files_panel_layout.setSpacing(0)
+        self.file_search.setStyleSheet(self.file_search.styleSheet() + f"""
+            QLineEdit {{
+                background-color: {theme["surface"]};
+                border: none;
+                border-bottom: 1px solid {theme["border"]};
+                border-radius: 0;
+            }}
+            QLineEdit:focus {{
+                border: none;
+                border-bottom: 1px solid {theme["border"]};
+            }}
+        """)
+        self.file_search.setTextMargins(0, 0, 30, 0)
+        self.files_checkbox = PanelCheckBox()
+        self.files_checkbox.setFixedSize(22, 22)
+        self.files_checkbox.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.files_checkbox.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+        self.files_checkbox.setToolTip(self.tr("Show/hide file list"))
+        self.files_checkbox.setChecked(True)
+        self.files_checkbox.toggled.connect(self.file_dock.setVisible)
+        file_search_layout = QHBoxLayout(self.file_search)
+        file_search_layout.setContentsMargins(0, 0, 4, 0)
+        file_search_layout.addStretch()
+        file_search_layout.addWidget(self.files_checkbox)
+        HoverControl(files_panel, self.files_checkbox)
+        files_panel_layout.addWidget(self.file_search)
         files_panel_layout.addWidget(self.file_dock)
         right_sidebar_layout.addWidget(files_panel)
+        for area in (
+            self.unique_label_list,
+            self.label_list,
+            self.file_list_widget,
+            self.flag_widget,
+            self.shape_text_edit,
+        ):
+            HoverScrollBars(area)
         self.file_dock.setFeatures(
             QDockWidget.DockWidgetFeature.DockWidgetFloatable
         )
@@ -2653,6 +2922,15 @@ class LabelingWidget(LabelDialog):
         self.right_sidebar.setMinimumWidth(sidebar_width)
         self.right_sidebar.setMaximumWidth(sidebar_width * 2)
         self._right_sidebar_width = sidebar_width
+        self._sidebar_base_width = sidebar_width
+        self._sidebar_width_ratio = None
+        self._ui_scale = 1.0
+        self._ui_resize_timer = QtCore.QTimer(self)
+        self._ui_resize_timer.setSingleShot(True)
+        self._ui_resize_timer.timeout.connect(self._update_ui_density)
+        self.sidebar_splitter.splitterMoved.connect(
+            self._remember_sidebar_width
+        )
         self.sidebar_splitter.addWidget(self.right_sidebar)
         self.sidebar_splitter.setStretchFactor(0, 1)
         self.sidebar_splitter.setStretchFactor(1, 0)
@@ -2679,6 +2957,7 @@ class LabelingWidget(LabelDialog):
         self.zoom_level = 100
         self.fit_window = False
         self.zoom_values = {}  # key=filename, value=(zoom_mode, zoom_value)
+        self.pan_values = {}
         self.brightness_contrast_values = {}
         self.scroll_values = {
             Qt.Orientation.Horizontal: {},
@@ -2709,7 +2988,7 @@ class LabelingWidget(LabelDialog):
             self.queue_event(functools.partial(self.load_file, self.filename))
 
         # Callbacks:
-        self.zoom_widget.valueChanged.connect(self.paint_canvas)
+        self.zoom_widget.valueChanged.connect(self.set_zoom)
 
         self.populate_mode_actions()
         self._settings_controller = SettingsController(
@@ -2949,7 +3228,7 @@ class LabelingWidget(LabelDialog):
 
     def _space_pan_tip_message(self):
         return self.tr(
-            "Tip: Hold Space and drag with the left mouse button to pan the canvas temporarily."
+            "Tip: Hold Alt and drag with the left mouse button, or drag with the middle mouse button, to pan the canvas while drawing."
         )
 
     def update_space_pan_tip(self):
@@ -3029,13 +3308,13 @@ class LabelingWidget(LabelDialog):
     def toolbar(self, title, actions=None):
         toolbar = ToolBar(title)
         toolbar.setObjectName(f"{title}ToolBar")
-        toolbar.setOrientation(Qt.Orientation.Vertical)
+        toolbar.setOrientation(Qt.Orientation.Horizontal)
         toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
-        toolbar.setIconSize(QtCore.QSize(24, 24))
-        toolbar.setFixedWidth(40)
+        toolbar.setIconSize(QtCore.QSize(18, 18))
+        toolbar.setFixedHeight(26)
         toolbar.setSizePolicy(
-            QtWidgets.QSizePolicy.Policy.Fixed,
             QtWidgets.QSizePolicy.Policy.MinimumExpanding,
+            QtWidgets.QSizePolicy.Policy.Fixed,
         )
         if actions:
             utils.add_actions(toolbar, actions)
@@ -3043,22 +3322,28 @@ class LabelingWidget(LabelDialog):
         return toolbar
 
     def toolbar_scroll_area(self, toolbar):
-        scroll_area = QScrollArea()
+        scroll_area = ToolBarScrollArea()
         scroll_area.setObjectName(f"{toolbar.objectName()}ScrollArea")
         scroll_area.setFrameShape(QFrame.Shape.NoFrame)
         scroll_area.setWidgetResizable(True)
         scroll_area.setHorizontalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
         )
         scroll_area.setVerticalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
         scroll_area.setStyleSheet(get_toolbar_scroll_area_style())
         scroll_area.setSizePolicy(
-            QtWidgets.QSizePolicy.Policy.Fixed,
             QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Fixed,
         )
-        scroll_area.setFixedWidth(toolbar.maximumWidth() + 6)
+        scroll_area.viewport().setAutoFillBackground(False)
+        scroll_area.setFixedHeight(toolbar.height())
+        scroll_area.horizontalScrollBar().rangeChanged.connect(
+            lambda minimum, maximum: scroll_area.setFixedHeight(
+                toolbar.height() + (6 if maximum > minimum else 0)
+            )
+        )
         scroll_area.setWidget(toolbar)
         return scroll_area
 
@@ -3083,7 +3368,7 @@ class LabelingWidget(LabelDialog):
         ) = self._append_filter_submenus(
             self.canvas.menus[0],
             prepend=True,
-            after_filter_actions=(self.actions.toggle_annotation_checked,),
+            after_filter_actions=(self.annotation_check_menu.menuAction(),),
         )
         self.menus.edit.clear()
         actions = (
@@ -3105,6 +3390,7 @@ class LabelingWidget(LabelDialog):
         utils.add_actions(self.menus.edit, actions + self.actions.editMenu)
 
     def set_dirty(self):
+        self.actions.save.setIcon(utils.new_icon("save"))
         # Even if we autosave the file, we keep the ability to undo
         self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
 
@@ -3165,18 +3451,14 @@ class LabelingWidget(LabelDialog):
         title = __appname__
         if self.filename is not None:
             current_index, total_count = self.get_image_progress_info()
-            basename = osp.basename(str(self.filename))
+            file_path = osp.abspath(str(self.filename))
             dirty_marker = "*" if self.dirty else ""
-            checked_status = (
-                self.tr("Checked")
-                if self._annotation_checked()
-                else self.tr("Unchecked")
-            )
+            checked_status = self._annotation_checked_text()
             image_size = ""
             if hasattr(self, "image") and not self.image.isNull():
                 image_size = f" [{self.image.width()}x{self.image.height()}]"
             title = (
-                f"{title} - {basename}{dirty_marker} [{checked_status}]"
+                f"{title} - {file_path}{dirty_marker} [{checked_status}]"
                 f"{image_size} "
                 f"[{current_index}/{total_count}]"
             )
@@ -3188,6 +3470,9 @@ class LabelingWidget(LabelDialog):
     def set_clean(self):
         self.dirty = False
         self.actions.save.setEnabled(False)
+        self.actions.save.setIcon(
+            utils.new_icon("save-check" if self.label_file else "save")
+        )
         self.actions.union_selection.setEnabled(False)
         self.actions.create_mode.setEnabled(True)
         self.actions.create_brush_polygon_mode.setEnabled(True)
@@ -3238,6 +3523,41 @@ class LabelingWidget(LabelDialog):
             self.actions.shape_manager.setEnabled(True)
         else:
             self.actions.shape_manager.setEnabled(False)
+        self.update_browse_actions()
+
+    def update_browse_actions(self):
+        index = self.fn_to_index.get(str(self.filename), -1)
+        count = self.file_list_widget.count()
+        valid = 0 <= index < count
+        step = self._config["image_jump_step"]
+        self.actions.jump_next_images.setEnabled(
+            valid and index + step < count
+        )
+        self.actions.jump_prev_images.setEnabled(valid and index >= step)
+        for action, text, tip in (
+            (
+                self.actions.jump_next_images,
+                self.tr("Forward %s Images"),
+                self.tr("Move forward by %s images"),
+            ),
+            (
+                self.actions.jump_prev_images,
+                self.tr("Back %s Images"),
+                self.tr("Move back by %s images"),
+            ),
+        ):
+            action.setText(text % step)
+            action.setIconText((text % step).replace(" ", "\n"))
+            action.setToolTip(tip % step)
+            action.setStatusTip(tip % step)
+
+    def jump_images(self, offset):
+        if not self.may_continue():
+            return
+        index = self.fn_to_index.get(str(self.filename), -1)
+        target = index + offset
+        if index >= 0 and 0 <= target < self.file_list_widget.count():
+            self.load_file(self.file_list_widget.item(target).text())
 
     def queue_event(self, function):
         QtCore.QTimer.singleShot(0, function)
@@ -3245,11 +3565,52 @@ class LabelingWidget(LabelDialog):
     def status(self, message, delay=5000):
         self.statusBar().showMessage(message, delay)
 
+    @staticmethod
+    def _shape_lock_key(shape):
+        return (
+            shape.label,
+            shape.shape_type,
+            shape.group_id,
+            tuple((point.x(), point.y()) for point in shape.points),
+        )
+
+    def _remember_shape_locks(self):
+        if not self.image_path:
+            return
+        states = {}
+        for shape in self.canvas.shapes:
+            states.setdefault(self._shape_lock_key(shape), []).append(
+                shape.locked
+            )
+        self._session_shape_locks[osp.abspath(self.image_path)] = states
+
+    def _restore_shape_locks(self):
+        states = self._session_shape_locks.get(
+            osp.abspath(self.image_path), {}
+        )
+        offsets = {}
+        for shape in self.canvas.shapes:
+            key = self._shape_lock_key(shape)
+            index = offsets.get(key, 0)
+            offsets[key] = index + 1
+            if key in states and index < len(states[key]):
+                shape.locked = states[key][index]
+                item = self.label_list.find_item_by_shape(shape)
+                if item is not None:
+                    item.set_locked(shape.locked)
+        self.refresh_panel_controls()
+
     def reset_state(self):
+        self._remember_shape_locks()
+        self._zoom_animation.stop()
+        if self.filename is not None:
+            for orientation, bar in self.scroll_bars.items():
+                self.scroll_values[orientation][self.filename] = bar.value()
         self._reset_label_loop()
         self.select_loop_count = -1
         self.label_list.clear()
         self.filename = None
+        self.update_browse_actions()
         self.image_path = None
         self.image_data = None
         self.label_file = None
@@ -3286,6 +3647,7 @@ class LabelingWidget(LabelDialog):
         return bool(current_label) or current_gid not in ["", "-1"]
 
     def _update_select_toggle_button_tooltip(self):
+        self.refresh_panel_controls()
         if self.select_toggle_action is None:
             return
         if self._has_active_shape_filter():
@@ -3302,7 +3664,7 @@ class LabelingWidget(LabelDialog):
             icon = utils.new_icon("eye")
         else:
             tooltip = self.tr("Show all shapes")
-            icon = utils.new_icon("hidden")
+            icon = utils.new_icon("eye-off")
         self.select_toggle_action.setIcon(icon)
         self.select_toggle_action.setToolTip(tooltip)
         self.select_toggle_action.setStatusTip(tooltip)
@@ -3554,7 +3916,7 @@ class LabelingWidget(LabelDialog):
         )
         result = modify_label_dialog.exec()
         if result == QtWidgets.QDialog.DialogCode.Accepted:
-            if self.filename:
+            if self.filename and modify_label_dialog.annotations_changed:
                 self.load_file(self.filename)
 
     def gid_manager(self):
@@ -3673,19 +4035,19 @@ class LabelingWidget(LabelDialog):
             )
             return
 
-        main_window = self
-        while True:
-            try:
-                parent = main_window.parent()
-            except TypeError:
-                parent = getattr(main_window, "parent", None)
-            if parent is None:
-                break
-            main_window = parent
-        main_window.hide()
-
-        dialog = ClassifierDialog(self)
-        dialog.exec()
+        if (
+            not hasattr(self, "image_classifier_window")
+            or self.image_classifier_window is None
+        ):
+            self.image_classifier_window = ClassifierDialog(self)
+            self.image_classifier_window.setAttribute(
+                Qt.WidgetAttribute.WA_DeleteOnClose, False
+            )
+        if self.image_classifier_window.isVisible():
+            self.image_classifier_window.raise_()
+            self.image_classifier_window.activateWindow()
+        else:
+            self.image_classifier_window.show()
 
     def open_classifier(self):
         return self.open_image_classifier()
@@ -3755,7 +4117,7 @@ class LabelingWidget(LabelDialog):
             self._reset_label_loop()
             if not is_new_loop:
                 self.canvas.deselect_shape()
-                self.set_zoom(int(100 * self.scale_fit_window()))
+                self.set_fit_window()
             self._show_label_loop_popup(message)
             return
 
@@ -3785,6 +4147,8 @@ class LabelingWidget(LabelDialog):
         zoom = min(1000, zoom)
 
         self.set_zoom(zoom)
+        self.canvas.pan_offset = QtCore.QPointF()
+        self.pan_values[self.filename] = QtCore.QPointF()
 
         x_range = self.scroll_bars[Qt.Orientation.Horizontal].maximum()
         x_step = self.scroll_bars[Qt.Orientation.Horizontal].pageStep()
@@ -4050,7 +4414,7 @@ class LabelingWidget(LabelDialog):
                 or self.last_open_dir
             )
             action = QtGui.QAction(
-                utils.new_icon("folder", "svg"),
+                utils.new_icon("open"),
                 self.tr("Open Last Dir: %s") % dir_name,
                 self,
             )
@@ -4061,7 +4425,7 @@ class LabelingWidget(LabelDialog):
             if files:
                 menu.addSeparator()
         for i, f in enumerate(files):
-            icon = utils.new_icon("labels")
+            icon = utils.new_icon("file")
             action = QtGui.QAction(
                 icon, "&%d %s" % (i + 1, QtCore.QFileInfo(f).fileName()), self
             )
@@ -4069,6 +4433,7 @@ class LabelingWidget(LabelDialog):
             menu.addAction(action)
 
     def refresh_shape_lock_action(self):
+        self.refresh_panel_controls()
         items = self.label_list.selected_items()
         shapes = [item.shape() for item in items if item.shape() is not None]
         action = self.actions.toggle_shape_lock
@@ -4083,6 +4448,126 @@ class LabelingWidget(LabelDialog):
         for shape in shapes:
             shape.locked = not shape.locked
         self._update_shapes_lock(shapes)
+
+    def refresh_panel_controls(self):
+        if not hasattr(self, "shapes_visibility_button"):
+            return
+        theme = get_theme()
+        items = [
+            self.unique_label_list.item(row)
+            for row in range(self.unique_label_list.count())
+        ]
+        labels = [item.data(Qt.ItemDataRole.UserRole) for item in items]
+        for button, visible in (
+            (
+                self.labels_visibility_button,
+                any(
+                    self.label_info.get(label, {}).get("visible", True)
+                    for label in labels
+                ),
+            ),
+            (
+                self.shapes_visibility_button,
+                any(s.visible for s in self.canvas.shapes),
+            ),
+        ):
+            button.setIcon(
+                get_icon(
+                    "eye" if visible else "eye-off",
+                    theme["text"],
+                    theme["primary"],
+                )
+            )
+        self.labels_lock_button.setChecked(
+            any(
+                self.unique_label_list.lock_states.get(label, False)
+                for label in labels
+            )
+        )
+        self.shapes_lock_button.setChecked(
+            any(shape.locked for shape in self.canvas.shapes)
+        )
+
+        for button in (self.labels_lock_button, self.shapes_lock_button):
+            button.setIcon(
+                get_icon(
+                    "lock" if button.isChecked() else "unlock",
+                    theme["text"],
+                    theme["primary"],
+                )
+            )
+
+    def toggle_all_labels_visibility(self):
+        labels = [
+            self.unique_label_list.item(row).data(Qt.ItemDataRole.UserRole)
+            for row in range(self.unique_label_list.count())
+        ]
+        visible = not any(
+            self.label_info.get(label, {}).get("visible", True)
+            for label in labels
+        )
+        for label in labels:
+            if label not in self.label_info:
+                self.label_info[label] = dict(
+                    delete=False,
+                    value=None,
+                    color=list(self._get_rgb_by_label(label)),
+                    opacity=LABEL_OPACITY,
+                    visible=visible,
+                )
+            else:
+                self.label_info[label]["visible"] = visible
+        self._refresh_shape_filters()
+
+    def toggle_all_shapes_visibility(self):
+        self._set_all_objects_visibility(
+            not any(s.visible for s in self.canvas.shapes)
+        )
+
+    def toggle_all_labels_lock(self):
+        items = [
+            self.unique_label_list.item(row)
+            for row in range(self.unique_label_list.count())
+        ]
+        states = self.unique_label_list.lock_states
+        locked = not any(
+            states.get(item.data(Qt.ItemDataRole.UserRole), False)
+            for item in items
+        )
+        self.toggle_unique_label_items_lock(items, locked=locked)
+
+    def toggle_all_shapes_lock(self):
+        shapes = self.canvas.shapes
+        if not shapes:
+            return
+        locked = not any(shape.locked for shape in shapes)
+        labels = {shape.label for shape in shapes}
+        for label in labels:
+            self.unique_label_list.lock_states.pop(label, None)
+            for item in self.unique_label_list.find_items_by_label(label):
+                self.unique_label_list.set_item_locked(item, False)
+        self._set_shapes_locked(shapes, locked)
+
+    def toggle_unique_label_items_lock(self, items, locked=None):
+        states = self.unique_label_list.lock_states
+        labels = set()
+        for item in items:
+            label = item.data(Qt.ItemDataRole.UserRole)
+            states[label] = (
+                not states.get(label, False) if locked is None else locked
+            )
+            labels.add(label)
+            self.unique_label_list.set_item_locked(item, states[label])
+        for states_by_shape in self._session_shape_locks.values():
+            for key in list(states_by_shape):
+                if key[0] in labels:
+                    del states_by_shape[key]
+        shapes = [s for s in self.canvas.shapes if s.label in labels]
+        for shape in shapes:
+            shape.locked = states[shape.label]
+        if shapes:
+            self._update_shapes_lock(shapes)
+        self.refresh_panel_controls()
 
     def toggle_selected_shapes_lock(self, locked):
         items = self.label_list.selected_items()
@@ -4109,7 +4594,6 @@ class LabelingWidget(LabelDialog):
             self.shape_selection_changed(self.canvas.selected_shapes)
         else:
             self.refresh_shape_lock_action()
-        self.set_dirty()
 
     def pop_file_list_menu(self, point):
         item = self.file_list_widget.itemAt(point)
@@ -4123,7 +4607,7 @@ class LabelingWidget(LabelDialog):
         copy_path_action = menu.addAction(
             utils.new_icon("copy", "svg"), self.tr("Copy File Path")
         )
-        action = menu.exec(self.file_list_widget.mapToGlobal(point))
+        action = menu.exec(self.file_list_widget.viewport().mapToGlobal(point))
         if action == copy_name_action:
             self.copy_file_path(osp.basename(item.text()))
         elif action == copy_path_action:
@@ -4150,22 +4634,30 @@ class LabelingWidget(LabelDialog):
                     buffer = buffer[-32:] + chunk
                     match = CHECKED_FIELD_PATTERN.search(buffer)
                     if match:
-                        return match.group(1) == "true"
+                        return (
+                            "failed"
+                            if match.group(1) == '"failed"'
+                            else match.group(1) == "true"
+                        )
         except Exception:
             return False
         return False
 
     def _set_file_item_checked(self, item, checked):
-        if item.data(Qt.ItemDataRole.UserRole) is checked:
+        if item.data(Qt.ItemDataRole.UserRole) == checked:
             return
         item.setIcon(self.file_status_icons[checked])
         item.setData(Qt.ItemDataRole.UserRole, checked)
+        item.setToolTip(
+            f"{item.text()}\n{self._annotation_checked_text(checked)}"
+        )
 
     def _file_item_annotation_checked(self, item):
-        return item.data(Qt.ItemDataRole.UserRole) is True
+        return item.data(Qt.ItemDataRole.UserRole) in (True, "failed")
 
     def _create_file_list_item(self, file, label_file):
         item = QtWidgets.QListWidgetItem(file)
+        item.setToolTip(file)
         flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
         if self._config.get("file_list_checkbox_editable", False):
             flags |= Qt.ItemFlag.ItemIsUserCheckable
@@ -4185,23 +4677,28 @@ class LabelingWidget(LabelDialog):
         return self.file_list_widget.item(self.fn_to_index[str(self.filename)])
 
     def _annotation_checked(self):
-        return self.other_data.get(CHECKED_FIELD, False) is True
+        checked = self.other_data.get(CHECKED_FIELD, False)
+        return "failed" if checked == "failed" else checked is True
+
+    def _annotation_checked_text(self, checked=None):
+        if checked is None:
+            checked = self._annotation_checked()
+        return {
+            False: self.tr("Unchecked"),
+            True: self.tr("Check Passed"),
+            "failed": self.tr("Check Failed"),
+        }[checked]
 
     def _update_annotation_checked_action(self):
         if not hasattr(self, "actions"):
             return
-        action = self.actions.toggle_annotation_checked
         checked = self._annotation_checked()
-        if action.isChecked() != checked:
-            action.setChecked(checked)
-        if checked:
-            action.setText(self.tr("Mark as Unchecked"))
-            tip = self.tr("Mark current annotation as unchecked")
-        else:
-            action.setText(self.tr("Mark as Checked"))
-            tip = self.tr("Mark current annotation as checked")
-        action.setToolTip(tip)
-        action.setStatusTip(tip)
+        for action, status in (
+            (self.actions.clear_annotation_checked, False),
+            (self.actions.toggle_annotation_checked, True),
+            (self.actions.fail_annotation_checked, "failed"),
+        ):
+            action.setChecked(checked == status)
 
     def _update_current_file_checked_item(self):
         item = self._current_file_item()
@@ -4209,6 +4706,7 @@ class LabelingWidget(LabelDialog):
             self._set_file_item_checked(item, self._annotation_checked())
 
     def _sync_annotation_checked_state(self):
+        self.canvas_adjustment.set_status(self._annotation_checked())
         self._update_annotation_checked_action()
         self._update_current_file_checked_item()
         self.update_progress_title()
@@ -4216,7 +4714,9 @@ class LabelingWidget(LabelDialog):
     def set_annotation_checked(self, checked):
         if self.filename is None or self.image.isNull():
             return
-        self.other_data[CHECKED_FIELD] = bool(checked)
+        self.other_data[CHECKED_FIELD] = (
+            "failed" if checked == "failed" else bool(checked)
+        )
         self._sync_annotation_checked_state()
         label_file = self.get_label_file()
         if self.save_labels(label_file):
@@ -4359,6 +4859,9 @@ class LabelingWidget(LabelDialog):
             description=first_shape.description,
             difficult=first_shape.difficult,
             kie_linking=first_shape.kie_linking,
+            review_status=first_shape.other_data.get(
+                "review_status", "pending"
+            ),
             move_mode="center",
         )
 
@@ -4386,6 +4889,9 @@ class LabelingWidget(LabelDialog):
             shape.description = description
             shape.difficult = difficult
             shape.kie_linking = kie_linking
+            shape.other_data["review_status"] = (
+                self.label_dialog.get_review_status()
+            )
 
             self._update_shape_color(shape)
 
@@ -4452,6 +4958,7 @@ class LabelingWidget(LabelDialog):
             description=shape.description,
             difficult=shape.difficult,
             kie_linking=shape.kie_linking,
+            review_status=shape.other_data.get("review_status", "pending"),
             move_mode=self._config.get("move_mode", "auto"),
         )
         if text is None:
@@ -4472,6 +4979,9 @@ class LabelingWidget(LabelDialog):
         shape.description = description
         shape.difficult = difficult
         shape.kie_linking = kie_linking
+        shape.other_data["review_status"] = (
+            self.label_dialog.get_review_status()
+        )
 
         # Add to label history
         self.label_dialog.add_label_history(shape.label)
@@ -4501,10 +5011,6 @@ class LabelingWidget(LabelDialog):
         self.set_dirty()
         self._refresh_shape_filters()
 
-        # update top-right attributes panel
-        selected_idx = self.canvas.shapes.index(selected_shapes[0])
-        self.update_attributes(selected_idx)
-
     def file_search_changed(self):
         search_text = self.file_search.text()
         self.import_image_folder(
@@ -4527,17 +5033,6 @@ class LabelingWidget(LabelDialog):
             filename = self.image_list[current_index]
             if filename:
                 self.load_file(filename)
-                if self.attributes:
-                    # Clear the history widgets from the QGridLayout
-                    self.grid_layout = QGridLayout()
-                    self.grid_layout_container = QWidget()
-                    self.grid_layout_container.setLayout(self.grid_layout)
-                    self.scroll_area.setWidget(self.grid_layout_container)
-                    self.scroll_area.setWidgetResizable(True)
-                    # Create a container widget for the grid layout
-                    self.grid_layout_container = QWidget()
-                    self.grid_layout_container.setLayout(self.grid_layout)
-                    self.scroll_area.setWidget(self.grid_layout_container)
 
     def attribute_selection_changed(self, i, property, combo):
         selected_option = combo.currentText()
@@ -5002,6 +5497,7 @@ class LabelingWidget(LabelDialog):
                 flags=flags,
             )
             self.label_file = label_file
+            self.actions.save.setIcon(utils.new_icon("save-check"))
             items = self.file_list_widget.findItems(
                 self.image_path, Qt.MatchFlag.MatchExactly
             )
@@ -5081,25 +5577,14 @@ class LabelingWidget(LabelDialog):
         self.refresh_shape_lock_action()
         self.set_text_editing(True)
 
-        selected_count = len(self.canvas.selected_shapes)
-        is_drawing_mode = (
-            hasattr(self.canvas, "current") and self.canvas.current is not None
-        )
-        if self.attributes and selected_count == 1 and not is_drawing_mode:
-            for i in range(len(self.canvas.shapes)):
-                if self.canvas.shapes[i].selected:
-                    self.update_attributes(i)
-                    break
-        else:
-            self.hide_attributes_panel()
-
     def add_label(self, shape, update_last_label=True, refresh_filters=True):
+        if shape.label in self.unique_label_list.lock_states:
+            shape.locked = self.unique_label_list.lock_states[shape.label]
         if shape.group_id is None:
             text = shape.label
         else:
             text = f"{shape.label} ({shape.group_id})"
         label_list_item = LabelListWidgetItem(text, shape)
-        self.label_list.add_iem(label_list_item)
         if not self.unique_label_list.find_items_by_label(shape.label):
             item = self.unique_label_list.create_item_from_label(shape.label)
             self.unique_label_list.addItem(item)
@@ -5140,6 +5625,7 @@ class LabelingWidget(LabelDialog):
         )
         _set_label_list_item_lock(label_list_item, shape.locked)
         label_list_item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
+        self.label_list.add_iem(label_list_item)
         if refresh_filters:
             self._refresh_shape_filters()
 
@@ -5250,6 +5736,17 @@ class LabelingWidget(LabelDialog):
             self.flag_widget.addItem(item)
 
     def _sync_label_list_visibility(self, get_visible):
+        with QtCore.QSignalBlocker(self.unique_label_list):
+            for row in range(self.unique_label_list.count()):
+                item = self.unique_label_list.item(row)
+                visible = self.label_info.get(
+                    item.data(Qt.ItemDataRole.UserRole), {}
+                ).get("visible", True)
+                item.setCheckState(
+                    Qt.CheckState.Checked
+                    if visible
+                    else Qt.CheckState.Unchecked
+                )
         model = self.label_list.model()
         blocker = QtCore.QSignalBlocker(model)
         self.label_list.setUpdatesEnabled(False)
@@ -5293,6 +5790,19 @@ class LabelingWidget(LabelDialog):
             )
             return
         self.apply_label_visibility()
+
+    def set_label_visibility(self, label, visible):
+        if label not in self.label_info:
+            self.label_info[label] = dict(
+                delete=False,
+                value=None,
+                color=list(self._get_rgb_by_label(label)),
+                opacity=LABEL_OPACITY,
+                visible=visible,
+            )
+        else:
+            self.label_info[label]["visible"] = visible
+        self._refresh_shape_filters()
 
     def apply_label_visibility(self):
         self._sync_label_list_visibility(
@@ -5392,6 +5902,7 @@ class LabelingWidget(LabelDialog):
                 flags=flags,
             )
             self.label_file = label_file
+            self.actions.save.setIcon(utils.new_icon("save-check"))
             items = self.file_list_widget.findItems(
                 self.image_path, Qt.MatchFlag.MatchExactly
             )
@@ -5487,6 +5998,9 @@ class LabelingWidget(LabelDialog):
                 if item.shape().group_id is not None
                 else ["-1"]
             )
+            and self.label_info.get(item.shape().label, {}).get(
+                "visible", True
+            )
         )
 
     def label_selection_changed(self):
@@ -5535,6 +6049,7 @@ class LabelingWidget(LabelDialog):
         description = ""
         difficult = False
         kie_linking = []
+        review_status = "pending"
 
         if self.canvas.shapes[-1].label in [
             AutoLabelingMode.ADD,
@@ -5575,6 +6090,7 @@ class LabelingWidget(LabelDialog):
                     group_id=last_gid,
                     move_mode=self._config.get("move_mode", "auto"),
                 )
+                review_status = self.label_dialog.get_review_status()
                 if not text:
                     self.label_dialog.edit.setText(previous_text)
 
@@ -5600,6 +6116,7 @@ class LabelingWidget(LabelDialog):
                 shape.label = text
             shape.difficult = difficult
             shape.kie_linking = kie_linking
+            shape.other_data["review_status"] = review_status
             self.add_label(shape)
             self.actions.edit_mode.setEnabled(True)
             self.actions.undo_last_point.setEnabled(False)
@@ -5612,14 +6129,6 @@ class LabelingWidget(LabelDialog):
             ):
                 self.canvas._brush_drawing = True
 
-            if self.attributes and text in self.attributes:
-                shape.selected = True
-                self.shape_attributes.show()
-                self.scroll_area.show()
-                for i, canvas_shape in enumerate(self.canvas.shapes):
-                    if canvas_shape is shape:
-                        self.update_attributes(i)
-                        break
         else:
             if self.canvas.is_magic_wand_mode:
                 self.canvas.shapes.pop()
@@ -5628,6 +6137,29 @@ class LabelingWidget(LabelDialog):
             else:
                 self.canvas.undo_last_line()
                 self.canvas.shapes_backups.pop()
+
+    def show_line_length(self, length, pos):
+        if self.canvas.create_mode == "linestrip":
+            points = self.canvas.current.points
+            total_length = length + sum(
+                utils.distance(points[i] - points[i - 1])
+                for i in range(1, len(points))
+            )
+            self.status(
+                self.tr("X: %d, Y: %d | L: %.2f px | Total: %.2f px")
+                % (int(pos.x()), int(pos.y()), length, total_length)
+            )
+            return
+        self.status(
+            self.tr("X: %d, Y: %d | L: %.2f px")
+            % (int(pos.x()), int(pos.y()), length)
+        )
+
+    def show_circle_radius(self, radius, pos):
+        self.status(
+            self.tr("X: %d, Y: %d | R: %.2f px | C: %.2f px")
+            % (int(pos.x()), int(pos.y()), radius, 2 * math.pi * radius)
+        )
 
     def show_shape(self, shape_height, shape_width, pos):
         """Display annotation width and height while hovering inside.
@@ -5673,17 +6205,18 @@ class LabelingWidget(LabelDialog):
         if not hasattr(self, "image") or self.image.isNull():
             return
 
-        scroll_area = self._central_widget
-        canvas_size = self.canvas.size()
-        scroll_area_size = scroll_area.viewport().size()
-
-        target_x = x_ratio * canvas_size.width() - scroll_area_size.width() / 2
-        target_y = (
-            y_ratio * canvas_size.height() - scroll_area_size.height() / 2
+        image_pos = QtCore.QPointF(
+            x_ratio * self.canvas.pixmap.width(),
+            y_ratio * self.canvas.pixmap.height(),
         )
-
-        self.set_scroll(Qt.Orientation.Horizontal, target_x)
-        self.set_scroll(Qt.Orientation.Vertical, target_y)
+        canvas_pos = (
+            image_pos + self.canvas.offset_to_center()
+        ) * self.canvas.scale
+        center = QtCore.QPointF(
+            self._canvas_scroll_area.viewport().rect().center()
+            - self.canvas.pos()
+        )
+        self.pan_canvas(center - canvas_pos)
 
     def update_navigator_viewport(self):
         """Update the viewport rectangle in the navigator."""
@@ -5697,19 +6230,16 @@ class LabelingWidget(LabelDialog):
             return
 
         scroll_area = self._central_widget
-        canvas_size = self.canvas.size()
+        canvas_size = self.canvas.pixmap.size() * self.canvas.scale
         scroll_area_size = scroll_area.viewport().size()
         if canvas_size.width() <= 0 or canvas_size.height() <= 0:
             return
 
-        h_scroll = self.scroll_bars[Qt.Orientation.Horizontal].value()
-        v_scroll = self.scroll_bars[Qt.Orientation.Vertical].value()
-        x_ratio = max(0.0, h_scroll / canvas_size.width())
-        y_ratio = max(0.0, v_scroll / canvas_size.height())
-        width_ratio = min(1.0, scroll_area_size.width() / canvas_size.width())
-        height_ratio = min(
-            1.0, scroll_area_size.height() / canvas_size.height()
-        )
+        origin = self.canvas.transform_pos(QtCore.QPointF(-self.canvas.pos()))
+        x_ratio = origin.x() / self.canvas.pixmap.width()
+        y_ratio = origin.y() / self.canvas.pixmap.height()
+        width_ratio = scroll_area_size.width() / canvas_size.width()
+        height_ratio = scroll_area_size.height() / canvas_size.height()
 
         self.navigator_dialog.set_viewport(
             x_ratio, y_ratio, width_ratio, height_ratio
@@ -5741,112 +6271,12 @@ class LabelingWidget(LabelDialog):
 
         if mouse_pos is not None:
             canvas_pos = self._convert_navigator_pos_to_canvas(mouse_pos)
-            if canvas_pos:
-                canvas_width_old = self.canvas.width()
-
-                self.zoom_widget.setValue(zoom_percentage)
-                self.zoom_mode = self.MANUAL_ZOOM
-                self.zoom_values[self.filename] = (
-                    self.zoom_mode,
-                    zoom_percentage,
-                )
-                self.paint_canvas()
-
-                canvas_width_new = self.canvas.width()
-                if canvas_width_old != canvas_width_new:
-                    canvas_scale_factor = canvas_width_new / canvas_width_old
-                    x_shift = round(
-                        canvas_pos.x() * canvas_scale_factor - canvas_pos.x()
-                    )
-                    y_shift = round(
-                        canvas_pos.y() * canvas_scale_factor - canvas_pos.y()
-                    )
-                    self.set_scroll(
-                        QtCore.Qt.Orientation.Horizontal,
-                        self.scroll_bars[
-                            QtCore.Qt.Orientation.Horizontal
-                        ].value()
-                        + x_shift,
-                    )
-                    self.set_scroll(
-                        QtCore.Qt.Orientation.Vertical,
-                        self.scroll_bars[
-                            QtCore.Qt.Orientation.Vertical
-                        ].value()
-                        + y_shift,
-                    )
-
+            if canvas_pos is not None:
+                self.set_zoom(zoom_percentage, pos=canvas_pos)
                 return
 
         # Handle direct zoom changes
-        if (
-            hasattr(self, "canvas")
-            and hasattr(self.canvas, "width")
-            and hasattr(self.canvas, "height")
-        ):
-            if hasattr(self.navigator_dialog, "navigator"):
-                nav_widget = self.navigator_dialog.navigator
-                if (
-                    hasattr(nav_widget, "viewport_rect")
-                    and not nav_widget.viewport_rect.isEmpty()
-                ):
-                    nav_rect_center_x = nav_widget.viewport_rect.center().x()
-                    nav_rect_center_y = nav_widget.viewport_rect.center().y()
-                    canvas_pos = self._convert_navigator_pos_to_canvas(
-                        QtCore.QPoint(
-                            int(nav_rect_center_x), int(nav_rect_center_y)
-                        )
-                    )
-
-                    if canvas_pos:
-                        canvas_width_old = self.canvas.width()
-
-                        self.zoom_widget.setValue(zoom_percentage)
-                        self.zoom_mode = self.MANUAL_ZOOM
-                        self.zoom_values[self.filename] = (
-                            self.zoom_mode,
-                            zoom_percentage,
-                        )
-                        self.paint_canvas()
-
-                        canvas_width_new = self.canvas.width()
-                        if canvas_width_old != canvas_width_new:
-                            canvas_scale_factor = (
-                                canvas_width_new / canvas_width_old
-                            )
-                            x_shift = round(
-                                canvas_pos.x() * canvas_scale_factor
-                                - canvas_pos.x()
-                            )
-                            y_shift = round(
-                                canvas_pos.y() * canvas_scale_factor
-                                - canvas_pos.y()
-                            )
-                            self.set_scroll(
-                                QtCore.Qt.Orientation.Horizontal,
-                                self.scroll_bars[
-                                    QtCore.Qt.Orientation.Horizontal
-                                ].value()
-                                + x_shift,
-                            )
-                            self.set_scroll(
-                                QtCore.Qt.Orientation.Vertical,
-                                self.scroll_bars[
-                                    QtCore.Qt.Orientation.Vertical
-                                ].value()
-                                + y_shift,
-                            )
-                        return
-
-            self.zoom_widget.setValue(zoom_percentage)
-            self.zoom_mode = self.MANUAL_ZOOM
-            self.zoom_values[self.filename] = (self.zoom_mode, zoom_percentage)
-            self.paint_canvas()
-        else:
-            self.zoom_widget.setValue(zoom_percentage)
-            self.zoom_mode = self.MANUAL_ZOOM
-            self.zoom_values[self.filename] = (self.zoom_mode, zoom_percentage)
-            self.paint_canvas()
+        self.set_zoom(zoom_percentage)
 
     def _convert_navigator_pos_to_canvas(
         self, navigator_pos: QtCore.QPoint
@@ -5880,8 +6310,15 @@ class LabelingWidget(LabelDialog):
         y_ratio = relative_y / navigator_widget.image_rect.height()
 
         # Convert to canvas coordinates
-        canvas_x = int(x_ratio * self.canvas.width())
-        canvas_y = int(y_ratio * self.canvas.height())
+        offset = self.canvas.offset_to_center()
+        canvas_x = round(
+            (x_ratio * self.canvas.pixmap.width() + offset.x())
+            * self.canvas.scale
+        )
+        canvas_y = round(
+            (y_ratio * self.canvas.pixmap.height() + offset.y())
+            * self.canvas.scale
+        )
 
         return QtCore.QPoint(canvas_x, canvas_y)
 
@@ -5921,17 +6358,22 @@ class LabelingWidget(LabelDialog):
         self.scroll_values[orientation][self.filename] = value
         self.update_navigator_viewport()
 
-    def set_zoom(self, value):
+    def set_zoom(self, value, *, pos=None):
+        self._zoom_animation.stop()
         self.actions.fit_width.setChecked(False)
         self.actions.fit_window.setChecked(False)
         self.zoom_mode = self.MANUAL_ZOOM
-        self.zoom_widget.setValue(value)
-        self.zoom_values[self.filename] = (self.zoom_mode, value)
-        if hasattr(self, "navigator_dialog"):
-            self.navigator_dialog.set_zoom_value(value)
+        if pos is None:
+            self._apply_zoom(value)
+        else:
+            self._apply_zoom(
+                value,
+                self.canvas.transform_pos(QtCore.QPointF(pos)),
+                QtCore.QPointF(pos) + QtCore.QPointF(self.canvas.pos()),
+            )
 
     def add_zoom(self, increment=1.1):
-        zoom_value = self.zoom_widget.value() * increment
+        zoom_value = self.canvas.scale * 100 * increment
         if increment > 1:
             zoom_value = math.ceil(zoom_value)
         else:
@@ -5939,27 +6381,98 @@ class LabelingWidget(LabelDialog):
         self.set_zoom(zoom_value)
 
     def zoom_request(self, delta, pos):
-        canvas_width_old = self.canvas.width()
-        units = 1.1
-        if delta < 0:
-            units = 0.9
-        self.add_zoom(units)
+        if not delta or self.image.isNull():
+            return
+        animation = self._zoom_animation
+        value = self.canvas.scale * 100
+        if animation.state() == QtCore.QAbstractAnimation.State.Running:
+            value = animation.endValue()
+        animation.stop()
+        value *= 1.1 ** (max(-12000, min(12000, delta)) / 120.0)
+        value = max(
+            self.zoom_widget.minimum(), min(self.zoom_widget.maximum(), value)
+        )
+        self.actions.fit_width.setChecked(False)
+        self.actions.fit_window.setChecked(False)
+        self.zoom_mode = self.MANUAL_ZOOM
+        self._zoom_anchor_image = self.canvas.transform_pos(
+            QtCore.QPointF(pos)
+        )
+        self._zoom_anchor_viewport = QtCore.QPointF(pos) + QtCore.QPointF(
+            self.canvas.pos()
+        )
+        with QtCore.QSignalBlocker(animation):
+            animation.setStartValue(self.canvas.scale * 100)
+            animation.setEndValue(float(value))
+        animation.start()
 
-        canvas_width_new = self.canvas.width()
-        if canvas_width_old != canvas_width_new:
-            canvas_scale_factor = canvas_width_new / canvas_width_old
+    def _animate_zoom(self, value):
+        self._apply_zoom(
+            value, self._zoom_anchor_image, self._zoom_anchor_viewport
+        )
 
-            x_shift = round(pos.x() * canvas_scale_factor - pos.x())
-            y_shift = round(pos.y() * canvas_scale_factor - pos.y())
-
-            self.set_scroll(
-                Qt.Orientation.Horizontal,
-                self.scroll_bars[Qt.Orientation.Horizontal].value() + x_shift,
+    def _apply_zoom(self, value, image_pos=None, viewport_pos=None):
+        if self.image.isNull():
+            return
+        value = max(
+            self.zoom_widget.minimum(), min(self.zoom_widget.maximum(), value)
+        )
+        if viewport_pos is None:
+            viewport_pos = QtCore.QPointF(
+                self._canvas_scroll_area.viewport().rect().center()
             )
-            self.set_scroll(
-                Qt.Orientation.Vertical,
-                self.scroll_bars[Qt.Orientation.Vertical].value() + y_shift,
+        if image_pos is None:
+            image_pos = self.canvas.transform_pos(
+                viewport_pos - QtCore.QPointF(self.canvas.pos())
             )
+        with QtCore.QSignalBlocker(self.zoom_widget):
+            self.zoom_widget.setValue(round(value))
+        self.canvas.scale = value / 100.0
+        self.canvas.adjustSize()
+        canvas_pos = (
+            image_pos + self.canvas.offset_to_center()
+        ) * self.canvas.scale
+        self.canvas.pan_offset += (
+            viewport_pos - QtCore.QPointF(self.canvas.pos()) - canvas_pos
+        )
+        self.zoom_values[self.filename] = (self.zoom_mode, value)
+        self.constrain_canvas_pan()
+        self.pan_values[self.filename] = QtCore.QPointF(self.canvas.pan_offset)
+        self.canvas.update()
+        if hasattr(self, "navigator_dialog"):
+            self.navigator_dialog.set_zoom_value(round(value))
+        self.update_navigator_viewport()
+
+    def constrain_canvas_pan(self):
+        if self.canvas.wheel_navigation_mode != "traditional":
+            return
+        offset = self.canvas.pan_offset
+        self.canvas.pan_offset = QtCore.QPointF()
+        area = self._canvas_scroll_area
+        for bar, delta in (
+            (area.horizontalScrollBar(), offset.x()),
+            (area.verticalScrollBar(), offset.y()),
+        ):
+            bar.setValue(round(bar.value() - delta))
+            self.scroll_values[bar.orientation()][self.filename] = bar.value()
+        self.pan_values[self.filename] = QtCore.QPointF()
+        self.canvas.update()
+        self.update_navigator_viewport()
+
+    def pan_canvas(self, delta):
+        self._zoom_animation.stop()
+        self.actions.fit_width.setChecked(False)
+        self.actions.fit_window.setChecked(False)
+        self.zoom_mode = self.MANUAL_ZOOM
+        self.zoom_values[self.filename] = (
+            self.zoom_mode,
+            self.canvas.scale * 100,
+        )
+        self.canvas.pan_offset += delta
+        self.constrain_canvas_pan()
+        self.pan_values[self.filename] = QtCore.QPointF(self.canvas.pan_offset)
+        self.canvas.update()
+        self.update_navigator_viewport()
 
     def set_fit_window(self, value=True):
         if value:
@@ -6003,7 +6516,7 @@ class LabelingWidget(LabelDialog):
         self.set_dirty()
 
     def _on_shape_opacity_changed(self, value):
-        """Update label/shape opacity from the slider value (0-100)."""
+        """Update annotation fill opacity from the slider value (0-100)."""
         self.canvas.shape_opacity = value / 100.0
         self.canvas.update()
 
@@ -6047,6 +6560,19 @@ class LabelingWidget(LabelDialog):
         self.canvas_adjustment.raise_()
 
     def eventFilter(self, obj, event):
+        if obj is getattr(
+            self, "image_tags_widget", None
+        ) and event.type() in (
+            QtCore.QEvent.Type.Show,
+            QtCore.QEvent.Type.Hide,
+            QtCore.QEvent.Type.Resize,
+        ):
+            height = (
+                0
+                if event.type() == QtCore.QEvent.Type.Hide
+                else self.image_tags_widget.height() + 4
+            )
+            self.right_sidebar.layout().setContentsMargins(0, 0, 0, height)
         if (
             hasattr(self, "_canvas_scroll_area")
             and obj is self._canvas_scroll_area.viewport()
@@ -6264,6 +6790,7 @@ class LabelingWidget(LabelDialog):
                         **shape.flags,
                     }
             self.load_shapes(self.label_file.shapes, update_last_label=False)
+            self._restore_shape_locks()
             self.image_tags_widget.refresh_colors()
             if self.label_file.flags is not None:
                 flags.update(self.label_file.flags)
@@ -6279,6 +6806,14 @@ class LabelingWidget(LabelDialog):
             self.set_clean()
         self.canvas.setEnabled(True)
 
+        saved_pan = QtCore.QPointF(
+            self.pan_values.get(self.filename, QtCore.QPointF())
+        )
+        saved_scroll = {
+            orientation: values[self.filename]
+            for orientation, values in self.scroll_values.items()
+            if self.filename in values
+        }
         # set zoom values
         is_initial_load = not self.zoom_values
         if self.filename in self.zoom_values:
@@ -6287,11 +6822,20 @@ class LabelingWidget(LabelDialog):
         elif is_initial_load or not self._config["keep_prev_scale"]:
             self.adjust_scale(initial=True)
         # set scroll values
-        for orientation in self.scroll_values:
-            if self.filename in self.scroll_values[orientation]:
-                self.set_scroll(
-                    orientation, self.scroll_values[orientation][self.filename]
-                )
+        for orientation, value in saved_scroll.items():
+            self.set_scroll(orientation, value)
+        self.canvas.pan_offset = saved_pan
+        self.pan_values[self.filename] = QtCore.QPointF(saved_pan)
+        self.constrain_canvas_pan()
+
+        if (
+            not self.canvas_adjustment.opacity_pin.isChecked()
+            and self.recent_files
+            and self.recent_files[0] != self.filename
+        ):
+            self.canvas_adjustment.opacity_slider.setValue(
+                self.canvas_adjustment.OPACITY_DEFAULT
+            )
 
         # set brightness contrast values
         brightness, contrast = self.brightness_contrast_values.get(
@@ -6354,7 +6898,59 @@ class LabelingWidget(LabelDialog):
             return
         super(LabelingWidget, self).keyPressEvent(event)
 
+    def _remember_sidebar_width(self, position, index):
+        available = (
+            self.sidebar_splitter.width() - self.sidebar_splitter.handleWidth()
+        )
+        if available > 0 and not self.right_sidebar.isHidden():
+            self._sidebar_width_ratio = self.right_sidebar.width() / available
+
+    def _update_ui_density(self):
+        window = self.window()
+        scale = min(
+            1.5, max(1.0, min(window.width() / 1920, window.height() / 1000))
+        )
+        scale = round(scale * 8) / 8
+        if scale != self._ui_scale:
+            self._ui_scale = scale
+            app = QtWidgets.QApplication.instance()
+            app._xanylabeling_ui_scale = scale
+            apply_application_font(self._config.get("font_family"))
+            self.tools.setUiScale(scale)
+            self.tools_scroll_area.setFixedHeight(
+                self.tools.height()
+                + (
+                    6
+                    if self.tools_scroll_area.horizontalScrollBar().maximum()
+                    else 0
+                )
+            )
+
+        base_width = round(self._sidebar_base_width * scale)
+        self.right_sidebar.setMinimumWidth(base_width)
+        self.right_sidebar.setMaximumWidth(base_width * 2)
+        available = (
+            self.sidebar_splitter.width() - self.sidebar_splitter.handleWidth()
+        )
+        target = (
+            round(available * self._sidebar_width_ratio)
+            if self._sidebar_width_ratio is not None
+            else base_width
+        )
+        self._right_sidebar_width = max(
+            base_width, min(base_width * 2, target)
+        )
+        if not self.right_sidebar.isHidden():
+            self.sidebar_splitter.setSizes(
+                [
+                    max(1, available - self._right_sidebar_width),
+                    self._right_sidebar_width,
+                ]
+            )
+
     def resizeEvent(self, _):
+        if hasattr(self, "_ui_resize_timer"):
+            self._ui_resize_timer.start(100)
         if (
             self.canvas
             and not self.image.isNull()
@@ -6367,15 +6963,26 @@ class LabelingWidget(LabelDialog):
     def paint_canvas(self):
         if self.image.isNull():
             return
-        self.canvas.scale = 0.01 * self.zoom_widget.value()
+        self._zoom_animation.stop()
         self.canvas.adjustSize()
         self.canvas.update()
         self.update_navigator_viewport()
 
     def adjust_scale(self, initial=False):
+        self._zoom_animation.stop()
+        self.canvas.pan_offset = QtCore.QPointF()
+        self.pan_values[self.filename] = QtCore.QPointF()
         value = self.scalers[self.FIT_WINDOW if initial else self.zoom_mode]()
-        value = int(100 * value)
-        self.zoom_widget.setValue(value)
+        value = max(
+            self.zoom_widget.minimum(),
+            min(self.zoom_widget.maximum(), int(100 * value)),
+        )
+        with QtCore.QSignalBlocker(self.zoom_widget):
+            self.zoom_widget.setValue(value)
+        self.canvas.scale = 0.01 * self.zoom_widget.value()
+        for scroll_bar in self.scroll_bars.values():
+            scroll_bar.setValue(0)
+        self.paint_canvas()
         self.zoom_values[self.filename] = (self.zoom_mode, value)
         if hasattr(self, "navigator_dialog"):
             self.navigator_dialog.set_zoom_value(value)
@@ -6398,6 +7005,12 @@ class LabelingWidget(LabelDialog):
         # The epsilon does not seem to work too well here.
         w = self.central_widget().width() - 2.0
         pw = self.canvas.pixmap.width()
+        if self.canvas.wheel_navigation_mode == "traditional" and pw > 0:
+            area = self._canvas_scroll_area
+            available = area.maximumViewportSize()
+            w = available.width() - 2.0
+            if self.canvas.pixmap.height() * w / pw > available.height():
+                w -= area.verticalScrollBar().sizeHint().width()
         return w / pw if pw > 0 else 1.0
 
     # QT Overload
@@ -7039,6 +7652,7 @@ class LabelingWidget(LabelDialog):
 
         self.last_open_dir = dirpath
         self.filename = None
+        self.update_browse_actions()
         self.file_list_widget.clear()
         image_files = []
 
@@ -7304,6 +7918,7 @@ class LabelingWidget(LabelDialog):
             return
 
         # Ask a label for the object
+        review_status = "pending"
         text, flags, group_id, description, difficult, kie_linking = (
             "",
             {},
@@ -7341,6 +7956,7 @@ class LabelingWidget(LabelDialog):
                 kie_linking=[],
                 move_mode=self._config.get("move_mode", "auto"),
             )
+            review_status = self.label_dialog.get_review_status()
             if not text:
                 self.label_dialog.edit.setText(previous_text)
                 return
@@ -7373,6 +7989,7 @@ class LabelingWidget(LabelDialog):
                 shape.description = description
                 shape.difficult = difficult
                 shape.kie_linking = kie_linking
+                shape.other_data["review_status"] = review_status
                 # Update unique label list
                 if not self.unique_label_list.find_items_by_label(shape.label):
                     unique_label_item = (
@@ -7480,6 +8097,16 @@ class LabelingWidget(LabelDialog):
         model_config = (
             self.auto_labeling_widget.model_manager.loaded_model_config
         )
+        if model_config and model_config.get("type") == "remote_server":
+            thumbnail_path = model_config["model"].get_preview_path(
+                self.filename
+            )
+            if thumbnail_path:
+                self.thumbnail_pixmap = QtGui.QPixmap(thumbnail_path)
+                if not self.thumbnail_pixmap.isNull():
+                    self.thumbnail_container.show()
+                    self.update_thumbnail_pixmap()
+            return
         supported_model_list = list(_THUMBNAIL_RENDER_MODELS.keys())
         if not (
             model_config

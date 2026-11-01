@@ -1855,22 +1855,6 @@ def upload_shape_attrs_file(self, LABEL_OPACITY):
                     item, label, rgb, LABEL_OPACITY
                 )
 
-        # update the shape attributes dialog
-        self.shape_attributes.show()
-        selected_shapes = self.canvas.selected_shapes
-        is_drawing_mode = (
-            hasattr(self.canvas, "current") and self.canvas.current is not None
-        )
-        if (
-            len(selected_shapes) == 1
-            and selected_shapes[0] in self.canvas.shapes
-            and not is_drawing_mode
-        ):
-            self.update_attributes(
-                self.canvas.shapes.index(selected_shapes[0])
-            )
-        else:
-            self.hide_attributes_panel()
         self.canvas.h_shape_is_hovered = False
 
         popup = Popup(

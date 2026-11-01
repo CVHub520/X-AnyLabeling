@@ -148,12 +148,11 @@ class Shape:
         }
         if self.shape_type == "rotation":
             dictData["direction"] = self.direction
-        if self.locked:
-            dictData["locked"] = True
         dictData = {
             **self.other_data,
             **dictData,
         }
+        dictData.pop("locked", None)
         return dictData
 
     def load_from_dict(self, data: dict, close=True):
@@ -175,7 +174,7 @@ class Shape:
         ):
             raise ValueError("kie_linking must be a list of integer pairs")
         self.kie_linking = kie_linking
-        self.locked = data.get("locked", False)
+        self.locked = False
         if self.shape_type == "rotation":
             self.direction = data.get("direction", 0)
         self.other_data = {k: v for k, v in data.items() if k not in self.KEYS}
@@ -430,11 +429,15 @@ class Shape:
         x2, y2 = pt2.x(), pt2.y()
         return QtCore.QRectF(x1, y1, x2 - x1, y2 - y1)
 
-    def paint(self, painter: QtGui.QPainter):  # noqa: max-complexity: 18
+    def paint(
+        self, painter: QtGui.QPainter, fill_opacity=1.0
+    ):  # noqa: max-complexity: 18
         """Paint shape using QPainter"""
         if self.points:
             color = (
-                self.select_line_color if self.selected else self.line_color
+                self.select_line_color
+                if self.selected or self.hovered
+                else self.line_color
             )
             pen = QtGui.QPen(color)
             pen.setWidthF(float(self.line_width))
@@ -537,7 +540,7 @@ class Shape:
                 painter.setPen(orient_pen)
                 painter.drawLine(self.points[0], self.points[1])
                 painter.setPen(pen)
-                if self.selected or self.hovered:
+                if self.selected:
                     for i in self.get_cuboid_visible_control_indices():
                         self.draw_vertex(vrtx_path, i)
             elif self.shape_type == "circle":
@@ -571,19 +574,51 @@ class Shape:
                 # Uncommenting the following line will draw 2 paths
                 # for the 1st vertex, and make it non-filled, which
                 # may be desirable.
-                self.draw_vertex(vrtx_path, 0)
+                if not self.selected and (
+                    self.shape_type != "polygon"
+                    or not self.is_closed()
+                    or self._highlight_index == 0
+                ):
+                    self.draw_vertex(vrtx_path, 0)
 
-                for i, p in enumerate(self.points):
-                    line_path.lineTo(p)
-                    if self.selected:
+                line_path.addPolygon(QtGui.QPolygonF(self.points))
+                if self.selected:
+                    for i in range(len(self.points)):
                         self.draw_vertex(vrtx_path, i)
                 if self.is_closed():
                     line_path.lineTo(self.points[0])
 
             painter.drawPath(line_path)
-            painter.drawPath(vrtx_path)
-            if self._vertex_fill_color is not None:
-                painter.fillPath(vrtx_path, self._vertex_fill_color)
+            if self.fill:
+                color = (
+                    self.select_fill_color
+                    if self.selected
+                    else self.fill_color
+                )
+                color = QtGui.QColor(color)
+                color.setAlpha(round(color.alpha() * fill_opacity))
+                painter.fillPath(line_path, color)
+            if self.selected:
+                vertex_color = QtGui.QColor(self.vertex_fill_color)
+                vertex_color.setAlpha(255)
+                vertex_pen = QtGui.QPen(QtCore.Qt.GlobalColor.black)
+                vertex_pen.setWidthF(1.0)
+                vertex_pen.setCosmetic(True)
+                painter.fillPath(vrtx_path, vertex_color)
+                painter.strokePath(vrtx_path, vertex_pen)
+                if self._highlight_index is not None:
+                    highlighted_path = QtGui.QPainterPath()
+                    self.draw_vertex(
+                        highlighted_path,
+                        self._highlight_index,
+                        self.shape_type == "point",
+                    )
+                    vertex_pen.setWidthF(4.0)
+                    painter.strokePath(highlighted_path, vertex_pen)
+            else:
+                painter.drawPath(vrtx_path)
+                if self._vertex_fill_color is not None:
+                    painter.fillPath(vrtx_path, self._vertex_fill_color)
             # Quadrilateral selected: first vertex as outline-only (transparent, no fill)
             if (
                 self.shape_type == "quadrilateral"
@@ -592,27 +627,14 @@ class Shape:
             ):
                 d = self.point_size / self.scale
                 p0 = self.points[0]
-                outline_color = (
-                    self.select_line_color
-                    if self.selected
-                    else self.line_color
-                )
-                pen = QtGui.QPen(outline_color)
-                pen.setWidthF(float(self.line_width))
+                pen = QtGui.QPen(QtCore.Qt.GlobalColor.black)
+                pen.setWidthF(4.0 if self._highlight_index == 0 else 1.0)
                 pen.setCosmetic(True)
                 painter.setPen(pen)
                 painter.setBrush(QtCore.Qt.BrushStyle.NoBrush)
                 painter.drawEllipse(
                     QtCore.QPointF(p0.x(), p0.y()), d / 2.0, d / 2.0
                 )
-            if self.fill:
-                color = (
-                    self.select_fill_color
-                    if self.selected
-                    else self.fill_color
-                )
-                painter.fillPath(line_path, color)
-
             if (
                 self.shape_type == "quadrilateral"
                 and len(self.points) == 4
@@ -626,17 +648,6 @@ class Shape:
         if len(self.points) != 4:
             return
 
-        color = QtGui.QColor(0, 0, 0)
-        pen = QtGui.QPen(color)
-        pen.setWidthF(float(self.line_width))
-        pen.setCosmetic(True)
-        painter.setPen(pen)
-        painter.setBrush(QtCore.Qt.BrushStyle.NoBrush)
-
-        half_angle_rad = math.radians(40)
-        tip_len = max(4, 10 / self.scale)
-        arm_len = max(5, 12 / self.scale)
-
         # Only first edge: arrow from point 0 toward point 1
         from_pt = self.points[0]
         to_pt = self.points[1]
@@ -646,31 +657,24 @@ class Shape:
         if dist < 1e-6:
             return
         ux, uy = dx / dist, dy / dist
-        angle_rad = math.atan2(dy, dx)
         mx = (from_pt.x() + to_pt.x()) / 2
         my = (from_pt.y() + to_pt.y()) / 2
-        tip_x = mx + ux * tip_len
-        tip_y = my + uy * tip_len
-        back1_x = tip_x + arm_len * math.cos(
-            angle_rad + math.pi - half_angle_rad
-        )
-        back1_y = tip_y + arm_len * math.sin(
-            angle_rad + math.pi - half_angle_rad
-        )
-        back2_x = tip_x + arm_len * math.cos(
-            angle_rad + math.pi + half_angle_rad
-        )
-        back2_y = tip_y + arm_len * math.sin(
-            angle_rad + math.pi + half_angle_rad
-        )
-        painter.drawLine(
-            QtCore.QPointF(tip_x, tip_y),
-            QtCore.QPointF(back1_x, back1_y),
-        )
-        painter.drawLine(
-            QtCore.QPointF(tip_x, tip_y),
-            QtCore.QPointF(back2_x, back2_y),
-        )
+        size = min(dist * 0.22, 5.0 / self.scale)
+        tip = QtCore.QPointF(mx + ux * size / 2, my + uy * size / 2)
+        back = QtCore.QPointF(mx - ux * size / 2, my - uy * size / 2)
+        normal = QtCore.QPointF(-uy * size * 0.65, ux * size * 0.65)
+        arrow = QtGui.QPolygonF([back + normal, tip, back - normal])
+        painter.setBrush(QtCore.Qt.BrushStyle.NoBrush)
+        pen = QtGui.QPen(QtGui.QColor(255, 255, 255, 220), 3.0)
+        pen.setCosmetic(True)
+        pen.setCapStyle(QtCore.Qt.PenCapStyle.RoundCap)
+        pen.setJoinStyle(QtCore.Qt.PenJoinStyle.RoundJoin)
+        painter.setPen(pen)
+        painter.drawPolyline(arrow)
+        pen.setColor(QtGui.QColor(30, 30, 30, 210))
+        pen.setWidthF(1.4)
+        painter.setPen(pen)
+        painter.drawPolyline(arrow)
 
     def draw_vertex(self, path, i, show_difficult=False):
         """Draw a vertex"""
@@ -682,7 +686,7 @@ class Shape:
             point = self.points[i]
         if point is None:
             return
-        if i == self._highlight_index:
+        if i == self._highlight_index and not self.selected:
             size, shape = self._highlight_settings[self._highlight_mode]
             d *= size
         if self._highlight_index is not None:
@@ -766,9 +770,8 @@ class Shape:
         if not self.points:
             return QtGui.QPainterPath()
         if self.shape_type == "rectangle":
-            path = QtGui.QPainterPath(self.points[0])
-            for p in self.points[1:]:
-                path.lineTo(p)
+            path = QtGui.QPainterPath()
+            path.addPolygon(QtGui.QPolygonF(self.points))
         elif self.shape_type == "cuboid":
             path = QtGui.QPainterPath(self.points[0])
             if len(self.points) >= 4:
@@ -787,9 +790,8 @@ class Shape:
                 rectangle = self.get_circle_rect_from_line(self.points)
                 path.addEllipse(rectangle)
         else:
-            path = QtGui.QPainterPath(self.points[0])
-            for p in self.points[1:]:
-                path.lineTo(p)
+            path = QtGui.QPainterPath()
+            path.addPolygon(QtGui.QPolygonF(self.points))
         return path
 
     def bounding_rect(self):
@@ -821,7 +823,12 @@ class Shape:
 
     def copy(self):
         """Copy shape"""
-        return copy.deepcopy(self)
+        memo = {id(point): QtCore.QPointF(point) for point in self.points}
+        memo[id(self.points)] = [memo[id(point)] for point in self.points]
+        for value in self.__dict__.values():
+            if isinstance(value, QtGui.QColor):
+                memo[id(value)] = QtGui.QColor(value)
+        return copy.deepcopy(self, memo)
 
     def __len__(self):
         return len(self.points)

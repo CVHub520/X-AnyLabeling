@@ -36,8 +36,8 @@ To modify any of these fields, use `Ctrl+E` to open the label manager and make a
 ## Export
 
 For instructions on exporting PP-OCR KIE annotations, please refer to the user guide:
-- [English version](../../../docs/en/user_guide.md)
-- [Chinese version](../../../docs/zh_cn/user_guide.md)
+- [English version](../../../docs/en/user_guide.md#47-ppocr-format)
+- [Chinese version](../../../docs/zh_cn/user_guide.md#47-ppocr标签)
 
 A complete example of the output can be found [here](./ppocr-kie/).
 

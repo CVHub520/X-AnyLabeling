@@ -9,7 +9,7 @@ class ZoomWidget(QtWidgets.QSpinBox):
         self.setButtonSymbols(
             QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons
         )
-        self.setRange(1, 1000)
+        self.setRange(10, 1000)
         self.setSuffix("%")
         self.setValue(value)
         self.setToolTip(self.tr("Zoom Level"))

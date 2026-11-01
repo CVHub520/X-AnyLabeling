@@ -79,6 +79,7 @@ class TestLabelLoopReview(unittest.TestCase):
             "anylabeling",
             "resources",
             "images",
+            "common",
             "copy-green.svg",
         )
 

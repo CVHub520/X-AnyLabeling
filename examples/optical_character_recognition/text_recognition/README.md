@@ -43,7 +43,7 @@ When annotating PPOCR data, the `label` field values can be ignored; instead, yo
 ## Export
 
 For instructions on exporting PP-OCR Rec annotations, please consult the user guide available:
-- [English version](../../../docs/en/user_guide.md)
-- [Chinese version](../../../docs/zh_cn/user_guide.md)
+- [English version](../../../docs/en/user_guide.md#47-ppocr-format)
+- [Chinese version](../../../docs/zh_cn/user_guide.md#47-ppocr标签)
 
 The exported annotations can be directly used for the training of PP-OCR detection and recognition models.

@@ -370,15 +370,3 @@ For server-side SAM 3 video tracking, see the [Segment Anything 3 Video guide](.
 | GeCo_encoder.onnx | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 16.78MB | [baidu](https://pan.baidu.com/s/1X_D_tHZGbZKPgjDcQf5Q6A?pwd=n3vs) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/GeCo_encoder.onnx) |
 | GeCo_decoder.onnx | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 16.83MB | [baidu](https://pan.baidu.com/s/1kfCFyt7ffpuREAGUjM5RKQ?pwd=feh9) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/GeCo_decoder.onnx) |
 | GeCo_encoder_quant.onnx | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 646.48MB | [Baidu](https://pan.baidu.com/s/1R7mInx4N9t7eXgAUFY15eg?pwd=yyd6) |
-
-
-## Extended Models and Services
-
-This section lists models that require additional runtimes, standalone inference services, or cloud APIs. See the linked documentation for setup and usage.
-
-- [Florence 2](../../examples/vision_foundation/florence2/README.md)
-- [GLM-4.6-V](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/app/models/glm_4_6v.py)
-- [PaddleOCR-VL-1.5](../../examples/optical_character_recognition/multi_task/README.md)
-- [PP-DocLayoutV3](../../examples/optical_character_recognition/document_layout_analysis/README.md)
-- [Qwen3-VL](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/app/models/qwen3vl.py)
-- [Rex-Omni](../../examples/vision_foundation/rexomni/README.md)

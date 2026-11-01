@@ -39,7 +39,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(__appname__)
 
         main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(10, 10, 10, 10)
+        main_layout.setContentsMargins(10, 2, 10, 10)
         self.labeling_widget = LabelingWrapper(
             self,
             config=config,

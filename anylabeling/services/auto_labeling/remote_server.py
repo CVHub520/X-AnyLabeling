@@ -4,6 +4,7 @@ import json
 import numpy as np
 import os
 import requests
+import tempfile
 from pathlib import Path
 
 from PyQt6 import QtCore
@@ -60,6 +61,7 @@ class RemoteServer(Model):
         self.reset_tracker_flag = False
 
         self.current_task = None
+        self.preview_paths = {}
 
         # Segment Anything 3
         self.label = None
@@ -207,7 +209,11 @@ class RemoteServer(Model):
         params["epsilon_factor"] = self.epsilon_factor
 
         if text_prompt:
-            params["text_prompt"] = text_prompt.rstrip(".")
+            params["text_prompt"] = (
+                text_prompt
+                if self.current_model_id == "wevisone_vl"
+                else text_prompt.rstrip(".")
+            )
         if self.marks:
             params["marks"] = self.marks
         if self.reset_tracker_flag:
@@ -238,7 +244,13 @@ class RemoteServer(Model):
             )
             response.raise_for_status()
             result = response.json()
-            logger.debug(f"Remote server prediction result: {result}")
+            log_result = dict(result)
+            if "artifacts" in result.get("data", {}):
+                log_result["data"] = dict(result["data"])
+                log_result["data"]["artifacts"] = len(
+                    result["data"]["artifacts"]
+                )
+            logger.debug(f"Remote server prediction result: {log_result}")
 
             data = result.get("data", {})
             shapes = []
@@ -262,6 +274,20 @@ class RemoteServer(Model):
                 shapes.append(shape)
 
             description = data.get("description", "")
+            preview_key = (
+                payload["model"],
+                params.get("current_task"),
+                os.path.abspath(image_path) if image_path else None,
+            )
+            self.preview_paths.pop(preview_key, None)
+            if data.get("artifacts"):
+                output_dir = self._save_artifacts(
+                    data["artifacts"], image_path
+                )
+                preview_path = output_dir / "preview.png"
+                if preview_path.exists():
+                    self.preview_paths[preview_key] = str(preview_path)
+                logger.info(f"Exported remote result images: {output_dir}")
 
             replace = data.get("replace")
             if replace is None:
@@ -275,6 +301,61 @@ class RemoteServer(Model):
             logger.error(f"Remote server error: {e}")
             self.on_message(f"Remote server error: {e}")
             return AutoLabelingResult([], replace=self.replace)
+
+    @staticmethod
+    def _save_artifacts(artifacts, image_path):
+        images = []
+        preview = None
+        for artifact in artifacts:
+            kind = artifact.get("kind")
+            if kind not in {"alpha", "mask", "cutout"}:
+                raise ValueError(f"Unsupported image artifact: {kind}")
+            content = base64.b64decode(artifact["png_base64"], validate=True)
+            if not content.startswith(b"\x89PNG\r\n\x1a\n"):
+                raise ValueError("Invalid PNG image artifact")
+            decoded = cv2.imdecode(
+                np.frombuffer(content, dtype=np.uint8), cv2.IMREAD_UNCHANGED
+            )
+            if decoded is None:
+                raise ValueError("Invalid PNG image artifact")
+            images.append((kind, content))
+            if kind == "cutout":
+                cutout = decoded
+                if cutout.ndim != 3 or cutout.shape[2] != 4:
+                    raise ValueError("Cutout artifacts require RGBA pixels")
+                if preview is None:
+                    preview = cutout
+                else:
+                    if cutout.shape != preview.shape:
+                        raise ValueError("Cutout dimensions must match")
+                    foreground = cutout[:, :, 3] > preview[:, :, 3]
+                    preview[foreground] = cutout[foreground]
+        source = Path(image_path) if image_path else None
+        output_dir = Path(
+            tempfile.mkdtemp(
+                prefix=(
+                    f"{source.stem}_outputs_" if source else "remote_outputs_"
+                ),
+                dir=source.parent if source else None,
+            )
+        )
+        for index, (kind, content) in enumerate(images):
+            (output_dir / f"{index:03d}_{kind}.png").write_bytes(content)
+        if preview is not None:
+            ok, encoded = cv2.imencode(".png", preview)
+            if not ok:
+                raise ValueError("Failed to encode cutout preview")
+            (output_dir / "preview.png").write_bytes(encoded.tobytes())
+        return output_dir
+
+    def get_preview_path(self, image_path):
+        return self.preview_paths.get(
+            (
+                self.current_model_id,
+                self.current_task,
+                os.path.abspath(image_path) if image_path else None,
+            )
+        )
 
     def _handle_video_prompt(self, image_path, text_prompt):
         """Handle video prompt: initialize or reuse session and add prompt.

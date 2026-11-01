@@ -47,7 +47,7 @@ class PointCloudExportDialog(QtWidgets.QDialog):
         self.path_input.setPlaceholderText(self.tr("Export ZIP path"))
         self.path_input.setAccessibleName(self.tr("Export ZIP path"))
         self.browse_button = QtWidgets.QPushButton(self.tr("Browse…"))
-        self.browse_button.setIcon(parent._icon("folder-chatbot"))
+        self.browse_button.setIcon(parent._icon("open"))
         self.browse_button.setAutoDefault(False)
         self.browse_button.clicked.connect(self._browse)
         layout = QtWidgets.QGridLayout(self)

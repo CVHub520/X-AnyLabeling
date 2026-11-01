@@ -90,6 +90,10 @@ class PPOCRPipeline:
         ).strip()
         self.server_api_key = str(remote_settings.get("api_key") or "").strip()
         self.timeout = int(remote_settings.get("timeout", 180) or 180)
+        self.document_timeout = int(
+            remote_settings.get("document_timeout", 3600) or 3600
+        )
+        self.document_models: set[str] = set()
         api_settings = self.data_manager.load_api_settings()
         self.api_url = PPOCR_API_JOB_URL
         self.api_key = api_settings.get("api_key", "")
@@ -303,6 +307,14 @@ class PPOCRPipeline:
                     )
 
                 self.pipeline_models = pipeline_models
+                self.document_models = {
+                    model.model_id
+                    for model in pipeline_models
+                    if (
+                        models_data[model.model_id].get("capabilities") or {}
+                    ).get("document_inference")
+                    is True
+                }
                 selected_model = self._select_pipeline_model(pipeline_models)
                 self.service_probe = PPOCRServiceProbe(
                     is_online=True,
@@ -369,6 +381,14 @@ class PPOCRPipeline:
                 progress_callback=progress_callback,
                 index=index,
                 total=total,
+            )
+
+        if self.pipeline_model in self.document_models:
+            result = self._predict_remote_document(page_paths, cancel_event)
+            if cancel_event is not None and cancel_event.is_set():
+                raise RuntimeError("Parsing cancelled")
+            return self._normalize_document_result(
+                record, page_paths, result, job_id="", remote=True
             )
 
         layout_results = []
@@ -1079,12 +1099,19 @@ class PPOCRPipeline:
         page_paths: list[Path],
         result_data: dict[str, Any],
         job_id: str,
+        remote: bool = False,
     ) -> dict[str, Any]:
         raw_layout_results = result_data.get("layoutParsingResults") or []
         if not isinstance(raw_layout_results, list) or not raw_layout_results:
             raise RuntimeError(
                 "PPOCR API job result contains no page results."
             )
+        if remote and len(raw_layout_results) != len(page_paths):
+            raise RuntimeError(
+                "Parsed page count does not match input document"
+            )
+        pipeline_model = self.pipeline_model if remote else self.api_model
+        api_mode = "document" if remote else PPOCR_API_MODE_ASYNC_JOBS
 
         layout_results = []
         page_sizes = []
@@ -1123,8 +1150,8 @@ class PPOCRPipeline:
                     page_path,
                     image.width,
                     image.height,
-                    pipeline_model=self.api_model,
-                    api_mode=PPOCR_API_MODE_ASYNC_JOBS,
+                    pipeline_model=pipeline_model,
+                    api_mode=api_mode,
                     fit_to_image_size=True,
                 )
                 parsing_res_list = (page_result.get("prunedResult") or {}).get(
@@ -1181,11 +1208,13 @@ class PPOCRPipeline:
                 "error_message": "",
                 "edited_blocks": [],
                 "block_image_paths": block_image_paths,
-                "pipeline_model": self.api_model,
-                "api_mode": PPOCR_API_MODE_ASYNC_JOBS,
+                "pipeline_model": pipeline_model,
+                "api_mode": api_mode,
                 "api_job_id": job_id,
             },
         }
+        if remote:
+            document_data["markdown"] = result_data.get("markdown", {})
         self.data_manager.save_record_data(record, document_data)
         return document_data
 
@@ -1468,6 +1497,42 @@ class PPOCRPipeline:
         ):
             return data
         raise RuntimeError("PPOCR API response missing result object")
+
+    def _predict_remote_document(
+        self,
+        page_paths: list[Path],
+        cancel_event: threading.Event | None = None,
+    ) -> dict[str, Any]:
+        images = []
+        for page_path in page_paths:
+            if cancel_event is not None and cancel_event.is_set():
+                raise RuntimeError("Parsing cancelled")
+            with Image.open(page_path) as image:
+                image = ImageOps.exif_transpose(image).convert("RGB")
+                buffer = BytesIO()
+                image.save(buffer, format="PNG")
+                images.append(
+                    base64.b64encode(buffer.getvalue()).decode("ascii")
+                )
+        response = self._post_json_with_cancel(
+            self._resolve_server_predict_url() + "/document",
+            payload={
+                "model": self.pipeline_model,
+                "images": images,
+                "params": {},
+            },
+            headers=self._server_headers(),
+            timeout_seconds=self.document_timeout,
+            cancel_event=cancel_event,
+        )
+        response.raise_for_status()
+        result = response.json()
+        if not result.get("success", True):
+            raise RuntimeError(
+                (result.get("error") or {}).get("message")
+                or "Document inference failed"
+            )
+        return result.get("data") or {}
 
     def _predict_remote(
         self,

@@ -57,10 +57,10 @@ def _svg_renderer(name, color):
         return None
     data = bytes(source.readAll())
     source.close()
-    if name == "settings":
-        data = data.replace(b"<path ", f'<path fill="{color}" '.encode())
-    data = data.replace(b"#000000", color.encode()).replace(
-        b"currentColor", color.encode()
+    data = (
+        data.replace(b"#000000", color.encode())
+        .replace(b"currentColor", color.encode())
+        .replace(b"#333333", color.encode())
     )
     return QtSvg.QSvgRenderer(QtCore.QByteArray(data))
 
@@ -291,7 +291,13 @@ def _draw_circle_arrow_up(painter, accent):
 
 
 def get_icon(name, color, accent):
+    if name == "upload":
+        name = "pointcloud-upload"
     if name in (
+        "eye",
+        "eye-off",
+        "circle",
+        "circle-check",
         "panel-left",
         "panel-right",
         "rotate-cw",
@@ -303,6 +309,8 @@ def get_icon(name, color, accent):
         "settings",
         "command",
         "keyboard",
+        "lock",
+        "unlock",
     ):
         renderer = _svg_renderer(name, color)
         if renderer is None:
@@ -313,32 +321,13 @@ def get_icon(name, color, accent):
         renderer.render(painter)
         painter.end()
         return QtGui.QIcon(center_pixmap(pixmap))
-    if name == "upload":
-        source = QtCore.QFile(":/images/images/download.svg")
-        if not source.open(QtCore.QIODevice.OpenModeFlag.ReadOnly):
-            return None
-        data = bytes(source.readAll())
-        source.close()
-        data = data.replace(
-            b"<path ",
-            b'<path transform="translate(0 824) scale(1 -1)" ',
-            1,
-        )
-        data = data.replace(b'fill="#636363"', f'fill="{color}"'.encode())
-        pixmap = QtGui.QPixmap(36, 36)
-        pixmap.fill(QtCore.Qt.GlobalColor.transparent)
-        painter = QtGui.QPainter(pixmap)
-        QtSvg.QSvgRenderer(QtCore.QByteArray(data)).render(painter)
-        painter.end()
-        return QtGui.QIcon(center_pixmap(pixmap))
     if name == "click":
         source = QtCore.QFile(":/images/images/click.svg")
         if not source.open(QtCore.QIODevice.OpenModeFlag.ReadOnly):
             return None
         data = bytes(source.readAll())
         source.close()
-        data = data.replace(b'fill="#13227a"', f'fill="{color}"'.encode(), 1)
-        data = data.replace(b'fill="#13227a"', f'fill="{accent}"'.encode(), 1)
+        data = data.replace(b"currentColor", color.encode())
         pixmap = QtGui.QPixmap(72, 72)
         pixmap.fill(QtCore.Qt.GlobalColor.transparent)
         painter = QtGui.QPainter(pixmap)

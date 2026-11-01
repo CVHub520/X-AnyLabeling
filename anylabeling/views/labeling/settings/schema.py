@@ -68,6 +68,10 @@ def _settings_translation_markers() -> None:
     QCoreApplication.translate("SettingsDialog", "Toggle Annotation Checked")
     QCoreApplication.translate("SettingsDialog", "Toggle Image Tags")
     QCoreApplication.translate("SettingsDialog", "File List Checkbox Editable")
+    QCoreApplication.translate("SettingsDialog", "Image Jump Step")
+    QCoreApplication.translate(
+        "SettingsDialog", "Number of images to skip when navigating."
+    )
     QCoreApplication.translate("SettingsDialog", "Use System Clipboard")
     QCoreApplication.translate("SettingsDialog", "Application Font")
     QCoreApplication.translate(
@@ -182,7 +186,7 @@ def _settings_translation_markers() -> None:
     )
     QCoreApplication.translate(
         "SettingsDialog",
-        "Use the mouse wheel to adjust rectangle geometry while editing.",
+        "Use Alt+Wheel to adjust rectangle geometry while editing. Disabled by default.",
     )
     QCoreApplication.translate(
         "SettingsDialog",
@@ -281,7 +285,7 @@ def _settings_translation_markers() -> None:
         "SettingsDialog", "Open Image Classifier Dialog"
     )
     QCoreApplication.translate("SettingsDialog", "Open Video Classifier")
-    QCoreApplication.translate("SettingsDialog", "Open PaddleOCR Dialog")
+    QCoreApplication.translate("SettingsDialog", "Open Document Parser Dialog")
     QCoreApplication.translate("SettingsDialog", "Open Overview Dialog")
     QCoreApplication.translate("SettingsDialog", "Show Navigator Dialog")
     QCoreApplication.translate(
@@ -355,6 +359,7 @@ SETTINGS_GENERAL_KEYS = (
     "auto_switch_to_edit_mode",
     "exif_scan_enabled",
     "file_list_checkbox_editable",
+    "image_jump_step",
     "system_clipboard",
     "font_family",
     "model_hub",
@@ -500,7 +505,7 @@ def _shortcut_label(short_key: str) -> str:
             SETTINGS_TRANSLATION_CONTEXT, "Open Chatbot Dialog"
         ),
         "open_paddleocr": QT_TRANSLATE_NOOP(
-            SETTINGS_TRANSLATION_CONTEXT, "Open PaddleOCR Dialog"
+            SETTINGS_TRANSLATION_CONTEXT, "Open Document Parser Dialog"
         ),
         "edit_digit_shortcut": QT_TRANSLATE_NOOP(
             SETTINGS_TRANSLATION_CONTEXT,
@@ -540,7 +545,13 @@ def _shortcut_label(short_key: str) -> str:
             SETTINGS_TRANSLATION_CONTEXT, "Switch Prev Unchecked Image"
         ),
         "toggle_annotation_checked": QT_TRANSLATE_NOOP(
-            SETTINGS_TRANSLATION_CONTEXT, "Toggle Annotation Checked"
+            SETTINGS_TRANSLATION_CONTEXT, "Check Passed"
+        ),
+        "clear_annotation_checked": QT_TRANSLATE_NOOP(
+            SETTINGS_TRANSLATION_CONTEXT, "Unchecked"
+        ),
+        "fail_annotation_checked": QT_TRANSLATE_NOOP(
+            SETTINGS_TRANSLATION_CONTEXT, "Check Failed"
         ),
         "toggle_image_tags": QT_TRANSLATE_NOOP(
             SETTINGS_TRANSLATION_CONTEXT, "Toggle Image Tags"
@@ -634,6 +645,20 @@ def _non_shortcut_fields() -> list[SettingField]:
             description=QT_TRANSLATE_NOOP(
                 SETTINGS_TRANSLATION_CONTEXT,
                 "Allow checked state changes directly from the file list.",
+            ),
+        ),
+        SettingField(
+            "image_jump_step",
+            QT_TRANSLATE_NOOP(SETTINGS_TRANSLATION_CONTEXT, "Image Jump Step"),
+            "int",
+            "General",
+            "File List",
+            "Navigation",
+            minimum=1,
+            maximum=1000000,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Number of images to skip when navigating.",
             ),
         ),
         SettingField(
@@ -891,6 +916,21 @@ def _non_shortcut_fields() -> list[SettingField]:
             ),
         ),
         SettingField(
+            "canvas.wheel_navigation_mode",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Wheel Navigation Mode"
+            ),
+            "enum",
+            "Canvas",
+            "Interaction",
+            "Basic Interaction",
+            options=("direct", "traditional"),
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Wheel zooms in Direct Zoom mode; scrolls in Traditional Navigation mode.",
+            ),
+        ),
+        SettingField(
             "canvas.double_click",
             QT_TRANSLATE_NOOP(SETTINGS_TRANSLATION_CONTEXT, "Double Click"),
             "enum",
@@ -944,7 +984,7 @@ def _non_shortcut_fields() -> list[SettingField]:
             "Basic",
             description=QT_TRANSLATE_NOOP(
                 SETTINGS_TRANSLATION_CONTEXT,
-                "Use the mouse wheel to adjust rectangle geometry while editing.",
+                "Use Alt+Wheel to adjust rectangle geometry while editing. Disabled by default.",
             ),
         ),
         SettingField(
@@ -1393,6 +1433,8 @@ def _shortcut_category_map() -> dict[str, tuple[str, ...]]:
             "open_prev",
             "open_prev_unchecked",
             "toggle_annotation_checked",
+            "clear_annotation_checked",
+            "fail_annotation_checked",
         ),
         "Shape": (
             "add_point_to_edge",

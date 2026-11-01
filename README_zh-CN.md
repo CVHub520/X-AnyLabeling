@@ -19,7 +19,7 @@
 </p>
 
 <a href="https://mp.weixin.qq.com/s/RUb8ge-_7br0YeIImuK6YQ" target="_blank">
-  <img src="https://github.com/user-attachments/assets/aa819dae-e38c-4b1c-a4a7-53a873d870e3" alt="X-AnyLabeling 界面" width="100%" />
+  <img src="assets/resources/interface.webp" alt="X-AnyLabeling 界面" width="100%" />
 </a>
 
 <p align="center">
@@ -30,8 +30,15 @@
 
 ## 🥳 新功能
 
+- `2026-10-31`：新增对象级多任务属性标注，支持 AI 标注及并发推理。
+- `2026-10-30`：新增支持 [Unlimited-OCR-2](./examples/optical_character_recognition/unlimited_ocr_2/README.md) 模型，支持图像、PDF 文档解析与多页上下文识别。
+- `2026-10-28`：新增支持 [WeVisOne-VL](./examples/vision_foundation/wevisone_vl/README.md) 模型，支持目标检测、描述定位、目标指点、计数、OCR、文本定位、分割、文本及框提示抠图、参考框检测和自由提示。
+- `2026-10-28`：新增支持 [Xiaomi-Lens-0](./examples/vision_foundation/xiaomi_lens/README.md) 模型，支持描述理解与分割、多实例定位、推理分割、具身指令定位及细粒度感知。
+- `2026-10-27`：新增[标注显示模式](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#33-%E5%AF%B9%E8%B1%A1%E5%8F%AF%E8%A7%86%E5%8C%96)，支持按类别、实例或群组配色，以及黑色背景、白色前景的二值掩码视图。
+- `2026-10-27`：新增支持正方形标注。
+- `2026-10-24`：支持画布上的平滑缩放、自由平移和边界裁剪。
 - `2026-10-18`：新增支持 [GroundingPI、GroundAnything 和 GroundAnything-VLM](./examples/vision_foundation/groundingpi/README.md) 模型，支持目标检测、描述定位、描述与类别指点、OCR、文档版面分析、GUI 定位及参考框检测。
-- `2026-10-01`：新增 [3D 点云标注](./docs/zh_cn/point_cloud.md)功能，支持 3D 点云检测与分割。
+- `2026-10-01`：新增 [3D 点云标注](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/point_cloud)功能，支持 3D 点云检测与分割。
 - `2026-08-19`：新增[图片标签](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#37-%E5%9B%BE%E7%89%87%E6%A0%87%E7%AD%BE)功能，支持标签新增、编辑、排序及批量删除。
 - `2026-08-12`：新增支持 [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg) 实例分割模型。
 - `2026-08-08`：新增支持 [RT-DETRv2-OBB](https://xanylabeling.com/examples/detection/obb) 旋转目标检测模型。
@@ -75,8 +82,8 @@
 | 🏷️ **图像标记** | RAM, RAM++ |
 | 📄 **光学字符识别** | PP-OCRv4, PP-OCRv5, PP-OCRv6 |
 | 🧾 **综合版面分析** | PP-DocLayoutV3 |
-| 📑 **文档解析** | PaddleOCR-VL, PaddleOCR-VL-1.6 |
-| 🗣️ **视觉基础模型** | Rex-Omni, Florence2, LocateAnything, GroundingPI, GroundAnything, GroundAnything-VLM |
+| 📑 **文档解析** | PaddleOCR-VL, PaddleOCR-VL-1.6, Unlimited-OCR-2 |
+| 🗣️ **视觉基础模型** | Rex-Omni, Florence2, LocateAnything, GroundingPI, GroundAnything, GroundAnything-VLM, Xiaomi-Lens-0, WeVisOne-VL |
 | 👁️ **视觉语言模型** | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ **车道线检测** | CLRNet |
 | 🔢 **目标计数** | CountGD, GeCO, GeCo2 |
@@ -95,7 +102,7 @@
 7. [视觉问答](./docs/zh_cn/vqa.md)
 8. [图像分类器](./docs/zh_cn/image_classifier.md)
 9. [视频分类器](./docs/zh_cn/video_classifier.md)
-10. [文档解析与智能文字识别](./docs/zh_cn/paddle_ocr.md)
+10. [文档解析器](./docs/zh_cn/document_parser.md)
 11. [3D 点云标注](./docs/zh_cn/point_cloud.md)
 
 ## 示例
@@ -119,6 +126,7 @@
   - [Depth Estimation](./examples/estimation/depth_estimation/README.md)
 - [OCR](./examples/optical_character_recognition/)
   - [Text Recognition](./examples/optical_character_recognition/text_recognition/)
+  - [Unlimited-OCR-2](./examples/optical_character_recognition/unlimited_ocr_2/README.md)
   - [Key Information Extraction](./examples/optical_character_recognition/key_information_extraction/README.md)
 - [MOT](./examples/multiple_object_tracking/README.md)
   - [Tracking by HBB Object Detection](./examples/multiple_object_tracking/README.md)
@@ -130,10 +138,12 @@
   - [SAM3-Video](./examples/interactive_video_object_segmentation/sam3/README.md)
 - [Matting](./examples/matting/)
   - [Image Matting](./examples/matting/image_matting/README.md)
-- [视觉基础模型](./examples/vision_foundation/)
+- [VFM](./examples/vision_foundation/)
   - [Rex-Omni](./examples/vision_foundation/rexomni/README.md)
   - [Florence 2](./examples/vision_foundation/florence2/README.md)
   - [LocateAnything](./examples/vision_foundation/locateanything/README.md)
+  - [WeVisOne-VL](./examples/vision_foundation/wevisone_vl/README.md)
+  - [Xiaomi-Lens-0](./examples/vision_foundation/xiaomi_lens/README.md)
   - [GroundingPI / GroundAnything / GroundAnything-VLM](./examples/vision_foundation/groundingpi/README.md)
 - [Counting](./examples/counting/)
   - [GeCo](./examples/counting/geco/README.md)

@@ -76,6 +76,8 @@ class SettingsRuntimeApplier:
             "shortcuts.open_next_unchecked": self._widget.actions.open_next_unchecked_image,
             "shortcuts.open_prev_unchecked": self._widget.actions.open_prev_unchecked_image,
             "shortcuts.toggle_annotation_checked": self._widget.actions.toggle_annotation_checked,
+            "shortcuts.clear_annotation_checked": self._widget.actions.clear_annotation_checked,
+            "shortcuts.fail_annotation_checked": self._widget.actions.fail_annotation_checked,
             "shortcuts.zoom_in": self._widget.actions.zoom_in,
             "shortcuts.zoom_out": self._widget.actions.zoom_out,
             "shortcuts.zoom_to_original": self._widget.actions.zoom_org,
@@ -209,11 +211,26 @@ class SettingsRuntimeApplier:
                 )
             ).format(
                 utils.fmt_shortcut(combo or "-"),
-                utils.fmt_shortcut(self._widget.tr("Ctrl+Wheel")),
+                self._widget.tr("Wheel"),
             )
         )
 
     def apply_change(self, key: str, value: Any) -> None:
+        if key == "image_jump_step":
+            self._widget.update_browse_actions()
+            return
+        if key == "canvas.wheel_navigation_mode":
+            self._widget.canvas.wheel_navigation_mode = value
+            policy = (
+                Qt.ScrollBarPolicy.ScrollBarAsNeeded
+                if value == "traditional"
+                else Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            )
+            area = self._widget._canvas_scroll_area
+            area.setHorizontalScrollBarPolicy(policy)
+            area.setVerticalScrollBarPolicy(policy)
+            self._widget.constrain_canvas_pan()
+            return
         if key == "font_family":
             apply_application_font(value)
             return
@@ -580,7 +597,7 @@ class SettingsRuntimeApplier:
         if widget is None:
             return
         button = getattr(widget, button_name, None)
-        if button is None or not button.isEnabled():
+        if button is None or not button.isVisible() or not button.isEnabled():
             return
         button.click()
 

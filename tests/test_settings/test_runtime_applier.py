@@ -32,6 +32,34 @@ class TestSettingsRuntimeApplier(unittest.TestCase):
         self.app.setFont(self.original_font)
         self.app._xanylabeling_default_font = QtGui.QFont(self.original_font)
 
+    def test_auto_labeling_shortcut_requires_visible_enabled_button(self):
+        panel = QtWidgets.QWidget()
+        button = QtWidgets.QPushButton(panel)
+        panel.button_add_point = button
+        applier = SettingsRuntimeApplier(
+            SimpleNamespace(auto_labeling_widget=panel)
+        )
+        clicked = Mock()
+        button.clicked.connect(clicked)
+
+        panel.show()
+        button.hide()
+        applier._trigger_auto_labeling_button("button_add_point")
+        clicked.assert_not_called()
+
+        button.show()
+        button.setEnabled(False)
+        applier._trigger_auto_labeling_button("button_add_point")
+        clicked.assert_not_called()
+
+        button.setEnabled(True)
+        applier._trigger_auto_labeling_button("button_add_point")
+        clicked.assert_called_once()
+
+        panel.hide()
+        applier._trigger_auto_labeling_button("button_add_point")
+        clicked.assert_called_once()
+
     def test_font_family_applies_and_restores_without_restart(self):
         families = QtGui.QFontDatabase.families()
         if not families:
