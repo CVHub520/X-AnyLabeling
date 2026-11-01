@@ -18,6 +18,7 @@
   - [2.5 搜索图片](#25-搜索图片)
   - [2.6 编辑文本](#26-编辑文本)
   - [2.7 审批对象](#27-审批对象)
+  - [2.8 编辑关系](#28-编辑关系)
 - [3. 视图](#3-视图)
   - [3.1 画布可视化](#31-画布可视化)
   - [3.2 图片可视化](#32-图片可视化)
@@ -72,6 +73,9 @@
   - [8.11 视觉基础模型](#811-视觉基础模型)
   - [8.12 目标计数](#812-目标计数)
   - [8.13 视觉定位](#813-视觉定位)
+  - [8.14 关系识别](#814-关系识别)
+  - [8.15 图像描述](#815-图像描述)
+  - [8.16 文档解析](#816-文档解析)
 - [9. 模型](#9-模型)
 - [10. 高级功能](#10-高级功能)
 
@@ -130,7 +134,7 @@ X-AnyLabeling 默认开启自动保存功能，用户在初次启动界面时，
 
 标签文件默认保存在当前图片目录下，文件格式为 `*.json`，模板如下：
 
-```jsonc
+```json
 {
   "version": "${version}", // X-AnyLabeling 版本号
   "flags": {},             // 图片级标志 (如果存在)
@@ -182,6 +186,8 @@ X-AnyLabeling 默认开启自动保存功能，用户在初次启动界面时，
 ```
 
 > **提示**：如需更改标签保存路径，请在菜单栏中的 `文件` 下拉框中点击 `更改输出目录` 选项并设置相应的保存路径。
+
+关系标注还会保存顶层 `relations` 列表及对应对象的 `shape_id`，详见 [2.8 编辑关系](#28-编辑关系)。
 
 ### 1.5 保存图像数据
 
@@ -383,6 +389,19 @@ X-AnyLabeling 默认开启自动保存功能，用户在初次启动界面时，
 
 按对象审批状态筛选图片，请参考上述 [2.5 搜索图片](#25-搜索图片)中的“属性搜索”。
 
+### 2.8 编辑关系
+
+关系用于标注两个对象之间的有向语义，例如“人 → 骑乘 → 自行车”。可以手动创建关系，也可以编辑模型返回的关系；手动操作无需加载关系识别模型。
+
+1. **创建关系**：在编辑模式下恰好选中两个对象，点击工具栏、画布右键菜单或 **编辑** 菜单中的 **创建关系（Create Relation）**。在弹窗中确认 **主体（Subject）** 和 **客体（Object）**，输入关系名称后确认。主体和客体必须是不同对象，关系名称不能为空，箭头方向为主体指向客体。
+2. **编辑关系**：单击画布上的关系标签选中关系，再双击已选中的标签打开编辑弹窗，可修改主体、客体和关系名称。选中时会突出显示关联对象和箭头，并淡化其他关系；标签四角的标记仅表示选中状态，不能拖拽。
+3. **删除关系**：选中关系标签后按 `Delete`，或在关系编辑弹窗中点击 **删除**。删除关系会保留两端对象。
+4. **管理关系**：在 **编辑** 菜单或画布右键菜单中选择 **管理关系（Manage Relations）**，通过列表查看当前图片的关系。选中列表项可在画布上预览关联对象，点击 **编辑** 或双击列表项可修改关系，适合处理箭头重叠的情况。关闭管理弹窗后结束预览。
+
+修改后按正常流程保存标注。关系保存在标签 JSON 顶层的 `relations` 列表中，`subject_id` 和 `object_id` 分别引用对应对象的 `shape_id`，`label` 保存关系名称，`score` 保存模型置信度。手动创建或修改后的关系不保留模型置信度，`score` 为 `null`；未修改的模型关系保留原分数。保存时仅保留两端对象仍存在的关系。
+
+关系标注与标签编辑中的 KIE `kie_linking` 字段分别存储。显示控制见 [3.3 对象可视化](#33-对象可视化)，模型辅助标注示例见 [8.14 关系识别](#814-关系识别)。
+
 ## 3. 视图
 
 本章介绍画布、图像和标注对象的显示设置。
@@ -454,6 +473,8 @@ X-AnyLabeling 支持调整当前图片的显示效果和标注对象的可见性
 - **标题栏最右侧复选框**：展开或隐藏面板内容，不改变画布上对象的可见性。
 
 显隐与锁定独立控制；隐藏对象不会删除标注。
+
+关系箭头和文字也受 **视图** 菜单控制：**Show KIE Linking**（`Ctrl+K`）控制关系连线及标签的显隐；**Show Labels**（`Ctrl+L`）控制关系标签，关闭后仍显示箭头；**Show Scores** 控制标签中的模型置信度。手动关系没有置信度可显示。隐藏显示内容不会删除已保存的关系。
 
 ### 3.4 十字瞄准线
 
@@ -1238,6 +1259,9 @@ font_family: null  # null 表示使用系统默认字体，也可填写字体名
 ### 8.3 图像分割
 
 - 语义分割 & 实例分割：[链接](../../examples/segmentation/README.md)
+- 实例分割：[链接](../../examples/segmentation/instance_segmentation/)
+- 二值语义分割：[链接](../../examples/segmentation/binary_semantic_segmentation/)
+- 多类语义分割：[链接](../../examples/segmentation/multiclass_semantic_segmentation/)
 
 ### 8.4 姿态估计
 
@@ -1259,6 +1283,7 @@ font_family: null  # null 表示使用系统默认字体，也可填写字体名
 
 - 文本检测与识别：[链接](../../examples/optical_character_recognition/text_recognition/README.md)
 - 关键信息提取：[链接](../../examples/optical_character_recognition/key_information_extraction/README.md)
+- 文档版面分析：[链接](../../examples/optical_character_recognition/document_layout_analysis/README.md)
 
 ### 8.9 交互式视频目标分割
 
@@ -1274,6 +1299,8 @@ font_family: null  # null 表示使用系统默认字体，也可填写字体名
 - Rex-Omni: [链接](../../examples/vision_foundation/rexomni/README.md)
 - Florence 2：[链接](../../examples/vision_foundation/florence2/README.md)
 - LocateAnything：[链接](../../examples/vision_foundation/locateanything/README.md)
+- WeVisOne-VL：[链接](../../examples/vision_foundation/wevisone_vl/README.md)
+- Xiaomi-Lens-0：[链接](../../examples/vision_foundation/xiaomi_lens/README.md)
 - GroundingPI / GroundAnything / GroundAnything-VLM: [链接](../../examples/vision_foundation/groundingpi/README.md)
 
 ### 8.12 目标计数
@@ -1285,6 +1312,20 @@ font_family: null  # null 表示使用系统默认字体，也可填写字体名
 
 - YOLOE：[链接](../../examples/grounding/yoloe/README.md)
 - SAM 3：[链接](../../examples/grounding/sam3/README.md)
+
+### 8.14 关系识别
+
+- RelateAnything：[链接](../../examples/relation/relateanything/README.md)
+
+### 8.15 图像描述
+
+- 图像标记：[链接](../../examples/description/tagging/README.md)
+- 图像描述：[链接](../../examples/description/captioning/README.md)
+
+### 8.16 文档解析
+
+- PaddleOCR-VL：[链接](../../examples/document_parsing/paddleocr_vl/README.md)
+- Unlimited-OCR-2：[链接](../../examples/document_parsing/unlimited_ocr_2/README.md)
 
 ## 9. 模型
 

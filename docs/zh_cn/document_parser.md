@@ -41,7 +41,7 @@ ${workspace}/xanylabeling_data/paddleocr/api_settings.json
 
 ### 本地部署（可选）
 
-如需在本地或私有环境中运行 PaddleOCR，可通过 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 部署推理服务。安装依赖和启动服务的方法参见[PaddleOCR-VL-1.5 示例](../../examples/optical_character_recognition/paddleocr_vl/README.md)。
+如需在本地或私有环境中运行 PaddleOCR，可通过 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 部署推理服务。安装依赖和启动服务的方法参见[PaddleOCR-VL-1.5 示例](../../examples/document_parsing/paddleocr_vl/README.md)。
 
 请检查 X-AnyLabeling-Server 中是否存在 `ppocr_layoutstructv3_vl_1_5` 模型配置。如果您希望自行实现并集成 PaddleOCR 推理管道，请在模型配置中声明以下能力标识，客户端会据此判断该模型是否可用于文档解析器：
 
@@ -54,7 +54,7 @@ capabilities:
 
 服务启动后，重新打开文档解析器，右侧顶部的 `解析模型` 下拉框会显示当前可用模型。选择不带 `(API)` 后缀的模型时，解析任务会自动发送至已部署的推理服务。
 
-Unlimited-OCR-2 也可通过 X-AnyLabeling-Server 接入本面板，支持 Transformers 和 SGLang 后端。PDF 各页会作为整份文档一次提交，进行多页联合解析。参见 [Unlimited-OCR-2 使用说明](../../examples/optical_character_recognition/unlimited_ocr_2/README.md)。
+Unlimited-OCR-2 也可通过 X-AnyLabeling-Server 接入本面板，支持 Transformers 和 SGLang 后端。PDF 各页会作为整份文档一次提交，进行多页联合解析。参见 [Unlimited-OCR-2 使用说明](../../examples/document_parsing/unlimited_ocr_2/README.md)。
 
 ## 使用手册
 
