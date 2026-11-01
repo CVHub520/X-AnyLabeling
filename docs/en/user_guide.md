@@ -17,6 +17,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [2.5 Searching Images](#25-searching-images)
       * [2.6 Editing Text Descriptions](#26-editing-text-descriptions)
       * [2.7 Reviewing Objects](#27-reviewing-objects)
+      * [2.8 Editing Relations](#28-editing-relations)
    * [3. View Options](#3-view-options)
       * [3.1 Canvas Controls](#31-canvas-controls)
       * [3.2 Image Display](#32-image-display)
@@ -71,6 +72,9 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [8.11 Vision Foundation Models](#811-vision-foundation-models)
       * [8.12 Zero-Shot Counting](#812-zero-shot-counting)
       * [8.13 Grounding](#813-grounding)
+      * [8.14 Relation Recognition](#814-relation-recognition)
+      * [8.15 Image Description](#815-image-description)
+      * [8.16 Document Parsing](#816-document-parsing)
    * [9. Custom Models](#9-custom-models)
    * [10. Advanced Features](#10-advanced-features)
 
@@ -179,6 +183,8 @@ Label files are saved in `*.json` format in the same directory as the images by 
 
 > [!NOTE]
 > To save labels elsewhere, select `File` > `Change Output Directory`. The relative `imagePath` in the JSON is adjusted for the selected output directory.
+
+Relation annotations also store a top-level `relations` list and endpoint shapes' `shape_id` values. See [2.8 Editing Relations](#28-editing-relations).
 
 ### 1.5 Embedding Image Data
 
@@ -381,6 +387,19 @@ In the label dialog, select **Pending** (default), **Missed**, or **False Positi
 
 To filter images by object review status, see **Attribute Search** in [2.5 Searching Images](#25-searching-images) above.
 
+### 2.8 Editing Relations
+
+Relations describe directed semantics between two objects, such as “person → riding → bicycle”. You can create relations manually or edit model predictions. Manual annotation does not require a relation recognition model.
+
+1. **Create a relation**: In edit mode, select exactly two shapes, then choose **Create Relation** from the toolbar, canvas context menu, or **Edit** menu. Confirm the **Subject** and **Object**, enter a relation name, and confirm. The endpoints must be different shapes and the name must not be empty. The arrow points from subject to object.
+2. **Edit a relation**: Click a relation label on the canvas to select it, then double-click the selected label to change its subject, object, or name. Selection highlights the connected objects and arrow while dimming other relations. The four corner handles indicate selection and cannot be dragged.
+3. **Delete a relation**: Select its label and press `Delete`, or click **Delete** in the relation editor. Deleting a relation keeps both endpoint shapes.
+4. **Manage relations**: Choose **Manage Relations** from the **Edit** menu or canvas context menu to review the current image's relations in a list. Select a row to preview its objects on the canvas; click **Edit** or double-click the row to change it. This is useful when arrows overlap. Closing the manager ends the preview.
+
+Save annotations as usual after making changes. Relations are stored in the label JSON's top-level `relations` list. Each entry's `subject_id` and `object_id` refer to the corresponding shapes' `shape_id` values; `label` stores the relation name and `score` stores model confidence. Manually created or changed relations have `score: null`; unchanged model relations retain their scores. Saving retains only relations whose endpoint shapes still exist.
+
+Relations are stored separately from the KIE `kie_linking` field in the label editor. For display controls, see [3.3 Shape Display](#33-shape-display); for model-assisted annotation, see [8.14 Relation Recognition](#814-relation-recognition).
+
 ## 3. View Options
 
 This section explains how to customize the view settings in X-AnyLabeling, including adjusting the canvas, image appearance, and how shape information is displayed, to optimize your workflow.
@@ -454,6 +473,8 @@ The right panels also provide visibility controls:
 - **Rightmost header checkbox**: Expand or hide the panel contents without changing shape visibility on the canvas.
 
 Visibility and locking are independent. Hiding shapes does not delete annotations.
+
+The **View** menu also controls relation display: **Show KIE Linking** (`Ctrl+K`) toggles relation arrows and labels; **Show Labels** (`Ctrl+L`) toggles relation labels while keeping arrows visible; **Show Scores** toggles model confidence within the labels. Manual relations have no confidence score to display. Hiding these elements does not delete saved relations.
 
 ### 3.4 Crosshair Customization
 
@@ -1164,52 +1185,85 @@ When editing the value manually, the named font must be installed on the current
 X-AnyLabeling supports various annotation tasks. Follow the links below for specific guides and examples for each task type:
 
 ### 8.1 Image Classification
+
   - Image-level: [Link](../../examples/classification/image-level/README.md)
   - Object-level (Shape Attributes): [Link](../../examples/classification/shape-level/README.md)
 
 ### 8.2 Object Detection
+
   - Horizontal Bounding Box (HBB): [Link](../../examples/detection/hbb/README.md)
   - Oriented Bounding Box (OBB): [Link](../../examples/detection/obb/README.md)
 
 ### 8.3 Image Segmentation
+
   - Semantic & Instance Segmentation (Polygons): [Link](../../examples/segmentation/README.md)
+  - Instance Segmentation: [Link](../../examples/segmentation/instance_segmentation/)
+  - Binary Semantic Segmentation: [Link](../../examples/segmentation/binary_semantic_segmentation/)
+  - Multiclass Semantic Segmentation: [Link](../../examples/segmentation/multiclass_semantic_segmentation/)
 
 ### 8.4 Pose Estimation
+
   - Keypoint Detection: [Link](../../examples/estimation/pose_estimation/README.md)
 
 ### 8.5 Face Estimation
+
   - Face Detection & Landmarks: [Link](../../examples/estimation/face_estimation/README.md)
 
 ### 8.6 Multi-Object Tracking
+
   - MOT/MOTS: [Link](../../examples/multiple_object_tracking/README.md)
 
 ### 8.7 Depth Estimation
+
   - Depth Annotation: [Link](../../examples/estimation/depth_estimation/README.md)
 
 ### 8.8 Optical Character Recognition (OCR)
+
   - Text Detection & Recognition: [Link](../../examples/optical_character_recognition/text_recognition/README.md)
   - Key Information Extraction (KIE): [Link](../../examples/optical_character_recognition/key_information_extraction/README.md)
+  - Document Layout Analysis: [Link](../../examples/optical_character_recognition/document_layout_analysis/README.md)
 
 ### 8.9 Interactive Video Object Segmentation (IVOS)
+
   - SAM2-Video: [Link](../../examples/interactive_video_object_segmentation/sam2/README.md)
   - SAM3-Video: [Link](../../examples/interactive_video_object_segmentation/sam3/README.md)
 
 ### 8.10 Matting
+
   - Image Matting (Alpha Masks): [Link](../../examples/matting/image_matting/README.md)
 
 ### 8.11 Vision Foundation Models
+
   - Rex-Omni: [Link](../../examples/vision_foundation/rexomni/README.md)
   - Florence 2: [Link](../../examples/vision_foundation/florence2/README.md)
   - LocateAnything: [Link](../../examples/vision_foundation/locateanything/README.md)
+  - WeVisOne-VL: [Link](../../examples/vision_foundation/wevisone_vl/README.md)
+  - Xiaomi-Lens-0: [Link](../../examples/vision_foundation/xiaomi_lens/README.md)
   - GroundingPI / GroundAnything / GroundAnything-VLM: [Link](../../examples/vision_foundation/groundingpi/README.md)
 
 ### 8.12 Zero-Shot Counting
+
   - GeCo Counting by Detection/Segmentation: [Link](../../examples/counting/geco/README.md)
   - GeCo2 Counting by Detection/Segmentation: [Link](../../examples/counting/geco2/README.md)
 
 ### 8.13 Grounding
+
   - YOLOE: [Link](../../examples/grounding/yoloe/README.md)
   - SAM 3: [Link](../../examples/grounding/sam3/README.md)
+
+### 8.14 Relation Recognition
+
+  - RelateAnything: [Link](../../examples/relation/relateanything/README.md)
+
+### 8.15 Image Description
+
+  - Tagging: [Link](../../examples/description/tagging/README.md)
+  - Captioning: [Link](../../examples/description/captioning/README.md)
+
+### 8.16 Document Parsing
+
+  - PaddleOCR-VL: [Link](../../examples/document_parsing/paddleocr_vl/README.md)
+  - Unlimited-OCR-2: [Link](../../examples/document_parsing/unlimited_ocr_2/README.md)
 
 ## 9. Custom Models
 

@@ -41,7 +41,7 @@ By default, `${workspace}` is the user's home directory, `~`. If X-AnyLabeling i
 
 ### Local Deployment (Optional)
 
-To run PaddleOCR locally or in a private environment, deploy an inference service with [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server). See the [PaddleOCR-VL-1.5 example](../../examples/optical_character_recognition/paddleocr_vl/README.md) for dependency installation and startup instructions.
+To run PaddleOCR locally or in a private environment, deploy an inference service with [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server). See the [PaddleOCR-VL-1.5 example](../../examples/document_parsing/paddleocr_vl/README.md) for dependency installation and startup instructions.
 
 Make sure X-AnyLabeling-Server has been updated to the latest version, and check that the `ppocr_layoutstructv3_vl_1_5` model configuration is available. If you want to implement and integrate your own PaddleOCR inference pipeline, declare the following capability flag in the model configuration. The client uses this flag to determine whether the model can be used in the Document Parser:
 
@@ -54,7 +54,7 @@ capabilities:
 
 After the service starts, reopen the Document Parser. The `Parsing Model` drop-down list at the top right displays the available models. Selecting a model without the `(API)` suffix sends parsing requests to the deployed inference service.
 
-Unlimited-OCR-2 is also available in this panel through X-AnyLabeling-Server, with Transformers and SGLang backends. Its PDF pages are submitted together for joint multi-page parsing. See the [Unlimited-OCR-2 guide](../../examples/optical_character_recognition/unlimited_ocr_2/README.md).
+Unlimited-OCR-2 is also available in this panel through X-AnyLabeling-Server, with Transformers and SGLang backends. Its PDF pages are submitted together for joint multi-page parsing. See the [Unlimited-OCR-2 guide](../../examples/document_parsing/unlimited_ocr_2/README.md).
 
 ## User Guide
 

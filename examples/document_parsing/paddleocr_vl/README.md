@@ -142,4 +142,4 @@ The **Seal Recognition** task recognizes text from seal stamps and chop marks.
 
 ## Related Models
 
-- [PP-DocLayoutV3](../document_layout_analysis/README.md#pp-doclayoutv3): Document layout analysis model that works well with PaddleOCR-VL-1.5
+- [PP-DocLayoutV3](../../optical_character_recognition/document_layout_analysis/README.md#pp-doclayoutv3): Document layout analysis model that works well with PaddleOCR-VL-1.5
