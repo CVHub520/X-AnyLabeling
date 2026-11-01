@@ -428,6 +428,7 @@ class LabelingWidget(LabelDialog):
             mask=self._config["canvas"].get("mask", {}),
             brush=self._config["canvas"].get("brush", {}),
             magic_wand=self._config["canvas"].get("magic_wand", {}),
+            grid_lines_defaults=self._config["canvas"].get("grid_lines_defaults",{}),
             cuboid=self._config["canvas"].get("cuboid", {}),
             double_click_edit_label=self._config["canvas"].get(
                 "double_click_edit_label", True
@@ -467,6 +468,12 @@ class LabelingWidget(LabelDialog):
         )
         self.canvas_adjustment.geometry_changed.connect(
             self._position_canvas_adjustment
+        )
+        self.canvas_adjustment.grid_line_opacity_changed.connect(
+            self._on_grid_line_opacity_changed
+        )
+        self.canvas_adjustment.grid_line_color_changed.connect(
+            self._on_grid_line_color_changed
         )
         # Hidden until an image is loaded (shown at the end of load_file).
         self.canvas_adjustment.hide()
@@ -559,6 +566,15 @@ class LabelingWidget(LabelDialog):
         # Actions
         action = functools.partial(utils.new_action, self)
         shortcuts = self._config["shortcuts"]
+
+        add_grid_lines = action(
+            self.tr("Add Grids"),
+            self.add_grids,
+            shortcuts["grid_lines"],
+            "grid_ines",
+            self.tr("Adds grid layers over the image during annotation"),
+            checkable=True
+        )
 
         open_ = action(
             self.tr("Open File"),
@@ -2194,7 +2210,7 @@ class LabelingWidget(LabelDialog):
         )
         utils.add_actions(
             self.menus.view,
-            (
+            (   add_grid_lines,
                 show_navigator,
                 show_image_tags,
                 fill_drawing,
@@ -6007,6 +6023,16 @@ class LabelingWidget(LabelDialog):
         )
         self.brightness_contrast_values[self.filename] = (brightness, contrast)
 
+    def _on_grid_line_opacity_changed(self, value):
+        "Changes the opacity of grid lines"
+        self.canvas.grid_lines_opacity = value / 100
+        self.canvas.update()
+
+    def _on_grid_line_color_changed(self, color):
+        "Changes the color of the grid lines"
+        self.canvas.grid_lines_color = color
+        self.canvas.update()
+
     def _position_canvas_adjustment(self):
         """Keep the adjustment panel anchored to the viewport's bottom-left."""
         if not hasattr(self, "canvas_adjustment"):
@@ -7492,3 +7518,8 @@ class LabelingWidget(LabelDialog):
 
     def toggle_shapes_visibility(self, checked):
         self.shape_dock.setVisible(checked)
+
+    def add_grids(self, checked):
+        self.canvas.show_grid_lines = not self.canvas.show_grid_lines
+        self.canvas.update()
+

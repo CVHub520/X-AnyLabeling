@@ -133,6 +133,9 @@ canvas:
     min_depth: 5.0
   mask:
     opacity: 80  # transparency value (0-255), 0 is fully transparent, 255 is fully opaque
+  grid_lines_defaults:
+    no_of_rows: 5  # default is 5 for practical purpose
+    no_of_cols: 10 # default is 10 for practical purpose
 
 shortcuts:
   close: Ctrl+W
@@ -220,6 +223,10 @@ shortcuts:
   auto_labeling_run: I
   auto_labeling_clear: B
   auto_labeling_finish_object: F
+
+  grid_lines: Shift+G
+
+
 
 # Auto labeling
 custom_models: []

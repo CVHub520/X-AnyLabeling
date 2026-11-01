@@ -117,6 +117,7 @@ class Canvas(
         self.brush_config = kwargs.pop("brush", {})
         self.magic_wand_config = kwargs.pop("magic_wand", {})
         self.cuboid_config = kwargs.pop("cuboid", {})
+        self.grid_config = kwargs.pop("grid_lines_defaults",{})
         self.parent = kwargs.pop("parent")
         super().__init__(*args, **kwargs)
         self.setAutoFillBackground(True)
@@ -208,6 +209,11 @@ class Canvas(
         self.show_degrees = False
         self.show_attributes = True
         self.show_linking = True
+
+        # Grid Lines Status
+        self.show_grid_lines = False
+        self.grid_lines_opacity = 1.0 # default opacity of the grid lines
+        self.grid_lines_color = "green" # default color is green
 
         # Set cross line options.
         self.cross_line_show = True
@@ -3987,6 +3993,14 @@ class Canvas(
                     split_x,
                     self.pixmap.height(),
                 )
+        if self.show_grid_lines:
+                self.draw_grid_overlay(
+                    p,
+                    num_cols=self.grid_config.get("no_of_cols"),
+                    num_rows=self.grid_config.get("no_of_rows"), 
+                    color=self.grid_lines_color, 
+                    opacity=self.grid_lines_opacity)
+
 
         Shape.scale = self.scale
 
@@ -5534,6 +5548,77 @@ class Canvas(
                     shape.group_id = new_group_id
 
         self.update()
+
+    def draw_grid_overlay(
+            self, p, num_cols, num_rows, color, opacity
+        ):
+        """Draws grid lines and cell labels (A1, B2, etc.) over the pixmap.
+
+        :param color: 'red', 'blue', 'green', or 'yellow' :param opacity: Float
+        between 0.0 (transparent) and 1.0 (opaque)
+        """
+
+        if self.pixmap is None:
+            return
+
+        width = self.pixmap.width()
+        height = self.pixmap.height()
+
+        step_x = width / num_cols
+        step_y = height / num_rows
+
+        color_map = {
+            "red": QtGui.QColor(255, 0, 0),
+            "blue": QtGui.QColor(0, 0, 255),
+            "green": QtGui.QColor(0, 255, 0),
+            "yellow": QtGui.QColor(255, 255, 0),
+        }
+
+        base_color = color_map.get(color.lower(), QtGui.QColor(255, 0, 0))
+
+        base_color.setAlphaF(max(0.0, min(1.0, opacity)))
+
+        # Setup pen for grid lines (Width 4)
+        grid_pen = QtGui.QPen(base_color, 4)
+        p.setPen(grid_pen)
+
+        # vertical lines
+        for i in range(1, num_cols):
+            x = int(i * step_x)
+            p.drawLine(x, 0, x, height)
+
+        # horizontal lines
+        for j in range(1, num_rows):
+            y = int(j * step_y)
+            p.drawLine(0, y, width, y)
+
+        # font
+        font_size = max(10, int(min(width, height) / 150))
+        font = QtGui.QFont("Arial", font_size, QtGui.QFont.Weight.Bold)
+        p.setFont(font)
+
+        p.setPen(base_color)
+
+        # grid labels
+        for r in range(num_rows):
+            for c in range(num_cols):
+                x1 = int(c * step_x)
+                y1 = int(r * step_y)
+
+                col_letter = chr(65 + c)  # 65 is ASCII for 'A'
+                grid_name = f"{col_letter}{r + 1}"
+
+                text_x = x1 + 15
+                text_y = y1 + 15
+
+                # Draw text using a bounding rect to ensure proper top-left alignment
+                text_rect = QtCore.QRect(text_x, text_y, int(step_x), int(step_y))
+                p.drawText(
+                    text_rect,
+                    QtCore.Qt.AlignmentFlag.AlignTop
+                    | QtCore.Qt.AlignmentFlag.AlignLeft,
+                    grid_name,
+                )
 
     def ungroup_selected_shapes(self):
         """Ungroup selected shapes"""

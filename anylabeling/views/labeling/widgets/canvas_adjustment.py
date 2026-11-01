@@ -7,6 +7,8 @@ underlying image are displayed:
 - ``Brightness`` : brightness of the image, mirroring the Brightness/Contrast
   dialog (slider 0-150, displayed as a 0.00-3.00 factor, neutral 1.00).
 - ``Contrast``   : contrast of the image, same range/mapping as brightness.
+- ``Grid Opacity`` : opacity of the grid lines imposed on the image being annotated.
+- ``Grid Color`` : Set the desired color of the grid.
 
 The widget only emits signals; the actual rendering is handled by the owner
 (:class:`LabelingWidget`), which reuses the brightness/contrast processor so
@@ -99,7 +101,7 @@ class BrightnessContrastProcessor:
 
 
 class CanvasAdjustmentWidget(QtWidgets.QWidget):
-    """Three-slider panel for label opacity, image brightness and contrast."""
+    """Four-slider panel for label opacity, image brightnes, contrast and grid line opacity and one radio button for grid lin color selection."""
 
     # Emitted when the opacity slider changes. Value is in range 0-100.
     opacity_changed = QtCore.pyqtSignal(int)
@@ -108,6 +110,12 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
     brightness_contrast_changed = QtCore.pyqtSignal(int, int)
     geometry_changed = QtCore.pyqtSignal()
 
+    grid_line_opacity_changed = QtCore.pyqtSignal(int)
+
+    grid_line_color_changed = QtCore.pyqtSignal(str)
+
+
+
     SLIDER_WIDTH = 120
     BC_UPDATE_INTERVAL_MS = 33
 
@@ -115,6 +123,11 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
     OPACITY_MIN = 0
     OPACITY_MAX = 100
     OPACITY_DEFAULT = 100
+
+    # Grid_Opacity: 0-100%, fully opaque by default.
+    GRID_OPACITY_MIN = 0
+    GRID_OPACITY_MAX = 100
+    GRID_OPACITY_DEFAULT = 100
 
     # Brightness/contrast factors use 50 as the neutral value.
     BC_MIN = 0
@@ -207,8 +220,18 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
             self.tr("Adjust the contrast of the underlying image."),
             display="factor",
         )
-        layout.addWidget(self.content_widget)
 
+        self.grid_line_opacity_slider, self.grid_line_opacity_value_label = self._build_row(
+            content_layout,
+            self.tr("Grids"),
+            self.GRID_OPACITY_MIN,
+            self.GRID_OPACITY_MAX,
+            self.GRID_OPACITY_DEFAULT,
+            self.tr("Adjust the opacity of the assisting grid lines.")
+        )
+        self._build_color_row(content_layout, self.tr("Grid Color"))
+
+        layout.addWidget(self.content_widget)
         self.setLayout(layout)
         self.adjustSize()
 
@@ -221,6 +244,10 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
         self.opacity_slider.valueChanged.connect(self._on_opacity_changed)
         self.brightness_slider.valueChanged.connect(self._on_bc_changed)
         self.contrast_slider.valueChanged.connect(self._on_bc_changed)
+        self.grid_line_opacity_slider.valueChanged.connect(
+            self._on_grid_opacity_changed
+        )
+
 
     def _build_stylesheet(self):
         """Translucent white card with theme-blue sliders."""
@@ -307,6 +334,71 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
         layout.addLayout(row)
         return slider, value_label
 
+    def _build_color_row(self,layout, title):
+        """Create a row with radio buttons for Red, Green, Blue and Yellow grid colors."""
+        row = QtWidgets.QHBoxLayout()
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(8)
+
+        name_label = QtWidgets.QLabel(title)
+        name_label.setFixedWidth(64)
+        name_label.setStyleSheet(self._LABEL_CSS)
+        name_label.setToolTip(self.tr("Select grid lines color."))
+
+        radio_layout = QtWidgets.QHBoxLayout()
+        radio_layout.setContentsMargins(0, 0, 0, 0)
+        radio_layout.setSpacing(4)
+
+        self.color_radios = {}
+        colors = ["red", "green", "blue", "yellow"]
+
+        for color_name in colors:
+            radio = QtWidgets.QRadioButton(color_name.capitalize()[0])
+            radio.setStyleSheet(f"""
+                QRadioButton {{
+                    font-size: 11px;
+                    color: #333;
+                    background: transparent;
+                }}
+                QRadioButton::indicator {{
+                    width: 14px;
+                    height: 14px;
+                    border-radius: 7px;
+                    background-color: {color_name};
+                    border: 1px solid #555;
+                }}
+                QRadioButton::indicator:checked {{
+                    background-color: qradialgradient(
+                        cx:0.5, cy:0.5, radius:0.5, fx:0.5, fy:0.5,
+                        stop:0 black, stop:0.4 black,
+                        stop:0.41 {color_name}, stop:1 {color_name}
+                    );
+                    border: 1px solid #000;
+                }}
+            """)
+            radio.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            radio.setToolTip(
+                self.tr(f"Set grid color to {color_name.capitalize()}")
+            )
+            radio.clicked.connect(
+                lambda checked, c=color_name: self._on_color_selected(c)
+            )
+            radio_layout.addWidget(radio)
+            self.color_radios[color_name] = radio
+
+        if "green" in self.color_radios:
+            self.color_radios["green"].setChecked(True)
+
+        radio_container = QtWidgets.QWidget()
+        radio_container.setFixedWidth(140)
+        radio_container.setLayout(radio_layout)
+
+        row.addWidget(name_label, alignment=Qt.AlignmentFlag.AlignLeft)
+        row.addWidget(radio_container)
+        layout.addLayout(row)
+
+
+
     @staticmethod
     def _set_value_text(label, value):
         """Format the value for display based on the label's display mode."""
@@ -318,6 +410,10 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
     def _on_opacity_changed(self, value):
         self._set_value_text(self.opacity_value_label, value)
         self.opacity_changed.emit(value)
+
+    def _on_grid_opacity_changed(self, value):
+        self._set_value_text(self.grid_line_opacity_value_label, value)
+        self.grid_line_opacity_changed.emit(value)
 
     def _on_bc_changed(self, _=None):
         self._set_value_text(
@@ -333,6 +429,10 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
         self.brightness_contrast_changed.emit(
             self.brightness_slider.value(), self.contrast_slider.value()
         )
+
+    def _on_color_selected(self, color_name):
+        """Emit signal when a radio button is selected."""
+        self.grid_line_color_changed.emit(color_name)
 
     def _toggle_collapsed(self):
         self._collapsed = not self._collapsed
@@ -361,6 +461,13 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
         self.opacity_slider.setValue(value)
         self.opacity_slider.blockSignals(False)
         self._set_value_text(self.opacity_value_label, value)
+
+    def set_grid_line_opacity(self, value):
+        """Set the grid_lines opacity slider without emitting grid_line_opacity_changed_signal"""
+        self.grid_line_opacity_slider.blockSignals(True)
+        self.grid_line_opacity_slider.setValue(value)
+        self.grid_line_opacity_slider.blockSignals(False)
+        self._set_value_text(self.grid_line_opacity_value_label, value)
 
     def set_brightness_contrast(self, brightness, contrast):
         """Set the brightness/contrast sliders without emitting signals."""
