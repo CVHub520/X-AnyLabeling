@@ -28,12 +28,14 @@ class TestLabelWidgetBrushMode(unittest.TestCase):
             "copy_coordinates",
             "edit_brush_mode",
             "union_selection",
+            "create_relation",
         ]
         return SimpleNamespace(
             canvas=SimpleNamespace(
                 is_brush_mode=False,
                 _brush_target_shape=None,
                 selected_shapes=[],
+                selected_relation=None,
                 _active_group_shapes=Mock(return_value=[]),
             ),
             label_list=Mock(),
@@ -68,6 +70,7 @@ class TestLabelWidgetBrushMode(unittest.TestCase):
                 is_brush_mode=True,
                 _brush_target_shape=target,
                 selected_shapes=[target],
+                selected_relation=None,
             ),
             label_list=label_list,
             _no_selection_slot=False,

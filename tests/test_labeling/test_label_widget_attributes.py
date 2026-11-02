@@ -81,6 +81,7 @@ class TestLabelWidgetAttributes(unittest.TestCase):
             actions=SimpleNamespace(save=Mock()),
             flag_widget=SimpleNamespace(count=Mock(return_value=0)),
             other_data={},
+            _relation_data_for_shapes=Mock(return_value={}),
             _annotation_checked=Mock(return_value=False),
             _config={"store_data": False},
             image_data=None,

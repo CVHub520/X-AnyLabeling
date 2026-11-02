@@ -121,7 +121,7 @@ class ImageTagsLabelingWidgetTest(unittest.TestCase):
             image=True,
             image_path="/tmp/image.png",
             filename="/tmp/image.png",
-            canvas=SimpleNamespace(shapes=[]),
+            canvas=SimpleNamespace(shapes=[], relations=[]),
             label_list=mock.Mock(),
             load_shapes=mock.Mock(),
             other_data=other_data,
@@ -164,7 +164,7 @@ class ImageTagsLabelingWidgetTest(unittest.TestCase):
 
     def test_auto_replacement_removing_shapes_resets_checked(self):
         widget = self.make_widget()
-        widget.canvas.shapes = [SimpleNamespace(locked=False)]
+        widget.canvas.shapes = [SimpleNamespace(locked=False, other_data={})]
 
         LabelingWidget.new_shapes_from_auto_labeling(
             widget, AutoLabelingResult([], replace=True)
