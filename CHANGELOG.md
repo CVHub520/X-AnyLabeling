@@ -1,5 +1,24 @@
 # X-AnyLabeling Changelog
 
+## `v4.3.1` (Nov 3, 2026)
+
+X-AnyLabeling 4.3.1 adds directed relation annotation and an adjustable image grid.
+
+### 🚀 New Features
+
+- Add directed relation annotation with support for remote model predictions.
+- Add an adjustable image grid with optional cell labels. (#1483)
+
+### 🛠️ Improvements
+
+- Document relation annotation and refresh task links and examples in English and Chinese.
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @CVHub520 and @MayankBhusal
+
 ## `v4.3.0` (Nov 1, 2026)
 
 X-AnyLabeling 4.3.0 adds object-level multi-task attribute annotation and expands OCR workflows, with improved canvas controls and navigation.
