@@ -2,6 +2,7 @@
 
 import copy
 import math
+from uuid import uuid4
 import weakref
 import zlib
 
@@ -81,6 +82,8 @@ class Canvas(
     shape_hover_changed = QtCore.pyqtSignal()
     split_position_changed = QtCore.pyqtSignal(float)
     edit_label_requested = QtCore.pyqtSignal()
+    relation_edit_requested = QtCore.pyqtSignal(int)
+    relation_delete_requested = QtCore.pyqtSignal()
     # Emitted when brush-edit mode is toggled on/off (keeps the UI in sync).
     brush_mode_changed = QtCore.pyqtSignal(bool)
     brush_history_changed = QtCore.pyqtSignal(bool)
@@ -141,6 +144,10 @@ class Canvas(
         self.is_move_editing = False
         self.auto_labeling_mode: AutoLabelingMode = None
         self.shapes = []
+        self.relations = []
+        self.selected_relation = None
+        self.preview_relation = None
+        self._relation_press_active = False
         self.shapes_backups = []
         self.current = None
         self.selected_shapes = []  # save the selected shapes here
@@ -641,6 +648,7 @@ class Canvas(
 
     def focusOutEvent(self, _):
         """Window out of focus event"""
+        self._relation_press_active = False
         if self._rotation_drag_shape is not None:
             self._finish_rotation_handle_drag()
         self._clear_space_pan_state()
@@ -2098,6 +2106,9 @@ class Canvas(
         """Update line with last point and current coordinates"""
         if self.is_loading:
             return
+        if self._relation_press_active:
+            ev.accept()
+            return
         if self._right_pan_start is not None:
             if ev.buttons() & QtCore.Qt.MouseButton.RightButton:
                 point = ev.globalPosition()
@@ -2784,6 +2795,27 @@ class Canvas(
             return
         pos = self.transform_pos(ev.position())
 
+        if (
+            self.editing()
+            and self.show_linking
+            and not self.is_brush_mode
+            and not self.is_magic_wand_mode
+            and ev.button() == QtCore.Qt.MouseButton.LeftButton
+            and ev.modifiers() == QtCore.Qt.KeyboardModifier.NoModifier
+            and not self._space_pressed
+        ):
+            index = self._relation_label_at(pos)
+            if index is not None:
+                self.deselect_shape()
+                self.selected_relation = self.relations[index]
+                self._relation_press_active = True
+                self.update()
+                ev.accept()
+                return
+            if self.selected_relation is not None:
+                self.selected_relation = None
+                self.update()
+
         if self.is_brush_mode and self._brush_mouse_press(ev, pos):
             return
 
@@ -3023,6 +3055,13 @@ class Canvas(
         """Mouse release event"""
         if self.is_loading:
             return
+        if (
+            self._relation_press_active
+            and ev.button() == QtCore.Qt.MouseButton.LeftButton
+        ):
+            self._relation_press_active = False
+            ev.accept()
+            return
         right_click = False
         if (
             ev.button() == QtCore.Qt.MouseButton.RightButton
@@ -3105,6 +3144,8 @@ class Canvas(
         assert len(self.selected_shapes_copy) == len(self.selected_shapes)
         if copy:
             for i, shape in enumerate(self.selected_shapes_copy):
+                shape.other_data.pop("shape_id", None)
+                shape._relation_identity = uuid4().hex
                 self.shapes.append(shape)
                 self.selected_shapes[i].selected = False
                 self.selected_shapes[i] = shape
@@ -3133,11 +3174,220 @@ class Canvas(
         """Check if a shape can be closed (number of points > 2)"""
         return self.drawing() and self.current and len(self.current) > 2
 
+    def _relation_segments(self):
+        shapes = {
+            shape.other_data.get("shape_id"): shape
+            for shape in self.shapes
+            if shape.other_data.get("shape_id")
+            and shape.visible
+            and shape.points
+        }
+        pairs = {}
+        for index, relation in enumerate(self.relations):
+            subject = relation.get("subject_id")
+            obj = relation.get("object_id")
+            if subject not in shapes or obj not in shapes or subject == obj:
+                continue
+            pairs.setdefault(tuple(sorted((subject, obj))), []).append(index)
+        segments = []
+        for pair, indices in pairs.items():
+            a = shapes[pair[0]].bounding_rect().center()
+            b = shapes[pair[1]].bounding_rect().center()
+            dx, dy = b.x() - a.x(), b.y() - a.y()
+            length = math.hypot(dx, dy)
+            if not length:
+                continue
+            for order, index in enumerate(indices):
+                offset = (order - (len(indices) - 1) / 2) * 24.0
+                shift = QtCore.QPointF(
+                    -dy * offset / length, dx * offset / length
+                )
+                start, end = a + shift, b + shift
+                if self.relations[index]["subject_id"] != pair[0]:
+                    start, end = end, start
+                segments.append((index, start, end))
+        return segments
+
+    def _paint_relations(self, painter):
+        if not self.show_linking:
+            return
+        painter.save()
+        focused = self._focused_relation()
+        opacity = painter.opacity()
+        if focused is not None:
+            self._paint_relation_endpoints(painter, focused)
+        segments = self._relation_segments()
+        layout = self._relation_layout()
+        if focused is not None:
+            segments.sort(key=lambda item: self.relations[item[0]] is focused)
+            layout.sort(key=lambda item: self.relations[item[0]] is focused)
+        for index, start, end in segments:
+            is_focused = self.relations[index] is focused
+            painter.setOpacity(
+                opacity if focused is None or is_focused else opacity * 0.25
+            )
+            pen = QtGui.QPen(QtGui.QColor("#00bcd4"))
+            pen.setWidthF((3.5 if is_focused else 2.0) / self.scale)
+            painter.setPen(pen)
+            painter.setBrush(QtGui.QColor("#00bcd4"))
+            painter.drawLine(start, end)
+            angle = math.atan2(end.y() - start.y(), end.x() - start.x())
+            size = 11.0 / self.scale
+            tip = end
+            painter.drawPolygon(
+                QtGui.QPolygonF(
+                    [
+                        tip,
+                        QtCore.QPointF(
+                            tip.x() - size * math.cos(angle - math.pi / 6),
+                            tip.y() - size * math.sin(angle - math.pi / 6),
+                        ),
+                        QtCore.QPointF(
+                            tip.x() - size * math.cos(angle + math.pi / 6),
+                            tip.y() - size * math.sin(angle + math.pi / 6),
+                        ),
+                    ]
+                )
+            )
+        label_transform = painter.transform()
+        painter.resetTransform()
+        painter.setFont(QtGui.QFont("Arial", self.label_font_size))
+        for index, start, end, text, bounds in layout:
+            is_focused = self.relations[index] is focused
+            painter.setOpacity(
+                opacity if focused is None or is_focused else opacity * 0.25
+            )
+            bounds = label_transform.mapRect(bounds)
+            painter.setPen(QtCore.Qt.PenStyle.NoPen)
+            painter.setBrush(QtGui.QColor(0, 0, 0))
+            painter.drawRoundedRect(bounds, 4, 4)
+            painter.setPen(QtGui.QColor("white"))
+            painter.drawText(bounds, QtCore.Qt.AlignmentFlag.AlignCenter, text)
+            if is_focused:
+                painter.setPen(QtGui.QPen(QtGui.QColor("#00bcd4"), 1))
+                painter.setBrush(QtGui.QColor("white"))
+                size = 6
+                for point in (
+                    bounds.topLeft(),
+                    bounds.topRight(),
+                    bounds.bottomLeft(),
+                    bounds.bottomRight(),
+                ):
+                    painter.drawRect(
+                        QtCore.QRectF(
+                            point.x() - size / 2,
+                            point.y() - size / 2,
+                            size,
+                            size,
+                        )
+                    )
+        painter.restore()
+
+    def _focused_relation(self):
+        for candidate in (self.preview_relation, self.selected_relation):
+            if candidate is not None and any(
+                candidate is relation for relation in self.relations
+            ):
+                return candidate
+        return None
+
+    def _paint_relation_endpoints(self, painter, relation):
+        endpoint_ids = {relation.get("subject_id"), relation.get("object_id")}
+        painter.save()
+        painter.setBrush(QtCore.Qt.BrushStyle.NoBrush)
+        for shape in self.shapes:
+            if (
+                shape.other_data.get("shape_id") not in endpoint_ids
+                or not shape.visible
+                or not self.is_visible(shape)
+                or not shape.points
+            ):
+                continue
+            path = shape.make_path()
+            if shape.shape_type == "point":
+                path = QtGui.QPainterPath()
+                path.addEllipse(
+                    shape.points[0], 5.0 / self.scale, 5.0 / self.scale
+                )
+            elif shape.shape_type in (
+                "rectangle",
+                "rotation",
+                "polygon",
+                "quadrilateral",
+            ):
+                path.closeSubpath()
+            color = QtGui.QColor(shape.line_color)
+            color.setAlpha(255)
+            if color.hsvHue() >= 0:
+                color.setHsv(
+                    color.hsvHue(),
+                    max(color.hsvSaturation(), 160),
+                    min(color.value(), 230),
+                )
+            for line_color, width in (
+                ("#333333", 9.0),
+                ("white", 7.0),
+                (color, 4.0),
+            ):
+                pen = QtGui.QPen(QtGui.QColor(line_color))
+                pen.setWidthF(width)
+                pen.setCosmetic(True)
+                pen.setJoinStyle(Qt.PenJoinStyle.MiterJoin)
+                painter.setPen(pen)
+                painter.drawPath(path)
+        painter.restore()
+
+    def _relation_layout(self):
+        if not self.show_labels:
+            return []
+        font = QtGui.QFont("Arial", self.label_font_size)
+        metrics = QtGui.QFontMetrics(font)
+        layout = []
+        for index, start, end in self._relation_segments():
+            relation = self.relations[index]
+            text = relation.get("label", "")
+            if relation.get("score") is not None and self.show_scores:
+                text += f" · {relation['score']:.2f}"
+            bounds = QtCore.QRectF(
+                0,
+                0,
+                (metrics.tightBoundingRect(text).width() + 8) / self.scale,
+                (metrics.height() + 4) / self.scale,
+            )
+            bounds.moveCenter((start + end) / 2)
+            layout.append((index, start, end, text, QtCore.QRectF(bounds)))
+        return layout
+
+    def _relation_label_at(self, pos):
+        margin = 5 / self.scale
+        layout = self._relation_layout()
+        focused = self._focused_relation()
+        if focused is not None:
+            layout.sort(key=lambda item: self.relations[item[0]] is focused)
+        for index, _, _, _, bounds in reversed(layout):
+            if bounds.adjusted(-margin, -margin, margin, margin).contains(pos):
+                return index
+        return None
+
     # QT Overload
-    def mouseDoubleClickEvent(self, ev):
+    def mouseDoubleClickEvent(self, ev):  # noqa: C901
         """Mouse double click event"""
         if self.is_loading:
             return
+        if (
+            self.editing()
+            and self.show_linking
+            and ev.button() == QtCore.Qt.MouseButton.LeftButton
+            and ev.modifiers() == QtCore.Qt.KeyboardModifier.NoModifier
+        ):
+            pos = self.transform_pos(ev.position())
+            for index, _, _, _, bounds in reversed(self._relation_layout()):
+                if self.relations[
+                    index
+                ] is self.selected_relation and bounds.contains(pos):
+                    self.relation_edit_requested.emit(index)
+                    ev.accept()
+                    return
         if (
             ev.button() == QtCore.Qt.MouseButton.RightButton
             or self._is_pan_gesture(ev)
@@ -4089,6 +4339,8 @@ class Canvas(
             return pasted_shapes
         for shape in pasted_shapes:
             shape.locked = False
+            shape.other_data.pop("shape_id", None)
+            shape._relation_identity = uuid4().hex
         if copied_group_id is not None and all(
             shape.group_id == copied_group_id for shape in pasted_shapes
         ):
@@ -4564,6 +4816,7 @@ class Canvas(
                     p.drawPath(cp)
                     p.fillPath(cp, QtGui.QColor(255, 153, 0, 255))
 
+        self._paint_relations(p)
         self._paint_rotation_handles(p)
 
         self._paint_groups(p)
@@ -5586,11 +5839,37 @@ class Canvas(
                 self.rotating_shape = True
                 self.repaint()
 
+    def event(self, ev):
+        if (
+            ev.type() == QtCore.QEvent.Type.ShortcutOverride
+            and self.editing()
+            and self.show_labels
+            and self.show_linking
+            and self.selected_relation is not None
+            and ev.key() == QtCore.Qt.Key.Key_Delete
+            and ev.modifiers() == QtCore.Qt.KeyboardModifier.NoModifier
+        ):
+            ev.accept()
+            return True
+        return super().event(ev)
+
     # QT Overload
     def keyPressEvent(self, ev):  # noqa: C901
         """Key press event"""
         modifiers = ev.modifiers()
         key = ev.key()
+        if (
+            self.editing()
+            and self.show_labels
+            and self.show_linking
+            and self.selected_relation is not None
+            and key == QtCore.Qt.Key.Key_Delete
+            and modifiers == QtCore.Qt.KeyboardModifier.NoModifier
+            and not ev.isAutoRepeat()
+        ):
+            self.relation_delete_requested.emit()
+            ev.accept()
+            return
         if key == QtCore.Qt.Key.Key_Escape and self._rotation_drag_shape:
             self._finish_rotation_handle_drag()
             ev.accept()
@@ -5856,6 +6135,9 @@ class Canvas(
         self._right_panning = False
         self.restore_cursor()
         self.pixmap = None
+        self.selected_relation = None
+        self.preview_relation = None
+        self._relation_press_active = False
         self.shapes_backups = []
         self.is_move_editing = False
         self.compare_pixmap = None

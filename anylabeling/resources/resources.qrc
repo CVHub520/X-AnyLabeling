@@ -134,6 +134,7 @@
         <file>images/toolbar/line.svg</file>
         <file>images/toolbar/point.svg</file>
         <file>images/toolbar/line-strip.svg</file>
+        <file>images/toolbar/waypoints.svg</file>
         <file>images/toolbar/brush.svg</file>
         <file alias="images/toolbar/edit.svg">images/common/edit.svg</file>
         <file>images/toolbar/undo.svg</file>

@@ -30,8 +30,9 @@
 
 ## 🥳 新功能
 
+- `2026-11-01`：新增支持 [RelateAnything](./examples/relation/relateanything/README.md) 目标关系预测模型。
 - `2026-10-31`：新增对象级多任务属性标注，支持 AI 标注及并发推理。
-- `2026-10-30`：新增支持 [Unlimited-OCR-2](./examples/optical_character_recognition/unlimited_ocr_2/README.md) 模型，支持图像、PDF 文档解析与多页上下文识别。
+- `2026-10-30`：新增支持 [Unlimited-OCR-2](./examples/document_parsing/unlimited_ocr_2/README.md) 模型，支持图像、PDF 文档解析与多页上下文识别。
 - `2026-10-28`：新增支持 [WeVisOne-VL](./examples/vision_foundation/wevisone_vl/README.md) 模型，支持目标检测、描述定位、目标指点、计数、OCR、文本定位、分割、文本及框提示抠图、参考框检测和自由提示。
 - `2026-10-28`：新增支持 [Xiaomi-Lens-0](./examples/vision_foundation/xiaomi_lens/README.md) 模型，支持描述理解与分割、多实例定位、推理分割、具身指令定位及细粒度感知。
 - `2026-10-27`：新增[标注显示模式](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#33-%E5%AF%B9%E8%B1%A1%E5%8F%AF%E8%A7%86%E5%8C%96)，支持按类别、实例或群组配色，以及黑色背景、白色前景的二值掩码视图。
@@ -56,7 +57,7 @@
 
 * 统一支持文本、图像、视频、点云及多模态数据的标注与处理。
 * 覆盖 2D 图像分类、目标检测、实例分割、姿态估计、旋转目标检测、多目标跟踪、光学字符识别、车道线标注、图像描述、视觉问答、文档解析和 3D 点云标注等任务。
-* 提供多边形、矩形、长方体、旋转框、四边形、圆形、线段、折线、点和掩码等标注工具，并支持文本检测、文本识别和 KIE 等任务专用工具。
+* 提供多边形、矩形、长方体、旋转框、四边形、圆形、线段、折线、点和掩码等标注工具，并支持文本检测、文本识别、关系识别和 KIE 等任务专用工具。
 * 集成多种先进的深度学习模型，支持 AI 辅助标注、自动标注和数据集批量预测。
 * 支持本地与远程推理，可接入 `ONNX Runtime`、`TensorRT`、`OpenCV DNN`、`vLLM`、`SGLang` 等推理引擎与服务框架。
 * 支持导入和导出 `COCO`、`VOC`、`YOLO`、`DOTA`、`MOT`、`MASK`、`PPOCR`、`MMGD`、`VLM-R1` 和 `ShareGPT` 等多种数据格式。
@@ -75,7 +76,8 @@
 | 😀 **人脸估计** | SCRFD, YOLOv6Lite-Face |
 | 👣 **目标跟踪** | TrackTrack, Bot-SORT, ByteTrack, SAM2/3-Video |
 | 🔄 **旋转目标检测** | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb, YOLO26-Obb, RT-DETRv2-OBB |
-| 📏 **深度估计** | Depth Anything |
+| 📏 **深度估计** | DepthAnything 1/2 |
+| 🔗 **关系识别** | RelateAnything |
 | 🧩 **分割一切** | SAM 1/2/3, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
 | ✂️ **图像抠图** | RMBG 1.4/2.0 |
 | 💡 **候选框提取** | UPN |
@@ -126,8 +128,10 @@
   - [Depth Estimation](./examples/estimation/depth_estimation/README.md)
 - [OCR](./examples/optical_character_recognition/)
   - [Text Recognition](./examples/optical_character_recognition/text_recognition/)
-  - [Unlimited-OCR-2](./examples/optical_character_recognition/unlimited_ocr_2/README.md)
   - [Key Information Extraction](./examples/optical_character_recognition/key_information_extraction/README.md)
+- [Document Parsing](./examples/document_parsing/)
+  - [PaddleOCR-VL](./examples/document_parsing/paddleocr_vl/README.md)
+  - [Unlimited-OCR-2](./examples/document_parsing/unlimited_ocr_2/README.md)
 - [MOT](./examples/multiple_object_tracking/README.md)
   - [Tracking by HBB Object Detection](./examples/multiple_object_tracking/README.md)
   - [Tracking by OBB Object Detection](./examples/multiple_object_tracking/README.md)
@@ -138,6 +142,8 @@
   - [SAM3-Video](./examples/interactive_video_object_segmentation/sam3/README.md)
 - [Matting](./examples/matting/)
   - [Image Matting](./examples/matting/image_matting/README.md)
+- [Relation](./examples/relation/)
+  - [RelateAnything](./examples/relation/relateanything/README.md)
 - [VFM](./examples/vision_foundation/)
   - [Rex-Omni](./examples/vision_foundation/rexomni/README.md)
   - [Florence 2](./examples/vision_foundation/florence2/README.md)

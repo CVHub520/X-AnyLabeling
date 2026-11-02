@@ -3007,6 +3007,54 @@ Continue?</source>
   <context>
     <name>LabelingWidget</name>
     <message>
+      <source>Create Relation</source>
+      <translation>関係を作成</translation>
+    </message>
+    <message>
+      <source>Manage Relations</source>
+      <translation>関係を管理</translation>
+    </message>
+    <message>
+      <source>Select exactly two shapes to create a directed relation</source>
+      <translation>2つのオブジェクトを選択して有向関係を作成</translation>
+    </message>
+    <message>
+      <source>Review and edit directed relations</source>
+      <translation>有向関係を確認・編集</translation>
+    </message>
+    <message>
+      <source>Edit Relation</source>
+      <translation>関係を編集</translation>
+    </message>
+    <message>
+      <source>Subject</source>
+      <translation>主体</translation>
+    </message>
+    <message>
+      <source>Object</source>
+      <translation>客体</translation>
+    </message>
+    <message>
+      <source>Relation</source>
+      <translation>関係</translation>
+    </message>
+    <message>
+      <source>Unlabeled</source>
+      <translation>ラベルなし</translation>
+    </message>
+    <message>
+      <source>Confidence</source>
+      <translation>信頼度</translation>
+    </message>
+    <message>
+      <source>At least two shapes are required.</source>
+      <translation>少なくとも2つのオブジェクトが必要です。</translation>
+    </message>
+    <message>
+      <source>Choose two different shapes and enter a relation label.</source>
+      <translation>異なる2つのオブジェクトを選択し、関係ラベルを入力してください。</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/label_widget.py" line="308" />
       <source>Flags</source>
       <translation>フラグ</translation>

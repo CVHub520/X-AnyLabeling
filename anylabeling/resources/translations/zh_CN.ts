@@ -3059,6 +3059,54 @@ Continue?</source>
   <context>
     <name>LabelingWidget</name>
     <message>
+      <source>Create Relation</source>
+      <translation>创建关系</translation>
+    </message>
+    <message>
+      <source>Manage Relations</source>
+      <translation>管理关系</translation>
+    </message>
+    <message>
+      <source>Select exactly two shapes to create a directed relation</source>
+      <translation>恰好选择两个对象以创建有向关系</translation>
+    </message>
+    <message>
+      <source>Review and edit directed relations</source>
+      <translation>查看和编辑有向关系</translation>
+    </message>
+    <message>
+      <source>Edit Relation</source>
+      <translation>编辑关系</translation>
+    </message>
+    <message>
+      <source>Subject</source>
+      <translation>主体</translation>
+    </message>
+    <message>
+      <source>Object</source>
+      <translation>客体</translation>
+    </message>
+    <message>
+      <source>Relation</source>
+      <translation>关系</translation>
+    </message>
+    <message>
+      <source>Unlabeled</source>
+      <translation>未标注</translation>
+    </message>
+    <message>
+      <source>Confidence</source>
+      <translation>置信度</translation>
+    </message>
+    <message>
+      <source>At least two shapes are required.</source>
+      <translation>至少需要两个对象。</translation>
+    </message>
+    <message>
+      <source>Choose two different shapes and enter a relation label.</source>
+      <translation>请选择两个不同的对象并输入关系标签。</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/label_widget.py" line="308" />
       <source>Flags</source>
       <translation>标志</translation>

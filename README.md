@@ -28,8 +28,9 @@
 
 ## 🥳 What's New
 
+- `2026-11-01`: Add support for the [RelateAnything](./examples/relation/relateanything/README.md) object relation prediction model.
 - `2026-10-31`: Add object-level multi-task attribute annotation with AI-assisted labeling and concurrent inference.
-- `2026-10-30`: Add support for the [Unlimited-OCR-2](./examples/optical_character_recognition/unlimited_ocr_2/README.md) model with image and PDF document parsing with multi-page context.
+- `2026-10-30`: Add support for the [Unlimited-OCR-2](./examples/document_parsing/unlimited_ocr_2/README.md) model with image and PDF document parsing with multi-page context.
 - `2026-10-28`: Add support for the [WeVisOne-VL](./examples/vision_foundation/wevisone_vl/README.md) model with detection, referring localization, pointing, counting, OCR, text grounding, segmentation, text and box matting, visual prompting, and freeform instructions.
 - `2026-10-28`: Add support for the [Xiaomi-Lens-0](./examples/vision_foundation/xiaomi_lens/README.md) model with referring comprehension and segmentation, multi-instance grounding, reasoning segmentation, embodied referring, and fine-grained perception.
 - `2026-10-27`: Add [annotation display modes](https://xanylabeling.com/docs/x-anylabeling/user_guide#33-shape-display): color by label, instance, or group, and a binary mask view with white foreground on a black background.
@@ -54,7 +55,7 @@
 
 * Unified support for annotating and processing text, image, video, point cloud, and multimodal data.
 * Covers tasks such as 2D image classification, object detection, instance segmentation, pose estimation, oriented object detection, multi-object tracking, optical character recognition, lane annotation, image captioning, visual question answering, document parsing, and 3D point clouds.
-* Provides polygons, rectangles, cuboids, rotated boxes, quadrilaterals, circles, lines, polylines, points, masks, and task-specific tools for text detection, text recognition, and KIE.
+* Provides polygons, rectangles, cuboids, rotated boxes, quadrilaterals, circles, lines, polylines, points, masks, and task-specific tools for text detection, text recognition, relation recognition, and KIE.
 * Integrates a wide range of state-of-the-art deep learning models for AI-assisted annotation, automated labeling, and batch dataset prediction.
 * Supports both local and remote inference through engines and serving frameworks such as `ONNX Runtime`, `TensorRT`, `OpenCV DNN`, `vLLM`, and `SGLang`.
 * Supports importing and exporting formats such as `COCO`, `VOC`, `YOLO`, `DOTA`, `MOT`, `MASK`, `PPOCR`, `MMGD`, `VLM-R1`, and `ShareGPT`.
@@ -73,7 +74,8 @@
 | 😀 Face Estimation | SCRFD, YOLOv6Lite-Face |
 | 👣 Tracking | TrackTrack, Bot-SORT, ByteTrack, SAM2/3-Video |
 | 🔄 Rotated Object Detection | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb, YOLO26-Obb, RT-DETRv2-OBB |
-| 📏 Depth Estimation | Depth Anything |
+| 📏 Depth Estimation | DepthAnything 1/2 |
+| 🔗 Relation Recognition | RelateAnything |
 | 🧩 Segment Anything | SAM 1/2/3, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
 | ✂️ Image Matting | RMBG 1.4/2.0 |
 | 💡 Proposal | UPN |
@@ -123,8 +125,10 @@
   - [Depth Estimation](./examples/estimation/depth_estimation/README.md)
 - [OCR](./examples/optical_character_recognition/)
   - [Text Recognition](./examples/optical_character_recognition/text_recognition/)
-  - [Unlimited-OCR-2](./examples/optical_character_recognition/unlimited_ocr_2/README.md)
   - [Key Information Extraction](./examples/optical_character_recognition/key_information_extraction/README.md)
+- [Document Parsing](./examples/document_parsing/)
+  - [PaddleOCR-VL](./examples/document_parsing/paddleocr_vl/README.md)
+  - [Unlimited-OCR-2](./examples/document_parsing/unlimited_ocr_2/README.md)
 - [MOT](./examples/multiple_object_tracking/README.md)
   - [Tracking by HBB Object Detection](./examples/multiple_object_tracking/README.md)
   - [Tracking by OBB Object Detection](./examples/multiple_object_tracking/README.md)
@@ -135,6 +139,8 @@
   - [SAM3-Video](./examples/interactive_video_object_segmentation/sam3/README.md)
 - [Matting](./examples/matting/)
   - [Image Matting](./examples/matting/image_matting/README.md)
+- [Relation](./examples/relation/)
+  - [RelateAnything](./examples/relation/relateanything/README.md)
 - [VFM](./examples/vision_foundation/)
   - [Rex-Omni](./examples/vision_foundation/rexomni/README.md)
   - [Florence 2](./examples/vision_foundation/florence2/README.md)

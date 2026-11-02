@@ -271,6 +271,8 @@ class RemoteServer(Model):
                 for point in shape_data["points"]:
                     shape.add_point(QtCore.QPointF(point[0], point[1]))
 
+                if shape_data.get("shape_id"):
+                    shape.other_data["shape_id"] = shape_data["shape_id"]
                 shapes.append(shape)
 
             description = data.get("description", "")
@@ -294,7 +296,10 @@ class RemoteServer(Model):
                 replace = self.replace
 
             return AutoLabelingResult(
-                shapes, replace=replace, description=description
+                shapes,
+                replace=replace,
+                description=description,
+                relations=data.get("relations"),
             )
 
         except Exception as e:

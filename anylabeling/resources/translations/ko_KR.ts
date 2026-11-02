@@ -3008,6 +3008,54 @@ Continue?</source>
   <context>
     <name>LabelingWidget</name>
     <message>
+      <source>Create Relation</source>
+      <translation>관계 생성</translation>
+    </message>
+    <message>
+      <source>Manage Relations</source>
+      <translation>관계 관리</translation>
+    </message>
+    <message>
+      <source>Select exactly two shapes to create a directed relation</source>
+      <translation>두 객체를 선택하여 방향 관계 생성</translation>
+    </message>
+    <message>
+      <source>Review and edit directed relations</source>
+      <translation>방향 관계 확인 및 편집</translation>
+    </message>
+    <message>
+      <source>Edit Relation</source>
+      <translation>관계 편집</translation>
+    </message>
+    <message>
+      <source>Subject</source>
+      <translation>주체</translation>
+    </message>
+    <message>
+      <source>Object</source>
+      <translation>객체</translation>
+    </message>
+    <message>
+      <source>Relation</source>
+      <translation>관계</translation>
+    </message>
+    <message>
+      <source>Unlabeled</source>
+      <translation>레이블 없음</translation>
+    </message>
+    <message>
+      <source>Confidence</source>
+      <translation>신뢰도</translation>
+    </message>
+    <message>
+      <source>At least two shapes are required.</source>
+      <translation>객체가 두 개 이상 필요합니다.</translation>
+    </message>
+    <message>
+      <source>Choose two different shapes and enter a relation label.</source>
+      <translation>서로 다른 두 객체를 선택하고 관계 레이블을 입력하세요.</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/label_widget.py" line="308" />
       <source>Flags</source>
       <translation>플래그</translation>

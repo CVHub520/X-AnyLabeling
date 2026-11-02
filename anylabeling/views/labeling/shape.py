@@ -1,5 +1,6 @@
 import copy
 import math
+from uuid import uuid4
 
 from PyQt6 import QtCore, QtGui
 
@@ -96,6 +97,7 @@ class Shape:
         self.shape_type = shape_type
         self.flags = flags
         self.other_data = {}
+        self._relation_identity = uuid4().hex
         self.attributes = attributes
         self.cache_label = None
         self.cache_description = None

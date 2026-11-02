@@ -8,6 +8,7 @@ import re
 import shutil
 import zlib
 from typing import Optional
+from uuid import uuid4
 
 import cv2
 import numpy as np
@@ -71,6 +72,11 @@ from .utils.qt import new_icon_path
 from .utils.theme import get_theme
 from .pointcloud.icons import get_icon
 from .widgets.description_editor import DescriptionEditor
+from .widgets.relation_dialog import (
+    RelationDialog,
+    RelationManagerDialog,
+    show_relation_message,
+)
 from .widgets.toolbar import ToolBarScrollArea
 from .widgets.panel import (
     PanelCheckBox,
@@ -568,6 +574,10 @@ class LabelingWidget(LabelDialog):
         self.canvas.selection_changed.connect(self.shape_selection_changed)
         self.canvas.drawing_polygon.connect(self.toggle_drawing_sensitive)
         self.canvas.edit_label_requested.connect(self.edit_label)
+        self.canvas.relation_edit_requested.connect(self.edit_relation)
+        self.canvas.relation_delete_requested.connect(
+            self.delete_selected_relation
+        )
         # Keep the brush-edit toggle in sync when the canvas exits brush
         # mode on its own (e.g. via a right-click).
         self.canvas.brush_mode_changed.connect(self.on_brush_mode_changed)
@@ -951,7 +961,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Create LineStrip"),
             lambda: self.toggle_draw_mode(False, create_mode="linestrip"),
             shortcuts["create_linestrip"],
-            "line-strip",
+            "waypoints",
             self.tr("Start drawing linestrip. Ctrl+LeftClick ends creation."),
             enabled=False,
         )
@@ -1069,6 +1079,22 @@ class LabelingWidget(LabelDialog):
             "ungroup",
             self.tr("Ungroup shapes"),
             enabled=True,
+        )
+
+        create_relation = action(
+            self.tr("Create Relation"),
+            self.create_relation,
+            icon="line-strip",
+            tip=self.tr(
+                "Select exactly two shapes to create a directed relation"
+            ),
+            enabled=False,
+        )
+        manage_relations = action(
+            self.tr("Manage Relations"),
+            self.manage_relations,
+            icon="edit",
+            tip=self.tr("Review and edit directed relations"),
         )
 
         delete = action(
@@ -1963,6 +1989,8 @@ class LabelingWidget(LabelDialog):
             union_selection=union_selection,
             delete=delete,
             edit=edit,
+            create_relation=create_relation,
+            manage_relations=manage_relations,
             duplicate=duplicate,
             copy=copy,
             copy_coordinates=copy_coordinates,
@@ -2088,6 +2116,8 @@ class LabelingWidget(LabelDialog):
             # XXX: need to add some actions here to activate the shortcut
             editMenu=(
                 edit,
+                create_relation,
+                manage_relations,
                 duplicate,
                 delete,
                 copy,
@@ -2123,6 +2153,8 @@ class LabelingWidget(LabelDialog):
                 edit_mode,
                 edit_brush_mode,
                 edit,
+                create_relation,
+                manage_relations,
                 toggle_shape_lock,
                 None,
                 copy_coordinates,
@@ -2433,6 +2465,7 @@ class LabelingWidget(LabelDialog):
             None,
             edit_brush_mode,
             edit_mode,
+            create_relation,
             delete,
             undo,
             loop_thru_labels,
@@ -3603,6 +3636,8 @@ class LabelingWidget(LabelDialog):
             self.image_tags_widget.set_interactions_enabled(False)
             self.image_tags_widget.set_tags([])
         self.canvas.reset_state()
+        self.canvas.relations = []
+        self.actions.create_relation.setEnabled(False)
         self.brightness_contrast_processor.clear_image()
         if hasattr(self, "canvas_adjustment"):
             self.canvas_adjustment.hide()
@@ -3797,6 +3832,8 @@ class LabelingWidget(LabelDialog):
                 polygon_shapes.append([(p.x(), p.y()) for p in points])
 
         union_shape = shape.copy()
+        union_shape.other_data.pop("shape_id", None)
+        union_shape._relation_identity = uuid4().hex
 
         if len(rectangle_shapes) > 0:
             min_x = min([bbox[0] for bbox in rectangle_shapes])
@@ -5477,7 +5514,7 @@ class LabelingWidget(LabelDialog):
                 image_data=image_data,
                 image_height=self.image.height(),
                 image_width=self.image.width(),
-                other_data=self.other_data,
+                other_data=self._relation_data_for_shapes(shapes),
                 flags=flags,
             )
             self.label_file = label_file
@@ -5503,6 +5540,9 @@ class LabelingWidget(LabelDialog):
 
     # React to canvas signals.
     def shape_selection_changed(self, selected_shapes):
+        if selected_shapes and self.canvas.selected_relation is not None:
+            self.canvas.selected_relation = None
+            self.canvas.update()
         if self.canvas.is_brush_mode:
             target = self.canvas._brush_target_shape
             if selected_shapes != [target]:
@@ -5531,6 +5571,7 @@ class LabelingWidget(LabelDialog):
                 self.label_list.scroll_to_item(item)
         self._no_selection_slot = False
         n_selected = len(selected_shapes)
+        self.actions.create_relation.setEnabled(n_selected == 2)
         same_type = (
             len(set(shape.shape_type for shape in selected_shapes)) <= 1
         )
@@ -5684,6 +5725,134 @@ class LabelingWidget(LabelDialog):
             item = self.label_list.find_item_by_shape(shape)
             self.label_list.remove_item(item)
         self._refresh_shape_filters()
+
+    def _relation_data_for_shapes(self, shapes):
+        other_data = dict(self.other_data)
+        if "relations" in other_data:
+            ids = {shape.get("shape_id") for shape in shapes}
+            other_data["relations"] = [
+                relation
+                for relation in self.canvas.relations
+                if relation.get("subject_id") in ids
+                and relation.get("object_id") in ids
+            ]
+        return other_data
+
+    def create_relation(self, _checked=False):
+        if len(self.canvas.selected_shapes) == 2:
+            self._relation_dialog()
+
+    def edit_relation(self, index):
+        if 0 <= index < len(self.canvas.relations):
+            self._relation_dialog(index)
+
+    def delete_selected_relation(self):
+        selected = self.canvas.selected_relation
+        for index, relation in enumerate(self.canvas.relations):
+            if relation is selected:
+                del self.canvas.relations[index]
+                self.canvas.selected_relation = None
+                self.other_data["relations"] = self.canvas.relations
+                self.other_data[CHECKED_FIELD] = False
+                self._sync_annotation_checked_state()
+                self.canvas.update()
+                self.set_dirty()
+                return
+
+    def manage_relations(self, _checked=False):
+        dialog = RelationManagerDialog(self)
+
+        def preview_selected(index):
+            self.canvas.preview_relation = (
+                self.canvas.relations[index]
+                if index is not None
+                and 0 <= index < len(self.canvas.relations)
+                else None
+            )
+            self.canvas.update()
+
+        def edit_selected(index):
+            self.edit_relation(index)
+            dialog.refresh(self.canvas.shapes, self.canvas.relations)
+
+        dialog.preview_requested.connect(preview_selected)
+        dialog.edit_requested.connect(edit_selected)
+        dialog.refresh(self.canvas.shapes, self.canvas.relations)
+        try:
+            dialog.exec()
+        finally:
+            self.canvas.preview_relation = None
+            self.canvas.update()
+
+    def _relation_dialog(self, index=None):  # noqa: C901
+        shapes = [shape for shape in self.canvas.shapes if shape.points]
+        if len(shapes) < 2:
+            self._show_relation_message(
+                QtWidgets.QMessageBox.Icon.Information,
+                self.tr("At least two shapes are required."),
+            )
+            return
+        relation = self.canvas.relations[index] if index is not None else None
+        dialog = RelationDialog(
+            shapes, self.canvas.selected_shapes, relation, parent=self
+        )
+        while True:
+            result = dialog.exec()
+            if result == 2:
+                del self.canvas.relations[index]
+                if self.canvas.selected_relation is relation:
+                    self.canvas.selected_relation = None
+                break
+            if result != QtWidgets.QDialog.DialogCode.Accepted:
+                return
+            subject_shape, object_shape, text = dialog.values()
+            if subject_shape is object_shape or not text:
+                self._show_relation_message(
+                    QtWidgets.QMessageBox.Icon.Warning,
+                    self.tr(
+                        "Choose two different shapes and enter a relation label."
+                    ),
+                    dialog,
+                )
+                continue
+            for shape in (subject_shape, object_shape):
+                if not shape.other_data.get("shape_id"):
+                    shape.other_data["shape_id"] = uuid4().hex
+                    for backup in self.canvas.shapes_backups:
+                        for previous in backup:
+                            if (
+                                previous._relation_identity
+                                == shape._relation_identity
+                            ):
+                                previous.other_data["shape_id"] = (
+                                    shape.other_data["shape_id"]
+                                )
+            updated = {
+                "subject_id": subject_shape.other_data["shape_id"],
+                "object_id": object_shape.other_data["shape_id"],
+                "label": text,
+                "score": None,
+            }
+            if relation is not None:
+                if all(
+                    updated[key] == relation.get(key)
+                    for key in ("subject_id", "object_id", "label")
+                ):
+                    return
+                self.canvas.relations[index] = updated
+                if self.canvas.selected_relation is relation:
+                    self.canvas.selected_relation = updated
+            else:
+                self.canvas.relations.append(updated)
+            break
+        self.other_data["relations"] = self.canvas.relations
+        self.other_data[CHECKED_FIELD] = False
+        self._sync_annotation_checked_state()
+        self.canvas.update()
+        self.set_dirty()
+
+    def _show_relation_message(self, icon, text, parent=None):
+        show_relation_message(icon, text, parent or self)
 
     def on_canvas_shapes_deleted(self, shapes):
         self.remove_labels(shapes)
@@ -5882,7 +6051,7 @@ class LabelingWidget(LabelDialog):
                 image_data=image_data,
                 image_height=self.image.height(),
                 image_width=self.image.width(),
-                other_data=self.other_data,
+                other_data=self._relation_data_for_shapes(shapes),
                 flags=flags,
             )
             self.label_file = label_file
@@ -6474,6 +6643,8 @@ class LabelingWidget(LabelDialog):
         self._config[key] = value
         assert hasattr(self.canvas, key), f"Canvas has no attribute {key}"
         setattr(self.canvas, key, value)
+        if key in ("show_labels", "show_linking") and not value:
+            self.canvas.selected_relation = None
         self.canvas.update()
 
     def open_settings_dialog(self, _checked=False, field_key=None):
@@ -6703,6 +6874,7 @@ class LabelingWidget(LabelDialog):
                 self.shape_text_edit.setPlainText("")
         self.shape_text_label.setText(self.tr("Image Description"))
         self.shape_text_edit.setDisabled(False)
+        self.canvas.relations = self.other_data.get("relations", [])
 
         # TODO(jack): icc profile issue warning
         # - qt.gui.icc: fromIccProfile: failed minimal tag size sanity
@@ -7732,6 +7904,33 @@ class LabelingWidget(LabelDialog):
                     item = self.label_list.find_item_by_shape(shape)
                     self.label_list.remove_item(item)
             self.load_shapes(auto_labeling_result.shapes, replace=False)
+
+        incoming_relations = getattr(auto_labeling_result, "relations", None)
+        if auto_labeling_result.replace or incoming_relations is not None:
+            shape_ids = {
+                s.other_data.get("shape_id") for s in self.canvas.shapes
+            }
+            relations = [
+                relation
+                for relation in self.canvas.relations
+                if relation.get("subject_id") in shape_ids
+                and relation.get("object_id") in shape_ids
+            ]
+            if incoming_relations is not None:
+                relations.extend(
+                    relation
+                    for relation in incoming_relations
+                    if relation.get("subject_id") in shape_ids
+                    and relation.get("object_id") in shape_ids
+                )
+            if (
+                relations != self.canvas.relations
+                or incoming_relations is not None
+            ):
+                self.canvas.relations = relations
+                self.other_data["relations"] = relations
+                annotations_changed = True
+                self.canvas.update()
 
         # Set image description
         if auto_labeling_result.description:

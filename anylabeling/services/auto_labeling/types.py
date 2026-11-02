@@ -19,6 +19,7 @@ class AutoLabelingResult:
         image_path=None,
         tags=None,
         flags=None,
+        relations=None,
     ):
         """Initialize AutoLabelingResult
 
@@ -41,6 +42,7 @@ class AutoLabelingResult:
         self.image_path = image_path
         self.tags = tags
         self.flags = flags
+        self.relations = relations
 
 
 class AutoLabelingMode:
