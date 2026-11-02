@@ -28,6 +28,7 @@
 
 ## 🥳 What's New
 
+- `2026-11-03`: Add an adjustable image grid with optional cell labels for inspecting annotations.
 - `2026-11-01`: Add support for the [RelateAnything](./examples/relation/relateanything/README.md) object relation prediction model.
 - `2026-10-31`: Add object-level multi-task attribute annotation with AI-assisted labeling and concurrent inference.
 - `2026-10-30`: Add support for the [Unlimited-OCR-2](./examples/document_parsing/unlimited_ocr_2/README.md) model with image and PDF document parsing with multi-page context.

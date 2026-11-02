@@ -684,6 +684,14 @@ Example: person.car.bicycle</source>
   <context>
     <name>Canvas</name>
     <message>
+      <source>Click &amp; drag to move shape '%s %s'</source>
+      <translation>クリックしてドラッグし、図形「%s %s」を移動</translation>
+    </message>
+    <message>
+      <source>Click &amp; drag to rotate shape '%s'</source>
+      <translation>クリックしてドラッグし、図形「%s」を回転</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="259" />
       <source>Loading...</source>
       <translation>読み込み中...</translation>
@@ -778,6 +786,50 @@ Example: person.car.bicycle</source>
   </context>
   <context>
     <name>CanvasAdjustmentWidget</name>
+    <message>
+      <source>Adjust image grid opacity.</source>
+      <translation>画像グリッドの不透明度を調整します。</translation>
+    </message>
+    <message>
+      <source>Black</source>
+      <translation>黒</translation>
+    </message>
+    <message>
+      <source>Blue</source>
+      <translation>青</translation>
+    </message>
+    <message>
+      <source>Color:</source>
+      <translation>色:</translation>
+    </message>
+    <message>
+      <source>Green</source>
+      <translation>緑</translation>
+    </message>
+    <message>
+      <source>Grid settings</source>
+      <translation>グリッド設定</translation>
+    </message>
+    <message>
+      <source>Image grid</source>
+      <translation>画像グリッド</translation>
+    </message>
+    <message>
+      <source>Red</source>
+      <translation>赤</translation>
+    </message>
+    <message>
+      <source>Show grid labels</source>
+      <translation>グリッド番号を表示</translation>
+    </message>
+    <message>
+      <source>Size:</source>
+      <translation>サイズ:</translation>
+    </message>
+    <message>
+      <source>White</source>
+      <translation>白</translation>
+    </message>
     <message>
       <source>Status</source>
       <translation>状態</translation>
@@ -896,6 +948,28 @@ Example: person.car.bicycle</source>
   </context>
   <context>
     <name>ChatbotDialog</name>
+    <message>
+      <source>An error occurred during import:
+%s</source>
+      <translation>インポート中にエラーが発生しました:
+%s</translation>
+    </message>
+    <message>
+      <source>An error occurred during export:
+%s</source>
+      <translation>エクスポート中にエラーが発生しました:
+%s</translation>
+    </message>
+    <message>
+      <source>Dataset exported successfully to:
+%s</source>
+      <translation>データセットをエクスポートしました:
+%s</translation>
+    </message>
+    <message>
+      <source>Error processing %s: %s</source>
+      <translation>%s の処理中にエラーが発生しました: %s</translation>
+    </message>
     <message>
       <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="151" />
       <source>Clear Chat</source>
@@ -1233,6 +1307,62 @@ Example: person.car.bicycle</source>
   </context>
   <context>
     <name>ClassifierDialog</name>
+    <message>
+      <source>All objects</source>
+      <translation>すべてのオブジェクト</translation>
+    </message>
+    <message>
+      <source>Apply these suggestions to empty attributes?</source>
+      <translation>これらの提案を空の属性に適用しますか？</translation>
+    </message>
+    <message>
+      <source>Cannot crop the selected object.</source>
+      <translation>選択したオブジェクトを切り出せません。</translation>
+    </message>
+    <message>
+      <source>Mask Background</source>
+      <translation>背景をマスク</translation>
+    </message>
+    <message>
+      <source>No applicable suggestions.</source>
+      <translation>適用できる提案がありません。</translation>
+    </message>
+    <message>
+      <source>No supported attributes available.</source>
+      <translation>利用できる対応属性がありません。</translation>
+    </message>
+    <message>
+      <source>Process %d images with AI?</source>
+      <translation>%d 枚の画像をAIで処理しますか？</translation>
+    </message>
+    <message>
+      <source>Replace existing attribute values?</source>
+      <translation>既存の属性値を置き換えますか？</translation>
+    </message>
+    <message>
+      <source>Scope: all images</source>
+      <translation>対象: すべての画像</translation>
+    </message>
+    <message>
+      <source>Scope: all objects in this image</source>
+      <translation>対象: この画像内のすべてのオブジェクト</translation>
+    </message>
+    <message>
+      <source>Select an object with configured attributes first.</source>
+      <translation>まず属性が設定されたオブジェクトを選択してください。</translation>
+    </message>
+    <message>
+      <source>Skipped attributes:</source>
+      <translation>スキップされた属性:</translation>
+    </message>
+    <message>
+      <source>The selected object is no longer available.</source>
+      <translation>選択したオブジェクトは利用できなくなりました。</translation>
+    </message>
+    <message>
+      <source>Use AI to process objects in all images</source>
+      <translation>すべての画像のオブジェクトをAIで処理</translation>
+    </message>
     <message>
       <location filename="../../views/labeling/widgets/classifier_dialog.py" line="1068" />
       <location filename="../../views/labeling/widgets/classifier_dialog.py" line="132" />
@@ -3006,6 +3136,30 @@ Continue?</source>
   </context>
   <context>
     <name>LabelingWidget</name>
+    <message>
+      <source>Error occurred while exporting cropped images!</source>
+      <translation>切り出した画像のエクスポート中にエラーが発生しました！</translation>
+    </message>
+    <message>
+      <source>Successfully loaded %d labels!</source>
+      <translation>%d 個のラベルを読み込みました！</translation>
+    </message>
+    <message>
+      <source>Error reading classes file: %s</source>
+      <translation>クラスファイルの読み込みエラー: %s</translation>
+    </message>
+    <message>
+      <source>Uploading flags file successfully!</source>
+      <translation>フラグファイルをアップロードしました！</translation>
+    </message>
+    <message>
+      <source>Uploading shape attributes file successfully!</source>
+      <translation>図形属性ファイルをアップロードしました！</translation>
+    </message>
+    <message>
+      <source>Uploading annotations successfully!</source>
+      <translation>アノテーションをアップロードしました！</translation>
+    </message>
     <message>
       <source>Create Relation</source>
       <translation>関係を作成</translation>
@@ -9170,6 +9324,10 @@ Changes will not be saved until you click Save.</source>
   <context>
     <name>UltralyticsDialog</name>
     <message>
+      <source>Model weights not found at: %s</source>
+      <translation>モデルの重みが見つかりません: %s</translation>
+    </message>
+    <message>
       <location filename="../../views/training/ultralytics_dialog.py" line="241" />
       <source>Data</source>
       <translation>データ</translation>
@@ -10589,6 +10747,110 @@ Response preview:
   <context>
     <name>auto_labeling_form</name>
     <message>
+      <source>0.001</source>
+      <translation>0.001</translation>
+    </message>
+    <message>
+      <source>AMG</source>
+      <translation>AMG</translation>
+    </message>
+    <message>
+      <source>Form</source>
+      <translation>Form</translation>
+    </message>
+    <message>
+      <source>GroundingDino_1_5_Edge</source>
+      <translation>GroundingDino_1_5_Edge</translation>
+    </message>
+    <message>
+      <source>GroundingDino_1_5_Pro</source>
+      <translation>GroundingDino_1_5_Pro</translation>
+    </message>
+    <message>
+      <source>GroundingDino_1_6_Edge</source>
+      <translation>GroundingDino_1_6_Edge</translation>
+    </message>
+    <message>
+      <source>GroundingDino_1_6_Pro</source>
+      <translation>GroundingDino_1_6_Pro</translation>
+    </message>
+    <message>
+      <source>cap_to_pg</source>
+      <translation>cap_to_pg</translation>
+    </message>
+    <message>
+      <source>caption</source>
+      <translation>caption</translation>
+    </message>
+    <message>
+      <source>coarse_grained_prompt</source>
+      <translation>coarse_grained_prompt</translation>
+    </message>
+    <message>
+      <source>dense_region_cap</source>
+      <translation>dense_region_cap</translation>
+    </message>
+    <message>
+      <source>detailed_cap</source>
+      <translation>detailed_cap</translation>
+    </message>
+    <message>
+      <source>fine_grained_prompt</source>
+      <translation>fine_grained_prompt</translation>
+    </message>
+    <message>
+      <source>more_detailed_cap</source>
+      <translation>more_detailed_cap</translation>
+    </message>
+    <message>
+      <source>ocr</source>
+      <translation>ocr</translation>
+    </message>
+    <message>
+      <source>ocr_with_region</source>
+      <translation>ocr_with_region</translation>
+    </message>
+    <message>
+      <source>od</source>
+      <translation>od</translation>
+    </message>
+    <message>
+      <source>ovd</source>
+      <translation>ovd</translation>
+    </message>
+    <message>
+      <source>polygon</source>
+      <translation>polygon</translation>
+    </message>
+    <message>
+      <source>rectangle</source>
+      <translation>rectangle</translation>
+    </message>
+    <message>
+      <source>refer_exp_seg</source>
+      <translation>refer_exp_seg</translation>
+    </message>
+    <message>
+      <source>region_proposal</source>
+      <translation>region_proposal</translation>
+    </message>
+    <message>
+      <source>region_to_cat</source>
+      <translation>region_to_cat</translation>
+    </message>
+    <message>
+      <source>region_to_desc</source>
+      <translation>region_to_desc</translation>
+    </message>
+    <message>
+      <source>region_to_seg</source>
+      <translation>region_to_seg</translation>
+    </message>
+    <message>
+      <source>rotation</source>
+      <translation>rotation</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
       <source>Enter text prompt here, e.g., person.car.bicycle</source>
       <translation>テキストプロンプトを入力（例: person.car.bicycle）</translation>
@@ -10721,6 +10983,173 @@ Response preview:
     <message>
       <source>Search options...</source>
       <translation>選択肢を検索...</translation>
+    </message>
+  </context>
+  <context>
+    <name>AIWorkerThread</name>
+    <message>
+      <source>Cannot connect to the AI service at %s. Check that the service is running and its address is correct, or select another provider in Chatbot (Ctrl+0).</source>
+      <translation>%s のAIサービスに接続できません。サービスの稼働状態とアドレスを確認するか、チャットボット（Ctrl+0）で別のプロバイダーを選択してください。</translation>
+    </message>
+  </context>
+  <context>
+    <name>ClassificationBatch</name>
+    <message>
+      <source>AI Assistant</source>
+      <translation>AIアシスタント</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>キャンセル</translation>
+    </message>
+    <message>
+      <source>Completed: %d
+Skipped: %d
+Failed: %d</source>
+      <translation>完了: %d
+スキップ: %d
+失敗: %d</translation>
+    </message>
+    <message>
+      <source>Processed %d / %d images</source>
+      <translation>画像を %d / %d 件処理しました</translation>
+    </message>
+    <message>
+      <source>Processing cancelled.</source>
+      <translation>処理をキャンセルしました。</translation>
+    </message>
+    <message>
+      <source>Processing images...</source>
+      <translation>画像を処理中...</translation>
+    </message>
+    <message>
+      <source>Processing objects...</source>
+      <translation>オブジェクトを処理中...</translation>
+    </message>
+    <message>
+      <source>Progress</source>
+      <translation>進捗</translation>
+    </message>
+  </context>
+  <context>
+    <name>MultiTaskAIDialog</name>
+    <message>
+      <source>AI Assistant</source>
+      <translation>AIアシスタント</translation>
+    </message>
+    <message>
+      <source>AI results will overwrite existing attribute values for all objects in the selected range.</source>
+      <translation>AIの結果により、選択範囲内のすべてのオブジェクトの既存の属性値が上書きされます。</translation>
+    </message>
+    <message>
+      <source>AI results will overwrite existing classification values for images in the selected range.</source>
+      <translation>AIの結果により、選択範囲内の画像の既存の分類値が上書きされます。</translation>
+    </message>
+    <message>
+      <source>AI results will overwrite existing values for the selected object's attributes.</source>
+      <translation>AIの結果により、選択したオブジェクトの既存の属性値が上書きされます。</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>キャンセル</translation>
+    </message>
+    <message>
+      <source>Chatbot Settings</source>
+      <translation>チャットボット設定</translation>
+    </message>
+    <message>
+      <source>Concurrent requests</source>
+      <translation>同時リクエスト数</translation>
+    </message>
+    <message>
+      <source>Confirm</source>
+      <translation>確認</translation>
+    </message>
+    <message>
+      <source>Current model</source>
+      <translation>現在のモデル</translation>
+    </message>
+    <message>
+      <source>Don't show again</source>
+      <translation>今後表示しない</translation>
+    </message>
+    <message>
+      <source>Error</source>
+      <translation>エラー</translation>
+    </message>
+    <message>
+      <source>Generate</source>
+      <translation>生成</translation>
+    </message>
+    <message>
+      <source>Prompt</source>
+      <translation>プロンプト</translation>
+    </message>
+    <message>
+      <source>Search models...</source>
+      <translation>モデルを検索...</translation>
+    </message>
+    <message>
+      <source>Select a model</source>
+      <translation>モデルを選択</translation>
+    </message>
+  </context>
+  <context>
+    <name>MultiTaskBatch</name>
+    <message>
+      <source>AI Assistant</source>
+      <translation>AIアシスタント</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>キャンセル</translation>
+    </message>
+    <message>
+      <source>Completed: %d
+Skipped: %d
+Failed: %d</source>
+      <translation>完了: %d
+スキップ: %d
+失敗: %d</translation>
+    </message>
+    <message>
+      <source>No supported objects to process.</source>
+      <translation>処理できるオブジェクトがありません。</translation>
+    </message>
+    <message>
+      <source>Processed %d / %d objects</source>
+      <translation>オブジェクトを %d / %d 件処理しました</translation>
+    </message>
+    <message>
+      <source>Processing cancelled.</source>
+      <translation>処理をキャンセルしました。</translation>
+    </message>
+    <message>
+      <source>Processing objects...</source>
+      <translation>オブジェクトを処理中...</translation>
+    </message>
+    <message>
+      <source>Progress</source>
+      <translation>進捗</translation>
+    </message>
+  </context>
+  <context>
+    <name>OverwriteConfirmationDialog</name>
+    <message>
+      <source>AI Assistant</source>
+      <translation>AIアシスタント</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>キャンセル</translation>
+    </message>
+    <message>
+      <source>Confirm</source>
+      <translation>確認</translation>
+    </message>
+    <message>
+      <source>Don't show again</source>
+      <translation>今後表示しない</translation>
     </message>
   </context>
 </TS>

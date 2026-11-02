@@ -531,6 +531,14 @@ class LabelingWidget(LabelDialog):
 
         # Adjustment panel docked at the bottom-left of the canvas viewport.
         self.canvas_adjustment = CanvasAdjustmentWidget(scroll_area.viewport())
+        self.canvas_adjustment.grid_changed.connect(self._on_grid_changed)
+        self._on_grid_changed(
+            self.canvas_adjustment.grid_opacity.value() > 0,
+            self.canvas_adjustment.grid_size.value(),
+            self.canvas_adjustment.grid_color.currentData(),
+            self.canvas_adjustment.grid_opacity.value(),
+            self.canvas_adjustment.grid_labels.isChecked(),
+        )
         self.canvas_adjustment.opacity_changed.connect(
             self._on_shape_opacity_changed
         )
@@ -6690,6 +6698,14 @@ class LabelingWidget(LabelDialog):
             QtGui.QPixmap.fromImage(qimage), clear_shapes=False
         )
         self.brightness_contrast_values[self.filename] = (brightness, contrast)
+
+    def _on_grid_changed(self, enabled, size, color, opacity, labels):
+        self.canvas.grid_enabled = enabled
+        self.canvas.grid_size = size
+        self.canvas.grid_color = color
+        self.canvas.grid_opacity = opacity
+        self.canvas.grid_labels = labels
+        self.canvas.update()
 
     def _position_canvas_adjustment(self):
         """Keep the adjustment panel anchored to the viewport's bottom-left."""

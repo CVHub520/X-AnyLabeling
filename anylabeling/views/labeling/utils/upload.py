@@ -320,7 +320,7 @@ def upload_ppocr_annotation(self, mode):
             _refresh_after_annotation_upload(self)
 
             popup = Popup(
-                self.tr(f"Uploading annotations successfully!"),
+                self.tr("Uploading annotations successfully!"),
                 self,
                 icon=new_icon_path("copy-green", "svg"),
             )
@@ -400,7 +400,7 @@ def upload_odvg_annotation(self):
             _refresh_after_annotation_upload(self)
 
             popup = Popup(
-                self.tr(f"Uploading annotations successfully!"),
+                self.tr("Uploading annotations successfully!"),
                 self,
                 icon=new_icon_path("copy-green", "svg"),
             )
@@ -444,7 +444,7 @@ def upload_mmgd_annotation(self, LABEL_OPACITY):
             classes = f.read().splitlines()
     except Exception as e:
         popup = Popup(
-            self.tr(f"Error reading classes file: {str(e)}"),
+            self.tr("Error reading classes file: %s") % str(e),
             self,
             icon=new_icon_path("error", "svg"),
         )
@@ -766,7 +766,7 @@ def upload_mot_annotation(self, LABEL_OPACITY):
             _refresh_after_annotation_upload(self)
 
             popup = Popup(
-                self.tr(f"Uploading annotations successfully!"),
+                self.tr("Uploading annotations successfully!"),
                 self,
                 icon=new_icon_path("copy-green", "svg"),
             )
@@ -1186,7 +1186,7 @@ def upload_coco_annotation(self, mode):
             _refresh_after_annotation_upload(self)
 
             popup = Popup(
-                self.tr(f"Uploading annotations successfully!"),
+                self.tr("Uploading annotations successfully!"),
                 self,
                 icon=new_icon_path("copy-green", "svg"),
             )
@@ -1668,7 +1668,7 @@ def upload_label_classes_file(self):
             self.label_dialog.sort_labels()
 
         popup = Popup(
-            self.tr(f"Successfully loaded {len(set(labels))} labels!"),
+            self.tr("Successfully loaded %d labels!") % len(set(labels)),
             self,
             icon=new_icon_path("copy-green", "svg"),
         )
@@ -1858,7 +1858,7 @@ def upload_shape_attrs_file(self, LABEL_OPACITY):
         self.canvas.h_shape_is_hovered = False
 
         popup = Popup(
-            self.tr(f"Uploading shape attributes file successfully!"),
+            self.tr("Uploading shape attributes file successfully!"),
             self,
             icon=new_icon_path("copy-green", "svg"),
         )
@@ -1906,7 +1906,7 @@ def upload_label_flags_file(self, LABEL_OPACITY):
         self.label_dialog.upload_flags(self.label_flags)
 
         popup = Popup(
-            self.tr(f"Uploading flags file successfully!"),
+            self.tr("Uploading flags file successfully!"),
             self,
             icon=new_icon_path("copy-green", "svg"),
         )
@@ -1945,7 +1945,7 @@ def upload_image_flags_file(self):
         self.load_file(self.filename)
 
         popup = Popup(
-            self.tr(f"Uploading flags file successfully!"),
+            self.tr("Uploading flags file successfully!"),
             self,
             icon=new_icon_path("copy-green", "svg"),
         )

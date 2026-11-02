@@ -30,6 +30,7 @@
 
 ## 🥳 新功能
 
+- `2026-11-03`：新增可调整的图像网格，支持显示网格编号，方便检查标注。
 - `2026-11-01`：新增支持 [RelateAnything](./examples/relation/relateanything/README.md) 目标关系预测模型。
 - `2026-10-31`：新增对象级多任务属性标注，支持 AI 标注及并发推理。
 - `2026-10-30`：新增支持 [Unlimited-OCR-2](./examples/document_parsing/unlimited_ocr_2/README.md) 模型，支持图像、PDF 文档解析与多页上下文识别。

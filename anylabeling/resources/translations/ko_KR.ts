@@ -684,6 +684,14 @@ Example: person.car.bicycle</source>
   <context>
     <name>Canvas</name>
     <message>
+      <source>Click &amp; drag to move shape '%s %s'</source>
+      <translation>클릭 후 드래그하여 도형 '%s %s' 이동</translation>
+    </message>
+    <message>
+      <source>Click &amp; drag to rotate shape '%s'</source>
+      <translation>클릭 후 드래그하여 도형 '%s' 회전</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="259" />
       <source>Loading...</source>
       <translation>로딩 중...</translation>
@@ -778,6 +786,50 @@ Example: person.car.bicycle</source>
   </context>
   <context>
     <name>CanvasAdjustmentWidget</name>
+    <message>
+      <source>Adjust image grid opacity.</source>
+      <translation>이미지 격자의 불투명도를 조정합니다.</translation>
+    </message>
+    <message>
+      <source>Black</source>
+      <translation>검정</translation>
+    </message>
+    <message>
+      <source>Blue</source>
+      <translation>파랑</translation>
+    </message>
+    <message>
+      <source>Color:</source>
+      <translation>색상:</translation>
+    </message>
+    <message>
+      <source>Green</source>
+      <translation>초록</translation>
+    </message>
+    <message>
+      <source>Grid settings</source>
+      <translation>격자 설정</translation>
+    </message>
+    <message>
+      <source>Image grid</source>
+      <translation>이미지 격자</translation>
+    </message>
+    <message>
+      <source>Red</source>
+      <translation>빨강</translation>
+    </message>
+    <message>
+      <source>Show grid labels</source>
+      <translation>격자 번호 표시</translation>
+    </message>
+    <message>
+      <source>Size:</source>
+      <translation>크기:</translation>
+    </message>
+    <message>
+      <source>White</source>
+      <translation>흰색</translation>
+    </message>
     <message>
       <source>Status</source>
       <translation>상태</translation>
@@ -896,6 +948,28 @@ Example: person.car.bicycle</source>
   </context>
   <context>
     <name>ChatbotDialog</name>
+    <message>
+      <source>An error occurred during import:
+%s</source>
+      <translation>가져오기 중 오류가 발생했습니다:
+%s</translation>
+    </message>
+    <message>
+      <source>An error occurred during export:
+%s</source>
+      <translation>내보내기 중 오류가 발생했습니다:
+%s</translation>
+    </message>
+    <message>
+      <source>Dataset exported successfully to:
+%s</source>
+      <translation>데이터셋을 내보냈습니다:
+%s</translation>
+    </message>
+    <message>
+      <source>Error processing %s: %s</source>
+      <translation>%s 처리 중 오류 발생: %s</translation>
+    </message>
     <message>
       <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="151" />
       <source>Clear Chat</source>
@@ -1234,6 +1308,62 @@ Example: person.car.bicycle</source>
   </context>
   <context>
     <name>ClassifierDialog</name>
+    <message>
+      <source>All objects</source>
+      <translation>모든 객체</translation>
+    </message>
+    <message>
+      <source>Apply these suggestions to empty attributes?</source>
+      <translation>이 제안을 비어 있는 속성에 적용하시겠습니까?</translation>
+    </message>
+    <message>
+      <source>Cannot crop the selected object.</source>
+      <translation>선택한 객체를 잘라낼 수 없습니다.</translation>
+    </message>
+    <message>
+      <source>Mask Background</source>
+      <translation>배경 마스크</translation>
+    </message>
+    <message>
+      <source>No applicable suggestions.</source>
+      <translation>적용할 수 있는 제안이 없습니다.</translation>
+    </message>
+    <message>
+      <source>No supported attributes available.</source>
+      <translation>사용할 수 있는 지원 속성이 없습니다.</translation>
+    </message>
+    <message>
+      <source>Process %d images with AI?</source>
+      <translation>이미지 %d개를 AI로 처리하시겠습니까?</translation>
+    </message>
+    <message>
+      <source>Replace existing attribute values?</source>
+      <translation>기존 속성 값을 바꾸시겠습니까?</translation>
+    </message>
+    <message>
+      <source>Scope: all images</source>
+      <translation>범위: 모든 이미지</translation>
+    </message>
+    <message>
+      <source>Scope: all objects in this image</source>
+      <translation>범위: 이 이미지의 모든 객체</translation>
+    </message>
+    <message>
+      <source>Select an object with configured attributes first.</source>
+      <translation>먼저 속성이 설정된 객체를 선택하세요.</translation>
+    </message>
+    <message>
+      <source>Skipped attributes:</source>
+      <translation>건너뛴 속성:</translation>
+    </message>
+    <message>
+      <source>The selected object is no longer available.</source>
+      <translation>선택한 객체를 더 이상 사용할 수 없습니다.</translation>
+    </message>
+    <message>
+      <source>Use AI to process objects in all images</source>
+      <translation>모든 이미지의 객체를 AI로 처리</translation>
+    </message>
     <message>
       <location filename="../../views/labeling/widgets/classifier_dialog.py" line="1068" />
       <location filename="../../views/labeling/widgets/classifier_dialog.py" line="132" />
@@ -3007,6 +3137,30 @@ Continue?</source>
   </context>
   <context>
     <name>LabelingWidget</name>
+    <message>
+      <source>Error occurred while exporting cropped images!</source>
+      <translation>잘라낸 이미지 내보내기 중 오류가 발생했습니다!</translation>
+    </message>
+    <message>
+      <source>Successfully loaded %d labels!</source>
+      <translation>레이블 %d개를 불러왔습니다!</translation>
+    </message>
+    <message>
+      <source>Error reading classes file: %s</source>
+      <translation>클래스 파일 읽기 오류: %s</translation>
+    </message>
+    <message>
+      <source>Uploading flags file successfully!</source>
+      <translation>플래그 파일을 업로드했습니다!</translation>
+    </message>
+    <message>
+      <source>Uploading shape attributes file successfully!</source>
+      <translation>도형 속성 파일을 업로드했습니다!</translation>
+    </message>
+    <message>
+      <source>Uploading annotations successfully!</source>
+      <translation>주석을 업로드했습니다!</translation>
+    </message>
     <message>
       <source>Create Relation</source>
       <translation>관계 생성</translation>
@@ -9172,6 +9326,10 @@ Changes will not be saved until you click Save.</source>
   <context>
     <name>UltralyticsDialog</name>
     <message>
+      <source>Model weights not found at: %s</source>
+      <translation>모델 가중치를 찾을 수 없습니다: %s</translation>
+    </message>
+    <message>
       <location filename="../../views/training/ultralytics_dialog.py" line="241" />
       <source>Data</source>
       <translation>데이터</translation>
@@ -10591,6 +10749,110 @@ Response preview:
   <context>
     <name>auto_labeling_form</name>
     <message>
+      <source>0.001</source>
+      <translation>0.001</translation>
+    </message>
+    <message>
+      <source>AMG</source>
+      <translation>AMG</translation>
+    </message>
+    <message>
+      <source>Form</source>
+      <translation>Form</translation>
+    </message>
+    <message>
+      <source>GroundingDino_1_5_Edge</source>
+      <translation>GroundingDino_1_5_Edge</translation>
+    </message>
+    <message>
+      <source>GroundingDino_1_5_Pro</source>
+      <translation>GroundingDino_1_5_Pro</translation>
+    </message>
+    <message>
+      <source>GroundingDino_1_6_Edge</source>
+      <translation>GroundingDino_1_6_Edge</translation>
+    </message>
+    <message>
+      <source>GroundingDino_1_6_Pro</source>
+      <translation>GroundingDino_1_6_Pro</translation>
+    </message>
+    <message>
+      <source>cap_to_pg</source>
+      <translation>cap_to_pg</translation>
+    </message>
+    <message>
+      <source>caption</source>
+      <translation>caption</translation>
+    </message>
+    <message>
+      <source>coarse_grained_prompt</source>
+      <translation>coarse_grained_prompt</translation>
+    </message>
+    <message>
+      <source>dense_region_cap</source>
+      <translation>dense_region_cap</translation>
+    </message>
+    <message>
+      <source>detailed_cap</source>
+      <translation>detailed_cap</translation>
+    </message>
+    <message>
+      <source>fine_grained_prompt</source>
+      <translation>fine_grained_prompt</translation>
+    </message>
+    <message>
+      <source>more_detailed_cap</source>
+      <translation>more_detailed_cap</translation>
+    </message>
+    <message>
+      <source>ocr</source>
+      <translation>ocr</translation>
+    </message>
+    <message>
+      <source>ocr_with_region</source>
+      <translation>ocr_with_region</translation>
+    </message>
+    <message>
+      <source>od</source>
+      <translation>od</translation>
+    </message>
+    <message>
+      <source>ovd</source>
+      <translation>ovd</translation>
+    </message>
+    <message>
+      <source>polygon</source>
+      <translation>polygon</translation>
+    </message>
+    <message>
+      <source>rectangle</source>
+      <translation>rectangle</translation>
+    </message>
+    <message>
+      <source>refer_exp_seg</source>
+      <translation>refer_exp_seg</translation>
+    </message>
+    <message>
+      <source>region_proposal</source>
+      <translation>region_proposal</translation>
+    </message>
+    <message>
+      <source>region_to_cat</source>
+      <translation>region_to_cat</translation>
+    </message>
+    <message>
+      <source>region_to_desc</source>
+      <translation>region_to_desc</translation>
+    </message>
+    <message>
+      <source>region_to_seg</source>
+      <translation>region_to_seg</translation>
+    </message>
+    <message>
+      <source>rotation</source>
+      <translation>rotation</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
       <source>Enter text prompt here, e.g., person.car.bicycle</source>
       <translation>텍스트 프롬프트 입력 (예: person.car.bicycle)</translation>
@@ -10723,6 +10985,173 @@ Response preview:
     <message>
       <source>Search options...</source>
       <translation>옵션 검색...</translation>
+    </message>
+  </context>
+  <context>
+    <name>AIWorkerThread</name>
+    <message>
+      <source>Cannot connect to the AI service at %s. Check that the service is running and its address is correct, or select another provider in Chatbot (Ctrl+0).</source>
+      <translation>%s의 AI 서비스에 연결할 수 없습니다. 서비스 실행 상태와 주소를 확인하거나 챗봇(Ctrl+0)에서 다른 제공자를 선택하세요.</translation>
+    </message>
+  </context>
+  <context>
+    <name>ClassificationBatch</name>
+    <message>
+      <source>AI Assistant</source>
+      <translation>AI 도우미</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>취소</translation>
+    </message>
+    <message>
+      <source>Completed: %d
+Skipped: %d
+Failed: %d</source>
+      <translation>완료: %d
+건너뜀: %d
+실패: %d</translation>
+    </message>
+    <message>
+      <source>Processed %d / %d images</source>
+      <translation>이미지 %d / %d개 처리됨</translation>
+    </message>
+    <message>
+      <source>Processing cancelled.</source>
+      <translation>처리가 취소되었습니다.</translation>
+    </message>
+    <message>
+      <source>Processing images...</source>
+      <translation>이미지 처리 중...</translation>
+    </message>
+    <message>
+      <source>Processing objects...</source>
+      <translation>객체 처리 중...</translation>
+    </message>
+    <message>
+      <source>Progress</source>
+      <translation>진행 상황</translation>
+    </message>
+  </context>
+  <context>
+    <name>MultiTaskAIDialog</name>
+    <message>
+      <source>AI Assistant</source>
+      <translation>AI 도우미</translation>
+    </message>
+    <message>
+      <source>AI results will overwrite existing attribute values for all objects in the selected range.</source>
+      <translation>AI 결과가 선택한 범위의 모든 객체에 있는 기존 속성 값을 덮어씁니다.</translation>
+    </message>
+    <message>
+      <source>AI results will overwrite existing classification values for images in the selected range.</source>
+      <translation>AI 결과가 선택한 범위의 이미지에 있는 기존 분류 값을 덮어씁니다.</translation>
+    </message>
+    <message>
+      <source>AI results will overwrite existing values for the selected object's attributes.</source>
+      <translation>AI 결과가 선택한 객체의 기존 속성 값을 덮어씁니다.</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>취소</translation>
+    </message>
+    <message>
+      <source>Chatbot Settings</source>
+      <translation>챗봇 설정</translation>
+    </message>
+    <message>
+      <source>Concurrent requests</source>
+      <translation>동시 요청 수</translation>
+    </message>
+    <message>
+      <source>Confirm</source>
+      <translation>확인</translation>
+    </message>
+    <message>
+      <source>Current model</source>
+      <translation>현재 모델</translation>
+    </message>
+    <message>
+      <source>Don't show again</source>
+      <translation>다시 표시하지 않음</translation>
+    </message>
+    <message>
+      <source>Error</source>
+      <translation>오류</translation>
+    </message>
+    <message>
+      <source>Generate</source>
+      <translation>생성</translation>
+    </message>
+    <message>
+      <source>Prompt</source>
+      <translation>프롬프트</translation>
+    </message>
+    <message>
+      <source>Search models...</source>
+      <translation>모델 검색...</translation>
+    </message>
+    <message>
+      <source>Select a model</source>
+      <translation>모델 선택</translation>
+    </message>
+  </context>
+  <context>
+    <name>MultiTaskBatch</name>
+    <message>
+      <source>AI Assistant</source>
+      <translation>AI 도우미</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>취소</translation>
+    </message>
+    <message>
+      <source>Completed: %d
+Skipped: %d
+Failed: %d</source>
+      <translation>완료: %d
+건너뜀: %d
+실패: %d</translation>
+    </message>
+    <message>
+      <source>No supported objects to process.</source>
+      <translation>처리할 수 있는 객체가 없습니다.</translation>
+    </message>
+    <message>
+      <source>Processed %d / %d objects</source>
+      <translation>객체 %d / %d개 처리됨</translation>
+    </message>
+    <message>
+      <source>Processing cancelled.</source>
+      <translation>처리가 취소되었습니다.</translation>
+    </message>
+    <message>
+      <source>Processing objects...</source>
+      <translation>객체 처리 중...</translation>
+    </message>
+    <message>
+      <source>Progress</source>
+      <translation>진행 상황</translation>
+    </message>
+  </context>
+  <context>
+    <name>OverwriteConfirmationDialog</name>
+    <message>
+      <source>AI Assistant</source>
+      <translation>AI 도우미</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>취소</translation>
+    </message>
+    <message>
+      <source>Confirm</source>
+      <translation>확인</translation>
+    </message>
+    <message>
+      <source>Don't show again</source>
+      <translation>다시 표시하지 않음</translation>
     </message>
   </context>
 </TS>

@@ -233,6 +233,11 @@ class Canvas(
         self.show_degrees = False
         self.show_attributes = True
         self.show_linking = True
+        self.grid_enabled = False
+        self.grid_size = 100
+        self.grid_color = "white"
+        self.grid_opacity = 100
+        self.grid_labels = False
 
         # Set cross line options.
         self.cross_line_show = True
@@ -2630,10 +2635,10 @@ class Canvas(
                 if shape.locked:
                     self.setToolTip(self.tr("Locked shape '%s'") % shape.label)
                 elif shape.group_id and shape.shape_type == "rectangle":
-                    tooltip_text = "Click & drag to move shape '{label} {group_id}'".format(
-                        label=shape.label, group_id=shape.group_id
+                    self.setToolTip(
+                        self.tr("Click & drag to move shape '%s %s'")
+                        % (shape.label, shape.group_id)
                     )
-                    self.setToolTip(self.tr(tooltip_text))
                 else:
                     self.setToolTip(
                         self.tr("Click & drag to move shape '%s'")
@@ -4775,6 +4780,66 @@ class Canvas(
                 p.setPen(pen)
                 p.setBrush(Qt.BrushStyle.NoBrush)
                 p.drawPath(mask_path)
+
+        if self.grid_enabled:
+            p.save()
+            color = QtGui.QColor(self.grid_color)
+            color.setAlphaF(self.grid_opacity / 100)
+            pen = QtGui.QPen(color)
+            pen.setWidthF(2.0 / self.scale)
+            p.setPen(pen)
+            size = self.grid_size
+            width = math.ceil(self.pixmap.width() / size) * size
+            height = math.ceil(self.pixmap.height() / size) * size
+            visible = (
+                p.transform()
+                .inverted()[0]
+                .mapRect(QtCore.QRectF(event.rect()))
+                .intersected(QtCore.QRectF(0, 0, width + 1, height + 1))
+            )
+            for x in range(
+                max(0, int(visible.left() // size)) * size,
+                min(width, int(visible.right())) + 1,
+                size,
+            ):
+                p.drawLine(x, 0, x, height)
+            for y in range(
+                max(0, int(visible.top() // size)) * size,
+                min(height, int(visible.bottom())) + 1,
+                size,
+            ):
+                p.drawLine(0, y, width, y)
+            if self.grid_labels and size * self.scale >= 24:
+                font = QtGui.QFont(p.font())
+                font.setPixelSize(max(1, round(12 / self.scale)))
+                p.setFont(font)
+                margin = 4 / self.scale
+                for row in range(
+                    max(0, int(visible.top() // size)),
+                    min(height // size, int(visible.bottom() // size) + 1),
+                ):
+                    for col in range(
+                        max(0, int(visible.left() // size)),
+                        min(width // size, int(visible.right() // size) + 1),
+                    ):
+                        index = col + 1
+                        letters = ""
+                        while index:
+                            index, remainder = divmod(index - 1, 26)
+                            letters = chr(65 + remainder) + letters
+                        rect = QtCore.QRectF(
+                            col * size + margin,
+                            row * size + margin,
+                            size - margin,
+                            size - margin,
+                        )
+                        p.drawText(
+                            rect,
+                            Qt.AlignmentFlag.AlignTop
+                            | Qt.AlignmentFlag.AlignLeft,
+                            f"{letters}{row + 1}",
+                        )
+            p.restore()
 
         # Draw degrees
         for shape in self.shapes:

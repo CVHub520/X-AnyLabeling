@@ -288,9 +288,9 @@ def get_toolbar_scroll_area_style():
     """
 
 
-def get_settings_combo_style() -> str:
+def get_settings_combo_style(mode=None) -> str:
     down_arrow = new_icon_path("caret-down", "svg")
-    if get_mode() == "dark":
+    if (mode or get_mode()) == "dark":
         right_bg = (24, 24, 24)
         card_bg = (44, 44, 46)
         title_text = (245, 245, 247)
@@ -434,8 +434,8 @@ def get_highlight_button_style():
     """
 
 
-def get_spinbox_style():
-    t = get_theme()
+def get_spinbox_style(theme=None):
+    t = theme or get_theme()
     return f"""
         QSpinBox {{
             padding: 5px 8px;
@@ -754,7 +754,7 @@ def get_lineedit_style():
     """
 
 
-def get_checkbox_indicator_style() -> str:
+def get_checkbox_indicator_style(mode=None) -> str:
     """
     Returns QSS for QCheckBox indicator sub-controls.
 
@@ -763,7 +763,7 @@ def get_checkbox_indicator_style() -> str:
     Returns:
         str: QSS fragment for QCheckBox::indicator rules.
     """
-    return _checkbox_indicator_qss()
+    return _checkbox_indicator_qss(mode)
 
 
 def get_dialog_style() -> str:

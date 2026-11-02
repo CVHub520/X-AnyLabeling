@@ -684,6 +684,14 @@ Example: person.car.bicycle</source>
   <context>
     <name>Canvas</name>
     <message>
+      <source>Click &amp; drag to move shape '%s %s'</source>
+      <translation>点击并拖动以移动图形“%s %s”</translation>
+    </message>
+    <message>
+      <source>Click &amp; drag to rotate shape '%s'</source>
+      <translation>点击并拖动以旋转图形“%s”</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="259" />
       <source>Loading...</source>
       <translation>加载中...</translation>
@@ -778,6 +786,17 @@ Example: person.car.bicycle</source>
   </context>
   <context>
     <name>CanvasAdjustmentWidget</name>
+    <message><source>Image grid</source><translation>图像网格</translation></message>
+    <message><source>Grid settings</source><translation>网格设置</translation></message>
+    <message><source>Adjust image grid opacity.</source><translation>调整图像网格不透明度。</translation></message>
+    <message><source>Size:</source><translation>大小：</translation></message>
+    <message><source>Color:</source><translation>颜色：</translation></message>
+    <message><source>Show grid labels</source><translation>显示网格编号</translation></message>
+    <message><source>White</source><translation>白色</translation></message>
+    <message><source>Black</source><translation>黑色</translation></message>
+    <message><source>Red</source><translation>红色</translation></message>
+    <message><source>Green</source><translation>绿色</translation></message>
+    <message><source>Blue</source><translation>蓝色</translation></message>
     <message>
       <source>Status</source>
       <translation>状态</translation>
@@ -896,6 +915,28 @@ Example: person.car.bicycle</source>
   </context>
   <context>
     <name>ChatbotDialog</name>
+    <message>
+      <source>An error occurred during import:
+%s</source>
+      <translation>导入时发生错误：
+%s</translation>
+    </message>
+    <message>
+      <source>An error occurred during export:
+%s</source>
+      <translation>导出时发生错误：
+%s</translation>
+    </message>
+    <message>
+      <source>Dataset exported successfully to:
+%s</source>
+      <translation>数据集已成功导出至：
+%s</translation>
+    </message>
+    <message>
+      <source>Error processing %s: %s</source>
+      <translation>处理 %s 时出错：%s</translation>
+    </message>
     <message>
       <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="151" />
       <source>Clear Chat</source>
@@ -1233,6 +1274,10 @@ Example: person.car.bicycle</source>
   </context>
   <context>
     <name>ClassifierDialog</name>
+    <message>
+      <source>Mask Background</source>
+      <translation>遮罩背景</translation>
+    </message>
     <message>
       <source>Process %d images with AI?</source>
       <translation>使用 AI 处理 %d 张图片吗？</translation>
@@ -3058,6 +3103,30 @@ Continue?</source>
   </context>
   <context>
     <name>LabelingWidget</name>
+    <message>
+      <source>Error occurred while exporting cropped images!</source>
+      <translation>导出裁剪图像时出错！</translation>
+    </message>
+    <message>
+      <source>Successfully loaded %d labels!</source>
+      <translation>成功加载 %d 个标签！</translation>
+    </message>
+    <message>
+      <source>Error reading classes file: %s</source>
+      <translation>读取类别文件时出错：%s</translation>
+    </message>
+    <message>
+      <source>Uploading flags file successfully!</source>
+      <translation>标志文件上传成功！</translation>
+    </message>
+    <message>
+      <source>Uploading shape attributes file successfully!</source>
+      <translation>图形属性文件上传成功！</translation>
+    </message>
+    <message>
+      <source>Uploading annotations successfully!</source>
+      <translation>标注上传成功！</translation>
+    </message>
     <message>
       <source>Create Relation</source>
       <translation>创建关系</translation>
@@ -9222,6 +9291,10 @@ Changes will not be saved until you click Save.</source>
   <context>
     <name>UltralyticsDialog</name>
     <message>
+      <source>Model weights not found at: %s</source>
+      <translation>未找到模型权重：%s</translation>
+    </message>
+    <message>
       <location filename="../../views/training/ultralytics_dialog.py" line="241" />
       <source>Data</source>
       <translation>数据</translation>
@@ -10640,6 +10713,110 @@ Response preview:
   </context>
   <context>
     <name>auto_labeling_form</name>
+    <message>
+      <source>0.001</source>
+      <translation>0.001</translation>
+    </message>
+    <message>
+      <source>AMG</source>
+      <translation>AMG</translation>
+    </message>
+    <message>
+      <source>Form</source>
+      <translation>Form</translation>
+    </message>
+    <message>
+      <source>GroundingDino_1_5_Edge</source>
+      <translation>GroundingDino_1_5_Edge</translation>
+    </message>
+    <message>
+      <source>GroundingDino_1_5_Pro</source>
+      <translation>GroundingDino_1_5_Pro</translation>
+    </message>
+    <message>
+      <source>GroundingDino_1_6_Edge</source>
+      <translation>GroundingDino_1_6_Edge</translation>
+    </message>
+    <message>
+      <source>GroundingDino_1_6_Pro</source>
+      <translation>GroundingDino_1_6_Pro</translation>
+    </message>
+    <message>
+      <source>cap_to_pg</source>
+      <translation>cap_to_pg</translation>
+    </message>
+    <message>
+      <source>caption</source>
+      <translation>caption</translation>
+    </message>
+    <message>
+      <source>coarse_grained_prompt</source>
+      <translation>coarse_grained_prompt</translation>
+    </message>
+    <message>
+      <source>dense_region_cap</source>
+      <translation>dense_region_cap</translation>
+    </message>
+    <message>
+      <source>detailed_cap</source>
+      <translation>detailed_cap</translation>
+    </message>
+    <message>
+      <source>fine_grained_prompt</source>
+      <translation>fine_grained_prompt</translation>
+    </message>
+    <message>
+      <source>more_detailed_cap</source>
+      <translation>more_detailed_cap</translation>
+    </message>
+    <message>
+      <source>ocr</source>
+      <translation>ocr</translation>
+    </message>
+    <message>
+      <source>ocr_with_region</source>
+      <translation>ocr_with_region</translation>
+    </message>
+    <message>
+      <source>od</source>
+      <translation>od</translation>
+    </message>
+    <message>
+      <source>ovd</source>
+      <translation>ovd</translation>
+    </message>
+    <message>
+      <source>polygon</source>
+      <translation>polygon</translation>
+    </message>
+    <message>
+      <source>rectangle</source>
+      <translation>rectangle</translation>
+    </message>
+    <message>
+      <source>refer_exp_seg</source>
+      <translation>refer_exp_seg</translation>
+    </message>
+    <message>
+      <source>region_proposal</source>
+      <translation>region_proposal</translation>
+    </message>
+    <message>
+      <source>region_to_cat</source>
+      <translation>region_to_cat</translation>
+    </message>
+    <message>
+      <source>region_to_desc</source>
+      <translation>region_to_desc</translation>
+    </message>
+    <message>
+      <source>region_to_seg</source>
+      <translation>region_to_seg</translation>
+    </message>
+    <message>
+      <source>rotation</source>
+      <translation>rotation</translation>
+    </message>
     <message>
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.ui" />
       <source>Enter text prompt here, e.g., person.car.bicycle</source>

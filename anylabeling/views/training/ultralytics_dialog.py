@@ -2486,7 +2486,7 @@ class UltralyticsDialog(QDialog):
             QMessageBox.warning(
                 self,
                 self.tr("Model Not Found"),
-                self.tr(f"Model weights not found at: {weights_path}"),
+                self.tr("Model weights not found at: %s") % weights_path,
             )
             return
 

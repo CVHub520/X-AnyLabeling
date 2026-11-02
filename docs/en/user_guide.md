@@ -442,7 +442,7 @@ Use the panel at the bottom-left of the canvas to adjust annotation opacity, the
   <img src="../../assets/resources/image_contrast.gif" alt="Adjusting image contrast from the panel at the bottom-left of the canvas">
 </p>
 
-The reset button to the right of each slider restores its default value. The lock button controls whether the current value is retained when switching images. Opacity is retained by default; when unlocked, it resets to `1.00` on switching images. The brightness and contrast lock buttons stay in sync with `View` > `Keep Previous Brightness` and `View` > `Keep Previous Contrast`. When unlocked, each image uses its existing adjustment values, or the defaults if it has not been adjusted.
+**Image grid:** Drag the **Image grid** slider to adjust grid opacity; at `0%`, the grid is hidden. Click the settings icon to adjust grid size in image pixels (`5–1000`), choose a color, or enable cell labels such as `A1` and `B2`. The default size is `100` pixels and labels are off. The grid reset button restores these defaults and sets opacity to `0%`. Labels are temporarily hidden when cells are too small on screen.
 
 ### 3.3 Shape Display
 

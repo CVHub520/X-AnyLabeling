@@ -180,7 +180,7 @@ def get_mode() -> str:
     return _active_mode
 
 
-def _checkbox_indicator_qss() -> str:
+def _checkbox_indicator_qss(mode: Optional[str] = None) -> str:
     """
     Returns QSS for QCheckBox indicator sub-controls.
 
@@ -190,8 +190,9 @@ def _checkbox_indicator_qss() -> str:
     Returns:
         str: QSS fragment for QCheckBox::indicator rules.
     """
-    t = _active_theme
-    if _active_mode == "dark":
+    active_mode = mode or _active_mode
+    t = LIGHT if active_mode == "light" else DARK
+    if active_mode == "dark":
         checked_bg = t["primary"]
         checked_border = t["primary"]
         checkmark = ":/images/images/checkmark-white.svg"

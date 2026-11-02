@@ -453,7 +453,7 @@ def save_crop(self):
     except Exception as e:
         logger.error(f"Error occurred while exporting cropped images: {e}")
         popup = Popup(
-            self.tr(f"Error occurred while exporting cropped images!"),
+            self.tr("Error occurred while exporting cropped images!"),
             self,
             msec=3000,
             icon=new_icon_path("error", "svg"),
