@@ -244,6 +244,8 @@
   config_file: ":/yolo12x.yaml"
 - model_name: "yoloe_11s-r20250524"
   config_file: ":/yoloe_11s.yaml"
+- model_name: "yoloe_11s_tracktrack-r20260716"
+  config_file: ":/yoloe_11s_tracktrack.yaml"
 - model_name: "yoloe_v8l-r20250524"
   config_file: ":/yoloe_v8l.yaml"
 - model_name: "yolov5l-r20230520"
