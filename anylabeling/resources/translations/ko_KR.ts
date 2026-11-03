@@ -520,6 +520,30 @@ Example: person.car.bicycle</source>
       <source>Run</source>
       <translation>실행</translation>
     </message>
+    <message>
+      <source>Skip statuses:</source>
+      <translation>건너뛸 상태:</translation>
+    </message>
+    <message>
+      <source>Pending</source>
+      <translation>미검토</translation>
+    </message>
+    <message>
+      <source>Passed</source>
+      <translation>검토 통과</translation>
+    </message>
+    <message>
+      <source>Failed</source>
+      <translation>검토 실패</translation>
+    </message>
+    <message>
+      <source>%s to process, %s skipped</source>
+      <translation>처리 %s개, 건너뛰기 %s개</translation>
+    </message>
+    <message>
+      <source>Status skipping is unavailable for video tracking and propagation.</source>
+      <translation>동영상 추적 및 전파에서는 상태별 건너뛰기를 사용할 수 없습니다.</translation>
+    </message>
   </context>
   <context>
     <name>CameraConfigurationDialog</name>
@@ -5308,6 +5332,14 @@ Results have been saved to:
       <location filename="../../views/labeling/label_widget.py" line="2867" />
       <source>Show/hide file list</source>
       <translation>파일 목록 표시 또는 숨기기</translation>
+    </message>
+    <message>
+      <source>Unable to read annotation status: %s</source>
+      <translation>주석 상태를 읽을 수 없습니다: %s</translation>
+    </message>
+    <message>
+      <source>No images to process with the selected skip statuses.</source>
+      <translation>선택한 상태를 건너뛰면 처리할 이미지가 없습니다.</translation>
     </message>
   </context>
   <context>

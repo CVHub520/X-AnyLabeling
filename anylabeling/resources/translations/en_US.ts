@@ -503,6 +503,30 @@ Review the prompt before generating.</translation>
       <source>Run</source>
       <translation>Run</translation>
     </message>
+    <message>
+      <source>Skip statuses:</source>
+      <translation>Skip statuses:</translation>
+    </message>
+    <message>
+      <source>Pending</source>
+      <translation>Pending</translation>
+    </message>
+    <message>
+      <source>Passed</source>
+      <translation>Passed</translation>
+    </message>
+    <message>
+      <source>Failed</source>
+      <translation>Failed</translation>
+    </message>
+    <message>
+      <source>%s to process, %s skipped</source>
+      <translation>%s to process, %s skipped</translation>
+    </message>
+    <message>
+      <source>Status skipping is unavailable for video tracking and propagation.</source>
+      <translation>Status skipping is unavailable for video tracking and propagation.</translation>
+    </message>
   </context>
   <context>
     <name>CameraConfigurationDialog</name>
@@ -5079,6 +5103,14 @@ Results have been saved to:
       <translation>Exporting annotations successfully!
 Results have been saved to:
 %s</translation>
+    </message>
+    <message>
+      <source>Unable to read annotation status: %s</source>
+      <translation>Unable to read annotation status: %s</translation>
+    </message>
+    <message>
+      <source>No images to process with the selected skip statuses.</source>
+      <translation>No images to process with the selected skip statuses.</translation>
     </message>
   </context>
   <context>

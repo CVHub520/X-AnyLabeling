@@ -520,6 +520,30 @@ Example: person.car.bicycle</source>
       <source>Run</source>
       <translation>実行</translation>
     </message>
+    <message>
+      <source>Skip statuses:</source>
+      <translation>スキップする状態:</translation>
+    </message>
+    <message>
+      <source>Pending</source>
+      <translation>未確認</translation>
+    </message>
+    <message>
+      <source>Passed</source>
+      <translation>確認済み</translation>
+    </message>
+    <message>
+      <source>Failed</source>
+      <translation>確認不合格</translation>
+    </message>
+    <message>
+      <source>%s to process, %s skipped</source>
+      <translation>処理 %s 件、スキップ %s 件</translation>
+    </message>
+    <message>
+      <source>Status skipping is unavailable for video tracking and propagation.</source>
+      <translation>動画追跡と伝播では状態によるスキップは使用できません。</translation>
+    </message>
   </context>
   <context>
     <name>CameraConfigurationDialog</name>
@@ -5306,6 +5330,14 @@ Results have been saved to:
       <location filename="../../views/labeling/label_widget.py" line="2867" />
       <source>Show/hide file list</source>
       <translation>ファイル一覧を表示または非表示</translation>
+    </message>
+    <message>
+      <source>Unable to read annotation status: %s</source>
+      <translation>アノテーションの状態を読み取れません: %s</translation>
+    </message>
+    <message>
+      <source>No images to process with the selected skip statuses.</source>
+      <translation>選択した状態をスキップすると処理する画像はありません。</translation>
     </message>
   </context>
   <context>

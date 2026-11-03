@@ -6,6 +6,7 @@ from PIL import Image
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import Qt, QThread, QTimer, pyqtSignal
 from PyQt6.QtWidgets import (
+    QCheckBox,
     QVBoxLayout,
     QGridLayout,
     QHBoxLayout,
@@ -41,7 +42,15 @@ __all__ = ["run_all_images"]
 
 
 class BatchRangeDialog(QDialog):
-    def __init__(self, image_count, start_index=1, parent=None):
+    def __init__(
+        self,
+        image_count,
+        start_index=1,
+        parent=None,
+        statuses=None,
+        skip_statuses=(),
+        allow_skip=True,
+    ):
         super().__init__(parent)
         self.setWindowTitle(self.tr("Auto Run"))
         self.setMinimumWidth(440)
@@ -111,21 +120,61 @@ class BatchRangeDialog(QDialog):
             range_layout.addWidget(label, 0, column)
             range_layout.addWidget(field, 1, column)
         range_layout.setRowMinimumHeight(2, 8)
+        skip_layout = QHBoxLayout()
+        skip_layout.setContentsMargins(0, 0, 0, 0)
+        skip_layout.setSpacing(12)
+        skip_label = QLabel(self.tr("Skip statuses:"))
+        skip_layout.addWidget(skip_label)
+        skip_layout.addStretch()
+        self.status_checkboxes = {}
+        for status, text in (
+            (False, self.tr("Pending")),
+            (True, self.tr("Passed")),
+            ("failed", self.tr("Failed")),
+        ):
+            checkbox = QCheckBox(text)
+            checkbox.setChecked(allow_skip and status in skip_statuses)
+            checkbox.setEnabled(allow_skip)
+            self.status_checkboxes[status] = checkbox
+            skip_layout.addWidget(checkbox)
+        if not allow_skip:
+            skip_label.setToolTip(
+                self.tr(
+                    "Status skipping is unavailable for video tracking and propagation."
+                )
+            )
+            for checkbox in self.status_checkboxes.values():
+                checkbox.setToolTip(skip_label.toolTip())
+        range_layout.addLayout(skip_layout, 3, 0, 1, 2)
+        range_layout.setRowMinimumHeight(4, 8)
         summary = QLabel()
         summary.setObjectName("rangeSummary")
 
         def update_summary():
             selected = self.to_input.value() - self.from_input.value() + 1
+            selected_statuses = self.selected_skip_statuses()
+            skipped = sum(
+                status in selected_statuses
+                for status in (statuses or [False] * image_count)[
+                    self.from_input.value() - 1 : self.to_input.value()
+                ]
+            )
             summary.setText(
-                self.tr("%s of %s images selected") % (selected, image_count)
+                self.tr("%s to process, %s skipped")
+                % (selected - skipped, skipped)
+                if selected_statuses
+                else self.tr("%s of %s images selected")
+                % (selected, image_count)
             )
 
+        for checkbox in self.status_checkboxes.values():
+            checkbox.toggled.connect(update_summary)
         self.from_input.valueChanged.connect(update_summary)
         self.to_input.valueChanged.connect(update_summary)
         update_summary()
         range_layout.addWidget(
             summary,
-            3,
+            5,
             0,
             Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
         )
@@ -140,8 +189,15 @@ class BatchRangeDialog(QDialog):
         run_button.setDefault(True)
         run_button.clicked.connect(self.accept)
         buttons.addWidget(run_button, 1)
-        range_layout.addLayout(buttons, 3, 1)
+        range_layout.addLayout(buttons, 5, 1)
         layout.addLayout(range_layout)
+
+    def selected_skip_statuses(self):
+        return [
+            status
+            for status, checkbox in self.status_checkboxes.items()
+            if checkbox.isChecked()
+        ]
 
 
 class TextInputDialog(QDialog):
@@ -337,6 +393,7 @@ def _reset_batch_processing_state(self):
         "current_index",
         "_batch_start_index",
         "_batch_end_index",
+        "_batch_image_list",
     ):
         if hasattr(self, attribute):
             delattr(self, attribute)
@@ -552,10 +609,15 @@ def process_next_image(self, progress_dialog, batch=True):
         skip_detection = (
             self.auto_labeling_widget.button_skip_detection.isChecked()
         )
+        task_images = getattr(self, "_batch_image_list", None)
         self._batch_thread = BatchProcessingThread(
             self,
-            self.image_list[:total_images],
-            self.image_index,
+            (
+                task_images
+                if task_images is not None
+                else self.image_list[:total_images]
+            ),
+            0 if task_images is not None else self.image_index,
             model_type,
             self.text_prompt,
             self.run_tracker,
@@ -675,7 +737,12 @@ def process_next_image(self, progress_dialog, batch=True):
 
 def show_progress_dialog_and_process(self):
     self.cancel_processing = False
-    image_count = self._batch_end_index - self._batch_start_index
+    task_images = getattr(self, "_batch_image_list", None)
+    image_count = (
+        len(task_images)
+        if task_images is not None
+        else self._batch_end_index - self._batch_start_index
+    )
 
     progress_dialog = QProgressDialog(
         self.tr("Processing..."),
@@ -802,13 +869,85 @@ def run_all_images(self):
         )
         return
 
+    if not self.may_continue():
+        return
+
+    config = self.auto_labeling_widget.model_manager.loaded_model_config
+    allow_skip = config["type"] not in _BATCH_PROCESSING_VIDEO_MODELS
+    if config["type"] == "remote_server":
+        allow_skip = config["model"].get_batch_processing_mode() != "video"
+    statuses = [
+        self.file_list_widget.item(index).data(Qt.ItemDataRole.UserRole)
+        for index in range(len(self.image_list))
+    ]
+    saved_statuses = self.settings.value("batch/skip_statuses", []) or []
+    status_values = {"pending": False, "passed": True, "failed": "failed"}
     current_index = self.fn_to_index[str(self.filename)]
     response = BatchRangeDialog(
-        len(self.image_list), current_index + 1, parent=self
+        len(self.image_list),
+        current_index + 1,
+        parent=self,
+        statuses=statuses,
+        skip_statuses=[
+            status_values[key]
+            for key in saved_statuses
+            if key in status_values
+        ],
+        allow_skip=allow_skip,
     )
     if response.exec() != QDialog.DialogCode.Accepted:
         return
 
+    skip_statuses = response.selected_skip_statuses() if allow_skip else []
+    if allow_skip:
+        self.settings.setValue(
+            "batch/skip_statuses",
+            [
+                key
+                for key, value in status_values.items()
+                if value in skip_statuses
+            ],
+        )
+    task_images = None
+    if skip_statuses:
+        task_images = []
+        for image_file in self.image_list[
+            response.from_input.value() - 1 : response.to_input.value()
+        ]:
+            label_file = osp.splitext(image_file)[0] + ".json"
+            if self.output_dir:
+                label_file = osp.join(
+                    self.output_dir, osp.basename(label_file)
+                )
+            try:
+                data = {}
+                if osp.exists(label_file):
+                    with io_open(label_file, "r") as f:
+                        data = json.load(f)
+                checked = data.get("checked", False)
+                status = "failed" if checked == "failed" else checked is True
+            except (OSError, ValueError, AttributeError) as error:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    self.tr("Auto Run"),
+                    self.tr("Unable to read annotation status: %s")
+                    % label_file,
+                )
+                logger.error(f"Failed to read annotation status: {error}")
+                return
+            if status not in skip_statuses:
+                task_images.append(image_file)
+        if not task_images:
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("Auto Run"),
+                self.tr(
+                    "No images to process with the selected skip statuses."
+                ),
+            )
+            return
+
+    self._batch_image_list = task_images
     logger.info("Start running all images...")
 
     self.current_index = current_index
