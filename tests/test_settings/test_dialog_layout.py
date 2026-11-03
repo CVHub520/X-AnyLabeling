@@ -136,14 +136,18 @@ class TestSettingsDialogLayout(unittest.TestCase):
         dialog._render_primary("Canvas")
         self.app.processEvents()
 
-        spinbox = next(
+        spinboxes = [
             editor
             for editor in dialog.content_body.findChildren(QtWidgets.QSpinBox)
             if editor.minimum() == 6 and editor.maximum() == 48
+        ]
+        self.assertEqual(len(spinboxes), 2)
+        for spinbox in spinboxes:
+            self.assertEqual(spinbox.value(), 8)
+            spinbox.setValue(12)
+        self.assertEqual(
+            dialog._controller.get_value("canvas.attributes.font_size"), 12
         )
-        self.assertEqual(spinbox.value(), 8)
-
-        spinbox.setValue(12)
         self.assertEqual(
             dialog._controller.get_value("canvas.label_font_size"), 12
         )

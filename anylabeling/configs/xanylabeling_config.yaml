@@ -113,9 +113,10 @@ canvas:
     color: "#00FF00"
     opacity: 0.5
   attributes:
-    background_color: [33, 33, 33, 255]
-    border_color: [66, 66, 66, 255]
-    text_color: [33, 150, 243, 255]
+    font_size: 8
+    background_color: [38, 40, 44, 245]
+    border_color: [110, 114, 120, 255]
+    text_color: [240, 242, 245, 255]
   rotation:
     large_increment: 1.0  # degrees, corresponds to Z/V keys
     small_increment: 0.1  # degrees, corresponds to X/C keys

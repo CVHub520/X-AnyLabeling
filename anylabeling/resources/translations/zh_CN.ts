@@ -8987,7 +8987,15 @@ Changes will not be saved until you click Save.</source>
       <source>Wheel zooms in Direct Zoom mode; scrolls in Traditional Navigation mode.</source>
       <translation>直接缩放模式下滚轮缩放；传统导航模式下滚轮滚动。</translation>
     </message>
-  </context>
+      <message>
+      <source>Font Size</source>
+      <translation>字号</translation>
+    </message>
+    <message>
+      <source>Set the on-screen font size of attribute overlays.</source>
+      <translation>设置属性信息框在屏幕上的字号。</translation>
+    </message>
+</context>
   <context>
     <name>SettingsRuntimeApplier</name>
     <message>

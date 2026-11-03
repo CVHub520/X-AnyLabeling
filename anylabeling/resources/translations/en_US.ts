@@ -8793,7 +8793,15 @@ Changes will not be saved until you click Save.</translation>
       <source>Wheel zooms in Direct Zoom mode; scrolls in Traditional Navigation mode.</source>
       <translation>Wheel zooms in Direct Zoom mode; scrolls in Traditional Navigation mode.</translation>
     </message>
-  </context>
+      <message>
+      <source>Font Size</source>
+      <translation>Font Size</translation>
+    </message>
+    <message>
+      <source>Set the on-screen font size of attribute overlays.</source>
+      <translation>Set the on-screen font size of attribute overlays.</translation>
+    </message>
+</context>
   <context>
     <name>SettingsRuntimeApplier</name>
     <message>

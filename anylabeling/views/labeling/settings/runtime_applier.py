@@ -408,6 +408,7 @@ class SettingsRuntimeApplier:
 
     def apply_canvas_attributes(self) -> None:
         attrs = self._widget._config["canvas"]["attributes"]
+        self._widget.canvas.attr_font_size = int(attrs["font_size"])
         self._widget.canvas.attr_background_color = list(
             attrs["background_color"]
         )

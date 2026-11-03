@@ -9020,7 +9020,15 @@ Changes will not be saved until you click Save.</source>
       <source>Wheel zooms in Direct Zoom mode; scrolls in Traditional Navigation mode.</source>
       <translation>Wheel zooms in Direct Zoom mode; scrolls in Traditional Navigation mode.</translation>
     </message>
-  </context>
+      <message>
+      <source>Font Size</source>
+      <translation>フォントサイズ</translation>
+    </message>
+    <message>
+      <source>Set the on-screen font size of attribute overlays.</source>
+      <translation>属性オーバーレイの画面上のフォントサイズを設定します。</translation>
+    </message>
+</context>
   <context>
     <name>SettingsRuntimeApplier</name>
     <message>
