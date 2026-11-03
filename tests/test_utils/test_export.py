@@ -383,3 +383,40 @@ def test_yolo_export_error_dialog_shows_actionable_guidance(
         message_box_class.StandardButton.Ok
     )
     widget.load_file.assert_called_once_with(str(failed_image))
+
+
+def test_export_ppocr_annotation_uses_custom_output_dir(tmp_path):
+    app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+    from anylabeling.views.labeling.utils.export import export_pporc_annotation
+
+    image_dir = tmp_path / "images"
+    image_dir.mkdir()
+    label_dir = tmp_path / "labels"
+    label_dir.mkdir()
+    save_dir = tmp_path / "output"
+
+    image_file = image_dir / "sample.jpg"
+    image_file.touch()
+    label_file = label_dir / "sample.json"
+    label_file.touch()
+
+    widget = QtWidgets.QWidget()
+    widget.filename = str(image_file)
+    widget.image_list = [str(image_file)]
+    widget.output_dir = str(label_dir)
+    widget.may_continue = mock.Mock(return_value=True)
+
+    converter = mock.Mock()
+
+    with (
+        mock.patch.object(QtWidgets.QDialog, "exec", return_value=1),
+        mock.patch.object(QtWidgets.QLineEdit, "text", return_value=str(save_dir)),
+        mock.patch("anylabeling.views.labeling.utils.export.LabelConverter", return_value=converter),
+        mock.patch("anylabeling.views.labeling.utils.export.QProgressDialog"),
+        mock.patch("anylabeling.views.labeling.utils.export.Popup"),
+    ):
+        export_pporc_annotation(widget, mode="rec")
+
+    converter.custom_to_ppocr.assert_called_once_with(
+        str(image_file), str(label_file), str(save_dir), "rec"
+    )
