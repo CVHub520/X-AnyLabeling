@@ -1,4 +1,4 @@
-# SAM3 Interactive Video Object Segmentation Example
+# SAM 3 / SAM 3.1 Interactive Video Object Segmentation
 
 ## Introduction
 
@@ -9,6 +9,23 @@ SAM3 is a unified foundation model for promptable segmentation in images and vid
 In this tutorial, you'll learn how to leverage the video tracking feature of [SAM3](https://github.com/facebookresearch/sam3) on X-AnyLabeling to accomplish iVOS tasks. Let's get started!
 
 ## Installation
+
+### SAM 3.1 Video
+
+[SAM 3.1](https://github.com/facebookresearch/sam3/blob/main/RELEASE_SAM3p1.md) introduces Object Multiplex, which groups tracked objects into shared-memory buckets to reduce repeated computation during multi-object tracking. It supports text-based concept segmentation and interactive point prompts, producing instance masks and persistent object IDs across video frames.
+
+Follow the Server [English installation guide](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/docs/source/en/get_started.md) or [Chinese guide](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/docs/source/zh_cn/get_started.md), using the `sam3` dependency group.
+
+1. Download `sam3.1_multiplex.pt` from [facebook/sam3.1](https://huggingface.co/facebook/sam3.1) and place it in the Server root directory.
+2. Enable `segment_anything_3_1_video` in `configs/models.yaml`.
+3. Set `model_path` and `device` in `configs/auto_labeling/segment_anything_3_1_video.yaml` as needed. `max_num_objects` defaults to 16; increase it for denser scenes, allowing for additional memory usage.
+4. Start the Server. In the client, open a frame sequence and select **Remote-Server → Segment Anything 3.1 Video**. Use the text and point workflows below.
+
+SAM 3.1 Video uses a single CUDA device and a fixed input resolution of 1008. Boxes are enabled by default; set `show_masks: true` to return polygons. The client currently propagates forward from the selected frame. The standard attention backend is used without optional compilation or FlashAttention.
+
+For point prompts, click **Point (Q)** on the target and optionally add background points with **Point (E)**. Use **Finish (F)** to name the target before **Auto Run**. Text prompting can track multiple matching objects; the client's point workflow tracks one selected target per session.
+
+### SAM 3 Video
 
 You'll need to get X-AnyLabeling-Server up and running first. Check out the [installation guide](https://github.com/CVHub520/X-AnyLabeling-Server) for the details. Make sure you're running at least v0.0.4 of the server and v3.3.4 of the X-AnyLabeling client, otherwise you might run into compatibility issues.
 

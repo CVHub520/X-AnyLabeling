@@ -30,6 +30,7 @@
 
 ## 🥳 新功能
 
+- `2026-11-04`：新增支持 [SAM 3.1 Video](./examples/interactive_video_object_segmentation/sam3/README.md) 模型，支持文本提示多目标跟踪和交互式点提示分割。
 - `2026-11-03`：新增可调整的图像网格，支持显示网格编号，方便检查标注。
 - `2026-11-01`：新增支持 [RelateAnything](./examples/relation/relateanything/README.md) 目标关系预测模型。
 - `2026-10-31`：新增对象级多任务属性标注，支持 AI 标注及并发推理。
@@ -75,11 +76,11 @@
 | 🎨 **语义分割** | U-Net |
 | 🏃 **姿态估计** | YOLOv8-Pose, YOLO11-Pose, YOLO26-Pose, DWPose, RTMO |
 | 😀 **人脸估计** | SCRFD, YOLOv6Lite-Face |
-| 👣 **目标跟踪** | TrackTrack, Bot-SORT, ByteTrack, SAM2/3-Video |
+| 👣 **目标跟踪** | TrackTrack, Bot-SORT, ByteTrack, SAM2/3/3.1-Video |
 | 🔄 **旋转目标检测** | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb, YOLO26-Obb, RT-DETRv2-OBB |
 | 📏 **深度估计** | DepthAnything 1/2 |
 | 🔗 **关系识别** | RelateAnything |
-| 🧩 **分割一切** | SAM 1/2/3, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
+| 🧩 **分割一切** | SAM 1/2/3/3.1, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
 | ✂️ **图像抠图** | RMBG 1.4/2.0 |
 | 💡 **候选框提取** | UPN |
 | 🏷️ **图像标记** | RAM, RAM++ |
@@ -140,7 +141,7 @@
   - [Tracking by Pose Estimation](./examples/multiple_object_tracking/README.md)
 - [iVOS](./examples/interactive_video_object_segmentation)
   - [SAM2-Video](./examples/interactive_video_object_segmentation/sam2/README.md)
-  - [SAM3-Video](./examples/interactive_video_object_segmentation/sam3/README.md)
+  - [SAM3 / SAM3.1-Video](./examples/interactive_video_object_segmentation/sam3/README.md)
 - [Matting](./examples/matting/)
   - [Image Matting](./examples/matting/image_matting/README.md)
 - [Relation](./examples/relation/)

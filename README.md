@@ -28,6 +28,7 @@
 
 ## 🥳 What's New
 
+- `2026-11-04`: Add support for [SAM 3.1 Video](./examples/interactive_video_object_segmentation/sam3/README.md) with text-prompted multi-object tracking and interactive point segmentation.
 - `2026-11-03`: Add an adjustable image grid with optional cell labels for inspecting annotations.
 - `2026-11-01`: Add support for the [RelateAnything](./examples/relation/relateanything/README.md) object relation prediction model.
 - `2026-10-31`: Add object-level multi-task attribute annotation with AI-assisted labeling and concurrent inference.
@@ -73,11 +74,11 @@
 | 🎨 Semantic Segmentation | U-Net |
 | 🏃 Pose Estimation | YOLOv8-Pose, YOLO11-Pose, YOLO26-Pose, DWPose, RTMO |
 | 😀 Face Estimation | SCRFD, YOLOv6Lite-Face |
-| 👣 Tracking | TrackTrack, Bot-SORT, ByteTrack, SAM2/3-Video |
+| 👣 Tracking | TrackTrack, Bot-SORT, ByteTrack, SAM2/3/3.1-Video |
 | 🔄 Rotated Object Detection | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb, YOLO26-Obb, RT-DETRv2-OBB |
 | 📏 Depth Estimation | DepthAnything 1/2 |
 | 🔗 Relation Recognition | RelateAnything |
-| 🧩 Segment Anything | SAM 1/2/3, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
+| 🧩 Segment Anything | SAM 1/2/3/3.1, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
 | ✂️ Image Matting | RMBG 1.4/2.0 |
 | 💡 Proposal | UPN |
 | 🏷️ Tagging | RAM, RAM++ |
@@ -137,7 +138,7 @@
   - [Tracking by Pose Estimation](./examples/multiple_object_tracking/README.md)
 - [iVOS](./examples/interactive_video_object_segmentation)
   - [SAM2-Video](./examples/interactive_video_object_segmentation/sam2/README.md)
-  - [SAM3-Video](./examples/interactive_video_object_segmentation/sam3/README.md)
+  - [SAM3 / SAM3.1-Video](./examples/interactive_video_object_segmentation/sam3/README.md)
 - [Matting](./examples/matting/)
   - [Image Matting](./examples/matting/image_matting/README.md)
 - [Relation](./examples/relation/)
