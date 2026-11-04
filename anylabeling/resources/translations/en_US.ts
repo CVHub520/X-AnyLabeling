@@ -5047,6 +5047,16 @@ Please ensure that the bounding box label is listed under classes in the pose YA
       <translation>Skip empty labels?</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/utils/export.py" line="267" />
+      <source>Keep confirmed empty labels?</source>
+      <translation>Keep confirmed empty labels?</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/utils/export.py" line="273" />
+      <source>When empty labels are skipped, still export images marked Check Passed that contain no shapes.</source>
+      <translation>When empty labels are skipped, still export images marked Check Passed that contain no shapes.</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/utils/export.py" line="407" />
       <source>Out-of-bounds OBBs</source>
       <translation>Out-of-bounds OBBs</translation>
