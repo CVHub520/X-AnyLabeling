@@ -210,6 +210,81 @@ def _get_yolo_export_files(image_list, source_root, save_path):
     return export_files
 
 
+def is_confirmed_empty_label(label_data):
+    """Return True for a Check Passed annotation that has no shapes.
+
+    ``checked`` must be boolean True. Check Failed (``"failed"``) and
+    unchecked annotations are not treated as confirmed negative samples.
+    """
+    if not isinstance(label_data, dict):
+        return False
+    if label_data.get("checked", False) is not True:
+        return False
+    shapes = label_data.get("shapes")
+    return isinstance(shapes, list) and len(shapes) == 0
+
+
+def should_skip_empty_export(
+    skip_empty_files,
+    is_empty_file,
+    keep_confirmed_empty,
+    label_data,
+):
+    """Return whether this empty export result should be discarded.
+
+    Non-empty results are never skipped. Confirmed negative samples are
+    kept when ``keep_confirmed_empty`` is enabled.
+    """
+    if not skip_empty_files or not is_empty_file:
+        return False
+    if keep_confirmed_empty and is_confirmed_empty_label(label_data):
+        return False
+    return True
+
+
+def _read_export_label(label_path):
+    if not label_path or not osp.exists(label_path):
+        return None
+    return LabelConverter.read_json(label_path)
+
+
+def _add_empty_label_options(layout, translate):
+    """Add skip-empty and keep-confirmed-empty checkboxes.
+
+    Keeping confirmed empty labels only matters while empty labels are
+    skipped, so that option stays disabled until skip-empty is enabled.
+    """
+    options_layout = QVBoxLayout()
+    options_layout.setSpacing(8)
+
+    skip_empty_files_checkbox = QtWidgets.QCheckBox(
+        translate("Skip empty labels?")
+    )
+    skip_empty_files_checkbox.setChecked(False)
+    options_layout.addWidget(skip_empty_files_checkbox)
+
+    keep_confirmed_empty_checkbox = QtWidgets.QCheckBox(
+        translate("Keep confirmed empty labels?")
+    )
+    keep_confirmed_empty_checkbox.setChecked(False)
+    keep_confirmed_empty_checkbox.setEnabled(False)
+    keep_confirmed_empty_checkbox.setToolTip(
+        translate(
+            "When empty labels are skipped, still export images marked Check Passed that contain no shapes."
+        )
+    )
+    skip_empty_files_checkbox.toggled.connect(
+        keep_confirmed_empty_checkbox.setEnabled
+    )
+
+    keep_layout = QHBoxLayout()
+    keep_layout.setContentsMargins(22, 0, 0, 0)
+    keep_layout.addWidget(keep_confirmed_empty_checkbox)
+    options_layout.addLayout(keep_layout)
+    layout.addLayout(options_layout)
+    return skip_empty_files_checkbox, keep_confirmed_empty_checkbox
+
+
 def export_yolo_annotation(self, mode):
     if not _check_filename_exist(self):
         return
@@ -325,11 +400,13 @@ def export_yolo_annotation(self, mode):
     save_images_checkbox.setChecked(False)
     layout.addWidget(save_images_checkbox)
 
-    skip_empty_files_checkbox = QtWidgets.QCheckBox(
-        QCoreApplication.translate("LabelingWidget", "Skip empty labels?")
-    )
-    skip_empty_files_checkbox.setChecked(False)
-    layout.addWidget(skip_empty_files_checkbox)
+    def translate(text):
+        return QCoreApplication.translate("LabelingWidget", text)
+
+    (
+        skip_empty_files_checkbox,
+        keep_confirmed_empty_checkbox,
+    ) = _add_empty_label_options(layout, translate)
 
     button_layout = QHBoxLayout()
     button_layout.setContentsMargins(0, 16, 0, 0)
@@ -360,6 +437,7 @@ def export_yolo_annotation(self, mode):
 
     save_images = save_images_checkbox.isChecked()
     skip_empty_files = skip_empty_files_checkbox.isChecked()
+    keep_confirmed_empty = keep_confirmed_empty_checkbox.isChecked()
     save_path = path_edit.text()
     image_list = self.image_list if self.image_list else [self.filename]
 
@@ -500,6 +578,7 @@ def export_yolo_annotation(self, mode):
             src_file = get_label_file(image_file)
             os.makedirs(osp.dirname(dst_file), exist_ok=True)
 
+            label_data = _read_export_label(src_file)
             is_empty_file = converter.custom_to_yolo(
                 src_file,
                 dst_file,
@@ -507,12 +586,18 @@ def export_yolo_annotation(self, mode):
                 skip_empty_files=skip_empty_files,
                 obb_boundary_policy=obb_boundary_policy,
             )
+            skip_file = should_skip_empty_export(
+                skip_empty_files,
+                is_empty_file,
+                keep_confirmed_empty,
+                label_data,
+            )
 
-            if save_images and not (skip_empty_files and is_empty_file):
+            if save_images and not skip_file:
                 os.makedirs(osp.dirname(image_dst), exist_ok=True)
                 shutil.copy(image_file, image_dst)
 
-            if skip_empty_files and is_empty_file and osp.exists(dst_file):
+            if skip_file and osp.exists(dst_file):
                 os.remove(dst_file)
 
             progress_dialog.setValue(i)
@@ -603,11 +688,10 @@ def export_voc_annotation(self, mode):
     save_images_checkbox.setChecked(False)
     layout.addWidget(save_images_checkbox)
 
-    skip_empty_files_checkbox = QtWidgets.QCheckBox(
-        self.tr("Skip empty labels?")
-    )
-    skip_empty_files_checkbox.setChecked(False)
-    layout.addWidget(skip_empty_files_checkbox)
+    (
+        skip_empty_files_checkbox,
+        keep_confirmed_empty_checkbox,
+    ) = _add_empty_label_options(layout, self.tr)
 
     button_layout = QHBoxLayout()
     button_layout.setContentsMargins(0, 16, 0, 0)
@@ -634,6 +718,7 @@ def export_voc_annotation(self, mode):
 
     save_images = save_images_checkbox.isChecked()
     skip_empty_files = skip_empty_files_checkbox.isChecked()
+    keep_confirmed_empty = keep_confirmed_empty_checkbox.isChecked()
     save_path = path_edit.text()
 
     if osp.exists(save_path):
@@ -697,15 +782,22 @@ def export_voc_annotation(self, mode):
                 src_file = osp.join(osp.dirname(image_file), label_file_name)
             dst_file = osp.join(save_path, dst_file_name)
 
+            label_data = _read_export_label(src_file)
             is_empty_file = converter.custom_to_voc(
                 image_file, src_file, dst_file, mode, skip_empty_files
             )
+            skip_file = should_skip_empty_export(
+                skip_empty_files,
+                is_empty_file,
+                keep_confirmed_empty,
+                label_data,
+            )
 
-            if save_images and not (skip_empty_files and is_empty_file):
+            if save_images and not skip_file:
                 image_dst = osp.join(save_path, image_file_name)
                 shutil.copy(image_file, image_dst)
 
-            if skip_empty_files and is_empty_file and osp.exists(dst_file):
+            if skip_file and osp.exists(dst_file):
                 os.remove(dst_file)
 
             progress_dialog.setValue(i)
