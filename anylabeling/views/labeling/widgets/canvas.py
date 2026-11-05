@@ -5597,11 +5597,10 @@ class Canvas(
             and mods == QtCore.Qt.KeyboardModifier.AltModifier
         ):
             # Resize the brush instead of zooming/scrolling.
-            if delta.y() == 0:
-                ev.accept()
-                return
+            # Qt on Windows maps Alt+vertical wheel to the horizontal axis.
+            brush_delta = delta.y() or delta.x()
             self.interaction_started.emit()
-            step = 1 if delta.y() > 0 else -1
+            step = 1 if brush_delta > 0 else -1
             self.brush_radius = int(max(1, min(200, self.brush_radius + step)))
             self.update()
             ev.accept()
