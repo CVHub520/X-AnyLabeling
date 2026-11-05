@@ -67,6 +67,51 @@ class TestCanvasBrushEdit(unittest.TestCase):
         self.assertFalse(self.canvas.is_brush_mode)
         self.assertIsNone(self.canvas._brush_target_shape)
 
+    def test_alt_wheel_resizes_brush_on_both_axes(self) -> None:
+        """Check Alt-wheel resizing, including Windows horizontal deltas."""
+        shape = self.make_shape(
+            "polygon",
+            [(10.0, 10.0), (50.0, 10.0), (50.0, 50.0), (10.0, 50.0)],
+        )
+        self.canvas.set_brush_mode(True)
+        original_mask = shape.mask.copy()
+        zoom_requests = []
+        self.canvas.zoom_request.connect(
+            lambda *args: zoom_requests.append(args)
+        )
+        cases = (
+            ((0, 120), (0, 0), 12, 13),
+            ((0, -120), (0, 0), 12, 11),
+            ((120, 0), (0, 0), 12, 13),
+            ((-120, 0), (0, 0), 12, 11),
+            ((0, 0), (3, 0), 12, 13),
+            ((0, 0), (-3, 0), 12, 11),
+            ((0, 0), (0, 3), 12, 13),
+            ((0, 0), (0, -3), 12, 11),
+            ((0, 0), (0, 0), 12, 12),
+            ((-120, 0), (0, 0), 1, 1),
+            ((120, 0), (0, 0), 200, 200),
+        )
+        for angle, pixel, radius, expected in cases:
+            with self.subTest(angle=angle, pixel=pixel, radius=radius):
+                self.canvas.brush_radius = radius
+                event = QtGui.QWheelEvent(
+                    QtCore.QPointF(30, 30),
+                    QtCore.QPointF(30, 30),
+                    QtCore.QPoint(*pixel),
+                    QtCore.QPoint(*angle),
+                    QtCore.Qt.MouseButton.NoButton,
+                    QtCore.Qt.KeyboardModifier.AltModifier,
+                    QtCore.Qt.ScrollPhase.NoScrollPhase,
+                    False,
+                )
+                self.canvas.wheelEvent(event)
+                self.assertEqual(self.canvas.brush_radius, expected)
+                self.assertTrue(event.isAccepted())
+        self.assertEqual(zoom_requests, [])
+        np.testing.assert_array_equal(shape.mask, original_mask)
+        self.canvas.cancel_brush_mode()
+
     def test_mask_conversion_keeps_only_largest_component(self):
         shape = self.make_shape(
             "polygon",
