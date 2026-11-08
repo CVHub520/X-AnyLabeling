@@ -5236,6 +5236,18 @@ Please ensure that the bounding box label is listed under classes in the pose YA
       <translation>跳过空标签？</translation>
     </message>
     <message>
+      <source>Skip unchecked?</source>
+      <translation>跳过未验收？</translation>
+    </message>
+    <message>
+      <source>Skip passed?</source>
+      <translation>跳过验收合格？</translation>
+    </message>
+    <message>
+      <source>Skip failed?</source>
+      <translation>跳过验收不合格？</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/utils/export.py" line="407" />
       <source>Out-of-bounds OBBs</source>
       <translation>越界的定向边界框</translation>

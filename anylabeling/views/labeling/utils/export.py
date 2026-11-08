@@ -210,6 +210,41 @@ def _get_yolo_export_files(image_list, source_root, save_path):
     return export_files
 
 
+def _add_export_options(layout):
+    def translate(text):
+        return QCoreApplication.translate("LabelingWidget", text)
+
+    layout.addWidget(QtWidgets.QLabel(translate("Export Options")))
+    options = [
+        QtWidgets.QCheckBox(translate("Save with images?")),
+        QtWidgets.QCheckBox(translate("Skip empty labels?")),
+        QtWidgets.QCheckBox(translate("Skip unchecked?")),
+        QtWidgets.QCheckBox(translate("Skip passed?")),
+        QtWidgets.QCheckBox(translate("Skip failed?")),
+    ]
+    grid = QtWidgets.QGridLayout()
+    grid.addWidget(options[0], 0, 0)
+    grid.addWidget(options[1], 0, 1)
+    for column, option in enumerate(options[2:]):
+        grid.addWidget(option, 1, column)
+    layout.addLayout(grid)
+    return options
+
+
+def _skip_export_status(label_file, skip_statuses):
+    if not any(skip_statuses):
+        return False
+    checked = False
+    if osp.exists(label_file):
+        with open(label_file, encoding="utf-8") as file:
+            checked = json.load(file).get("checked", False)
+    if checked == "failed":
+        return skip_statuses[2]
+    if checked is True:
+        return skip_statuses[1]
+    return skip_statuses[0]
+
+
 def export_yolo_annotation(self, mode):
     if not _check_filename_exist(self):
         return
@@ -314,22 +349,7 @@ def export_yolo_annotation(self, mode):
     path_layout.addLayout(path_input_layout)
     layout.addLayout(path_layout)
 
-    options_label = QtWidgets.QLabel(
-        QCoreApplication.translate("LabelingWidget", "Export Options")
-    )
-    layout.addWidget(options_label)
-
-    save_images_checkbox = QtWidgets.QCheckBox(
-        QCoreApplication.translate("LabelingWidget", "Save with images?")
-    )
-    save_images_checkbox.setChecked(False)
-    layout.addWidget(save_images_checkbox)
-
-    skip_empty_files_checkbox = QtWidgets.QCheckBox(
-        QCoreApplication.translate("LabelingWidget", "Skip empty labels?")
-    )
-    skip_empty_files_checkbox.setChecked(False)
-    layout.addWidget(skip_empty_files_checkbox)
+    options = _add_export_options(layout)
 
     button_layout = QHBoxLayout()
     button_layout.setContentsMargins(0, 16, 0, 0)
@@ -358,8 +378,9 @@ def export_yolo_annotation(self, mode):
     if not result:
         return
 
-    save_images = save_images_checkbox.isChecked()
-    skip_empty_files = skip_empty_files_checkbox.isChecked()
+    save_images, skip_empty_files, *skip_statuses = (
+        option.isChecked() for option in options
+    )
     save_path = path_edit.text()
     image_list = self.image_list if self.image_list else [self.filename]
 
@@ -382,7 +403,9 @@ def export_yolo_annotation(self, mode):
         out_of_bounds_count = 0
         for image_file in image_list:
             label_file = get_label_file(image_file)
-            if not osp.exists(label_file):
+            if not osp.exists(label_file) or _skip_export_status(
+                label_file, skip_statuses
+            ):
                 continue
             data = converter.read_json(label_file)
             image_width = data["imageWidth"]
@@ -498,6 +521,11 @@ def export_yolo_annotation(self, mode):
         for i, (image_file, dst_file, image_dst) in enumerate(export_files):
             current_image_file = image_file
             src_file = get_label_file(image_file)
+            if _skip_export_status(src_file, skip_statuses):
+                progress_dialog.setValue(i)
+                if progress_dialog.wasCanceled():
+                    break
+                continue
             os.makedirs(osp.dirname(dst_file), exist_ok=True)
 
             is_empty_file = converter.custom_to_yolo(
@@ -596,18 +624,7 @@ def export_voc_annotation(self, mode):
     path_layout.addLayout(path_input_layout)
     layout.addLayout(path_layout)
 
-    options_label = QtWidgets.QLabel(self.tr("Export Options"))
-    layout.addWidget(options_label)
-
-    save_images_checkbox = QtWidgets.QCheckBox(self.tr("Save with images?"))
-    save_images_checkbox.setChecked(False)
-    layout.addWidget(save_images_checkbox)
-
-    skip_empty_files_checkbox = QtWidgets.QCheckBox(
-        self.tr("Skip empty labels?")
-    )
-    skip_empty_files_checkbox.setChecked(False)
-    layout.addWidget(skip_empty_files_checkbox)
+    options = _add_export_options(layout)
 
     button_layout = QHBoxLayout()
     button_layout.setContentsMargins(0, 16, 0, 0)
@@ -632,8 +649,9 @@ def export_voc_annotation(self, mode):
     if not result:
         return
 
-    save_images = save_images_checkbox.isChecked()
-    skip_empty_files = skip_empty_files_checkbox.isChecked()
+    save_images, skip_empty_files, *skip_statuses = (
+        option.isChecked() for option in options
+    )
     save_path = path_edit.text()
 
     if osp.exists(save_path):
@@ -696,6 +714,11 @@ def export_voc_annotation(self, mode):
             else:
                 src_file = osp.join(osp.dirname(image_file), label_file_name)
             dst_file = osp.join(save_path, dst_file_name)
+            if _skip_export_status(src_file, skip_statuses):
+                progress_dialog.setValue(i)
+                if progress_dialog.wasCanceled():
+                    break
+                continue
 
             is_empty_file = converter.custom_to_voc(
                 image_file, src_file, dst_file, mode, skip_empty_files

@@ -5271,6 +5271,18 @@ Please ensure that the bounding box label is listed under classes in the pose YA
       <translation>빈 레이블을 건너뛰시겠습니까?</translation>
     </message>
     <message>
+      <source>Skip unchecked?</source>
+      <translation>미검수 건너뛰기?</translation>
+    </message>
+    <message>
+      <source>Skip passed?</source>
+      <translation>합격 건너뛰기?</translation>
+    </message>
+    <message>
+      <source>Skip failed?</source>
+      <translation>불합격 건너뛰기?</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/utils/export.py" line="407" />
       <source>Out-of-bounds OBBs</source>
       <translation>경계를 벗어난 회전 바운딩 박스</translation>

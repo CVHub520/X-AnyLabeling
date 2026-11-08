@@ -7,10 +7,13 @@ import pytest
 from PyQt6 import QtWidgets
 
 from anylabeling.views.labeling.utils.export import (
+    _add_export_options,
     _export_mask_files,
+    _skip_export_status,
     _show_yolo_export_error,
     _validate_yolo_export_path,
     export_yolo_annotation,
+    export_voc_annotation,
 )
 from anylabeling.views.labeling.label_converter import (
     PoseClassError,
@@ -238,7 +241,7 @@ def test_yolo_export_preserves_nested_directories(tmp_path, mode):
         ),
         mock.patch.object(QtWidgets.QDialog, "exec", return_value=1),
         mock.patch.object(
-            QtWidgets.QCheckBox, "isChecked", side_effect=(True, False)
+            QtWidgets.QCheckBox, "isChecked", side_effect=(True, False, False, False, False)
         ),
         mock.patch(
             "anylabeling.views.labeling.utils.export.LabelConverter",
@@ -383,3 +386,90 @@ def test_yolo_export_error_dialog_shows_actionable_guidance(
         message_box_class.StandardButton.Ok
     )
     widget.load_file.assert_called_once_with(str(failed_image))
+
+
+@pytest.mark.parametrize(
+    ("checked", "skip_statuses", "expected"),
+    [
+        (False, (True, False, False), True),
+        (True, (False, True, False), True),
+        ("failed", (False, False, True), True),
+        (False, (False, True, True), False),
+        (True, (True, False, True), False),
+        ("failed", (True, True, False), False),
+        (1, (True, False, False), True),
+    ],
+)
+def test_export_skip_status(tmp_path, checked, skip_statuses, expected):
+    import json
+
+    label_file = tmp_path / "image.json"
+    label_file.write_text(json.dumps({"checked": checked}), encoding="utf-8")
+    assert _skip_export_status(str(label_file), skip_statuses) is expected
+    label_file.unlink()
+    assert _skip_export_status(str(label_file), skip_statuses) is skip_statuses[0]
+
+
+def test_export_options_align_in_columns():
+    app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+    dialog = QtWidgets.QDialog()
+    layout = QtWidgets.QVBoxLayout(dialog)
+    options = _add_export_options(layout)
+    dialog.show()
+    app.processEvents()
+    assert options[0].x() == options[2].x()
+    assert options[1].x() == options[3].x()
+    assert options[0].y() == options[1].y()
+    assert options[2].y() == options[3].y() == options[4].y()
+    assert not any(option.isChecked() for option in options)
+    dialog.close()
+
+
+@pytest.mark.parametrize("export_format", ["yolo", "voc"])
+def test_export_skips_selected_status_and_image(tmp_path, export_format):
+    import json
+
+    app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+    image_dir = tmp_path / "images"
+    image_dir.mkdir()
+    images = [image_dir / "passed.png", image_dir / "failed.png"]
+    for image, checked in zip(images, [True, "failed"]):
+        image.touch()
+        image.with_suffix(".json").write_text(
+            json.dumps({"checked": checked}), encoding="utf-8"
+        )
+    widget = QtWidgets.QWidget()
+    widget.filename = str(images[0])
+    widget.image_list = list(map(str, images))
+    widget.output_dir = None
+    widget.may_continue = mock.Mock(return_value=True)
+    converter = mock.Mock()
+    converter.custom_to_yolo.return_value = False
+    converter.custom_to_voc.return_value = False
+    with (
+        mock.patch.object(QtWidgets.QDialog, "exec", return_value=1),
+        mock.patch.object(
+            QtWidgets.QCheckBox, "isChecked",
+            side_effect=(True, False, False, False, True),
+        ),
+        mock.patch.object(
+            QtWidgets.QFileDialog, "getOpenFileName", return_value=("classes.txt", "")
+        ),
+        mock.patch(
+            "anylabeling.views.labeling.utils.export.LabelConverter",
+            return_value=converter,
+        ),
+        mock.patch("anylabeling.views.labeling.utils.export.Popup"),
+    ):
+        if export_format == "yolo":
+            export_yolo_annotation(widget, "hbb")
+            converter.custom_to_yolo.assert_called_once()
+            output_dir = tmp_path / "labels"
+        else:
+            export_voc_annotation(widget, "hbb")
+            converter.custom_to_voc.assert_called_once()
+            output_dir = tmp_path / "Annotations"
+    assert (output_dir / "passed.png").exists()
+    assert not (output_dir / "failed.png").exists()
+    widget.close()
+    app.processEvents()
