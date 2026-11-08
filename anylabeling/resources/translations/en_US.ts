@@ -5047,6 +5047,10 @@ Please ensure that the bounding box label is listed under classes in the pose YA
       <translation>Skip empty labels?</translation>
     </message>
     <message>
+      <source>Only export confirmed?</source>
+      <translation>Only export confirmed?</translation>
+    </message>
+    <message>
       <source>Keep confirmed empty labels?</source>
       <translation>Keep confirmed empty labels?</translation>
     </message>

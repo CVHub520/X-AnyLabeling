@@ -5271,6 +5271,10 @@ Please ensure that the bounding box label is listed under classes in the pose YA
       <translation>빈 레이블을 건너뛰시겠습니까?</translation>
     </message>
     <message>
+      <source>Only export confirmed?</source>
+      <translation>확인된 항목만 내보내시겠습니까?</translation>
+    </message>
+    <message>
       <source>Keep confirmed empty labels?</source>
       <translation>확인된 빈 레이블을 내보내시겠습니까?</translation>
     </message>

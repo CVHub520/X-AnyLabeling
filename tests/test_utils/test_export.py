@@ -302,15 +302,18 @@ def test_yolo_export_preserves_nested_directories(tmp_path, mode):
 
 
 @pytest.mark.parametrize(
-    ("skip_empty", "keep_confirmed", "expected"),
+    ("skip_empty", "keep_confirmed", "only_confirmed", "expected"),
     [
-        (False, False, (1, 3)),
-        (True, False, (1, 0)),
-        (True, True, (1, 1)),
+        (False, False, False, (1, 3)),
+        (True, False, False, (1, 0)),
+        (True, True, False, (1, 1)),
+        (False, False, True, (0, 1)),
+        (True, True, True, (0, 1)),
+        (True, False, True, (0, 0)),
     ],
 )
 def test_count_export_label_stats(
-    tmp_path, skip_empty, keep_confirmed, expected
+    tmp_path, skip_empty, keep_confirmed, only_confirmed, expected
 ):
     image_dir = tmp_path / "images"
     image_dir.mkdir()
@@ -353,7 +356,11 @@ def test_count_export_label_stats(
 
     assert (
         _count_export_label_stats(
-            image_list, get_label_file, skip_empty, keep_confirmed
+            image_list,
+            get_label_file,
+            skip_empty,
+            keep_confirmed,
+            only_confirmed,
         )
         == expected
     )
@@ -465,6 +472,82 @@ def test_yolo_export_keeps_confirmed_empty_labels(tmp_path):
     assert (save_path / "negative.txt").is_file()
     assert (save_path / "negative.txt").read_text(encoding="utf-8") == ""
     assert not (save_path / "pending.txt").exists()
+    widget.close()
+    app.processEvents()
+
+
+def test_yolo_export_only_exports_confirmed_labels(tmp_path):
+    app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+    image_dir = tmp_path / "images"
+    image_dir.mkdir()
+    confirmed = image_dir / "confirmed.png"
+    pending = image_dir / "pending.png"
+    confirmed_empty = image_dir / "negative.png"
+    for image_file in (confirmed, pending, confirmed_empty):
+        image_file.touch()
+    shape = {
+        "label": "person",
+        "points": [[0, 0], [1, 0], [1, 1], [0, 1]],
+        "shape_type": "rectangle",
+    }
+    _write_label(confirmed.with_suffix(".json"), shapes=[shape], checked=True)
+    _write_label(pending.with_suffix(".json"), shapes=[shape], checked=False)
+    _write_label(confirmed_empty.with_suffix(".json"), checked=True)
+    classes_file = tmp_path / "classes.txt"
+    classes_file.write_text("person\n", encoding="utf-8")
+
+    widget = QtWidgets.QWidget()
+    widget.filename = str(confirmed)
+    widget.image_list = [
+        str(confirmed),
+        str(pending),
+        str(confirmed_empty),
+    ]
+    widget.last_open_dir = str(image_dir)
+    widget.output_dir = None
+    widget.may_continue = mock.Mock(return_value=True)
+
+    def fake_is_checked(self):
+        text = self.text()
+        return (
+            "Only export confirmed" in text
+            or "Skip empty labels" in text
+            or "Keep confirmed empty labels" in text
+        )
+
+    converter = mock.Mock()
+
+    def custom_to_yolo(src_file, dst_file, mode, **kwargs):
+        os.makedirs(os.path.dirname(dst_file), exist_ok=True)
+        with open(dst_file, "w", encoding="utf-8") as f:
+            if src_file.endswith("confirmed.json"):
+                f.write("0 0.5 0.5 0.1 0.1\n")
+                return False
+            return True
+
+    converter.custom_to_yolo.side_effect = custom_to_yolo
+
+    with (
+        mock.patch.object(
+            QtWidgets.QFileDialog,
+            "getOpenFileName",
+            return_value=(str(classes_file), ""),
+        ),
+        mock.patch.object(QtWidgets.QDialog, "exec", return_value=1),
+        mock.patch.object(QtWidgets.QCheckBox, "isChecked", fake_is_checked),
+        mock.patch(
+            "anylabeling.views.labeling.utils.export.LabelConverter",
+            return_value=converter,
+        ),
+        mock.patch("anylabeling.views.labeling.utils.export.Popup"),
+    ):
+        export_yolo_annotation(widget, "hbb")
+
+    save_path = tmp_path / "labels"
+    assert (save_path / "confirmed.txt").is_file()
+    assert (save_path / "negative.txt").is_file()
+    assert not (save_path / "pending.txt").exists()
+    assert converter.custom_to_yolo.call_count == 2
     widget.close()
     app.processEvents()
 

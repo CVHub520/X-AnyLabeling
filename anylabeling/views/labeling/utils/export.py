@@ -41,7 +41,11 @@ def _label_export_emptiness(label_file):
 
 
 def _count_export_label_stats(
-    image_list, get_label_file, skip_empty, keep_confirmed
+    image_list,
+    get_label_file,
+    skip_empty,
+    keep_confirmed,
+    only_confirmed=False,
 ):
     non_empty = 0
     empty_to_export = 0
@@ -49,6 +53,8 @@ def _count_export_label_stats(
         is_empty, is_confirmed = _label_export_emptiness(
             get_label_file(image_file)
         )
+        if only_confirmed and not is_confirmed:
+            continue
         if not is_empty:
             non_empty += 1
             continue
@@ -68,7 +74,19 @@ def _should_skip_empty_export(
     return not is_confirmed
 
 
-def _add_skip_empty_export_options(layout, image_list, get_label_file):
+def _add_yolo_voc_export_options(layout, image_list, get_label_file):
+    only_confirmed_checkbox = QtWidgets.QCheckBox(
+        QCoreApplication.translate("LabelingWidget", "Only export confirmed?")
+    )
+    only_confirmed_checkbox.setChecked(False)
+    layout.addWidget(only_confirmed_checkbox)
+
+    save_images_checkbox = QtWidgets.QCheckBox(
+        QCoreApplication.translate("LabelingWidget", "Save with images?")
+    )
+    save_images_checkbox.setChecked(False)
+    layout.addWidget(save_images_checkbox)
+
     skip_empty_files_checkbox = QtWidgets.QCheckBox(
         QCoreApplication.translate("LabelingWidget", "Skip empty labels?")
     )
@@ -103,6 +121,7 @@ def _add_skip_empty_export_options(layout, image_list, get_label_file):
             get_label_file,
             skip_empty_files_checkbox.isChecked(),
             keep_confirmed_empty_checkbox.isChecked(),
+            only_confirmed_checkbox.isChecked(),
         )
         summary.setText(
             QCoreApplication.translate(
@@ -112,12 +131,18 @@ def _add_skip_empty_export_options(layout, image_list, get_label_file):
             % (non_empty, empty_count)
         )
 
+    only_confirmed_checkbox.toggled.connect(update_summary)
     skip_empty_files_checkbox.toggled.connect(sync_keep_confirmed_enabled)
     skip_empty_files_checkbox.toggled.connect(update_summary)
     keep_confirmed_empty_checkbox.toggled.connect(update_summary)
     update_summary()
 
-    return skip_empty_files_checkbox, keep_confirmed_empty_checkbox
+    return (
+        only_confirmed_checkbox,
+        save_images_checkbox,
+        skip_empty_files_checkbox,
+        keep_confirmed_empty_checkbox,
+    )
 
 
 class ExportThread(QThread):
@@ -421,16 +446,12 @@ def export_yolo_annotation(self, mode):
     )
     layout.addWidget(options_label)
 
-    save_images_checkbox = QtWidgets.QCheckBox(
-        QCoreApplication.translate("LabelingWidget", "Save with images?")
-    )
-    save_images_checkbox.setChecked(False)
-    layout.addWidget(save_images_checkbox)
-
     (
+        only_confirmed_checkbox,
+        save_images_checkbox,
         skip_empty_files_checkbox,
         keep_confirmed_empty_checkbox,
-    ) = _add_skip_empty_export_options(layout, image_list, get_label_file)
+    ) = _add_yolo_voc_export_options(layout, image_list, get_label_file)
 
     button_layout = QHBoxLayout()
     button_layout.setContentsMargins(0, 16, 0, 0)
@@ -459,6 +480,7 @@ def export_yolo_annotation(self, mode):
     if not result:
         return
 
+    only_confirmed = only_confirmed_checkbox.isChecked()
     save_images = save_images_checkbox.isChecked()
     skip_empty_files = skip_empty_files_checkbox.isChecked()
     keep_confirmed_empty = keep_confirmed_empty_checkbox.isChecked()
@@ -594,6 +616,14 @@ def export_yolo_annotation(self, mode):
         for i, (image_file, dst_file, image_dst) in enumerate(export_files):
             current_image_file = image_file
             src_file = get_label_file(image_file)
+            if only_confirmed:
+                _, is_confirmed = _label_export_emptiness(src_file)
+                if not is_confirmed:
+                    progress_dialog.setValue(i)
+                    if progress_dialog.wasCanceled():
+                        break
+                    continue
+
             os.makedirs(osp.dirname(dst_file), exist_ok=True)
 
             is_empty_file = converter.custom_to_yolo(
@@ -708,14 +738,12 @@ def export_voc_annotation(self, mode):
     options_label = QtWidgets.QLabel(self.tr("Export Options"))
     layout.addWidget(options_label)
 
-    save_images_checkbox = QtWidgets.QCheckBox(self.tr("Save with images?"))
-    save_images_checkbox.setChecked(False)
-    layout.addWidget(save_images_checkbox)
-
     (
+        only_confirmed_checkbox,
+        save_images_checkbox,
         skip_empty_files_checkbox,
         keep_confirmed_empty_checkbox,
-    ) = _add_skip_empty_export_options(layout, image_list, get_label_file)
+    ) = _add_yolo_voc_export_options(layout, image_list, get_label_file)
 
     button_layout = QHBoxLayout()
     button_layout.setContentsMargins(0, 16, 0, 0)
@@ -740,6 +768,7 @@ def export_voc_annotation(self, mode):
     if not result:
         return
 
+    only_confirmed = only_confirmed_checkbox.isChecked()
     save_images = save_images_checkbox.isChecked()
     skip_empty_files = skip_empty_files_checkbox.isChecked()
     keep_confirmed_empty = keep_confirmed_empty_checkbox.isChecked()
@@ -798,6 +827,14 @@ def export_voc_annotation(self, mode):
             dst_file_name = osp.splitext(image_file_name)[0] + ".xml"
             src_file = get_label_file(image_file)
             dst_file = osp.join(save_path, dst_file_name)
+
+            if only_confirmed:
+                _, is_confirmed = _label_export_emptiness(src_file)
+                if not is_confirmed:
+                    progress_dialog.setValue(i)
+                    if progress_dialog.wasCanceled():
+                        break
+                    continue
 
             is_empty_file = converter.custom_to_voc(
                 image_file, src_file, dst_file, mode, skip_empty_files

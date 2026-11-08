@@ -5269,6 +5269,10 @@ Please ensure that the bounding box label is listed under classes in the pose YA
       <translation>空のラベルをスキップしますか？</translation>
     </message>
     <message>
+      <source>Only export confirmed?</source>
+      <translation>確認済みのみエクスポートしますか？</translation>
+    </message>
+    <message>
       <source>Keep confirmed empty labels?</source>
       <translation>確認済みの空ラベルをエクスポートしますか？</translation>
     </message>

@@ -5236,6 +5236,10 @@ Please ensure that the bounding box label is listed under classes in the pose YA
       <translation>跳过空标签？</translation>
     </message>
     <message>
+      <source>Only export confirmed?</source>
+      <translation>仅导出已确认？</translation>
+    </message>
+    <message>
       <source>Keep confirmed empty labels?</source>
       <translation>保持导出已确认的空标签？</translation>
     </message>
