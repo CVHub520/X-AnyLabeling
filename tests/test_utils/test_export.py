@@ -1,3 +1,4 @@
+import json
 import os
 from unittest import mock
 
@@ -7,7 +8,9 @@ import pytest
 from PyQt6 import QtWidgets
 
 from anylabeling.views.labeling.utils.export import (
+    _count_export_label_stats,
     _export_mask_files,
+    _should_skip_empty_export,
     _show_yolo_export_error,
     _validate_yolo_export_path,
     export_yolo_annotation,
@@ -16,6 +19,28 @@ from anylabeling.views.labeling.label_converter import (
     PoseClassError,
     PoseGroupError,
 )
+
+
+def _write_label(path, *, shapes=None, checked=False):
+    path.write_text(
+        json.dumps(
+            {
+                "version": "3.0.0",
+                "flags": {},
+                "checked": checked,
+                "shapes": shapes if shapes is not None else [],
+                "imagePath": path.with_suffix(".png").name,
+                "imageData": None,
+                "imageHeight": 10,
+                "imageWidth": 10,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+
+def _save_images_checkbox_checked(self):
+    return "Save with images" in self.text()
 
 
 @pytest.mark.parametrize(
@@ -238,7 +263,9 @@ def test_yolo_export_preserves_nested_directories(tmp_path, mode):
         ),
         mock.patch.object(QtWidgets.QDialog, "exec", return_value=1),
         mock.patch.object(
-            QtWidgets.QCheckBox, "isChecked", side_effect=(True, False)
+            QtWidgets.QCheckBox,
+            "isChecked",
+            _save_images_checkbox_checked,
         ),
         mock.patch(
             "anylabeling.views.labeling.utils.export.LabelConverter",
@@ -270,6 +297,174 @@ def test_yolo_export_preserves_nested_directories(tmp_path, mode):
     assert (save_path / "second").is_dir()
     assert (save_path / "first" / "image.png").is_file()
     assert (save_path / "second" / "image.png").is_file()
+    widget.close()
+    app.processEvents()
+
+
+@pytest.mark.parametrize(
+    ("skip_empty", "keep_confirmed", "expected"),
+    [
+        (False, False, (1, 3)),
+        (True, False, (1, 0)),
+        (True, True, (1, 1)),
+    ],
+)
+def test_count_export_label_stats(
+    tmp_path, skip_empty, keep_confirmed, expected
+):
+    image_dir = tmp_path / "images"
+    image_dir.mkdir()
+    non_empty = image_dir / "a.png"
+    confirmed_empty = image_dir / "b.png"
+    unchecked_empty = image_dir / "c.png"
+    missing = image_dir / "d.png"
+    for image_file in (
+        non_empty,
+        confirmed_empty,
+        unchecked_empty,
+        missing,
+    ):
+        image_file.touch()
+
+    _write_label(
+        non_empty.with_suffix(".json"),
+        shapes=[
+            {
+                "label": "person",
+                "points": [[0, 0], [1, 0], [1, 1], [0, 1]],
+                "shape_type": "rectangle",
+            }
+        ],
+    )
+    _write_label(confirmed_empty.with_suffix(".json"), checked=True)
+    _write_label(unchecked_empty.with_suffix(".json"), checked=False)
+
+    image_list = [
+        str(non_empty),
+        str(confirmed_empty),
+        str(unchecked_empty),
+        str(missing),
+    ]
+
+    def get_label_file(image_file):
+        return str(
+            image_dir / (os.path.splitext(os.path.basename(image_file))[0] + ".json")
+        )
+
+    assert (
+        _count_export_label_stats(
+            image_list, get_label_file, skip_empty, keep_confirmed
+        )
+        == expected
+    )
+
+
+@pytest.mark.parametrize(
+    ("skip_empty", "is_empty", "keep_confirmed", "checked", "expected"),
+    [
+        (False, True, False, False, False),
+        (True, False, True, True, False),
+        (True, True, False, True, True),
+        (True, True, True, True, False),
+        (True, True, True, False, True),
+        (True, True, True, "failed", True),
+    ],
+)
+def test_should_skip_empty_export(
+    tmp_path, skip_empty, is_empty, keep_confirmed, checked, expected
+):
+    label_file = tmp_path / "image.json"
+    _write_label(label_file, checked=checked)
+    assert (
+        _should_skip_empty_export(
+            skip_empty, is_empty, keep_confirmed, str(label_file)
+        )
+        is expected
+    )
+
+
+def test_should_skip_empty_export_missing_label_file(tmp_path):
+    missing = tmp_path / "missing.json"
+    assert (
+        _should_skip_empty_export(True, True, True, str(missing)) is True
+    )
+
+
+def test_yolo_export_keeps_confirmed_empty_labels(tmp_path):
+    app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+    image_dir = tmp_path / "images"
+    image_dir.mkdir()
+    non_empty = image_dir / "labeled.png"
+    confirmed_empty = image_dir / "negative.png"
+    unchecked_empty = image_dir / "pending.png"
+    for image_file in (non_empty, confirmed_empty, unchecked_empty):
+        image_file.touch()
+    _write_label(
+        non_empty.with_suffix(".json"),
+        shapes=[
+            {
+                "label": "person",
+                "points": [[0, 0], [1, 0], [1, 1], [0, 1]],
+                "shape_type": "rectangle",
+            }
+        ],
+    )
+    _write_label(confirmed_empty.with_suffix(".json"), checked=True)
+    _write_label(unchecked_empty.with_suffix(".json"), checked=False)
+    classes_file = tmp_path / "classes.txt"
+    classes_file.write_text("person\n", encoding="utf-8")
+
+    widget = QtWidgets.QWidget()
+    widget.filename = str(non_empty)
+    widget.image_list = [
+        str(non_empty),
+        str(confirmed_empty),
+        str(unchecked_empty),
+    ]
+    widget.last_open_dir = str(image_dir)
+    widget.output_dir = None
+    widget.may_continue = mock.Mock(return_value=True)
+
+    def fake_is_checked(self):
+        text = self.text()
+        return (
+            "Skip empty labels" in text
+            or "Keep confirmed empty labels" in text
+        )
+
+    converter = mock.Mock()
+
+    def custom_to_yolo(src_file, dst_file, mode, **kwargs):
+        os.makedirs(os.path.dirname(dst_file), exist_ok=True)
+        with open(dst_file, "w", encoding="utf-8") as f:
+            if src_file.endswith("labeled.json"):
+                f.write("0 0.5 0.5 0.1 0.1\n")
+                return False
+            return True
+
+    converter.custom_to_yolo.side_effect = custom_to_yolo
+
+    with (
+        mock.patch.object(
+            QtWidgets.QFileDialog,
+            "getOpenFileName",
+            return_value=(str(classes_file), ""),
+        ),
+        mock.patch.object(QtWidgets.QDialog, "exec", return_value=1),
+        mock.patch.object(QtWidgets.QCheckBox, "isChecked", fake_is_checked),
+        mock.patch(
+            "anylabeling.views.labeling.utils.export.LabelConverter",
+            return_value=converter,
+        ),
+        mock.patch("anylabeling.views.labeling.utils.export.Popup"),
+    ):
+        export_yolo_annotation(widget, "hbb")
+
+    save_path = tmp_path / "labels"
+    assert (save_path / "labeled.txt").is_file()
+    assert (save_path / "negative.txt").is_file()
+    assert (save_path / "negative.txt").read_text(encoding="utf-8") == ""
+    assert not (save_path / "pending.txt").exists()
     widget.close()
     app.processEvents()
 
