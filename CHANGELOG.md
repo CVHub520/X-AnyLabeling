@@ -1,5 +1,30 @@
 # X-AnyLabeling Changelog
 
+## `v4.3.2` (Nov 9, 2026)
+
+X-AnyLabeling 4.3.2 adds review status filters for batch processing and exports, and improves attribute overlays.
+
+### 🚀 New Features
+
+- Skip selected review statuses during batch auto-labeling. (#1487)
+- Filter label exports by review status. (#1489, #1493)
+- Configure the font size of attribute overlays on the canvas.
+
+### 🐛 Bug Fixes
+
+- Fix Alt-wheel brush resizing on Windows. (#1491)
+
+### 🛠️ Improvements
+
+- Improve canvas attribute overlays.
+- Add a setup and usage guide for SAM 3.1 video. (#1484)
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @PPZPPZ and @CVHub520
+
 ## `v4.3.1` (Nov 3, 2026)
 
 X-AnyLabeling 4.3.1 adds directed relation annotation and an adjustable image grid.
