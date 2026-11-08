@@ -21,8 +21,6 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 import yaml
-from PyQt6 import QtCore, QtGui, QtWidgets
-
 from anylabeling.app_info import (
     __appname__,
     __version__,
@@ -141,6 +139,94 @@ def main():
         "--skip-empty-files",
         action="store_true",
         help="skip creating empty output files, only support `xlabel2yolo` and `xlabel2voc` tasks",
+    )
+
+    models_parser = subparsers.add_parser(
+        "models", help="inspect auto-labeling models without opening the GUI"
+    )
+    models_subparsers = models_parser.add_subparsers(
+        dest="models_action", required=True, help="model command"
+    )
+    models_list_parser = models_subparsers.add_parser(
+        "list", help="list configured models and their capabilities"
+    )
+    models_list_parser.add_argument(
+        "--task", choices=["segmentation"], help="filter models by task"
+    )
+    models_list_parser.add_argument(
+        "--json", action="store_true", help="emit machine-readable JSON"
+    )
+    models_info_parser = models_subparsers.add_parser(
+        "info", help="show model configuration and supported capabilities"
+    )
+    models_info_parser.add_argument("model_id", help="model ID from models list")
+    models_info_parser.add_argument(
+        "--json", action="store_true", help="emit machine-readable JSON"
+    )
+    models_check_parser = models_subparsers.add_parser(
+        "check", help="check local dependencies, model files, and device"
+    )
+    models_check_parser.add_argument("model_id", help="model ID from models list")
+    models_check_parser.add_argument(
+        "--device",
+        choices=["auto", "cpu", "gpu"],
+        default="auto",
+        help="execution device to check (default: auto)",
+    )
+    models_check_parser.add_argument(
+        "--json", action="store_true", help="emit machine-readable JSON"
+    )
+
+    segment_parser = subparsers.add_parser(
+        "segment", help="run model inference and export candidate feature masks"
+    )
+    segment_parser.add_argument(
+        "--input", required=True, help="image file or directory of images"
+    )
+    segment_model_group = segment_parser.add_mutually_exclusive_group(
+        required=True
+    )
+    segment_model_group.add_argument(
+        "--model", help="registered X-AnyLabeling model ID"
+    )
+    segment_model_group.add_argument(
+        "--model-config", help="custom X-AnyLabeling model YAML file"
+    )
+    segment_parser.add_argument(
+        "--prompt",
+        action="append",
+        help="text prompt; may be supplied more than once",
+    )
+    segment_parser.add_argument(
+        "--marks-json", help="JSON file containing point or rectangle marks"
+    )
+    segment_parser.add_argument(
+        "--device",
+        choices=["auto", "cpu", "gpu"],
+        default="auto",
+        help="execution device (default: X-AnyLabeling preference)",
+    )
+    segment_parser.add_argument(
+        "--confidence", type=float, help="model confidence threshold, when supported"
+    )
+    segment_parser.add_argument(
+        "--output",
+        "-O",
+        "-o",
+        required=True,
+        help="directory for native annotations, candidate metadata, and masks",
+    )
+    segment_parser.add_argument(
+        "--recursive", action="store_true", help="scan input directories recursively"
+    )
+    segment_parser.add_argument(
+        "--overwrite", action="store_true", help="replace existing outputs"
+    )
+    segment_parser.add_argument(
+        "--fail-fast", action="store_true", help="stop after the first failed image"
+    )
+    segment_parser.add_argument(
+        "--json", action="store_true", help="emit machine-readable JSON"
     )
 
     parser.add_argument(
@@ -281,11 +367,35 @@ def main():
             "anylabeling.services.auto_training.ultralytics.worker",
             fromlist=["main"],
         ).main(args.payload),
+        "models": lambda args: __import__(
+            "anylabeling.views.common.cli_inference",
+            fromlist=["list_models", "model_info", "check_model"],
+        ).__dict__[
+            {"list": "list_models", "info": "model_info", "check": "check_model"}[
+                args.models_action
+            ]
+        ](args),
+        "segment": lambda args: __import__(
+            "anylabeling.views.common.cli_inference", fromlist=["segment"]
+        ).segment(args),
     }
 
     if args.command and args.command in special:
-        special[args.command](args)
+        if args.command in {"models", "segment"}:
+            config_file_or_yaml = args.config or os.path.join(
+                get_work_directory(), ".xanylabelingrc"
+            )
+            anylabeling_config.current_config_file = config_file_or_yaml
+            if args.command == "segment":
+                os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+            exit_code = special[args.command](args)
+            if exit_code:
+                raise SystemExit(exit_code)
+        else:
+            special[args.command](args)
         return
+
+    from PyQt6 import QtCore, QtGui, QtWidgets
 
     from anylabeling.views.mainwindow import MainWindow
     from anylabeling.views.labeling.logger import logger
