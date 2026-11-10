@@ -691,3 +691,38 @@ class TestLabelConverterCocoRleImport(unittest.TestCase):
                 self.assertFalse(
                     os.path.exists(os.path.join(self.temp_dir, "image.json"))
                 )
+
+
+class TestLabelConverterClassesFile(unittest.TestCase):
+    def test_utf8_bom_does_not_drop_the_first_class(self):
+        temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(temp_dir.cleanup)
+        classes_file = os.path.join(temp_dir.name, "classes.txt")
+        with open(classes_file, "w", encoding="utf-8-sig") as handle:
+            handle.write("person\ncar\n")
+        label_file = os.path.join(temp_dir.name, "image.json")
+        output_file = os.path.join(temp_dir.name, "image.txt")
+        with open(label_file, "w", encoding="utf-8") as handle:
+            json.dump(
+                {
+                    "imagePath": "image.jpg",
+                    "imageWidth": 100,
+                    "imageHeight": 50,
+                    "shapes": [
+                        {
+                            "label": "person",
+                            "shape_type": "rectangle",
+                            "points": [[10, 10], [90, 10], [90, 40], [10, 40]],
+                        }
+                    ],
+                },
+                handle,
+            )
+
+        converter = LabelConverter(classes_file=classes_file)
+        self.assertEqual(converter.classes, ["person", "car"])
+        converter.custom_to_yolo(label_file, output_file, "hbb")
+        with open(output_file, "r", encoding="utf-8") as handle:
+            self.assertEqual(
+                handle.read(), "0 0.500000 0.500000 0.800000 0.600000\n"
+            )
