@@ -1036,17 +1036,35 @@ class LabelConverter:
         lines = self.read_lines(input_file)
         image_width, image_height = self.get_image_size(image_file)
 
-        for line in lines:
-            line = line.strip().split(" ")
-            x0, y0, x1, y1, x2, y2, x3, y3 = [float(i) for i in line[:8]]
-            difficult = line[-1]
+        for raw_line in lines:
+            parts = raw_line.strip().split()
+            # Official DOTA labelTxt files start with imagesource/gsd
+            # headers. split(" ") also breaks on repeated spaces.
+            if not parts or parts[0].startswith(("imagesource:", "gsd:")):
+                continue
+            if len(parts) < 10:
+                logger.warning(
+                    f"Skipping malformed DOTA line in {input_file}: "
+                    f"{raw_line.strip()}"
+                )
+                continue
+            try:
+                coords = [float(value) for value in parts[:8]]
+                difficult = bool(int(parts[-1]))
+            except ValueError:
+                logger.warning(
+                    f"Skipping malformed DOTA line in {input_file}: "
+                    f"{raw_line.strip()}"
+                )
+                continue
+            x0, y0, x1, y1, x2, y2, x3, y3 = coords
             points = [[x0, y0], [x1, y1], [x2, y2], [x3, y3]]
             shape = {
-                "label": line[8],
+                "label": parts[8],
                 "description": None,
                 "points": points,
                 "group_id": None,
-                "difficult": bool(int(difficult)),
+                "difficult": difficult,
                 "direction": self.calculate_rotation_theta(points),
                 "shape_type": "rotation",
                 "flags": {},
