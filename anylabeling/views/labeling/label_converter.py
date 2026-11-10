@@ -564,6 +564,21 @@ class LabelConverter:
 
     @staticmethod
     def read_lines(file_path: str, encoding: str = "utf-8") -> List[str]:
+        """Read text lines from a label or classes file.
+
+        ``utf-8`` also accepts a leading BOM. Windows Notepad writes that
+        BOM, and leaving it on the first class name makes every box of
+        that class fail to match and disappear from the export.
+
+        Args:
+            file_path (str): Path of the text file.
+            encoding (str): Text encoding. Defaults to UTF-8.
+
+        Returns:
+            List[str]: Lines without trailing newlines.
+        """
+        if encoding.lower().replace("_", "-") in {"utf-8", "utf8"}:
+            encoding = "utf-8-sig"
         with open(file_path, "r", encoding=encoding) as f:
             return f.read().splitlines()
 
