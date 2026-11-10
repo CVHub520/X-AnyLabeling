@@ -691,3 +691,54 @@ class TestLabelConverterCocoRleImport(unittest.TestCase):
                 self.assertFalse(
                     os.path.exists(os.path.join(self.temp_dir, "image.json"))
                 )
+
+
+class TestLabelConverterDotaImport(unittest.TestCase):
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp_dir.cleanup)
+        self.image_file = os.path.join(self.temp_dir.name, "image.jpg")
+        Image.new("RGB", (64, 48), "white").save(self.image_file)
+        self.converter = LabelConverter()
+
+    def _import(self, text):
+        label_file = os.path.join(self.temp_dir.name, "image.txt")
+        output_file = os.path.join(self.temp_dir.name, "image.json")
+        with open(label_file, "w", encoding="utf-8") as handle:
+            handle.write(text)
+        self.converter.dota_to_custom(label_file, output_file, self.image_file)
+        with open(output_file, "r", encoding="utf-8") as handle:
+            return json.load(handle)
+
+    def test_plain_object_line(self):
+        data = self._import("10 12 30 12 30 22 10 22 plane 0\n")
+
+        shape = data["shapes"][0]
+        self.assertEqual(shape["label"], "plane")
+        self.assertEqual(shape["shape_type"], "rotation")
+        self.assertFalse(shape["difficult"])
+        self.assertEqual(
+            shape["points"],
+            [[10.0, 12.0], [30.0, 12.0], [30.0, 22.0], [10.0, 22.0]],
+        )
+        self.assertEqual(data["imageWidth"], 64)
+        self.assertEqual(data["imageHeight"], 48)
+
+    def test_official_header_and_repeated_spaces(self):
+        data = self._import(
+            "imagesource:GoogleEarth\n"
+            "gsd:0.146343590398\n"
+            "10  12 30 12 30 22 10 22 small-vehicle 1\n"
+        )
+
+        self.assertEqual(len(data["shapes"]), 1)
+        shape = data["shapes"][0]
+        self.assertEqual(shape["label"], "small-vehicle")
+        self.assertTrue(shape["difficult"])
+        self.assertEqual(shape["points"][0], [10.0, 12.0])
+        self.assertEqual(shape["points"][2], [30.0, 22.0])
+
+    def test_header_only_file_imports_no_shapes(self):
+        data = self._import("imagesource:GoogleEarth\ngsd:0.146\n")
+
+        self.assertEqual(data["shapes"], [])
