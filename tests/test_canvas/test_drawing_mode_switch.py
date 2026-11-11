@@ -71,6 +71,41 @@ class TestDrawingModeSwitch(unittest.TestCase):
             [QtCore.QPointF(100, 100), QtCore.QPointF(120, 100)],
         )
 
+    def test_point_to_shape_preview_is_valid_before_mouse_move(self) -> None:
+        """Initialize the new preview before a click can request painting."""
+        for target in Shape.get_supported_shape():
+            if target == "point":
+                continue
+            with self.subTest(target=target):
+                self.canvas.cancel_drawing()
+                self.canvas.create_mode = "point"
+                point = QtCore.QPointF(30, 30)
+                move = QtGui.QMouseEvent(
+                    QtCore.QEvent.Type.MouseMove,
+                    point,
+                    point,
+                    QtCore.Qt.MouseButton.NoButton,
+                    QtCore.Qt.MouseButton.NoButton,
+                    QtCore.Qt.KeyboardModifier.NoModifier,
+                )
+                self.canvas.mouseMoveEvent(move)
+                self.assertEqual(self.canvas.line.shape_type, "point")
+
+                self.canvas.create_mode = target
+                self.click(40, 40)
+
+                expected = "rectangle" if target == "cuboid" else target
+                self.assertEqual(self.canvas.line.shape_type, expected)
+                self.assertEqual(len(self.canvas.line.points), 2)
+                image = QtGui.QImage(
+                    200, 200, QtGui.QImage.Format.Format_ARGB32
+                )
+                painter = QtGui.QPainter(image)
+                try:
+                    self.canvas.line.paint(painter)
+                finally:
+                    painter.end()
+
     def test_all_shape_type_switches_cancel_draft_and_preserve_history(self):
         self.canvas.create_mode = "rectangle"
         self.click(10, 10)

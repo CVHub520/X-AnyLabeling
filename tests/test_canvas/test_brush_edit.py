@@ -56,6 +56,83 @@ class TestCanvasBrushEdit(unittest.TestCase):
         self.assertEqual(shape.points, original_points)
         self.assertIsNone(shape.mask)
 
+    def test_brush_commit_clears_highlight_after_contour_reduction(
+        self,
+    ) -> None:
+        """Paint a simplified contour without reusing an old vertex index."""
+        angles = np.linspace(0.0, 2.0 * np.pi, 100, endpoint=False)
+        shape = self.make_shape(
+            "polygon",
+            [
+                (50.0 + 20.0 * np.cos(a), 50.0 + 20.0 * np.sin(a))
+                for a in angles
+            ],
+        )
+        shape.highlight_vertex(90, Shape.MOVE_VERTEX)
+        self.canvas.h_shape = shape
+        self.canvas.h_vertex = 90
+        self.canvas.set_brush_mode(True)
+        point = QtCore.QPointF(70.0, 50.0)
+        press = QtGui.QMouseEvent(
+            QtCore.QEvent.Type.MouseButtonPress,
+            point,
+            point,
+            QtCore.Qt.MouseButton.LeftButton,
+            QtCore.Qt.MouseButton.LeftButton,
+            QtCore.Qt.KeyboardModifier.NoModifier,
+        )
+        release = QtGui.QMouseEvent(
+            QtCore.QEvent.Type.MouseButtonRelease,
+            point,
+            point,
+            QtCore.Qt.MouseButton.LeftButton,
+            QtCore.Qt.MouseButton.NoButton,
+            QtCore.Qt.KeyboardModifier.NoModifier,
+        )
+        self.canvas._brush_mouse_press(press, point)
+        self.canvas._brush_mouse_release(release)
+        self.canvas.set_brush_mode(False)
+
+        self.assertLess(len(shape.points), 90)
+        image = QtGui.QImage(100, 100, QtGui.QImage.Format.Format_ARGB32)
+        painter = QtGui.QPainter(image)
+        try:
+            shape.paint(painter)
+        finally:
+            painter.end()
+        self.assertIsNone(shape._highlight_index)
+        self.assertIsNone(self.canvas.h_vertex)
+
+    def test_brush_history_clears_vertex_highlights(self) -> None:
+        """Invalidate vertex identities when undo and redo rebuild contours."""
+        shape = self.make_shape(
+            "polygon",
+            [(10.0, 10.0), (50.0, 10.0), (50.0, 50.0), (10.0, 50.0)],
+        )
+        self.canvas.set_brush_mode(True)
+        baseline = shape.mask.copy()
+        self.canvas._apply_brush_to_mask(
+            shape.mask, 52.0, 30.0, radius=5, add=True
+        )
+        self.canvas._brush_modified = True
+        self.canvas._update_shape_points_from_mask(shape)
+        self.canvas._push_brush_undo_state()
+        edited = shape.mask.copy()
+
+        for action, expected in (
+            (self.canvas.brush_undo, baseline),
+            (self.canvas.brush_redo, edited),
+        ):
+            with self.subTest(action=action.__name__):
+                index = len(shape.points) - 1
+                shape.highlight_vertex(index, Shape.MOVE_VERTEX)
+                self.canvas.h_shape = shape
+                self.canvas.h_vertex = index
+                action()
+                np.testing.assert_array_equal(shape.mask, expected)
+                self.assertIsNone(shape._highlight_index)
+                self.assertIsNone(self.canvas.h_vertex)
+
     def test_brush_edit_rejects_non_polygon_shape(self):
         self.make_shape(
             "rectangle",

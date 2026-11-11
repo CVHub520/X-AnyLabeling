@@ -414,6 +414,8 @@ class Canvas(
         self._create_mode = value
         if changed:
             self.cancel_drawing()
+        # A click can repaint the preview before the next mouse move.
+        self.line.shape_type = "rectangle" if value == "cuboid" else value
 
     def cancel_drawing(self):
         """Discard the unfinished shape and its drawing preview."""
@@ -1088,6 +1090,7 @@ class Canvas(
         """
         if shape is None or getattr(shape, "mask", None) is None:
             return False
+        self._clear_shape_vertex_hover(shape)
         polylines = self._mask_to_polylines(shape.mask)
         if not polylines:
             shape.points = []
@@ -1183,6 +1186,7 @@ class Canvas(
         original = self._brush_original_shape
         if shape is None or original is None:
             return
+        self._clear_shape_vertex_hover(shape)
         shape.shape_type = original.shape_type
         shape.points = [QtCore.QPointF(point) for point in original.points]
         shape.direction = original.direction
@@ -1264,6 +1268,7 @@ class Canvas(
                 self.brush_mode_changed.emit(False)
                 return
             self.set_editing(True)
+            self._clear_shape_vertex_hover(self.selected_shapes[0])
             self.is_brush_mode = True
             self._brush_modified = False
             self.override_cursor(QtCore.Qt.CursorShape.BlankCursor)
@@ -1681,6 +1686,19 @@ class Canvas(
         self.prev_h_rotation_shape = self.h_rotation_shape
         self.h_shape = self.h_vertex = self.h_edge = self.h_cuboid_face = None
         self.h_rotation_shape = None
+
+    def _clear_shape_vertex_hover(self, shape: Shape) -> None:
+        """Discard vertex and edge references before replacing geometry.
+
+        Args:
+            shape: The shape whose vertex identities are no longer valid.
+        """
+        shape.highlight_clear()
+        if self.h_shape is shape:
+            self.h_vertex = self.h_edge = None
+            self.vertex_selected.emit(False)
+        if self.prev_h_shape is shape:
+            self.prev_h_vertex = self.prev_h_edge = None
 
     def selected_vertex(self):
         """Check if selected a vertex"""

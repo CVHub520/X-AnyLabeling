@@ -107,12 +107,54 @@ class TestCanvasShapeSelection(unittest.TestCase):
                     self.assertEqual(len(edited), 0)
                     self.assertIsNone(self.canvas.h_vertex)
                     self.canvas.restore_shape()
-                    self.assertEqual(self.canvas.shapes[0].points, original_points)
+                    self.assertEqual(
+                        self.canvas.shapes[0].points, original_points
+                    )
                 else:
                     self.assertEqual(shape.points, original_points)
                     self.assertEqual(len(moved), 0)
                     if not locked:
                         self.assertEqual(len(edited), 0)
+
+    def test_paint_handles_stale_highlight_after_vertex_reduction(
+        self,
+    ) -> None:
+        """Keep repainting safe when geometry outlives its hover index."""
+        shape = self.make_rectangle("polygon", 20, 20, 80, 80)
+        shape.shape_type = "polygon"
+        shape.selected = True
+        shape.highlight_vertex(3, Shape.MOVE_VERTEX)
+        shape.points = shape.points[:3]
+        points = list(shape.points)
+        image = QtGui.QImage(200, 200, QtGui.QImage.Format.Format_ARGB32)
+        painter = QtGui.QPainter(image)
+        try:
+            shape.paint(painter)
+        finally:
+            painter.end()
+
+        self.assertIsNone(shape._highlight_index)
+        self.assertEqual(shape.points, points)
+
+    def test_invalid_point_geometry_does_not_crash_paint(self) -> None:
+        """Reject a malformed point without altering stored coordinates."""
+        shape = Shape(label="point", shape_type="point")
+        shape.points = [QtCore.QPointF(20, 20), QtCore.QPointF(30, 30)]
+        points = list(shape.points)
+        shape.selected = True
+        shape.highlight_vertex(3, Shape.MOVE_VERTEX)
+        image = QtGui.QImage(200, 200, QtGui.QImage.Format.Format_ARGB32)
+        painter = QtGui.QPainter(image)
+        try:
+            with mock.patch(
+                "anylabeling.views.labeling.shape.logger.error"
+            ) as error:
+                shape.paint(painter)
+        finally:
+            painter.end()
+
+        error.assert_called_once()
+        self.assertEqual(shape.points, points)
 
     def test_double_click_polygon_edge_keeps_vertices_and_edits_label(self):
         shape = self.make_rectangle("polygon", 20, 20, 80, 80)
