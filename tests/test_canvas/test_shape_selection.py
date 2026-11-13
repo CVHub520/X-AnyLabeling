@@ -253,6 +253,35 @@ class TestCanvasShapeSelection(unittest.TestCase):
 
         update.assert_called_once_with()
 
+    def test_hover_paints_once_after_event_processing(self) -> None:
+        """Process one hover event and verify Qt paints once."""
+        self.canvas.shapes = [self.make_rectangle("shape", 40, 40, 80, 80)]
+        self.canvas.show()
+        self.app.processEvents()
+        with mock.patch.object(
+            self.canvas, "paintEvent", wraps=self.canvas.paintEvent
+        ) as paint:
+            self._move_mouse(60, 60)
+            paint.assert_not_called()
+            self.app.processEvents()
+            paint.assert_called_once()
+
+    def test_polygon_hit_keeps_nearby_and_coincident_vertices(self) -> None:
+        """Keep vertices selectable near both regular and null bounds."""
+        point = QtCore.QPointF(50, 50)
+        polygon = Shape(label="polygon", shape_type="polygon")
+        self.canvas.shapes = [polygon]
+        for points in (
+            [point, QtCore.QPointF(80, 50), QtCore.QPointF(60, 80)],
+            [point, point, point],
+        ):
+            polygon.points = points
+            with self.subTest(points=points):
+                candidates = self.canvas._shape_hit_candidates(
+                    QtCore.QPointF(49, 50)
+                )
+                self.assertEqual(candidates, [polygon])
+
     def test_vertex_proximity_outweighs_smaller_overlapping_area(self):
         outer = self.make_rectangle("outer", 10, 10, 150, 150)
         overlapping = self.make_rectangle("overlapping", -20, -20, 30, 30)

@@ -676,6 +676,14 @@ class Canvas(
                 continue
 
             rect = shape.bounding_rect()
+            if (
+                shape.shape_type == "polygon"
+                and not rect.isNull()
+                and not rect.adjusted(
+                    -epsilon, -epsilon, epsilon, epsilon
+                ).contains(point)
+            ):
+                continue
             area = max(0.0, rect.width()) * max(0.0, rect.height())
             vertex_distance = None
             if not shape.locked:
@@ -2167,7 +2175,7 @@ class Canvas(
             self.override_cursor(CURSOR_DRAW)
             if self._magic_wand_active and self._left_button_pressed(ev):
                 self._drag_magic_wand(ev.position())
-            self.repaint()
+            self.update()
             return
 
         if (
@@ -2180,13 +2188,13 @@ class Canvas(
             if QtCore.Qt.MouseButton.LeftButton & ev.buttons():
                 self._vertex_erasing = True
                 self.erase_selected_vertex_at(pos)
-                self.repaint()
+                self.update()
             ev.accept()
             return
 
         prev_hover_shape = self.h_shape
         self.prev_move_point = pos
-        self.repaint()
+        self.update()
 
         # Handle auto decode mode
         if (
@@ -2301,7 +2309,7 @@ class Canvas(
                 if point_dist * self.scale >= self.brush_point_distance:
                     self.current.add_point(pos)
                     self.line[0] = self.current[-1]
-            self.repaint()
+            self.update()
             self.current.highlight_clear()
             return
 
@@ -2310,12 +2318,12 @@ class Canvas(
             if self.selected_shapes_copy and self.prev_point:
                 self.override_cursor(CURSOR_MOVE)
                 self.bounded_move_shapes(self.selected_shapes_copy, pos)
-                self.repaint()
+                self.update()
             elif self.selected_shapes:
                 self.selected_shapes_copy = [
                     s.copy() for s in self.selected_shapes
                 ]
-                self.repaint()
+                self.update()
             return
 
         if self._rotation_drag_shape is not None:
@@ -2330,7 +2338,7 @@ class Canvas(
                 self.is_move_editing = False
                 try:
                     self.bounded_move_vertex(pos)
-                    self.repaint()
+                    self.update()
                     self.moving_shape = True
                 except IndexError:
                     return
@@ -2361,7 +2369,7 @@ class Canvas(
                     self.h_shape, self.h_cuboid_face, offset
                 )
                 self.prev_point = pos
-                self.repaint()
+                self.update()
                 self.moving_shape = True
                 p1 = self.h_shape[0]
                 p2 = self.h_shape[2]
@@ -2377,7 +2385,7 @@ class Canvas(
                     return
                 self.override_cursor(CURSOR_MOVE)
                 self.bounded_move_shapes(self.selected_shapes, pos)
-                self.repaint()
+                self.update()
                 self.moving_shape = True
                 if self.selected_shapes[-1].shape_type == "rectangle":
                     p1 = self.selected_shapes[-1][0]
@@ -2412,7 +2420,7 @@ class Canvas(
                 self.h_cuboid_face = None
                 try:
                     self.bounded_move_vertex(pos)
-                    self.repaint()
+                    self.update()
                     self.moving_shape = True
                 except IndexError:
                     return
@@ -2442,7 +2450,7 @@ class Canvas(
                     self.h_shape, self.h_cuboid_face, offset
                 )
                 self.prev_point = pos
-                self.repaint()
+                self.update()
                 self.moving_shape = True
                 p1 = self.h_shape[0]
                 p2 = self.h_shape[2]
