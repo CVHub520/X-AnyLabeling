@@ -29,7 +29,7 @@ class TestCanvasBrushDrawing(unittest.TestCase):
         self.canvas.scale = 1.0
         self.canvas.set_editing(False)
         self.canvas.create_mode = "polygon"
-        self.canvas._brush_drawing = True
+        self.canvas.set_brush_polygon_mode(True)
         self.canvas.current = Shape(shape_type="polygon")
         self.canvas.current.points = [
             QtCore.QPointF(10.0, 10.0),
@@ -79,3 +79,22 @@ class TestCanvasBrushDrawing(unittest.TestCase):
         self.assertIsNone(self.canvas.current)
         self.assertEqual(len(self.canvas.shapes), 1)
         self.assertTrue(self.canvas.shapes[0].is_closed())
+
+    def test_escape_keeps_brush_mode_and_drops_the_shape(self):
+        esc = QtGui.QKeyEvent(
+            QtCore.QEvent.Type.KeyPress,
+            QtCore.Qt.Key.Key_Escape,
+            QtCore.Qt.KeyboardModifier.NoModifier,
+        )
+
+        self.canvas.keyPressEvent(esc)
+
+        self.assertIsNone(self.canvas.current)
+        self.assertTrue(self.canvas.is_brush_polygon_mode)
+        self.assertTrue(self.canvas._brush_drawing)
+
+    def test_leaving_drawing_mode_disables_brush_mode(self):
+        self.canvas.set_editing(True)
+
+        self.assertFalse(self.canvas.is_brush_polygon_mode)
+        self.assertFalse(self.canvas._brush_drawing)
