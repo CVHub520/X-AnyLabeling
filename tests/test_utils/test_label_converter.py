@@ -10,9 +10,12 @@ import yaml
 from PIL import Image
 
 from anylabeling.views.labeling.label_converter import (
+    MAX_LABELS_PER_SHAPE_TYPE,
     LabelConverter,
     PoseClassError,
     PoseGroupError,
+    format_unsupported_shapes_warning,
+    summarize_unsupported_shapes,
 )
 
 
@@ -827,3 +830,168 @@ class TestLabelConverterDotaImport(unittest.TestCase):
                         os.path.join(self.temp_dir.name, "image.json")
                     )
                 )
+
+
+class TestLabelConverterYoloUnsupportedShapes(unittest.TestCase):
+    """Regression tests for annotations silently dropped by YOLO export.
+
+    Shapes whose type does not match the selected export mode used to be
+    skipped without any log output, leaving users with empty label files.
+    """
+
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp_dir.cleanup)
+        self.classes_file = os.path.join(self.temp_dir.name, "classes.txt")
+        with open(self.classes_file, "w", encoding="utf-8") as handle:
+            handle.write("person\ncar\n")
+        self.converter = LabelConverter(classes_file=self.classes_file)
+        self.label_file = os.path.join(self.temp_dir.name, "image.json")
+        self.output_file = os.path.join(self.temp_dir.name, "image.txt")
+
+    def _write_labels(self, shapes):
+        with open(self.label_file, "w", encoding="utf-8") as handle:
+            json.dump(
+                {
+                    "imagePath": "image.jpg",
+                    "imageWidth": 100,
+                    "imageHeight": 50,
+                    "shapes": shapes,
+                },
+                handle,
+            )
+
+    @staticmethod
+    def _rectangle(label="person"):
+        return {
+            "label": label,
+            "shape_type": "rectangle",
+            "points": [[10, 10], [90, 10], [90, 40], [10, 40]],
+        }
+
+    @staticmethod
+    def _polygon(label="car"):
+        return {
+            "label": label,
+            "shape_type": "polygon",
+            "points": [[10, 10], [90, 10], [90, 40], [10, 40]],
+        }
+
+    def _export(self, mode):
+        with mock.patch(
+            "anylabeling.views.labeling.label_converter.logger"
+        ) as logger:
+            is_empty = self.converter.custom_to_yolo(
+                self.label_file, self.output_file, mode
+            )
+        with open(self.output_file, "r", encoding="utf-8") as handle:
+            return is_empty, handle.read(), logger
+
+    def test_hbb_warns_about_dropped_polygons(self):
+        self._write_labels(
+            [self._rectangle(), self._polygon("car"), self._polygon("car")]
+        )
+
+        is_empty, content, logger = self._export("hbb")
+
+        self.assertFalse(is_empty)
+        self.assertEqual(content, "0 0.500000 0.500000 0.800000 0.600000\n")
+        logger.warning.assert_called_once()
+        message = logger.warning.call_args[0][0]
+        self.assertIn("Skipped 2 annotation(s)", message)
+        self.assertIn("2 polygon [car]", message)
+        self.assertIn("hbb", message)
+
+    def test_hbb_only_polygons_logs_warning_and_empty_file(self):
+        self._write_labels([self._polygon("car")])
+
+        is_empty, content, logger = self._export("hbb")
+
+        self.assertTrue(is_empty)
+        self.assertEqual(content, "")
+        logger.warning.assert_called_once()
+        self.assertIn("car", logger.warning.call_args[0][0])
+
+    def test_no_warning_when_every_shape_matches_mode(self):
+        self._write_labels([self._rectangle(), self._rectangle("car")])
+
+        is_empty, _, logger = self._export("hbb")
+
+        self.assertFalse(is_empty)
+        logger.warning.assert_not_called()
+
+    def test_seg_mode_reports_dropped_rectangles(self):
+        self._write_labels([self._rectangle("person")])
+
+        is_empty, content, logger = self._export("seg")
+
+        self.assertTrue(is_empty)
+        self.assertEqual(content, "")
+        logger.warning.assert_called_once()
+        message = logger.warning.call_args[0][0]
+        self.assertIn("1 rectangle [person]", message)
+        self.assertIn("seg", message)
+
+    def test_pose_mode_reports_polygons_and_keeps_points(self):
+        summary = summarize_unsupported_shapes(
+            [
+                self._rectangle("person"),
+                {"label": "nose", "shape_type": "point"},
+                self._polygon("car"),
+            ],
+            "pose",
+        )
+
+        self.assertEqual(list(summary), ["polygon"])
+        self.assertEqual(summary["polygon"]["labels"], ["car"])
+
+
+class TestSummarizeUnsupportedShapes(unittest.TestCase):
+
+    def test_aggregates_counts_and_unique_labels(self):
+        shapes = [
+            {"label": "car", "shape_type": "polygon"},
+            {"label": "car", "shape_type": "polygon"},
+            {"label": "tree", "shape_type": "polygon"},
+            {"label": "person", "shape_type": "rectangle"},
+            {"label": "nose", "shape_type": "point"},
+        ]
+
+        summary = summarize_unsupported_shapes(shapes, "hbb")
+
+        self.assertEqual(summary["polygon"]["count"], 3)
+        self.assertEqual(summary["polygon"]["labels"], ["car", "tree"])
+        self.assertEqual(summary["point"]["count"], 1)
+        self.assertNotIn("rectangle", summary)
+
+    def test_returns_empty_for_unknown_mode(self):
+        summary = summarize_unsupported_shapes(
+            [{"label": "car", "shape_type": "polygon"}], "coco"
+        )
+        self.assertEqual(summary, {})
+
+    def test_missing_shape_type_is_reported(self):
+        summary = summarize_unsupported_shapes([{"label": "car"}], "hbb")
+        self.assertEqual(summary["unknown"]["count"], 1)
+
+    def test_message_truncates_long_label_lists(self):
+        shapes = [
+            {"label": f"class_{index}", "shape_type": "polygon"}
+            for index in range(MAX_LABELS_PER_SHAPE_TYPE + 2)
+        ]
+
+        message = format_unsupported_shapes_warning(
+            summarize_unsupported_shapes(shapes, "hbb"),
+            "hbb",
+            "image.json",
+        )
+
+        self.assertIn("7 polygon", message)
+        self.assertIn("class_4", message)
+        self.assertNotIn("class_5", message)
+        self.assertIn("...", message)
+
+    def test_message_is_empty_when_nothing_was_skipped(self):
+        self.assertEqual(
+            format_unsupported_shapes_warning({}, "hbb", "image.json"), ""
+        )

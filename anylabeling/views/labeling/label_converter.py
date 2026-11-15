@@ -25,6 +25,108 @@ from anylabeling.views.labeling.schema import create_xlabel_template
 from anylabeling.views.labeling.utils.shape import rectangle_from_diagonal
 from anylabeling.views.labeling.utils.general import is_possible_rectangle
 
+# Shape types each YOLO export mode is able to serialize. Annotations whose
+# type is not listed for the selected mode are skipped by ``custom_to_yolo``,
+# which historically happened without any log output: a class annotated with
+# polygons but exported in ``hbb`` mode produced an empty label file and the
+# user had no way to tell why its samples disappeared.
+YOLO_MODE_SHAPE_TYPES = {
+    "hbb": ("rectangle",),
+    "seg": ("polygon",),
+    "obb": ("rotation",),
+    "pose": ("rectangle", "point"),
+}
+
+YOLO_MODE_REMEDIES = {
+    "hbb": "HBB export only accepts rectangles, re-label them or export "
+    "with the seg mode",
+    "seg": "SEG export only accepts polygons, re-label them or export "
+    "with the hbb mode",
+    "obb": "OBB export only accepts rotation shapes, re-label them or "
+    "export with another mode",
+    "pose": "Pose export only accepts rectangles and points",
+}
+
+MAX_LABELS_PER_SHAPE_TYPE = 5
+
+
+def summarize_unsupported_shapes(shapes: List[Dict[str, Any]], mode: str):
+    """Group annotations that the given YOLO export mode cannot serialize.
+
+    Args:
+        shapes (List[Dict[str, Any]]): Shapes read from an XLABEL file.
+        mode (str): YOLO export mode, one of ``hbb``/``seg``/``obb``/``pose``.
+
+    Returns:
+        Dict[str, Dict[str, Any]]: Mapping of shape type to
+        ``{"count": int, "labels": List[str]}``. Empty when every shape is
+        supported by the mode.
+    """
+    supported = YOLO_MODE_SHAPE_TYPES.get(mode)
+    if supported is None:
+        return {}
+
+    summary: Dict[str, Dict[str, Any]] = {}
+    for shape in shapes:
+        shape_type = shape.get("shape_type") or "unknown"
+        if shape_type in supported:
+            continue
+        entry = summary.setdefault(shape_type, {"count": 0, "labels": []})
+        entry["count"] += 1
+        label = shape.get("label")
+        if label and label not in entry["labels"]:
+            entry["labels"].append(label)
+    return summary
+
+
+def format_unsupported_shapes_details(summary):
+    """Render the per shape type breakdown of a summary.
+
+    Args:
+        summary (Dict[str, Dict[str, Any]]): Output of
+            ``summarize_unsupported_shapes``.
+
+    Returns:
+        str: Text such as ``2 polygon [car, bus]; 1 point [nose]``.
+    """
+    details = []
+    for shape_type in sorted(summary):
+        entry = summary[shape_type]
+        labels = entry["labels"][:MAX_LABELS_PER_SHAPE_TYPE]
+        shown = ", ".join(labels)
+        if len(entry["labels"]) > len(labels):
+            shown += ", ..."
+        details.append(
+            f"{entry['count']} {shape_type}" + (f" [{shown}]" if shown else "")
+        )
+    return "; ".join(details)
+
+
+def format_unsupported_shapes_warning(summary, mode, source):
+    """Build one readable warning line for skipped annotations.
+
+    Args:
+        summary (Dict[str, Dict[str, Any]]): Output of
+            ``summarize_unsupported_shapes``.
+        mode (str): YOLO export mode.
+        source (str): Label file the annotations were read from.
+
+    Returns:
+        str: Warning message, or an empty string when nothing was skipped.
+    """
+    total = sum(entry["count"] for entry in summary.values())
+    if not total:
+        return ""
+
+    message = (
+        f"Skipped {total} annotation(s) in {source} that the YOLO {mode} "
+        f"export cannot serialize: {format_unsupported_shapes_details(summary)}."
+    )
+    remedy = YOLO_MODE_REMEDIES.get(mode)
+    if remedy:
+        message += f" {remedy}."
+    return message
+
 
 def rle_to_polygons(rle: Dict[str, Any]) -> List[List[float]]:
     """Decode a COCO RLE segmentation into polygon coordinates.
@@ -1344,6 +1446,9 @@ class LabelConverter:
         image_width = data["imageWidth"]
         image_height = data["imageHeight"]
         image_size = np.array([[image_width, image_height]])
+        # Keep a reference to the shapes: the pose branch below reuses the
+        # name ``data`` for each pose group.
+        shapes = data["shapes"]
         if mode == "pose":
             pose_data = {}
         with open(output_file, "w", encoding="utf-8") as f:
@@ -1541,6 +1646,14 @@ class LabelConverter:
                         else:
                             label += " 0 0"
                     f.write(f"{label}\n")
+
+        unsupported = summarize_unsupported_shapes(shapes, mode)
+        warning = format_unsupported_shapes_warning(
+            unsupported, mode, input_file
+        )
+        if warning:
+            logger.warning(warning)
+
         return is_empty_file
 
     def custom_to_voc(

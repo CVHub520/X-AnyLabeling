@@ -14,9 +14,12 @@ from PyQt6.QtWidgets import (
 )
 
 from anylabeling.views.labeling.label_converter import (
+    YOLO_MODE_SHAPE_TYPES,
     LabelConverter,
     PoseClassError,
     PoseGroupError,
+    format_unsupported_shapes_details,
+    summarize_unsupported_shapes,
 )
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.widgets import Popup
@@ -137,6 +140,80 @@ def _show_yolo_export_error(parent, image_file, error):
     )
     if image_path and image_path != loaded_image_path:
         parent.load_file(image_file)
+
+
+def _warn_about_unsupported_shapes(
+    parent, image_list, get_label_file, converter, mode, skip_statuses
+):
+    """Warn before exporting when annotations cannot be serialized.
+
+    ``custom_to_yolo`` only writes shapes matching the selected mode, so a
+    class annotated with polygons but exported in ``hbb`` mode ends up with an
+    empty label file and no feedback. Pre-scanning the labels lets the user fix
+    the annotations before exporting instead of discovering the loss later.
+
+    Returns:
+        bool: ``True`` when the export should go on.
+    """
+    if mode not in YOLO_MODE_SHAPE_TYPES:
+        return True
+
+    summary = {}
+    affected_images = 0
+    for image_file in image_list:
+        label_file = get_label_file(image_file)
+        if not osp.exists(label_file) or _skip_export_status(
+            label_file, skip_statuses
+        ):
+            continue
+        try:
+            shapes = converter.read_json(label_file).get("shapes", [])
+        except Exception:
+            continue
+        if not isinstance(shapes, (list, tuple)):
+            continue
+        dropped = summarize_unsupported_shapes(shapes, mode)
+        if not dropped:
+            continue
+        affected_images += 1
+        for shape_type, entry in dropped.items():
+            merged = summary.setdefault(shape_type, {"count": 0, "labels": []})
+            merged["count"] += entry["count"]
+            for label in entry["labels"]:
+                if label not in merged["labels"]:
+                    merged["labels"].append(label)
+
+    if not summary:
+        return True
+
+    total_count = sum(entry["count"] for entry in summary.values())
+    details = format_unsupported_shapes_details(summary)
+
+    message = QCoreApplication.translate(
+        "LabelingWidget",
+        "Detected %d annotation(s) in %d image(s) that the YOLO %s export "
+        "cannot serialize: %s.\n\n"
+        "They will be skipped, so some label files may end up empty.",
+    ) % (total_count, affected_images, mode, details)
+
+    msg_box = QtWidgets.QMessageBox(parent)
+    msg_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+    msg_box.setWindowTitle(
+        QCoreApplication.translate("LabelingWidget", "Unsupported Annotations")
+    )
+    msg_box.setText(message)
+    continue_button = msg_box.addButton(
+        QCoreApplication.translate("LabelingWidget", "Continue Export"),
+        QtWidgets.QMessageBox.ButtonRole.YesRole,
+    )
+    msg_box.addButton(
+        QCoreApplication.translate("LabelingWidget", "Cancel"),
+        QtWidgets.QMessageBox.ButtonRole.RejectRole,
+    )
+    msg_box.setDefaultButton(continue_button)
+    msg_box.setStyleSheet(get_msg_box_style())
+    msg_box.exec()
+    return msg_box.clickedButton() is continue_button
 
 
 def _get_yolo_source_root(filename, last_open_dir):
@@ -451,6 +528,11 @@ def export_yolo_annotation(self, mode):
                 return
             if response == QtWidgets.QMessageBox.StandardButton.No:
                 obb_boundary_policy = "skip"
+
+    if not _warn_about_unsupported_shapes(
+        self, image_list, get_label_file, converter, mode, skip_statuses
+    ):
+        return
 
     if osp.exists(save_path):
         msg_box = QtWidgets.QMessageBox(self)
