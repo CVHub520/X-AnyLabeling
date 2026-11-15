@@ -742,3 +742,32 @@ class TestLabelConverterDotaImport(unittest.TestCase):
         data = self._import("imagesource:GoogleEarth\ngsd:0.146\n")
 
         self.assertEqual(data["shapes"], [])
+
+    def test_blank_lines_and_tabs(self):
+        data = self._import(
+            "\n \t\n  imagesource:GoogleEarth\n\tgsd:0.146\n"
+            "\t10\t12 30 12 30 22 10 22 plane 2  \n\n"
+        )
+
+        self.assertEqual(len(data["shapes"]), 1)
+        self.assertEqual(data["shapes"][0]["label"], "plane")
+        self.assertTrue(data["shapes"][0]["difficult"])
+
+    def test_malformed_object_does_not_write_partial_output(self):
+        for line in (
+            "10 12 30",
+            "bad 12 30 12 30 22 10 22 plane 0",
+            "10 12 30 12 30 22 10 22 plane invalid",
+        ):
+            with self.subTest(line=line):
+                with self.assertRaises(ValueError):
+                    self._import(
+                        "imagesource:GoogleEarth\ngsd:0.146\n"
+                        "10 12 30 12 30 22 10 22 plane 0\n"
+                        f"{line}\n"
+                    )
+                self.assertFalse(
+                    os.path.exists(
+                        os.path.join(self.temp_dir.name, "image.json")
+                    )
+                )
