@@ -1,5 +1,33 @@
 # X-AnyLabeling Changelog
 
+## `v4.3.3` (Nov 15, 2026)
+
+X-AnyLabeling 4.3.3 adds Ctrl-drag box selection and configurable YOLO end-to-end export and inference, and improves canvas responsiveness and brush editing stability.
+
+### 🚀 New Features
+
+- Select multiple shapes with Ctrl-drag box selection. (#1496)
+- Configure end-to-end YOLO export and inference. (#1492)
+
+### 🐛 Bug Fixes
+
+- Prevent crashes after brush contour edits. (#1497)
+- Keep brush polygon mode usable after cancelling a shape. (#1500)
+- Import official DOTA labelTxt headers while preserving validation errors. (#1494)
+- Preserve the first class when importing a classes file with a UTF-8 BOM. (#1495)
+
+### 🛠️ Improvements
+
+- Reduce hover latency on dense polygons and preserve drawing highlights. (#1498)
+- Group consecutive keyboard shape adjustments into a single undo step. (#1496)
+- Update canvas selection and CUDA troubleshooting documentation.
+
+### 🌟 Contributors
+
+A total of 5 developers contributed to this release.
+
+Thank @CVHub520, @GPT-AGI, @PPZPPZ, @DavisH999 and @Qsianuo
+
 ## `v4.3.2` (Nov 9, 2026)
 
 X-AnyLabeling 4.3.2 adds review status filters for batch processing and exports, and improves attribute overlays.
