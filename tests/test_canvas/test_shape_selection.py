@@ -107,7 +107,9 @@ class TestCanvasShapeSelection(unittest.TestCase):
                     self.assertEqual(len(edited), 0)
                     self.assertIsNone(self.canvas.h_vertex)
                     self.canvas.restore_shape()
-                    self.assertEqual(self.canvas.shapes[0].points, original_points)
+                    self.assertEqual(
+                        self.canvas.shapes[0].points, original_points
+                    )
                 else:
                     self.assertEqual(shape.points, original_points)
                     self.assertEqual(len(moved), 0)
@@ -280,3 +282,137 @@ class TestCanvasShapeSelection(unittest.TestCase):
         candidates = self.canvas._shape_hit_candidates(QtCore.QPointF(60, 60))
 
         self.assertEqual(candidates, [outer])
+
+    def _box_event(self, event_type, point):
+        event = QtGui.QMouseEvent(
+            event_type,
+            QtCore.QPointF(*point),
+            QtCore.QPointF(*point),
+            QtCore.Qt.MouseButton.LeftButton,
+            QtCore.Qt.MouseButton.LeftButton,
+            QtCore.Qt.KeyboardModifier.ControlModifier,
+        )
+        QtWidgets.QApplication.sendEvent(self.canvas, event)
+
+    def test_box_selection_contains_visible_unlocked_shapes_and_adds(self):
+        existing = self.make_rectangle("existing", 160, 160, 180, 180)
+        inside = self.make_rectangle("inside", 40, 40, 70, 70)
+        partial = self.make_rectangle("partial", 80, 80, 140, 140)
+        hidden = self.make_rectangle("hidden", 30, 30, 60, 60)
+        locked = self.make_rectangle("locked", 35, 35, 65, 65)
+        point = Shape(label="point", shape_type="point")
+        point.points = [QtCore.QPointF(50, 50)]
+        locked.locked = True
+        shapes = [existing, inside, partial, hidden, locked, point]
+        self.canvas.load_shapes(shapes)
+        self.canvas.visible[hidden] = False
+        self._set_selection([existing])
+        original = [list(shape.points) for shape in shapes]
+        self._box_event(QtCore.QEvent.Type.MouseButtonPress, (100, 100))
+        self._box_event(QtCore.QEvent.Type.MouseMove, (20, 20))
+        self.assertEqual(self.canvas.selected_shapes, [existing])
+        self.canvas.show()
+        self.app.processEvents()
+        self.canvas.grab()
+        self._box_event(QtCore.QEvent.Type.MouseButtonRelease, (20, 20))
+        self.assertEqual(
+            self.canvas.selected_shapes, [existing, inside, point]
+        )
+        self.assertEqual([shape.points for shape in shapes], original)
+        self.assertEqual(len(self.canvas.shapes_backups), 1)
+
+    def test_box_selection_from_selected_vertex_does_not_move_it(self):
+        shape = self.make_rectangle("shape", 40, 40, 80, 80)
+        self.canvas.load_shapes([shape])
+        self._set_selection([shape])
+        self._move_mouse(40, 40)
+        original = list(shape.points)
+        self._box_event(QtCore.QEvent.Type.MouseButtonPress, (40, 40))
+        self._box_event(QtCore.QEvent.Type.MouseMove, (100, 100))
+        self._box_event(QtCore.QEvent.Type.MouseButtonRelease, (100, 100))
+        self.assertEqual(shape.points, original)
+        self.assertEqual(self.canvas.selected_shapes, [shape])
+        self.assertFalse(self.canvas.is_move_editing)
+
+    def test_ctrl_click_toggles_selection_below_drag_threshold(self):
+        shape = self.make_rectangle("shape", 40, 40, 80, 80)
+        self.canvas.load_shapes([shape])
+        for expected in ([shape], []):
+            self._move_mouse(60, 60)
+            self._box_event(QtCore.QEvent.Type.MouseButtonPress, (60, 60))
+            self._box_event(QtCore.QEvent.Type.MouseButtonRelease, (61, 61))
+            self.assertEqual(self.canvas.selected_shapes, expected)
+
+    def test_escape_cancels_box_without_changing_selection(self):
+        shape = self.make_rectangle("shape", 40, 40, 80, 80)
+        self.canvas.load_shapes([shape])
+        self._set_selection([shape])
+        self._move_mouse(60, 60)
+        self._box_event(QtCore.QEvent.Type.MouseButtonPress, (60, 60))
+        self._box_event(QtCore.QEvent.Type.MouseMove, (100, 100))
+        QtTest.QTest.keyClick(self.canvas, QtCore.Qt.Key.Key_Escape)
+        self._box_event(QtCore.QEvent.Type.MouseButtonRelease, (100, 100))
+        self.assertEqual(self.canvas.selected_shapes, [shape])
+        self.assertIsNone(self.canvas._selection_rect)
+
+    def _key_event(self, event_type, key, repeat=False, modifiers=None):
+        if modifiers is None:
+            modifiers = QtCore.Qt.KeyboardModifier.NoModifier
+        event = QtGui.QKeyEvent(event_type, key, modifiers, "", repeat)
+        QtWidgets.QApplication.sendEvent(self.canvas, event)
+
+    def test_repeated_keyboard_edits_create_one_undo_step(self):
+        for key in (
+            QtCore.Qt.Key.Key_Z,
+            QtCore.Qt.Key.Key_X,
+            QtCore.Qt.Key.Key_C,
+            QtCore.Qt.Key.Key_V,
+            QtCore.Qt.Key.Key_Right,
+        ):
+            with self.subTest(key=key):
+                shape = self.make_rectangle("shape", 60, 60, 100, 100)
+                shape.shape_type = "rotation"
+                self.canvas.shapes_backups = []
+                self.canvas.load_shapes([shape])
+                self._set_selection([shape])
+                original = list(shape.points)
+                self._key_event(QtCore.QEvent.Type.KeyPress, key)
+                for _ in range(4):
+                    self._key_event(QtCore.QEvent.Type.KeyRelease, key, True)
+                    self._key_event(QtCore.QEvent.Type.KeyPress, key, True)
+                self.assertEqual(len(self.canvas.shapes_backups), 1)
+                self.assertNotEqual(shape.points, original)
+                self._key_event(QtCore.QEvent.Type.KeyRelease, key)
+                self.assertEqual(len(self.canvas.shapes_backups), 2)
+                self.canvas.restore_shape()
+                self.assertEqual(self.canvas.shapes[0].points, original)
+
+    def test_keyboard_rotation_mixed_selection_and_focus_loss(self):
+        rectangle = self.make_rectangle("rectangle", 10, 10, 30, 30)
+        rotation = self.make_rectangle("rotation", 60, 60, 100, 100)
+        rotation.shape_type = "rotation"
+        self.canvas.load_shapes([rectangle, rotation])
+        self._set_selection([rectangle, rotation])
+        original = list(rotation.points)
+        self._key_event(QtCore.QEvent.Type.KeyPress, QtCore.Qt.Key.Key_Z)
+        self.canvas.focusOutEvent(
+            QtGui.QFocusEvent(QtCore.QEvent.Type.FocusOut)
+        )
+        self.assertEqual(len(self.canvas.shapes_backups), 2)
+        self.assertFalse(self.canvas.rotating_shape)
+        self.canvas.restore_shape()
+        self.assertEqual(self.canvas.shapes[1].points, original)
+
+    def test_ctrl_z_does_not_rotate(self):
+        shape = self.make_rectangle("shape", 60, 60, 100, 100)
+        shape.shape_type = "rotation"
+        self.canvas.load_shapes([shape])
+        self._set_selection([shape])
+        original = list(shape.points)
+        self._key_event(
+            QtCore.QEvent.Type.KeyPress,
+            QtCore.Qt.Key.Key_Z,
+            modifiers=QtCore.Qt.KeyboardModifier.ControlModifier,
+        )
+        self.assertEqual(shape.points, original)
+        self.assertEqual(len(self.canvas.shapes_backups), 1)
