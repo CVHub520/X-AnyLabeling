@@ -98,3 +98,37 @@ class TestCanvasBrushDrawing(unittest.TestCase):
 
         self.assertFalse(self.canvas.is_brush_polygon_mode)
         self.assertFalse(self.canvas._brush_drawing)
+
+    def test_removing_last_point_keeps_brush_mode(self):
+        for key in (QtCore.Qt.Key.Key_Backspace, QtCore.Qt.Key.Key_Escape):
+            with self.subTest(key=key):
+                self.canvas.current = Shape(shape_type="polygon")
+                self.canvas.current.points = [QtCore.QPointF(10, 10)]
+                self.canvas.keyPressEvent(QtGui.QKeyEvent(
+                    QtCore.QEvent.Type.KeyPress, key,
+                    QtCore.Qt.KeyboardModifier.NoModifier,
+                ))
+                self.assertIsNone(self.canvas.current)
+                self.assertTrue(self.canvas._brush_drawing)
+        self.canvas.current = Shape(shape_type="polygon")
+        self.canvas.current.points = [QtCore.QPointF(10, 10)]
+        self.canvas.undo_last_point()
+        self.assertIsNone(self.canvas.current)
+        self.assertTrue(self.canvas._brush_drawing)
+
+    def test_finalise_keeps_brush_mode(self):
+        self.canvas.finalise()
+        self.assertIsNone(self.canvas.current)
+        self.assertTrue(self.canvas.is_brush_polygon_mode)
+        self.assertTrue(self.canvas._brush_drawing)
+
+    def test_image_changes_clear_brush_mode_and_notify_toolbar(self):
+        changed = []
+        self.canvas.brush_polygon_mode_changed.connect(changed.append)
+        for reset in (lambda: self.canvas.load_shapes([]), self.canvas.reset_state):
+            with self.subTest(reset=reset):
+                self.canvas.set_brush_polygon_mode(True)
+                reset()
+                self.assertFalse(self.canvas.is_brush_polygon_mode)
+                self.assertFalse(self.canvas._brush_drawing)
+                self.assertFalse(changed[-1])

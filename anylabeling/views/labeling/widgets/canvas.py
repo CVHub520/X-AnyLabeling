@@ -86,7 +86,6 @@ class Canvas(
     relation_delete_requested = QtCore.pyqtSignal()
     # Emitted when brush-edit mode is toggled on/off (keeps the UI in sync).
     brush_mode_changed = QtCore.pyqtSignal(bool)
-    # Emitted when brush polygon drawing mode is toggled on/off.
     brush_polygon_mode_changed = QtCore.pyqtSignal(bool)
     brush_history_changed = QtCore.pyqtSignal(bool)
 
@@ -292,10 +291,6 @@ class Canvas(
 
         # Brush drawing mode for polygon
         self._brush_drawing = False
-        # Whether the user is in brush polygon drawing mode. Unlike
-        # ``_brush_drawing`` (which tracks the shape currently being drawn),
-        # this survives cancelling a shape with Esc, so the next click keeps
-        # using the brush instead of dropping back to plain polygon drawing.
         self._brush_polygon_mode = False
         self.brush_point_distance = self.brush_config.get(
             "point_distance", 25.0
@@ -432,8 +427,6 @@ class Canvas(
             return
         self.current = None
         self.line.points = []
-        # Keep brush drawing armed: cancelling a shape only drops the shape,
-        # not the mode the user explicitly switched on.
         self._brush_drawing = self._brush_polygon_mode
         self.set_hiding(False)
         self.drawing_polygon.emit(False)
@@ -950,15 +943,6 @@ class Canvas(
             self._magic_wand_source = None
 
     def set_brush_polygon_mode(self, enabled: bool) -> None:
-        """Enable or disable brush polygon drawing mode.
-
-        The mode is independent from the shape being drawn: cancelling an
-        unfinished shape (Esc, Backspace, ...) must not drop the user back
-        to plain polygon drawing.
-
-        Args:
-            enabled: ``True`` to sample points while the cursor moves.
-        """
         enabled = bool(enabled)
         self._brush_polygon_mode = enabled
         self._brush_drawing = enabled
@@ -966,7 +950,6 @@ class Canvas(
 
     @property
     def is_brush_polygon_mode(self) -> bool:
-        """Whether brush polygon drawing mode is currently active."""
         return self._brush_polygon_mode
 
     # ------------------------------------------------------------------ #
@@ -1699,7 +1682,6 @@ class Canvas(
         self.mode = self.EDIT if value else self.CREATE
         if value:
             self.cancel_drawing()
-            # Leaving drawing mode ends brush polygon drawing as well.
             self.set_brush_polygon_mode(False)
         if not value:  # Create
             if self._rotation_drag_shape is not None:
