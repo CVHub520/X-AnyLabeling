@@ -682,11 +682,15 @@ class Shape:
         """Draw a vertex"""
         d = self.point_size / self.scale
         shape = self.point_type
-        if self.shape_type == "cuboid":
+        if i < 0:
+            point = None
+        elif self.shape_type == "cuboid":
             point = self.get_cuboid_control_point(i)
         else:
-            point = self.points[i]
+            point = self.points[i] if i < len(self.points) else None
         if point is None:
+            if i == self._highlight_index:
+                self.highlight_clear()
             return
         if i == self._highlight_index and not self.selected:
             size, shape = self._highlight_settings[self._highlight_mode]
