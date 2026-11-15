@@ -694,6 +694,27 @@ class TestLabelConverterCocoRleImport(unittest.TestCase):
 
 
 class TestLabelConverterClassesFile(unittest.TestCase):
+    def test_read_lines_preserves_encoding_compatibility(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            file_path = os.path.join(temp_dir, "classes.txt")
+            for file_encoding, read_encoding in (
+                ("utf-8", "utf-8"),
+                ("utf-8-sig", "UTF_8"),
+                ("utf-8-sig", "utf8"),
+                ("utf-8-sig", "utf-8-sig"),
+                ("latin-1", "latin-1"),
+                ("utf-16", "utf-16"),
+            ):
+                with self.subTest(
+                    file_encoding=file_encoding, read_encoding=read_encoding
+                ):
+                    with open(file_path, "w", encoding=file_encoding) as f:
+                        f.write("caf\u00e9\ncar\n")
+                    self.assertEqual(
+                        LabelConverter.read_lines(file_path, read_encoding),
+                        ["caf\u00e9", "car"],
+                    )
+
     def test_utf8_bom_does_not_drop_the_first_class(self):
         temp_dir = tempfile.TemporaryDirectory()
         self.addCleanup(temp_dir.cleanup)
