@@ -203,10 +203,11 @@ xanylabeling --qt-image-allocation-limit 1024
 <details>
 <summary>Q: 如何使用带 NMS 的 YOLO26 模型（自动标注时出现多个重叠框如何解决）？</summary>
 
-YOLO26 默认导出为 end2end（NMS-free）模型，若希望使用带 NMS 的后处理以消除重叠框，可按以下方式操作：
+YOLO26 支持端到端（NMS-free）和普通输出，当前官方接口默认导出普通输出。若希望使用带 NMS 的后处理以消除重叠框，可按以下方式操作：
 
-1. 从 PT 导出 ONNX 时，将参数设置为 **end2end=false**；
-2. end2end=false 时后处理与 YOLO11 一致，因此在自定义模型配置文件中需将 **type 设为 yolo11**，不要使用 type: yolo26。
+1. 训练导出界面的 **end2end** 默认不勾选，使用当前官方接口 `nms=None` 导出普通输出；勾选后使用 `nms=False` 导出端到端输出。旧版接口需要先升级训练环境中的 Ultralytics。
+2. 自定义模型配置保留 **type: yolo26**（分割、姿态、旋转框保留对应类型），可设置 **end2end: false** 使用普通后处理，无需改为 YOLO11。未设置时优先读取模型的 `end2end` 元数据，缺少元数据时兼容旧版端到端行为。导出后自动生成的配置会记录模型元数据中的实际模式。
+3. 推理配置必须与导出格式一致；修改配置不能改变模型的输出结构。部分导出格式可能不支持端到端输出，以 Ultralytics 导出日志和模型元数据为准。
 
 详情可参考 [#1280](https://github.com/CVHub520/X-AnyLabeling/issues/1280)。
 </details>

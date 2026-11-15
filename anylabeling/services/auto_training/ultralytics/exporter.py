@@ -14,6 +14,7 @@ from .utils import check_package_installed
 from .validators import install_packages_with_timeout
 from ._io import load_yaml_config, save_yaml_config
 from .config import get_trainer_root_dir
+from .worker import get_export_kwargs
 from .environment import (
     build_worker_command,
     build_worker_environment,
@@ -155,6 +156,11 @@ def create_auto_labeling_config(
             os.sep, "/"
         ),
     }
+
+    if model_type.startswith("yolo26") or model_type == "yolov10":
+        end2end = metadata.get("end2end")
+        if end2end is not None:
+            config["end2end"] = str(end2end).lower() == "true"
 
     if task == "pose":
         pose_config = load_yaml_config(pose_config_path or "")
@@ -423,7 +429,7 @@ class ExportManager:
                 print(f"Error in export callback: {e}")
 
     def start_export(
-        self, project_path: str, export_format: str = "onnx"
+        self, project_path: str, export_format: str = "onnx", end2end=None
     ) -> Tuple[bool, str]:
         if self.is_exporting:
             return False, "Export already in progress"
@@ -440,15 +446,19 @@ class ExportManager:
             else self._export_worker
         )
         self.export_thread = threading.Thread(
-            target=target, args=(weights_path, export_format), daemon=True
+            target=target,
+            args=(weights_path, export_format, end2end),
+            daemon=True,
         )
         self.export_thread.start()
         return True, "Export started successfully"
 
-    def _external_export_worker(self, weights_path: str, export_format: str):
+    def _external_export_worker(
+        self, weights_path: str, export_format: str, end2end=None
+    ):
         payload_path = create_worker_payload(
             "export",
-            args={"format": export_format},
+            args={"format": export_format, "end2end": end2end},
             paths={
                 "data_directory": get_trainer_root_dir(),
                 "weights_path": weights_path,
@@ -514,7 +524,9 @@ class ExportManager:
             return
         self.notify_callbacks(event_type, data)
 
-    def _export_worker(self, weights_path: str, export_format: str):
+    def _export_worker(
+        self, weights_path: str, export_format: str, end2end=None
+    ):
         try:
             if self.stop_event.is_set():
                 return
@@ -591,7 +603,9 @@ class ExportManager:
                         "message": f"Starting export to {export_format} format..."
                     },
                 )
-                results = model.export(format=export_format)
+                results = model.export(
+                    **get_export_kwargs(export_format, end2end)
+                )
 
                 exported_path = (
                     results if isinstance(results, str) else str(results)
@@ -686,7 +700,7 @@ def get_export_manager() -> ExportManager:
 
 
 def export_model(
-    project_path: str, export_format: str = "onnx"
+    project_path: str, export_format: str = "onnx", end2end=None
 ) -> Tuple[bool, str]:
     manager = get_export_manager()
-    return manager.start_export(project_path, export_format)
+    return manager.start_export(project_path, export_format, end2end)

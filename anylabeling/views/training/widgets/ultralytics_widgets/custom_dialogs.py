@@ -1,9 +1,16 @@
 from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtWidgets import QDialog, QHBoxLayout, QLabel, QVBoxLayout
+from PyQt6.QtWidgets import (
+    QCheckBox,
+    QDialog,
+    QHBoxLayout,
+    QLabel,
+    QVBoxLayout,
+)
 from .custom_widgets import CustomComboBox, PrimaryButton, SecondaryButton
 from anylabeling.services.auto_training.ultralytics.style import (
     get_ultralytics_dialog_style,
 )
+from anylabeling.views.labeling.utils.qt import new_icon
 from anylabeling.views.labeling.utils.theme import get_theme
 
 
@@ -12,10 +19,10 @@ class ExportFormatDialog(QDialog):
     stop_requested = pyqtSignal()
     apply_requested = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, supports_end2end=False):
         super().__init__(parent)
         self.setWindowTitle(self.tr("Export Settings"))
-        self.setFixedSize(400, 220)
+        self.setFixedSize(400, 250 if supports_end2end else 220)
         self.setModal(True)
         self.selected_format = "onnx"
         self.action_state = "export"
@@ -58,6 +65,25 @@ class ExportFormatDialog(QDialog):
         self.format_combo.setCurrentIndex(0)
         layout.addWidget(self.format_combo)
 
+        self.end2end_checkbox = QCheckBox(self.tr("end2end"))
+        self.end2end_checkbox.setVisible(supports_end2end)
+        self.supports_end2end = supports_end2end
+        end2end_layout = QHBoxLayout()
+        end2end_layout.setSpacing(6)
+        end2end_layout.addWidget(self.end2end_checkbox)
+        end2end_hint = QLabel()
+        end2end_hint.setFixedSize(16, 16)
+        end2end_hint.setPixmap(new_icon("help-circle", "svg").pixmap(16, 16))
+        end2end_hint.setToolTip(
+            self.tr(
+                "Enable NMS-free end-to-end output. Leave unchecked for standard output with external NMS."
+            )
+        )
+        end2end_hint.setVisible(supports_end2end)
+        end2end_layout.addWidget(end2end_hint)
+        end2end_layout.addStretch()
+        layout.addLayout(end2end_layout)
+
         info_label = QLabel(
             self.tr(
                 "Note: Some formats may require additional dependencies to be installed."
@@ -90,6 +116,11 @@ class ExportFormatDialog(QDialog):
     def get_selected_format(self):
         return self.format_combo.currentData()
 
+    def get_selected_end2end(self):
+        if not self.supports_end2end:
+            return None
+        return self.end2end_checkbox.isChecked()
+
     def on_primary_action(self):
         if self.action_state == "export":
             self.export_requested.emit(self.get_selected_format())
@@ -108,6 +139,7 @@ class ExportFormatDialog(QDialog):
         )
         self.ok_btn.setEnabled(can_stop)
         self.format_combo.setEnabled(False)
+        self.end2end_checkbox.setEnabled(False)
         self.cancel_btn.setEnabled(False)
 
     def set_apply_ready(self):
@@ -127,6 +159,7 @@ class ExportFormatDialog(QDialog):
         self.ok_btn.setToolTip("")
         self.ok_btn.setEnabled(True)
         self.format_combo.setEnabled(True)
+        self.end2end_checkbox.setEnabled(True)
         self.cancel_btn.setEnabled(True)
 
     def reject(self):
