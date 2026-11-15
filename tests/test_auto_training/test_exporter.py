@@ -1,6 +1,7 @@
 import threading
 import json
 import yaml
+import pytest
 
 from anylabeling.services.auto_training.ultralytics import exporter
 from anylabeling.services.auto_training.ultralytics.exporter import (
@@ -233,3 +234,27 @@ def test_onnx_import_failure_preserves_fallback(monkeypatch):
     monkeypatch.setattr(builtins, "__import__", interrupt_import)
     with pytest.raises(KeyboardInterrupt):
         exporter.validate_onnx_export_environment()
+
+
+@pytest.mark.parametrize("end2end", ["True", "False"])
+def test_auto_labeling_config_preserves_yolo26_family(
+    tmp_path, monkeypatch, end2end
+):
+    (tmp_path / "args.yaml").write_text(
+        "task: segment\nmodel: yolo26n-seg.pt\n"
+    )
+    model_path = tmp_path / "best.onnx"
+    model_path.touch()
+    monkeypatch.setattr(
+        exporter,
+        "_load_onnx_metadata",
+        lambda path: {
+            "names": "{0: 'cat'}",
+            "end2end": end2end,
+        },
+    )
+    config_path = create_auto_labeling_config(str(tmp_path), str(model_path))
+    with open(config_path, encoding="utf-8") as stream:
+        config = yaml.safe_load(stream)
+    assert config["type"] == "yolo26_seg"
+    assert config["end2end"] is (end2end == "True")

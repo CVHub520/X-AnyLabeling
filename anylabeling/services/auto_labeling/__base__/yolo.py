@@ -28,6 +28,7 @@ from ..utils import (
     non_max_suppression_v8,
     non_max_suppression_end2end,
     calculate_rotation_theta,
+    resolve_end2end,
 )
 
 
@@ -105,6 +106,12 @@ class YOLO(Model):
 
         self.replace = True
         self.model_type = self.config["type"]
+        self.end2end = (
+            resolve_end2end(self.net, self.config.get("end2end"))
+            if self.model_type.startswith("yolo26")
+            or self.model_type == "yolov10"
+            else False
+        )
         self.classes = self.config.get("classes", [])
         self.stride = self.config.get("stride", 32)
         self.anchors = self.config.get("anchors", None)
@@ -377,7 +384,13 @@ class YOLO(Model):
             "yolo11_obb_track",
             "yolo11_pose_track",
             "yolo12",
-        ]:
+        ] or (
+            (
+                self.model_type.startswith("yolo26")
+                or self.model_type == "yolov10"
+            )
+            and not self.end2end
+        ):
             p = non_max_suppression_v8(
                 preds[0],
                 task=self.task,
@@ -430,16 +443,7 @@ class YOLO(Model):
             return self.postprocess_rtdetr(preds)
         masks, keypoints = None, None
         img_shape = (self.img_height, self.img_width)
-        is_end2end = self.model_type in [
-            "yolo26",
-            "yolo26_obb",
-            "yolo26_seg",
-            "yolo26_pose",
-            "yolo26_det_track",
-            "yolo26_obb_track",
-            "yolo26_seg_track",
-            "yolo26_pose_track",
-        ]
+        is_end2end = self.model_type.startswith("yolo26") and self.end2end
         if self.task == "seg" and not is_end2end:
             proto = preds[1][-1] if len(preds[1]) == 3 else preds[1]
             self.mask_height, self.mask_width = proto.shape[2:]

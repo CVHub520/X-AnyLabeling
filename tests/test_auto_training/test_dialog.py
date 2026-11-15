@@ -649,3 +649,29 @@ def test_configuring_environment_updates_training_and_export_managers():
         ("export", ("/new/python", True)),
         ("detect", ()),
     ]
+
+
+def test_export_end2end_checkbox_states_and_lifecycle():
+    app = QApplication.instance() or QApplication([])
+    dialog = ExportFormatDialog(supports_end2end=True)
+    try:
+        assert not dialog.end2end_checkbox.isHidden()
+        assert not dialog.end2end_checkbox.isTristate()
+        assert dialog.get_selected_end2end() is False
+        dialog.end2end_checkbox.setCheckState(Qt.CheckState.Checked)
+        assert dialog.get_selected_end2end() is True
+        dialog.set_exporting()
+        assert not dialog.end2end_checkbox.isEnabled()
+        dialog.reset_export()
+        assert dialog.end2end_checkbox.isEnabled()
+        dialog.end2end_checkbox.setCheckState(Qt.CheckState.Unchecked)
+        assert dialog.get_selected_end2end() is False
+    finally:
+        dialog.close()
+    dialog = ExportFormatDialog()
+    try:
+        assert dialog.end2end_checkbox.isHidden()
+        assert dialog.get_selected_end2end() is None
+    finally:
+        dialog.close()
+    app.processEvents()

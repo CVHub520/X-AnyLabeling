@@ -1,4 +1,5 @@
 type: yolo26_obb
+end2end: true
 name: yolo26s-obb-r20260128
 provider: Ultralytics
 display_name: YOLO26s-OBB (DOTA-v1.0)

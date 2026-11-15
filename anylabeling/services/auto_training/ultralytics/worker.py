@@ -375,6 +375,20 @@ def install_export_packages(packages: list[str]) -> None:
         )
 
 
+def get_export_kwargs(export_format, end2end=None):
+    kwargs = {"format": export_format}
+    if end2end is not None:
+        from ultralytics.cfg import DEFAULT_CFG_DICT
+
+        if "end2end" in DEFAULT_CFG_DICT:
+            raise ValueError(
+                "This export option requires the current Ultralytics nms API. "
+                "Please upgrade Ultralytics in the training environment."
+            )
+        kwargs["nms"] = False if end2end else None
+    return kwargs
+
+
 def run_export(payload: dict) -> None:
     export_format = payload["args"].get("format", "onnx")
     if export_format not in EXPORT_DEPENDENCIES:
@@ -404,7 +418,9 @@ def run_export(payload: dict) -> None:
     try:
         sys.stdout = log_stream
         sys.stderr = log_stream
-        result = YOLO(weights_path).export(format=export_format)
+        result = YOLO(weights_path).export(
+            **get_export_kwargs(export_format, payload["args"].get("end2end"))
+        )
     finally:
         log_stream.flush()
         sys.stdout, sys.stderr = original_stdout, original_stderr

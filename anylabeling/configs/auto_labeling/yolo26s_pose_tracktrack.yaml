@@ -1,4 +1,5 @@
 type: yolo26_pose_track
+end2end: true
 name: yolo26s_pose_tracktrack-r20260620
 provider: Ultralytics
 display_name: YOLO26s-Pose-TrackTrack
