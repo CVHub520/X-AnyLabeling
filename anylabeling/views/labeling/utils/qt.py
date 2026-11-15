@@ -1,9 +1,9 @@
 import natsort
 import os
 import os.path as osp
-from math import sqrt
+from collections.abc import Sequence
+from math import hypot, sqrt
 
-import numpy as np
 from PyQt6.QtCore import Qt
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtSvg import QSvgRenderer
@@ -194,23 +194,30 @@ def distance(p):
     return sqrt(p.x() * p.x() + p.y() * p.y())
 
 
-def distance_to_line(point, line):
-    p1, p2 = line
-    p1 = np.array([p1.x(), p1.y()])
-    p2 = np.array([p2.x(), p2.y()])
-    p3 = np.array([point.x(), point.y()])
-    if np.dot((p3 - p1), (p2 - p1)) < 0:
-        return np.linalg.norm(p3 - p1)
-    if np.dot((p3 - p2), (p1 - p2)) < 0:
-        return np.linalg.norm(p3 - p2)
-    if np.linalg.norm(p2 - p1) == 0:
-        return np.linalg.norm(p3 - p1)
-    line_vector = p2 - p1
-    point_vector = p1 - p3
-    cross_product = (
-        line_vector[0] * point_vector[1] - line_vector[1] * point_vector[0]
-    )
-    return abs(cross_product) / np.linalg.norm(line_vector)
+def distance_to_line(
+    point: QtCore.QPointF, line: Sequence[QtCore.QPointF]
+) -> float:
+    """Compute the shortest distance from a point to a segment.
+
+    Args:
+        point: Query point.
+        line: Two endpoints defining the segment.
+
+    Returns:
+        Distance in the same units as the coordinates.
+    """
+    start, end = line
+    dx = end.x() - start.x()
+    dy = end.y() - start.y()
+    x = point.x() - start.x()
+    y = point.y() - start.y()
+    projection = x * dx + y * dy
+    if projection <= 0:
+        return hypot(x, y)
+    length_squared = dx * dx + dy * dy
+    if projection >= length_squared:
+        return hypot(point.x() - end.x(), point.y() - end.y())
+    return abs(dx * y - dy * x) / sqrt(length_squared)
 
 
 def fmt_shortcut(text):

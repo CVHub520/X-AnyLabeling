@@ -735,9 +735,11 @@ class Shape:
         indices = range(len(self.points))
         if self.shape_type == "cuboid":
             indices = range(min(4, len(self.points)))
+        x, y = point.x(), point.y()
         for i in indices:
             p = self.points[i]
-            dist = utils.distance(p - point)
+            dx, dy = p.x() - x, p.y() - y
+            dist = math.sqrt(dx * dx + dy * dy)
             if dist <= epsilon and dist < min_distance:
                 min_distance = dist
                 min_i = i

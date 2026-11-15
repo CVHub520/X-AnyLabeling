@@ -295,6 +295,148 @@ class TestCanvasShapeSelection(unittest.TestCase):
 
         update.assert_called_once_with()
 
+    def test_hover_paints_once_after_event_processing(self) -> None:
+        """Process one hover event and verify Qt paints once."""
+        self.canvas.shapes = [self.make_rectangle("shape", 40, 40, 80, 80)]
+        self.canvas.show()
+        self.app.processEvents()
+        with mock.patch.object(
+            self.canvas, "paintEvent", wraps=self.canvas.paintEvent
+        ) as paint:
+            self._move_mouse(60, 60)
+            paint.assert_not_called()
+            self.app.processEvents()
+            paint.assert_called_once()
+
+    def test_polygon_hit_keeps_nearby_and_coincident_vertices(self) -> None:
+        """Keep vertices selectable near both regular and null bounds."""
+        point = QtCore.QPointF(50, 50)
+        polygon = Shape(label="polygon", shape_type="polygon")
+        self.canvas.shapes = [polygon]
+        for points in (
+            [point, QtCore.QPointF(80, 50), QtCore.QPointF(60, 80)],
+            [point, point, point],
+        ):
+            polygon.points = points
+            with self.subTest(points=points):
+                candidates = self.canvas._shape_hit_candidates(
+                    QtCore.QPointF(49, 50)
+                )
+                self.assertEqual(candidates, [polygon])
+
+    def test_drawing_highlight_survives_deferred_paint_and_clears(self):
+        self.canvas.set_editing(False)
+        self.canvas.show()
+        for mode in ("polygon", "quadrilateral", "rotation"):
+            with self.subTest(mode=mode):
+                self.canvas.create_mode = mode
+                shape = Shape(shape_type=mode)
+                shape.points = [QtCore.QPointF(40, 40)]
+                if mode != "rotation":
+                    shape.points.extend(
+                        [QtCore.QPointF(100, 40), QtCore.QPointF(100, 100)]
+                    )
+                self.canvas.current = shape
+                self.canvas.line.points = [shape[-1], QtCore.QPointF(100, 100)]
+                self.app.processEvents()
+                painted = []
+                original_paint = shape.paint
+
+                def record_paint(*args, **kwargs):
+                    painted.append(shape._highlight_index)
+                    return original_paint(*args, **kwargs)
+
+                with mock.patch.object(
+                    shape, "paint", side_effect=record_paint
+                ):
+                    self._move_mouse(41, 41)
+                    self.assertEqual(painted, [])
+                    self.app.processEvents()
+                    self.assertEqual(painted, [0])
+                    painted.clear()
+                    self._move_mouse(150, 150)
+                    self.app.processEvents()
+                    self.assertEqual(painted, [None])
+
+    def test_closing_polygon_clears_highlight_before_storing_history(self):
+        self.canvas.set_editing(False)
+        self.canvas.create_mode = "polygon"
+        shape = Shape(shape_type="polygon")
+        shape.points = [
+            QtCore.QPointF(40, 40),
+            QtCore.QPointF(100, 40),
+            QtCore.QPointF(100, 100),
+        ]
+        self.canvas.current = shape
+        self.canvas.line.points = [shape[-1], shape[0]]
+        self._move_mouse(41, 41)
+        QtTest.QTest.mouseClick(
+            self.canvas,
+            QtCore.Qt.MouseButton.LeftButton,
+            pos=QtCore.QPoint(40, 40),
+        )
+
+        self.assertIsNone(self.canvas.current)
+        self.assertEqual(self.canvas.shapes, [shape])
+        self.assertTrue(shape.is_closed())
+        self.assertIsNone(shape._highlight_index)
+        self.assertIsNone(self.canvas.shapes_backups[-1][0]._highlight_index)
+
+    def test_hover_burst_paints_final_highlight_once(self):
+        shape = self.make_rectangle("polygon", 40, 40, 100, 100)
+        shape.shape_type = "polygon"
+        self.canvas.shapes = [shape]
+        self._set_selection([shape])
+        self.canvas.show()
+        self.app.processEvents()
+        with mock.patch.object(
+            self.canvas, "paintEvent", wraps=self.canvas.paintEvent
+        ) as paint:
+            self._move_mouse(40, 40)
+            self._move_mouse(100, 100)
+            self._move_mouse(150, 150)
+            paint.assert_not_called()
+            self.app.processEvents()
+            paint.assert_called_once()
+        self.assertIsNone(self.canvas.h_shape)
+        self.assertIsNone(shape._highlight_index)
+        self.assertEqual(self.canvas.selected_shapes, [shape])
+
+    def test_polygon_bounds_keep_tolerance_and_follow_geometry_changes(self):
+        for scale in (0.1, 0.5, 1.0, 2.0, 10.0):
+            self.canvas.scale = scale
+            epsilon = self.canvas.epsilon / scale
+            for points in (
+                [(40, 40), (100, 40), (100, 100)],
+                [(40, 40), (40, 70), (40, 100)],
+                [(40, 40), (70, 40), (100, 40)],
+                [(40, 40)] * 3,
+            ):
+                with self.subTest(scale=scale, points=points):
+                    shape = Shape(shape_type="polygon")
+                    shape.points = [QtCore.QPointF(*p) for p in points]
+                    self.canvas.shapes = [shape]
+                    point = QtCore.QPointF(40 - epsilon, 40)
+                    self.assertEqual(
+                        self.canvas._shape_hit_candidates(point), [shape]
+                    )
+                    self.assertEqual(
+                        self.canvas._shape_hit_candidates(
+                            point - QtCore.QPointF(0.01, 0)
+                        ),
+                        [],
+                    )
+                    shape.move_by(QtCore.QPointF(1000, 1000))
+                    self.assertEqual(
+                        self.canvas._shape_hit_candidates(point), []
+                    )
+                    self.assertEqual(
+                        self.canvas._shape_hit_candidates(
+                            point + QtCore.QPointF(1000, 1000)
+                        ),
+                        [shape],
+                    )
+
     def test_vertex_proximity_outweighs_smaller_overlapping_area(self):
         outer = self.make_rectangle("outer", 10, 10, 150, 150)
         overlapping = self.make_rectangle("overlapping", -20, -20, 30, 30)
