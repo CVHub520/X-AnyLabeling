@@ -2388,6 +2388,16 @@ Original images backed up to:
       <source>Generate the model configuration and load it in X-AnyLabeling</source>
       <translation>Generate the model configuration and load it in X-AnyLabeling</translation>
     </message>
+    <message>
+      <location filename="../../views/training/widgets/ultralytics_widgets/custom_dialogs.py" line="68" />
+      <source>end2end</source>
+      <translation>end2end</translation>
+    </message>
+    <message>
+      <location filename="../../views/training/widgets/ultralytics_widgets/custom_dialogs.py" line="79" />
+      <source>Enable NMS-free end-to-end output. Leave unchecked for standard output with external NMS.</source>
+      <translation>Enable NMS-free end-to-end output. Leave unchecked for standard output with external NMS.</translation>
+    </message>
   </context>
   <context>
     <name>ExportLabelsDialog</name>

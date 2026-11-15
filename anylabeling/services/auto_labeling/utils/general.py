@@ -3,6 +3,20 @@ import math
 import numpy as np
 
 
+def resolve_end2end(net, value=None):
+    if value is None and hasattr(net, "get_metadata_info"):
+        value = net.get_metadata_info("end2end")
+    if value is None:
+        return True
+    if isinstance(value, str):
+        value = value.lower()
+        if value in {"true", "false"}:
+            return value == "true"
+    if not isinstance(value, bool):
+        raise ValueError("end2end must be a boolean")
+    return value
+
+
 class Args:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
