@@ -675,7 +675,12 @@ class Canvas(
             if not self.is_visible(shape):
                 continue
 
-            rect = shape.bounding_rect()
+            path = shape.make_path() if shape.shape_type == "polygon" else None
+            rect = (
+                path.boundingRect()
+                if path is not None
+                else shape.bounding_rect()
+            )
             if (
                 shape.shape_type == "polygon"
                 and not rect.isNull()
@@ -743,7 +748,11 @@ class Canvas(
                     front_path is not None and front_path.contains(point)
                 ) or self.cuboid_face_hit_test(shape, point) is not None
             else:
-                hit = len(shape.points) > 1 and shape.contains_point(point)
+                hit = len(shape.points) > 1 and (
+                    path.contains(point)
+                    if path is not None
+                    else shape.contains_point(point)
+                )
             if hit:
                 priority = (2, area, 0.0, -stack_index)
                 candidates.append((priority, shape))
@@ -2219,6 +2228,7 @@ class Canvas(
                 self.override_cursor(CURSOR_DRAW)
                 return
 
+            self.current.highlight_clear()
             if self.create_mode in ["rectangle", "rotation"]:
                 pos = self._constrain_rectangle_pos(pos, ev.modifiers())
             if self.create_mode in ["rectangle", "rotation", "cuboid"]:
@@ -2310,7 +2320,6 @@ class Canvas(
                     self.current.add_point(pos)
                     self.line[0] = self.current[-1]
             self.update()
-            self.current.highlight_clear()
             return
 
         # Polygon copy moving.
@@ -2575,7 +2584,7 @@ class Canvas(
             )
             index_edge = (
                 None
-                if shape.locked
+                if shape.locked or index is not None
                 else shape.nearest_edge(pos, self.epsilon / self.scale)
             )
             if index is not None:
@@ -5404,6 +5413,7 @@ class Canvas(
     def finalise(self):
         """Finish drawing for a shape"""
         assert self.current
+        self.current.highlight_clear()
         self._brush_drawing = False
         if (
             self.is_auto_labeling
