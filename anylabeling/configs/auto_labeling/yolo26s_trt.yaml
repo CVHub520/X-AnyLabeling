@@ -1,4 +1,5 @@
 type: yolo26
+end2end: true
 name: yolo26s-trt-r20260419
 provider: Ultralytics
 display_name: YOLO26s (TensorRT)

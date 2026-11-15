@@ -165,6 +165,44 @@ class TestLabelWidgetBrushMode(unittest.TestCase):
             False
         )
 
+    def test_brush_polygon_toggle_arms_the_canvas_mode(self):
+        canvas = SimpleNamespace(
+            drawing=Mock(return_value=False),
+            create_mode="polygon",
+            is_brush_polygon_mode=False,
+            set_brush_polygon_mode=Mock(),
+        )
+        widget = SimpleNamespace(
+            canvas=canvas,
+            toggle_draw_mode=Mock(),
+            actions=SimpleNamespace(create_mode=Mock()),
+        )
+
+        LabelingWidget.toggle_brush_polygon_mode(widget)
+
+        widget.toggle_draw_mode.assert_called_once_with(
+            False, create_mode="polygon"
+        )
+        canvas.set_brush_polygon_mode.assert_called_once_with(True)
+
+    def test_brush_polygon_toggle_leaves_the_mode_when_active(self):
+        canvas = SimpleNamespace(
+            drawing=Mock(return_value=True),
+            create_mode="polygon",
+            is_brush_polygon_mode=True,
+            set_brush_polygon_mode=Mock(),
+        )
+        widget = SimpleNamespace(
+            canvas=canvas,
+            toggle_draw_mode=Mock(),
+            actions=SimpleNamespace(create_mode=Mock()),
+        )
+
+        LabelingWidget.toggle_brush_polygon_mode(widget)
+
+        widget.toggle_draw_mode.assert_called_once_with(True)
+        canvas.set_brush_polygon_mode.assert_not_called()
+
     def test_draw_mode_disables_active_action(self):
         action_names = [
             "create_mode",
@@ -188,6 +226,7 @@ class TestLabelWidgetBrushMode(unittest.TestCase):
             is_brush_mode=False,
             set_magic_wand_mode=Mock(),
             set_editing=Mock(),
+            set_brush_polygon_mode=Mock(),
             create_mode="polygon",
             _brush_drawing=False,
         )

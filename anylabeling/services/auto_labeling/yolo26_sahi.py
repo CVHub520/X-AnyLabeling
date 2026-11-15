@@ -63,6 +63,8 @@ class YOLO26_SAHI(Model):
             category_mapping=category_mapping,
             device=__preferred_device__,
             max_det=self.config.get("max_det", 300),
+            end2end=self.config.get("end2end"),
+            iou_thres=self.config.get("iou_threshold", 0.45),
         )
         self.slice_height = self.config["slice_height"]
         self.slice_width = self.config["slice_width"]

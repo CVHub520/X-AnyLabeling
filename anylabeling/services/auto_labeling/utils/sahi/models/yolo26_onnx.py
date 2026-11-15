@@ -7,6 +7,8 @@ from anylabeling.services.auto_labeling.engines.build_onnx_engine import (
 from anylabeling.services.auto_labeling.utils import (
     letterbox,
     non_max_suppression_end2end,
+    non_max_suppression_v8,
+    resolve_end2end,
     scale_boxes,
 )
 from anylabeling.services.auto_labeling.utils.sahi.models.base import (
@@ -32,8 +34,12 @@ class Yolo26ONNX(object):
         device: str,
         conf_thres: float,
         max_det: int,
+        end2end=None,
+        iou_thres: float = 0.45,
     ):
         self.net = OnnxBaseModel(model_path, device)
+        self.end2end = resolve_end2end(self.net, end2end)
+        self.iou_thres = iou_thres
         self.conf_thres = conf_thres
         self.max_det = max_det
         _, _, input_height, input_width = self.net.get_input_shape()
@@ -53,11 +59,19 @@ class Yolo26ONNX(object):
         return blob, input_image.shape[:2]
 
     def postprocess(self, outputs, img_size):
-        predictions = non_max_suppression_end2end(
-            outputs,
-            conf_thres=self.conf_thres,
-            max_det=self.max_det,
-        )
+        if self.end2end:
+            predictions = non_max_suppression_end2end(
+                outputs,
+                conf_thres=self.conf_thres,
+                max_det=self.max_det,
+            )
+        else:
+            predictions = non_max_suppression_v8(
+                outputs[0],
+                conf_thres=self.conf_thres,
+                iou_thres=self.iou_thres,
+                max_det=self.max_det,
+            )
         prediction = predictions[0]
         if prediction.shape[0] == 0:
             return np.array([]), np.array([]), np.array([])
@@ -71,8 +85,12 @@ class Yolo26ONNX(object):
 
 
 class Yolo26OnnxDetectionModel(DetectionModel):
-    def __init__(self, *args, max_det: int = 300, **kwargs):
+    def __init__(
+        self, *args, max_det: int = 300, end2end=None, iou_thres=0.45, **kwargs
+    ):
         self.max_det = max_det
+        self.end2end = end2end
+        self.iou_thres = iou_thres
         super().__init__(*args, **kwargs)
 
     def check_dependencies(self) -> None:
@@ -89,6 +107,8 @@ class Yolo26OnnxDetectionModel(DetectionModel):
             device=self.device,
             conf_thres=self.conf_thres,
             max_det=self.max_det,
+            end2end=self.end2end,
+            iou_thres=self.iou_thres,
         )
 
         self.category_name_list = list(self.category_mapping.values())

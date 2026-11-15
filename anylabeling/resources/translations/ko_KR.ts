@@ -2540,6 +2540,16 @@ Original images backed up to:
       <source>Generate the model configuration and load it in X-AnyLabeling</source>
       <translation>모델 구성을 생성하고 X-AnyLabeling에서 불러오기</translation>
     </message>
+    <message>
+      <location filename="../../views/training/widgets/ultralytics_widgets/custom_dialogs.py" line="68" />
+      <source>end2end</source>
+      <translation>엔드투엔드(end2end)</translation>
+    </message>
+    <message>
+      <location filename="../../views/training/widgets/ultralytics_widgets/custom_dialogs.py" line="79" />
+      <source>Enable NMS-free end-to-end output. Leave unchecked for standard output with external NMS.</source>
+      <translation>NMS가 필요 없는 엔드투엔드 출력을 활성화합니다. 선택하지 않으면 일반 출력으로 내보내며, 모델 외부에서 NMS를 수행해야 합니다.</translation>
+    </message>
   </context>
   <context>
     <name>ExportLabelsDialog</name>

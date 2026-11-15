@@ -2490,7 +2490,23 @@ class UltralyticsDialog(QDialog):
             )
             return
 
-        export_dialog = ExportFormatDialog(self)
+        training_args = (
+            load_yaml_config(
+                os.path.join(self.current_project_path, "args.yaml")
+            )
+            or {}
+        )
+        basic_config = self.get_current_config()["basic"]
+        model_name = str(
+            training_args.get("model") or basic_config.get("model", "")
+        ).lower()
+        task = training_args.get("task") or self.selected_task_type.lower()
+        supports_end2end = task != "classify" and any(
+            family in model_name for family in ("yolo26", "yolov10")
+        )
+        export_dialog = ExportFormatDialog(
+            self, supports_end2end=supports_end2end
+        )
         export_dialog.export_requested.connect(self.start_selected_export)
         export_dialog.stop_requested.connect(self.stop_export)
         export_dialog.apply_requested.connect(self.apply_exported_model)
@@ -2502,7 +2518,9 @@ class UltralyticsDialog(QDialog):
     def start_selected_export(self, export_format):
         self.exported_onnx_path = None
         success, message = self.export_manager.start_export(
-            self.current_project_path, export_format
+            self.current_project_path,
+            export_format,
+            end2end=self.export_dialog.get_selected_end2end(),
         )
         if success:
             if self.export_dialog is not None:

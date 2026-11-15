@@ -86,6 +86,7 @@ class Canvas(
     relation_delete_requested = QtCore.pyqtSignal()
     # Emitted when brush-edit mode is toggled on/off (keeps the UI in sync).
     brush_mode_changed = QtCore.pyqtSignal(bool)
+    brush_polygon_mode_changed = QtCore.pyqtSignal(bool)
     brush_history_changed = QtCore.pyqtSignal(bool)
 
     CREATE, EDIT = 0, 1
@@ -170,6 +171,10 @@ class Canvas(
         self._space_pan_prev_point = None
         self._space_pan_suppress_until_release = False
         self._pan_button = QtCore.Qt.MouseButton.LeftButton
+        self._selection_release_pending = False
+        self._selection_start = None
+        self._selection_rect = None
+        self._keyboard_edit_key = None
         self._vertex_erasing = False
         self._vertex_eraser_cursor_cache = None
         self.offsets = QtCore.QPointF(), QtCore.QPointF()
@@ -286,6 +291,7 @@ class Canvas(
 
         # Brush drawing mode for polygon
         self._brush_drawing = False
+        self._brush_polygon_mode = False
         self.brush_point_distance = self.brush_config.get(
             "point_distance", 25.0
         )
@@ -421,7 +427,7 @@ class Canvas(
             return
         self.current = None
         self.line.points = []
-        self._brush_drawing = False
+        self._brush_drawing = self._brush_polygon_mode
         self.set_hiding(False)
         self.drawing_polygon.emit(False)
         self.update()
@@ -624,6 +630,7 @@ class Canvas(
         # This does _part_ of the job of restoring shapes.
         # The complete process is also done in app.py::undoShapeEdit
         # and app.py::load_shapes and our own Canvas::load_shapes function.
+        self._finish_keyboard_edit()
         if not self.is_shape_restorable:
             return
         self.shapes_backups.pop()  # latest
@@ -654,6 +661,8 @@ class Canvas(
 
     def focusOutEvent(self, _):
         """Window out of focus event"""
+        self._finish_keyboard_edit()
+        self._cancel_box_selection()
         self._relation_press_active = False
         if self._rotation_drag_shape is not None:
             self._finish_rotation_handle_drag()
@@ -932,6 +941,16 @@ class Canvas(
         self.is_magic_wand_mode = bool(enabled)
         if not enabled:
             self._magic_wand_source = None
+
+    def set_brush_polygon_mode(self, enabled: bool) -> None:
+        enabled = bool(enabled)
+        self._brush_polygon_mode = enabled
+        self._brush_drawing = enabled
+        self.brush_polygon_mode_changed.emit(enabled)
+
+    @property
+    def is_brush_polygon_mode(self) -> bool:
+        return self._brush_polygon_mode
 
     # ------------------------------------------------------------------ #
     # Brush edit mode
@@ -1658,9 +1677,12 @@ class Canvas(
 
     def set_editing(self, value=True):
         """Set editing mode. Editing is set to False, user is drawing"""
+        self._finish_keyboard_edit()
+        self._cancel_box_selection()
         self.mode = self.EDIT if value else self.CREATE
         if value:
             self.cancel_drawing()
+            self.set_brush_polygon_mode(False)
         if not value:  # Create
             if self._rotation_drag_shape is not None:
                 self._finish_rotation_handle_drag()
@@ -2107,10 +2129,31 @@ class Canvas(
         self.pan_request.emit(delta)
         return True
 
+    def _cancel_box_selection(self):
+        self._selection_start = None
+        self._selection_rect = None
+        self.update()
+
+    def _update_box_selection(self, position):
+        distance = (position - self._selection_start).manhattanLength()
+        if (
+            self._selection_rect is not None
+            or distance >= QtWidgets.QApplication.startDragDistance()
+        ):
+            self._selection_rect = QtCore.QRectF(
+                self.transform_pos(self._selection_start),
+                self.transform_pos(position),
+            ).normalized()
+            self.update()
+
     # QT Overload
     def mouseMoveEvent(self, ev):  # noqa: C901
         """Update line with last point and current coordinates"""
         if self.is_loading:
+            return
+        if self._selection_start is not None:
+            self._update_box_selection(ev.position())
+            ev.accept()
             return
         if self._relation_press_active:
             ev.accept()
@@ -2763,6 +2806,8 @@ class Canvas(
         """Mouse press event"""
         if self.is_loading:
             return
+        self._selection_release_pending = False
+        self._finish_keyboard_edit()
         self.interaction_started.emit()
         if (
             ev.button() == QtCore.Qt.MouseButton.LeftButton
@@ -2800,6 +2845,21 @@ class Canvas(
             ev.accept()
             return
         pos = self.transform_pos(ev.position())
+
+        if (
+            self.editing()
+            and not self.is_brush_mode
+            and not self.is_magic_wand_mode
+            and not self._space_pressed
+            and self._has_valid_pixmap()
+            and ev.button() == QtCore.Qt.MouseButton.LeftButton
+            and ev.modifiers() == QtCore.Qt.KeyboardModifier.ControlModifier
+        ):
+            self._selection_release_pending = True
+            self._selection_start = QtCore.QPointF(ev.position())
+            self._selection_rect = None
+            ev.accept()
+            return
 
         if (
             self.editing()
@@ -3066,6 +3126,44 @@ class Canvas(
             and ev.button() == QtCore.Qt.MouseButton.LeftButton
         ):
             self._relation_press_active = False
+            ev.accept()
+            return
+        if (
+            self._selection_release_pending
+            and ev.button() == QtCore.Qt.MouseButton.LeftButton
+        ):
+            self._selection_release_pending = False
+            if self._selection_start is None:
+                ev.accept()
+                return
+            self._update_box_selection(ev.position())
+            if self._selection_rect is not None:
+                rect = self._selection_rect
+                selected = list(self.selected_shapes)
+                existing = set(selected)
+                for shape in self.shapes:
+                    bounds = shape.bounding_rect()
+                    if (
+                        shape not in existing
+                        and self.is_visible(shape)
+                        and shape.visible
+                        and not shape.locked
+                        and shape.points
+                        and rect.contains(bounds.topLeft())
+                        and rect.contains(bounds.bottomRight())
+                    ):
+                        selected.append(shape)
+                self.select_shapes(selected)
+            else:
+                self.select_shape_point(
+                    self.transform_pos(self._selection_start),
+                    multiple_selection_mode=True,
+                )
+                if self.h_shape_is_selected and not self.h_shape_is_hovered:
+                    self.selection_changed.emit(
+                        [x for x in self.selected_shapes if x != self.h_shape]
+                    )
+            self._cancel_box_selection()
             ev.accept()
             return
         right_click = False
@@ -5314,6 +5412,16 @@ class Canvas(
         # Brush-size preview circle follows the cursor in brush mode.
         self._paint_brush_cursor(p)
 
+        if self._selection_rect is not None:
+            p.save()
+            pen = QtGui.QPen(QtGui.QColor(70, 140, 255))
+            pen.setCosmetic(True)
+            pen.setStyle(QtCore.Qt.PenStyle.DashLine)
+            p.setPen(pen)
+            p.setBrush(QtGui.QColor(70, 140, 255, 40))
+            p.drawRect(self._selection_rect)
+            p.restore()
+
         p.end()
 
     def render_visualization(
@@ -5396,7 +5504,7 @@ class Canvas(
     def finalise(self):
         """Finish drawing for a shape"""
         assert self.current
-        self._brush_drawing = False
+        self._brush_drawing = self._brush_polygon_mode
         if (
             self.is_auto_labeling
             and self.auto_labeling_mode != AutoLabelingMode.NONE
@@ -5861,6 +5969,13 @@ class Canvas(
             self.relation_delete_requested.emit()
             ev.accept()
             return
+        if (
+            key == QtCore.Qt.Key.Key_Escape
+            and self._selection_start is not None
+        ):
+            self._cancel_box_selection()
+            ev.accept()
+            return
         if key == QtCore.Qt.Key.Key_Escape and self._rotation_drag_shape:
             self._finish_rotation_handle_drag()
             ev.accept()
@@ -5902,7 +6017,7 @@ class Canvas(
                         self.update()
                     elif len(self.current.points) == 1:
                         self.current = None
-                        self._brush_drawing = False
+                        self._brush_drawing = self._brush_polygon_mode
                         self.drawing_polygon.emit(False)
                         self.update()
             elif key == QtCore.Qt.Key.Key_Return and self.can_close_shape():
@@ -5911,6 +6026,7 @@ class Canvas(
                 self.snapping = False
         elif self.editing():
             if key == QtCore.Qt.Key.Key_Escape:
+                self._finish_keyboard_edit()
                 self.deselect_shape()
                 return
             if (
@@ -5921,6 +6037,27 @@ class Canvas(
                 self._set_vertex_eraser_tooltip()
                 ev.accept()
                 return
+            if modifiers & (
+                QtCore.Qt.KeyboardModifier.ControlModifier
+                | QtCore.Qt.KeyboardModifier.AltModifier
+                | QtCore.Qt.KeyboardModifier.MetaModifier
+            ):
+                self._finish_keyboard_edit()
+                return
+            edit_keys = (
+                QtCore.Qt.Key.Key_Up,
+                QtCore.Qt.Key.Key_Down,
+                QtCore.Qt.Key.Key_Left,
+                QtCore.Qt.Key.Key_Right,
+                QtCore.Qt.Key.Key_Z,
+                QtCore.Qt.Key.Key_X,
+                QtCore.Qt.Key.Key_C,
+                QtCore.Qt.Key.Key_V,
+            )
+            if key in edit_keys:
+                if self._keyboard_edit_key != key:
+                    self._finish_keyboard_edit()
+                self._keyboard_edit_key = key
             move_speed = MOVE_SPEED
             if self._active_group_shapes():
                 move_speed = (
@@ -5979,33 +6116,43 @@ class Canvas(
                 self.update()
             if modifiers == QtCore.Qt.KeyboardModifier.NoModifier:
                 self.snapping = True
-        elif self.editing():
-            # NOTE: Temporary fix to avoid ValueError
-            # when the selected shape is not in the shapes list
-            if (
-                (self.moving_shape or self.rotating_shape)
-                and self.selected_shapes
-                and self.selected_shapes[0] in self.shapes
-            ):
-                index = self.shapes.index(self.selected_shapes[0])
-                if (
-                    self.shapes_backups
-                    and index < len(self.shapes_backups[-1])
-                    and self.shapes_backups[-1][index].points
-                    != self.shapes[index].points
-                ):
-                    self.store_shapes()
-                    if self.moving_shape:
-                        self.shape_moved.emit()
-                    if self.rotating_shape:
-                        self.shape_rotated.emit()
+        elif (
+            self.editing()
+            and not ev.isAutoRepeat()
+            and key == self._keyboard_edit_key
+        ):
+            self._finish_keyboard_edit()
 
+    def _finish_keyboard_edit(self):
+        if self._keyboard_edit_key is None:
+            return
+        self._keyboard_edit_key = None
+        # NOTE: Temporary fix to avoid ValueError
+        # when the selected shape is not in the shapes list
+        if (
+            (self.moving_shape or self.rotating_shape)
+            and self.selected_shapes
+            and self.selected_shapes[0] in self.shapes
+        ):
+            selected = set(self.selected_shapes)
+            if self.shapes_backups and any(
+                index < len(self.shapes_backups[-1])
+                and self.shapes_backups[-1][index].points != shape.points
+                for index, shape in enumerate(self.shapes)
+                if shape in selected
+            ):
+                self.store_shapes()
                 if self.moving_shape:
-                    self.moving_shape = False
-                    self.update()
+                    self.shape_moved.emit()
                 if self.rotating_shape:
-                    self.rotating_shape = False
-                    self.update()
+                    self.shape_rotated.emit()
+
+            if self.moving_shape:
+                self.moving_shape = False
+                self.update()
+            if self.rotating_shape:
+                self.rotating_shape = False
+                self.update()
 
     def set_last_label(self, text, flags, group_id):
         """Set label and flags for last shape"""
@@ -6048,12 +6195,14 @@ class Canvas(
             self.line[0] = self.current[-1]
         else:
             self.current = None
-            self._brush_drawing = False
+            self._brush_drawing = self._brush_polygon_mode
             self.drawing_polygon.emit(False)
         self.update()
 
     def load_pixmap(self, pixmap, clear_shapes=True):
         """Load pixmap"""
+        self._finish_keyboard_edit()
+        self._cancel_box_selection()
         self.cancel_brush_mode()
         self._clear_magic_wand_preview()
         self._magic_wand_source = None
@@ -6065,6 +6214,8 @@ class Canvas(
 
     def load_shapes(self, shapes, replace=True):
         """Load shapes"""
+        self._finish_keyboard_edit()
+        self._cancel_box_selection()
         self.cancel_brush_mode()
         self._clear_magic_wand_preview()
         if replace:
@@ -6073,7 +6224,7 @@ class Canvas(
             self.shapes.extend(shapes)
         self.store_shapes()
         self.current = None
-        self._brush_drawing = False
+        self.set_brush_polygon_mode(False)
         self.h_shape = None
         self.h_vertex = None
         self.h_edge = None
@@ -6113,6 +6264,8 @@ class Canvas(
 
     def reset_state(self):
         """Clear shapes and pixmap"""
+        self._finish_keyboard_edit()
+        self._cancel_box_selection()
         if QtWidgets.QWidget.mouseGrabber() is self:
             self.releaseMouse()
         self._rotation_drag_shape = None
@@ -6134,6 +6287,7 @@ class Canvas(
         self.compare_pixmap = None
         self._selected_group_id = None
         self._hovered_group_id = None
+        self.set_brush_polygon_mode(False)
         self.update()
 
     def set_cross_line(self, show, width, color, opacity):

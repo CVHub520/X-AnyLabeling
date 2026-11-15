@@ -589,6 +589,9 @@ class LabelingWidget(LabelDialog):
         # Keep the brush-edit toggle in sync when the canvas exits brush
         # mode on its own (e.g. via a right-click).
         self.canvas.brush_mode_changed.connect(self.on_brush_mode_changed)
+        self.canvas.brush_polygon_mode_changed.connect(
+            self.on_brush_polygon_mode_changed
+        )
         self.canvas.brush_history_changed.connect(
             lambda can_undo: self.actions.undo.setEnabled(can_undo)
         )
@@ -904,6 +907,7 @@ class LabelingWidget(LabelDialog):
             shortcuts["create_brush_polygon"],
             "brush_polygon",
             self.tr("Toggle brush mode for drawing polygons"),
+            checkable=True,
             enabled=False,
         )
         create_magic_wand_mode = action(
@@ -4303,7 +4307,7 @@ class LabelingWidget(LabelDialog):
 
         self.canvas.set_editing(edit)
         self.canvas.create_mode = create_mode
-        self.canvas._brush_drawing = False
+        self.canvas.set_brush_polygon_mode(False)
         if edit:
             self.actions.create_mode.setEnabled(True)
             self.actions.create_brush_polygon_mode.setEnabled(True)
@@ -4362,14 +4366,16 @@ class LabelingWidget(LabelDialog):
         if (
             self.canvas.drawing()
             and self.canvas.create_mode == "polygon"
-            and self.canvas._brush_drawing
+            and self.canvas.is_brush_polygon_mode
         ):
             self.toggle_draw_mode(True)
             return
         self.toggle_draw_mode(False, create_mode="polygon")
-        self.canvas._brush_drawing = True
+        self.canvas.set_brush_polygon_mode(True)
         self.actions.create_mode.setEnabled(True)
-        self.actions.create_brush_polygon_mode.setEnabled(False)
+
+    def on_brush_polygon_mode_changed(self, enabled: bool) -> None:
+        self.actions.create_brush_polygon_mode.setChecked(enabled)
 
     def toggle_magic_wand_mode(self):
         """Toggle thresholded flood selection for polygon creation."""
@@ -6283,12 +6289,6 @@ class LabelingWidget(LabelDialog):
             self.actions.undo_last_point.setEnabled(False)
             self.actions.undo.setEnabled(True)
             self.set_dirty()
-            if (
-                self.canvas.drawing()
-                and self.canvas.create_mode == "polygon"
-                and not self.actions.create_brush_polygon_mode.isEnabled()
-            ):
-                self.canvas._brush_drawing = True
 
         else:
             if self.canvas.is_magic_wand_mode:
