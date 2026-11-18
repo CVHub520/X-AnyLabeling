@@ -18,7 +18,8 @@ X-AnyLabeling provides a powerful command-line interface for label format conver
     - [3.2 Show Detailed Help for a Specific Task](#32-show-detailed-help-for-a-specific-task)
     - [3.3 Run a Conversion Task](#33-run-a-conversion-task)
     - [3.4 Conversion Parameters](#34-conversion-parameters)
-- [4. FAQ](#4-faq)
+- [4. Headless Model Inference](#4-headless-model-inference)
+- [5. FAQ](#5-faq)
 
 ## 1. GUI Launch Options
 
@@ -306,7 +307,53 @@ Converting YOLO detect to XLABEL: 100%|█████████████�
 
 > For more details, refer to [Annotation Formats (Import/Export)](./user_guide.md#4-annotation-formats-importexport) in the user guide.
 
-## 4. FAQ
+## 4. Headless Model Inference
+
+The inference commands use X-AnyLabeling's registered model implementations
+without opening a desktop window or starting X-AnyLabeling-Server. They create
+unreviewed candidate annotations. Review and correct the output in the desktop
+application before treating any feature as approved.
+
+```bash
+# Discover installed model capabilities
+xanylabeling models list --task segmentation --json
+xanylabeling models info groundingdino_swint_sam2_large-r20240806 --json
+
+# Check dependencies, local weights, and the selected device without downloading
+xanylabeling models check groundingdino_swint_sam2_large-r20240806 --device cpu --json
+
+# Segment one image; repeat --prompt to make independent text queries
+xanylabeling segment --input ./generated/fox.png \
+  --model groundingdino_swint_sam2_large-r20240806 \
+  --prompt "fox" --prompt "mushroom" --output ./review-candidates --json
+
+# Process direct child images, or add --recursive to include subdirectories
+xanylabeling segment --input ./generated \
+  --model groundingdino_swint_sam2_large-r20240806 \
+  --prompt "fox" --output ./review-candidates --device cpu
+```
+
+`models check` is local-only and does not fetch missing model weights. A model
+must have its required files and dependencies before `segment` can run. Use
+`--model-config` instead of `--model` to specify a custom XAL model YAML file.
+Use `--marks-json` for point or rectangle prompts only when the model reports
+mark support. The CLI rejects unsupported prompt modes and confidence options.
+
+For each input, `segment` writes:
+
+- `annotations/<image-path>.json`: native XLABEL candidate annotations;
+- `masks/<image-path>/candidate-NNNN.png`: one binary, source-size mask per
+  predicted shape;
+- `candidates/<image-path>.candidates.json`: source hash, model/config/runtime
+  provenance, prompts, scores, and unreviewed candidate status.
+
+Directory processing has stable ordering and continues after per-image errors by
+default. The JSON result includes every input and returns a nonzero exit code if
+any image fails. Existing output files cause an error unless `--overwrite` is
+specified. `convert --task xlabel2mask` remains a format conversion for
+annotations that already exist; it does not run model inference.
+
+## 5. FAQ
 
 ### Q1: What is the XLABEL format?
 

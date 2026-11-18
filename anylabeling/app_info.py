@@ -12,6 +12,8 @@ CLI_HELP_MSG = """
         version           Show version information
         config            Show config file path
         convert           Run conversion tasks
+        models            List, inspect, or check auto-labeling models
+        segment           Run headless model inference and export candidates
 
     Launch Options:
         xanylabeling                                    Launch the GUI application
@@ -25,6 +27,15 @@ CLI_HELP_MSG = """
         xanylabeling convert                            List all conversion tasks
         xanylabeling convert --task <task>              Show help for a specific task
         xanylabeling convert --task <task> [options]    Run conversion
+
+    Headless Inference:
+        xanylabeling models list --task segmentation --json
+        xanylabeling models info <model-id> --json
+        xanylabeling models check <model-id> --device cpu --json
+        xanylabeling segment --input IMAGE --model <model-id> --prompt "fox" --output DIR --json
+
+    Inference outputs are unreviewed candidate XLABEL annotations, one mask
+    per candidate, and provenance metadata. They are not approved annotations.
 
     Examples:
         1. Launch the app:

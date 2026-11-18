@@ -18,7 +18,8 @@ X-AnyLabeling 提供命令行界面，用于启动图形界面、查询系统信
   - [3.2 显示特定任务的详细帮助](#32-显示特定任务的详细帮助)
   - [3.3 运行特定的转换任务](#33-运行特定的转换任务)
   - [3.4 转换参数说明](#34-转换参数说明)
-- [4. 常见问题](#4-常见问题)
+- [4. 无界面模型推理](#4-无界面模型推理)
+- [5. 常见问题](#5-常见问题)
 
 ## 1. 图形界面启动选项
 
@@ -306,7 +307,29 @@ Converting YOLO detect to XLABEL: 100%|█████████████�
 
 > 更多信息参见《用户手册》中的[标签导入导出](./user_guide.md#4-标签导入导出)。
 
-## 4. 常见问题
+## 4. 无界面模型推理
+
+以下命令调用 X-AnyLabeling 已注册的模型实现，不会打开桌面窗口，也不需要启动 X-AnyLabeling-Server。输出是**尚未审核的候选标注**；请在桌面应用中检查和修正后再作为已确认的 feature 使用。
+
+```bash
+# 查看分割模型和能力
+xanylabeling models list --task segmentation --json
+xanylabeling models info groundingdino_swint_sam2_large-r20240806 --json
+
+# 仅检查依赖、本地权重和设备，不下载权重
+xanylabeling models check groundingdino_swint_sam2_large-r20240806 --device cpu --json
+
+# 对单张图像运行分割；每个 --prompt 会执行一次独立文本查询
+xanylabeling segment --input ./generated/fox.png \
+  --model groundingdino_swint_sam2_large-r20240806 \
+  --prompt "fox" --output ./review-candidates --json
+```
+
+模型运行前必须已具备所需权重和依赖。自定义模型可使用 `--model-config`；仅在模型支持时才能使用 `--marks-json` 或 `--confidence`。批处理默认按稳定顺序继续处理，并在 JSON 结果中报告每张图像。目标文件已存在时会失败；确认替换时添加 `--overwrite`。
+
+每张输入图像会生成原生 XLABEL 标注、每个候选 shape 独立的同尺寸二值 PNG mask，以及包含源图 SHA-256、模型/配置/运行时信息、prompt、分数和未审核状态的候选 metadata。`convert --task xlabel2mask` 仍然只会从已有标注转换 mask，不会运行模型。
+
+## 5. 常见问题
 
 ### Q1：什么是 XLABEL 格式？
 
