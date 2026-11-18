@@ -381,11 +381,9 @@ def get_export_kwargs(export_format, end2end=None):
         from ultralytics.cfg import DEFAULT_CFG_DICT
 
         if "end2end" in DEFAULT_CFG_DICT:
-            raise ValueError(
-                "This export option requires the current Ultralytics nms API. "
-                "Please upgrade Ultralytics in the training environment."
-            )
-        kwargs["nms"] = False if end2end else None
+            kwargs["end2end"] = end2end
+        else:
+            kwargs["nms"] = False if end2end else None
     return kwargs
 
 
@@ -467,7 +465,7 @@ def load_payload(payload_path: str) -> dict:
             "options": {"auto_install_packages"},
         },
         "export": {
-            "args": {"format"},
+            "args": {"format", "end2end"},
             "paths": {"data_directory", "weights_path"},
             "options": {"auto_install_packages"},
         },

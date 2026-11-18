@@ -522,6 +522,8 @@ class ExportManager:
     ) -> None:
         if self.stop_event.is_set():
             return
+        if event_type == "environment_error":
+            event_type = "export_error"
         self.notify_callbacks(event_type, data)
 
     def _export_worker(

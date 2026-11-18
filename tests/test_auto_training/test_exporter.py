@@ -115,6 +115,17 @@ def test_stop_export_can_terminate_process_synchronously(monkeypatch):
     assert manager.stop_event.is_set()
 
 
+def test_external_export_reports_payload_errors():
+    manager = ExportManager()
+    events = []
+    manager.callbacks = [lambda event, data: events.append((event, data))]
+    data = {"error": "Unsupported export payload field in 'args'"}
+
+    manager._notify_external_export_event("environment_error", data)
+
+    assert events == [("export_error", data)]
+
+
 def test_stopped_export_ignores_late_worker_events():
     manager = ExportManager()
     events = []

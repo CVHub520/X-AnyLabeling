@@ -14,6 +14,21 @@ from anylabeling.services.auto_training.ultralytics.environment import (
 )
 
 
+@pytest.mark.parametrize("end2end", [None, True, False])
+def test_export_payload_accepts_end2end(tmp_path, end2end):
+    payload = {
+        "version": worker.PROTOCOL_VERSION,
+        "action": "export",
+        "args": {"format": "onnx", "end2end": end2end},
+        "paths": {"weights_path": str(tmp_path / "best.pt")},
+        "options": {"auto_install_packages": False},
+    }
+    path = tmp_path / "payload.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    assert worker.load_payload(str(path)) == payload
+
+
 def test_export_dependency_packages_are_internal_whitelist():
     assert "onnx" in worker.EXPORT_DEPENDENCIES
     assert "torchscript" in worker.EXPORT_DEPENDENCIES
@@ -383,16 +398,14 @@ def test_export_accepts_directory_output(monkeypatch, tmp_path):
 
 @pytest.mark.parametrize("legacy", [True, False])
 @pytest.mark.parametrize("end2end", [None, True, False])
-def test_export_end2end_uses_current_nms_api(monkeypatch, legacy, end2end):
+def test_export_end2end_uses_supported_api(monkeypatch, legacy, end2end):
     cfg = ModuleType("ultralytics.cfg")
     cfg.DEFAULT_CFG_DICT = {"end2end": None} if legacy else {"nms": None}
     monkeypatch.setitem(sys.modules, "ultralytics.cfg", cfg)
-    if legacy and end2end is not None:
-        with pytest.raises(ValueError, match="upgrade Ultralytics"):
-            worker.get_export_kwargs("onnx", end2end)
-        return
     kwargs = worker.get_export_kwargs("onnx", end2end)
     if end2end is None:
         assert kwargs == {"format": "onnx"}
+    elif legacy:
+        assert kwargs == {"format": "onnx", "end2end": end2end}
     else:
         assert kwargs == {"format": "onnx", "nms": False if end2end else None}
