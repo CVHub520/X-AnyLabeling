@@ -9,6 +9,7 @@ import pytest
 from PyQt6 import QtCore, QtGui, QtTest, QtWidgets
 
 from anylabeling import config as app_config
+from anylabeling.resources import resources
 from anylabeling.views.labeling.settings.schema import load_template_config
 from anylabeling.views.mainwindow import MainWindow
 
