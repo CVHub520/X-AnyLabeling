@@ -373,6 +373,80 @@ class TestLabelConverterYoloRoundTrip(unittest.TestCase):
             )
         self.assertFalse(os.path.exists(imported_file))
 
+
+class TestLabelConverterCocoExport(unittest.TestCase):
+
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp_dir.cleanup)
+        classes_file = os.path.join(self.temp_dir.name, "classes.txt")
+        with open(classes_file, "w", encoding="utf-8") as f:
+            f.write("person\ncar\n")
+
+        self.converter = LabelConverter(classes_file=classes_file)
+
+    def _write_label(self, name, shapes):
+        label_file = os.path.join(self.temp_dir.name, name + ".json")
+        with open(label_file, "w", encoding="utf-8") as f:
+            json.dump(
+                {"imageWidth": 100, "imageHeight": 50, "shapes": shapes}, f
+            )
+
+    def _box(self, label, x1, y1, x2, y2):
+        return {
+            "label": label,
+            "shape_type": "rectangle",
+            "points": [[x1, y1], [x2, y1], [x2, y2], [x1, y2]],
+        }
+
+    def _export(self, image_names):
+        # custom_to_coco writes coco_detection.json into the output folder
+        self.converter.custom_to_coco(
+            image_names, self.temp_dir.name, self.temp_dir.name, "rectangle"
+        )
+        output_file = os.path.join(self.temp_dir.name, "coco_detection.json")
+        with open(output_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_export_writes_bbox_as_top_left_width_height(self):
+        self._write_label("a", [
+            self._box("person", 10, 5, 30, 45),
+            self._box("car", 55, 12, 95, 38),
+        ])
+        self._write_label("b", [self._box("car", 20, 10, 60, 30)])
+
+        coco = self._export(["a.jpg", "b.jpg"])
+
+        self.assertEqual(len(coco["images"]), 2)
+        self.assertEqual(len(coco["annotations"]), 3)
+        bboxes = [ann["bbox"] for ann in coco["annotations"]]
+        self.assertEqual(
+            bboxes, [[10, 5, 20, 40], [55, 12, 40, 26], [20, 10, 40, 20]]
+        )
+        areas = [ann["area"] for ann in coco["annotations"]]
+        self.assertEqual(areas, [800, 1040, 800])
+
+    def test_export_category_ids_match_class_names(self):
+        self._write_label("a", [
+            self._box("person", 10, 5, 30, 45),
+            self._box("car", 55, 12, 95, 38),
+        ])
+
+        coco = self._export(["a.jpg"])
+
+        names = {cat["id"]: cat["name"] for cat in coco["categories"]}
+        self.assertEqual(names, {1: "person", 2: "car"})
+        labels = [names[ann["category_id"]] for ann in coco["annotations"]]
+        self.assertEqual(labels, ["person", "car"])
+
+    def test_export_clamps_box_past_image_edge(self):
+        self._write_label("a", [self._box("car", 60, 30, 120, 70)])
+
+        coco = self._export(["a.jpg"])
+
+        self.assertEqual(coco["annotations"][0]["bbox"], [60, 30, 39, 19])
+
+
 class TestLabelConverterMaskExport(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
