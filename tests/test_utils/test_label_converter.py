@@ -283,6 +283,96 @@ class TestLabelConverterYoloExport(unittest.TestCase):
         self.assertEqual(output, "0 0.0 0.0 0.99 0.0 0.99 0.98\n")
 
 
+class TestLabelConverterYoloRoundTrip(unittest.TestCase):
+
+    def setUp(self):
+
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp_dir.cleanup)
+        classes_file = os.path.join(self.temp_dir.name, "classes.txt")
+
+        with open(classes_file, "w", encoding="utf-8") as f:
+            f.write("person\ncar\n")
+
+        self.image_file = os.path.join(self.temp_dir.name, "image.jpg")
+        # yolo_to_custom opens the image to get its size
+        Image.new("RGB", (100, 50)).save(self.image_file)
+        self.converter = LabelConverter(classes_file=classes_file)
+
+    def _round_trip(self, shapes):
+
+        label_file = os.path.join(self.temp_dir.name, "image.json")
+        yolo_file = os.path.join(self.temp_dir.name, "image.txt")
+        imported_file = os.path.join(self.temp_dir.name, "imported.json")
+
+        with open(label_file, "w", encoding="utf-8") as f:
+            json.dump({
+                "imagePath": "image.jpg",
+                "imageWidth": 100,
+                "imageHeight": 50,
+                "shapes": shapes,
+            }, f,)
+
+        self.converter.custom_to_yolo(label_file, yolo_file, "hbb")
+        self.converter.yolo_to_custom(yolo_file, imported_file, self.image_file, "hbb")
+
+        with open(imported_file, "r", encoding="utf-8") as f:
+            return json.load(f)["shapes"]
+
+    def _box(self, label, x1, y1, x2, y2):
+        return {
+            "label": label,
+            "shape_type": "rectangle",
+            "points": [[x1, y1], [x2, y1], [x2, y2], [x1, y2]],
+        }
+
+    def _assert_same_boxes(self, expected, actual):
+        self.assertEqual(len(actual), len(expected))
+        for exp, act in zip(expected, actual):
+            self.assertEqual(act["label"], exp["label"])
+            self.assertEqual(act["shape_type"], "rectangle")
+            # YOLO rounds to 6 decimals, so compare with a small tolerance
+            for exp_pt, act_pt in zip(exp["points"], act["points"]):
+                self.assertAlmostEqual(act_pt[0], exp_pt[0], delta=0.01)
+                self.assertAlmostEqual(act_pt[1], exp_pt[1], delta=0.01)
+
+    def test_round_trip_keeps_labels_and_boxes(self):
+        shapes = [
+            self._box("person", 10, 5, 30, 45),
+            self._box("car", 55, 12, 95, 38),
+        ]
+        imported = self._round_trip(shapes)
+        self._assert_same_boxes(shapes, imported)
+
+    def test_round_trip_keeps_box_on_top_left_edge(self):
+        shapes = [
+            self._box("car", 0, 0, 40, 20)
+        ]
+        imported = self._round_trip(shapes)
+        self._assert_same_boxes(shapes, imported)
+
+    def test_round_trip_moves_right_bottom_edge_to_last_pixel(self):
+        shapes = [
+            self._box("car", 60, 30, 100, 50)
+        ]
+        imported = self._round_trip(shapes)
+        expected = [self._box("car", 60, 30, 99, 49)]
+        self._assert_same_boxes(expected, imported)
+
+
+    def test_import_with_unknown_class_raises_error(self):
+        yolo_file = os.path.join(self.temp_dir.name, "bad.txt")
+        with open(yolo_file, "w", encoding="utf-8") as f:
+            f.write("5 0.5 0.5 0.2 0.2\n")
+
+        imported_file = os.path.join(self.temp_dir.name, "bad.json")
+
+        with self.assertRaises(IndexError):
+            self.converter.yolo_to_custom(
+                yolo_file, imported_file, self.image_file, "hbb"
+            )
+        self.assertFalse(os.path.exists(imported_file))
+
 class TestLabelConverterMaskExport(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
