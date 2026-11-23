@@ -1,5 +1,8 @@
 import os
+from pathlib import Path
 from types import SimpleNamespace
+
+import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -621,6 +624,44 @@ def test_basic_settings_adds_editable_project_and_environment():
     assert not dialog.config_widgets["project"].isReadOnly()
     assert dialog.config_widgets["env"].text() == "/training/python"
     host.close()
+
+
+@pytest.mark.parametrize(
+    ("initial", "expected"),
+    [
+        ("custom", "custom"),
+        ("detect", "segment"),
+        ("", "segment"),
+        (" ", "segment"),
+    ],
+)
+def test_next_preserves_custom_training_project(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    initial: str,
+    expected: str,
+) -> None:
+    """Keep a custom project when Next opens the training settings."""
+    paths = [str(tmp_path / initial) if initial.strip() else initial]
+    project = SimpleNamespace(text=lambda: paths[-1], setText=paths.append)
+    monkeypatch.setattr(
+        "anylabeling.views.training.ultralytics_dialog.get_default_project_dir",
+        lambda: str(tmp_path),
+    )
+    tabs = []
+    dialog = SimpleNamespace(
+        selected_task_type="Segment",
+        image_list=[],
+        output_dir=None,
+        ensure_config_tab_initialized=lambda: None,
+        config_widgets={"project": project},
+        go_to_specific_tab=tabs.append,
+    )
+
+    UltralyticsDialog.proceed_to_config(dialog)
+
+    assert paths[-1] == str(tmp_path / expected)
+    assert tabs == [1]
 
 
 def test_configuring_environment_updates_training_and_export_managers():

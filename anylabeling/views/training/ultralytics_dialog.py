@@ -36,6 +36,7 @@ from anylabeling.views.labeling.utils.theme import get_theme
 from anylabeling.views.training.widgets.ultralytics_widgets import *
 from anylabeling.services.auto_training.ultralytics._io import *
 from anylabeling.services.auto_training.ultralytics.config import *
+from anylabeling.services.auto_training.ultralytics.config import TASK_TYPES
 from anylabeling.services.auto_training.ultralytics.exporter import (
     ExportEventRedirector,
     ExportLogRedirector,
@@ -593,10 +594,16 @@ class UltralyticsDialog(QDialog):
             return
 
         self.ensure_config_tab_initialized()
-        project = os.path.join(
-            get_default_project_dir(), self.selected_task_type.lower()
-        )
-        self.config_widgets["project"].setText(project)
+        project = self.config_widgets["project"]
+        current = project.text().strip()
+        default_dir = get_default_project_dir()
+        if not current or any(
+            current == os.path.join(default_dir, task.lower())
+            for task in TASK_TYPES
+        ):
+            project.setText(
+                os.path.join(default_dir, self.selected_task_type.lower())
+            )
 
         self.go_to_specific_tab(1)
 
