@@ -71,15 +71,32 @@ def resolve_prepared_dataset(data_file: str) -> tuple[str | None, str]:
         normalized = True
 
     for split in ("train", "val"):
-        split_path = data.get(split)
-        if not isinstance(split_path, str) or not split_path.strip():
+        split_value = data.get(split)
+        if split_value is None:
             return None, f"Dataset YAML must define '{split}': {data_file}"
-        split_path = os.path.expanduser(os.path.expandvars(split_path))
-        if not os.path.isabs(split_path):
-            split_path = os.path.join(dataset_root, split_path)
-        if not os.path.isdir(split_path):
+        split_paths = (
+            split_value if isinstance(split_value, list) else [split_value]
+        )
+        if not split_paths or not all(
+            isinstance(split_path, str) and split_path.strip()
+            for split_path in split_paths
+        ):
+            return (
+                None,
+                f"Dataset YAML '{split}' must be a path or a list of paths: "
+                f"{data_file}",
+            )
+        mapped_paths = list(split_paths)
+        for index, split_path in enumerate(split_paths):
+            split_path = os.path.expanduser(os.path.expandvars(split_path))
+            if not os.path.isabs(split_path):
+                split_path = os.path.join(dataset_root, split_path)
+            if os.path.isdir(split_path) or os.path.isfile(split_path):
+                continue
             mapped_split = _map_wsl_absolute_path(split_path, wsl_root)
-            if not mapped_split or not os.path.isdir(mapped_split):
+            if not mapped_split or not (
+                os.path.isdir(mapped_split) or os.path.isfile(mapped_split)
+            ):
                 checked_path = (
                     f"; also checked: {mapped_split}" if mapped_split else ""
                 )
@@ -88,9 +105,14 @@ def resolve_prepared_dataset(data_file: str) -> tuple[str | None, str]:
                     f"Dataset split '{split}' does not exist: "
                     f"{split_path}{checked_path}",
                 )
-            split_path = mapped_split
-            normalized_data[split] = mapped_split
+            mapped_paths[index] = mapped_split
             normalized = True
+        if mapped_paths != split_paths:
+            normalized_data[split] = (
+                mapped_paths
+                if isinstance(split_value, list)
+                else mapped_paths[0]
+            )
 
     if not normalized:
         return data_file, ""
