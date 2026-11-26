@@ -13,7 +13,6 @@ from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .model import Model
 from .types import AutoLabelingResult
 from .utils.ppocr_utils.text_system import TextSystem
-from ...views.labeling.utils.general import is_possible_rectangle
 
 
 class Args:
@@ -277,7 +276,13 @@ class PPOCRv4(Model):
             score = res["score"]
             points = res["points"]
             description = res["description"]
-            if is_possible_rectangle(points):
+            if (
+                len(points) == 4
+                and points[0][1] == points[1][1]
+                and points[1][0] == points[2][0]
+                and points[2][1] == points[3][1]
+                and points[3][0] == points[0][0]
+            ):
                 shape_type = "rectangle"
             elif len(points) == 4:
                 shape_type = "quadrilateral"
