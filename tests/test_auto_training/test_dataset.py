@@ -1,3 +1,4 @@
+import re
 from types import SimpleNamespace
 
 import pytest
@@ -85,7 +86,7 @@ def test_dataset_preparation_reports_invalid_yaml_path(tmp_path):
     data_path = tmp_path / "data.yaml"
     data_path.write_text("", encoding="utf-8")
 
-    with pytest.raises(ValueError, match=str(data_path)):
+    with pytest.raises(ValueError, match=re.escape(str(data_path))):
         create_yolo_dataset([], "Detect", 0.8, str(data_path))
 
 
@@ -440,3 +441,97 @@ def test_training_logs_data_source_before_preparation(
     UltralyticsDialog.start_training_from_train_tab(dialog)
 
     assert logs[: len(expected_logs)] == expected_logs
+
+
+@pytest.mark.parametrize(
+    "contents",
+    [
+        "names: [cat]\npath: missing\ntrain: [a, b]\nval: c\n",
+        "names: [cat]\ntrain: []\n",
+        "names: [cat]\nval: null\n",
+        "names: [cat]\ntest: missing\n",
+        "[invalid]\n",
+    ],
+)
+def test_invalid_custom_dataset_never_builds_snapshot(
+    tmp_path, monkeypatch, contents
+):
+    data_path = tmp_path / "data.yaml"
+    data_path.write_text(contents, encoding="utf-8")
+    dialog = SimpleNamespace(
+        selected_task_type="Detect", image_list=["image.jpg"]
+    )
+    dialog._uses_existing_dataset = (
+        lambda path: UltralyticsDialog._uses_existing_dataset(dialog, path)
+    )
+    dialog.append_training_log = lambda _message: None
+    monkeypatch.setattr(
+        "anylabeling.views.training.ultralytics_dialog.create_yolo_dataset",
+        lambda *_args, **_kwargs: pytest.fail(
+            "invalid dataset fell back to snapshot"
+        ),
+    )
+
+    with pytest.raises(
+        ValueError, match="dataset YAML|Dataset YAML|Dataset path"
+    ):
+        UltralyticsDialog.get_training_args(
+            dialog, {"basic": {"data": str(data_path)}}
+        )
+
+
+def test_names_only_yaml_keeps_snapshot_mode(tmp_path):
+    data_path = tmp_path / "data.yaml"
+    data_path.write_text("names: [cat]\n", encoding="utf-8")
+    dialog = SimpleNamespace(selected_task_type="Detect")
+
+    assert not UltralyticsDialog._uses_existing_dataset(dialog, str(data_path))
+
+
+def test_start_training_reports_invalid_dataset_with_loaded_images(
+    tmp_path, monkeypatch
+):
+    data_path = tmp_path / "data.yaml"
+    data_path.write_text("names: [cat]\npath: missing\n", encoding="utf-8")
+    messages = []
+    dialog = SimpleNamespace(
+        selected_task_type="Detect",
+        training_status="idle",
+        environment_ready=True,
+        image_list=["image.jpg"],
+        get_current_config=lambda: {"basic": {"data": str(data_path)}},
+        configure_training_environment=lambda _env: None,
+        tr=lambda text: text,
+        append_training_log=messages.append,
+    )
+    dialog._uses_existing_dataset = (
+        lambda path: UltralyticsDialog._uses_existing_dataset(dialog, path)
+    )
+    monkeypatch.setattr(
+        "anylabeling.views.training.ultralytics_dialog.QMessageBox.warning",
+        lambda _parent, _title, message: messages.append(message),
+    )
+
+    UltralyticsDialog.start_training(dialog)
+
+    assert len(messages) == 2
+    assert all(
+        "Dataset path does not exist" in message for message in messages
+    )
+
+
+def test_get_training_args_stops_when_dataset_disappears(monkeypatch):
+    dialog = SimpleNamespace(
+        selected_task_type="Detect",
+        _uses_existing_dataset=lambda _path: True,
+        append_training_log=lambda _message: None,
+    )
+    monkeypatch.setattr(
+        "anylabeling.views.training.ultralytics_dialog.resolve_prepared_dataset",
+        lambda _path: (None, "Dataset split 'train' does not exist: missing"),
+    )
+
+    with pytest.raises(ValueError, match="does not exist"):
+        UltralyticsDialog.get_training_args(
+            dialog, {"basic": {"data": "data.yaml"}}
+        )

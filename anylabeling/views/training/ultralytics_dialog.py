@@ -50,10 +50,10 @@ from anylabeling.services.auto_training.ultralytics.environment import (
     resolve_training_data_directory,
     resolve_training_python,
 )
+from anylabeling.services.auto_training.ultralytics._io import load_yaml_config
 from anylabeling.services.auto_training.ultralytics.general import (
     create_yolo_dataset,
     format_classes_display,
-    is_prepared_dataset,
     parse_string_to_digit_list,
     resolve_prepared_dataset,
 )
@@ -1562,9 +1562,17 @@ class UltralyticsDialog(QDialog):
             )
 
     def _uses_existing_dataset(self, data_path):
-        return (
-            self.selected_task_type == "Classify" and os.path.isdir(data_path)
-        ) or is_prepared_dataset(data_path)
+        if self.selected_task_type == "Classify" and os.path.isdir(data_path):
+            return True
+        resolved_path, error = resolve_prepared_dataset(data_path)
+        if resolved_path:
+            return True
+        data = load_yaml_config(data_path)
+        if not isinstance(data, dict) or any(
+            key in data for key in ("path", "train", "val", "test")
+        ):
+            raise ValueError(error)
+        return False
 
     def start_training(self):
         if self.training_status == "training":
@@ -1587,7 +1595,12 @@ class UltralyticsDialog(QDialog):
             return
 
         data_path = config["basic"].get("data", "").strip()
-        existing_dataset = self._uses_existing_dataset(data_path)
+        try:
+            existing_dataset = self._uses_existing_dataset(data_path)
+        except ValueError as error:
+            QMessageBox.warning(self, self.tr("Validation Error"), str(error))
+            self.append_training_log(f"Validation Error: {error}")
+            return
         if not (
             self.selected_task_type == "Classify" and os.path.isdir(data_path)
         ):
@@ -2266,9 +2279,10 @@ class UltralyticsDialog(QDialog):
                 else:
                     data_path = os.path.join(temp_dir, "data.yaml")
             elif self.selected_task_type != "Classify":
-                resolved_data_path, _ = resolve_prepared_dataset(data_path)
-                if resolved_data_path:
-                    data_path = resolved_data_path
+                resolved_data_path, error = resolve_prepared_dataset(data_path)
+                if not resolved_data_path:
+                    raise ValueError(error)
+                data_path = resolved_data_path
 
             device_value = config["basic"]["device"]
             if device_value == "cuda" and hasattr(self, "device_checkboxes"):
