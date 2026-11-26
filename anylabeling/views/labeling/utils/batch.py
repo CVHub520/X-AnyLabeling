@@ -419,6 +419,16 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
             new_flags = None
             replace = True
         else:
+            if (
+                self._config.get("canvas", {})
+                .get("rotation", {})
+                .get("reset_out_of_bounds", False)
+            ):
+                image_width, image_height = get_image_size(image_file)
+                for shape in auto_labeling_result.shapes:
+                    shape.reset_rotation_within_bounds(
+                        image_width, image_height
+                    )
             new_shapes = [
                 shape.to_dict() for shape in auto_labeling_result.shapes
             ]

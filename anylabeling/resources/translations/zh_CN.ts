@@ -7842,6 +7842,14 @@ The main application remains available.</source>
   <context>
     <name>SettingsDialog</name>
     <message>
+      <source>Reset Out-of-Bounds Rotation Boxes</source>
+      <translation>将越界旋转框重置到图像内</translation>
+    </message>
+    <message>
+      <source>Reset rotation boxes outside the image to axis-aligned rotation boxes within the image.</source>
+      <translation>将超出图像边界的旋转框重置为图像内的 0° 旋转框。</translation>
+    </message>
+    <message>
       <source>Number of images to skip when navigating.</source>
       <translation>设置每次跳转的图片数量。</translation>
     </message>

@@ -121,7 +121,11 @@ class ImageTagsLabelingWidgetTest(unittest.TestCase):
             image=True,
             image_path="/tmp/image.png",
             filename="/tmp/image.png",
-            canvas=SimpleNamespace(shapes=[], relations=[]),
+            canvas=SimpleNamespace(
+                shapes=[],
+                relations=[],
+                reset_rotation_within_bounds=mock.Mock(),
+            ),
             label_list=mock.Mock(),
             load_shapes=mock.Mock(),
             other_data=other_data,

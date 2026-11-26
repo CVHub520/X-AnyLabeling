@@ -1134,6 +1134,21 @@ def _non_shortcut_fields() -> list[SettingField]:
             ),
         ),
         SettingField(
+            "canvas.rotation.reset_out_of_bounds",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Reset Out-of-Bounds Rotation Boxes",
+            ),
+            "bool",
+            "Canvas",
+            "Rotation",
+            "Basic",
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Reset rotation boxes outside the image to axis-aligned rotation boxes within the image.",
+            ),
+        ),
+        SettingField(
             "canvas.rotation.large_increment",
             QT_TRANSLATE_NOOP(SETTINGS_TRANSLATION_CONTEXT, "Large Increment"),
             "float",

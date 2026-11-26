@@ -281,3 +281,152 @@ def test_freehand_polygon_collects_outside_points_before_finishing(canvas):
     assert_points(
         canvas.shapes[0].points, [(20, 20), (100, 52), (100, 62), (20, 70)]
     )
+
+
+@pytest.mark.parametrize("enabled", [False, True])
+def test_rotation_boundary_reset_on_rotate(canvas, enabled):
+    canvas.reset_out_of_bounds_rotation = enabled
+    shape = Shape(shape_type="rotation")
+    shape.points = [
+        QtCore.QPointF(x, y) for x, y in [(0, 20), (30, 20), (30, 60), (0, 60)]
+    ]
+    shape.close()
+    canvas.shapes = [shape]
+    canvas.store_shapes()
+    canvas.bounded_rotate_shapes(0, shape, math.pi / 4)
+    assert any(canvas.out_off_pixmap(p) for p in shape.points)
+    assert shape.direction == pytest.approx(7 * math.pi / 4)
+    canvas._rotation_drag_shape = shape
+    canvas.rotating_shape = True
+    release_rotation(canvas)
+    assert any(canvas.out_off_pixmap(p) for p in shape.points) is not enabled
+    assert shape.shape_type == "rotation"
+    if enabled:
+        assert shape.direction == 0
+        assert shape.center == (shape.points[0] + shape.points[2]) / 2
+        assert shape.points[0].y() == shape.points[1].y()
+        assert shape.points[1].x() == shape.points[2].x()
+    else:
+        assert shape.direction == pytest.approx(7 * math.pi / 4)
+
+
+@pytest.mark.parametrize(
+    "offset", [(-30, 0), (90, 0), (0, -50), (0, 70), (200, 200)]
+)
+def test_rotation_boundary_reset_on_move(canvas, offset):
+    canvas.reset_out_of_bounds_rotation = True
+    shape = Shape(shape_type="rotation", direction=math.pi / 4)
+    shape.points = [
+        QtCore.QPointF(x, y)
+        for x, y in [(20, 20), (40, 40), (20, 60), (0, 40)]
+    ]
+    shape.close()
+    canvas.shapes = canvas.selected_shapes = [shape]
+    canvas.store_shapes()
+    canvas.prev_point = QtCore.QPointF()
+    canvas.bounded_move_shapes([shape], QtCore.QPointF(*offset))
+    assert any(canvas.out_off_pixmap(p) for p in shape.points)
+    assert shape.direction == math.pi / 4
+    canvas.moving_shape = True
+    release_rotation(canvas)
+    assert all(not canvas.out_off_pixmap(p) for p in shape.points)
+    assert shape.direction == 0
+    assert shape.points[0].x() < shape.points[1].x()
+    assert shape.points[0].y() < shape.points[3].y()
+
+
+def test_rotation_boundary_preserves_in_bounds_and_other_shapes(canvas):
+    canvas.reset_out_of_bounds_rotation = True
+    for shape_type in ("rotation", "polygon", "rectangle"):
+        shape = Shape(shape_type=shape_type, direction=math.pi / 4)
+        points = [(20, 20), (40, 40), (20, 60), (0, 40)]
+        if shape_type != "rotation":
+            points[0] = (-10, 20)
+        shape.points = [QtCore.QPointF(x, y) for x, y in points]
+        canvas.reset_rotation_within_bounds(shape)
+        assert_points(shape.points, points)
+        assert shape.direction == math.pi / 4
+
+
+def test_rotation_boundary_reset_on_resize(canvas):
+    canvas.reset_out_of_bounds_rotation = True
+    shape = Shape(shape_type="rotation", direction=math.pi / 4)
+    shape.points = [
+        QtCore.QPointF(x, y)
+        for x, y in [(20, 20), (40, 40), (20, 60), (0, 40)]
+    ]
+    shape.close()
+    canvas.shapes = [shape]
+    canvas.store_shapes()
+    canvas.h_shape, canvas.h_vertex = shape, 0
+    canvas.bounded_move_vertex(QtCore.QPointF(-20, -20))
+    assert any(canvas.out_off_pixmap(p) for p in shape.points)
+    assert shape.direction == math.pi / 4
+    canvas.moving_shape = True
+    release_rotation(canvas)
+    assert all(not canvas.out_off_pixmap(p) for p in shape.points)
+    assert shape.direction == 0
+
+
+def release_rotation(canvas):
+    canvas.mouseReleaseEvent(
+        QtGui.QMouseEvent(
+            QtCore.QEvent.Type.MouseButtonRelease,
+            QtCore.QPointF(),
+            QtCore.QPointF(),
+            QtCore.Qt.MouseButton.LeftButton,
+            QtCore.Qt.MouseButton.NoButton,
+            QtCore.Qt.KeyboardModifier.NoModifier,
+        )
+    )
+
+
+def test_rotation_drag_back_inside_does_not_reset(canvas):
+    canvas.reset_out_of_bounds_rotation = True
+    shape = Shape(shape_type="rotation", direction=math.pi / 4)
+    shape.points = [
+        QtCore.QPointF(x, y)
+        for x, y in [(20, 20), (40, 40), (20, 60), (0, 40)]
+    ]
+    original = list(shape.points)
+    canvas.shapes = canvas.selected_shapes = [shape]
+    canvas.store_shapes()
+    canvas.prev_point = QtCore.QPointF()
+    canvas.bounded_move_shapes([shape], QtCore.QPointF(-30, 0))
+    canvas.bounded_move_shapes([shape], QtCore.QPointF())
+    canvas.moving_shape = True
+    release_rotation(canvas)
+    assert shape.points == original
+    assert shape.direction == math.pi / 4
+    assert len(canvas.shapes_backups) == 1
+
+
+def test_keyboard_rotation_resets_only_on_final_release(canvas):
+    canvas.set_editing(True)
+    canvas.reset_out_of_bounds_rotation = True
+    shape = Shape(shape_type="rotation")
+    shape.points = [
+        QtCore.QPointF(x, y) for x, y in [(0, 20), (30, 20), (30, 60), (0, 60)]
+    ]
+    canvas.shapes = canvas.selected_shapes = [shape]
+    canvas.store_shapes()
+    original = list(shape.points)
+    key = QtCore.Qt.Key.Key_Z
+    canvas._keyboard_edit_key = key
+    canvas.rotate_by_keyboard(math.pi / 4)
+    for repeat in (True, False):
+        canvas.keyReleaseEvent(
+            QtGui.QKeyEvent(
+                QtCore.QEvent.Type.KeyRelease,
+                key,
+                QtCore.Qt.KeyboardModifier.NoModifier,
+                "",
+                repeat,
+            )
+        )
+        assert any(canvas.out_off_pixmap(p) for p in shape.points) is repeat
+    assert shape.direction == 0
+    assert len(canvas.shapes_backups) == 2
+    assert canvas.shapes_backups[-1][0].points == shape.points
+    canvas.restore_shape()
+    assert canvas.shapes[0].points == original

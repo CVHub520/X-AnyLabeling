@@ -7877,6 +7877,14 @@ The main application remains available.</source>
   <context>
     <name>SettingsDialog</name>
     <message>
+      <source>Reset Out-of-Bounds Rotation Boxes</source>
+      <translation>이미지 밖의 회전 상자를 이미지 안으로 재설정</translation>
+    </message>
+    <message>
+      <source>Reset rotation boxes outside the image to axis-aligned rotation boxes within the image.</source>
+      <translation>이미지 경계를 벗어난 회전 상자를 이미지 안에 들어오는 0° 회전 상자로 재설정합니다.</translation>
+    </message>
+    <message>
       <source>Number of images to skip when navigating.</source>
       <translation>이동할 이미지 수를 설정합니다.</translation>
     </message>

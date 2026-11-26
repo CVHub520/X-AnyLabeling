@@ -7899,6 +7899,8 @@ class LabelingWidget(LabelDialog):
             and auto_labeling_result.replace is False
             and not auto_labeling_result.description
         )
+        for shape in auto_labeling_result.shapes:
+            self.canvas.reset_rotation_within_bounds(shape)
         annotations_changed = bool(auto_labeling_result.shapes)
 
         # Clear existing shapes

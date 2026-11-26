@@ -118,6 +118,7 @@ canvas:
     border_color: [110, 114, 120, 255]
     text_color: [240, 242, 245, 255]
   rotation:
+    reset_out_of_bounds: false
     large_increment: 1.0  # degrees, corresponds to Z/V keys
     small_increment: 0.1  # degrees, corresponds to X/C keys
   brush:

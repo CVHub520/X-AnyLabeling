@@ -126,6 +126,9 @@ class Canvas(
         self.auto_highlight_shape = kwargs.pop("auto_highlight_shape", False)
         self.attributes_config = kwargs.pop("attributes", {})
         self.rotation_config = kwargs.pop("rotation", {})
+        self.reset_out_of_bounds_rotation = self.rotation_config.get(
+            "reset_out_of_bounds", False
+        )
         self.mask_config = kwargs.pop("mask", {})
         self.brush_config = kwargs.pop("brush", {})
         self.magic_wand_config = kwargs.pop("magic_wand", {})
@@ -452,6 +455,9 @@ class Canvas(
                 else self.selected_shapes.copy()
             )
             for shape in moving_shapes:
+                if shape in self.shapes and not shape.locked:
+                    self.reset_rotation_within_bounds(shape)
+            for shape in moving_shapes:
                 if shape in self.shapes:
                     index = self.shapes.index(shape)
                     if (
@@ -501,6 +507,12 @@ class Canvas(
             QtCore.QPointF(clipped_min_x, clipped_max_y),
         ]
         return True
+
+    def reset_rotation_within_bounds(self, shape):
+        if self.reset_out_of_bounds_rotation and self.pixmap is not None:
+            shape.reset_rotation_within_bounds(
+                self.pixmap.width(), self.pixmap.height()
+            )
 
     def clip_rotation_to_pixmap(self, shape):
         """Clip an axis-aligned rotation shape's bounding box to pixmap boundaries.
@@ -2052,6 +2064,7 @@ class Canvas(
     def _store_rotated_shape(self, shape):
         if shape is None or shape not in self.shapes:
             return
+        self.reset_rotation_within_bounds(shape)
         index = self.shapes.index(shape)
         if (
             self.shapes_backups
@@ -3291,6 +3304,8 @@ class Canvas(
         else:
             for i, shape in enumerate(self.selected_shapes_copy):
                 self.selected_shapes[i].points = shape.points
+        for shape in self.selected_shapes:
+            self.reset_rotation_within_bounds(shape)
         self.selected_shapes_copy = []
         self.repaint()
         self.store_shapes()
@@ -5557,6 +5572,7 @@ class Canvas(
                 self.update()
                 return
         elif self.current.shape_type == "rotation":
+            self.reset_rotation_within_bounds(self.current)
             if not self.clip_rotation_to_pixmap(self.current):
                 self.current = None
                 self.set_hiding(False)
@@ -6170,6 +6186,9 @@ class Canvas(
             and self.selected_shapes
             and self.selected_shapes[0] in self.shapes
         ):
+            for shape in self.selected_shapes:
+                if not shape.locked:
+                    self.reset_rotation_within_bounds(shape)
             selected = set(self.selected_shapes)
             if self.shapes_backups and any(
                 index < len(self.shapes_backups[-1])

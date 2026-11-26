@@ -418,6 +418,9 @@ class SettingsRuntimeApplier:
 
     def apply_canvas_rotation(self) -> None:
         rotation = self._widget._config["canvas"]["rotation"]
+        self._widget.canvas.reset_out_of_bounds_rotation = rotation.get(
+            "reset_out_of_bounds", False
+        )
         self._widget.canvas.large_rotation_increment = math.radians(
             float(rotation["large_increment"])
         )

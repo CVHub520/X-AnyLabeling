@@ -222,6 +222,36 @@ class Shape:
             self.center = QtCore.QPointF(cx, cy)
         self._closed = True
 
+    def reset_rotation_within_bounds(self, width, height):
+        width, height = width - 1, height - 1
+        if self.shape_type != "rotation" or len(self.points) != 4:
+            return
+        if all(
+            0 <= p.x() <= width and 0 <= p.y() <= height for p in self.points
+        ):
+            return
+
+        xs = [p.x() for p in self.points]
+        ys = [p.y() for p in self.points]
+        left, right = max(0, min(xs)), min(width, max(xs))
+        top, bottom = max(0, min(ys)), min(height, max(ys))
+        if right <= left:
+            box_width = min(width, max(xs) - min(xs))
+            left = max(0, min(width - box_width, min(xs)))
+            right = left + box_width
+        if bottom <= top:
+            box_height = min(height, max(ys) - min(ys))
+            top = max(0, min(height - box_height, min(ys)))
+            bottom = top + box_height
+        self.points = [
+            QtCore.QPointF(left, top),
+            QtCore.QPointF(right, top),
+            QtCore.QPointF(right, bottom),
+            QtCore.QPointF(left, bottom),
+        ]
+        self.direction = 0
+        self.close()
+
     def reach_max_points(self):
         if self.shape_type == "cuboid":
             return len(self.points) >= 8
