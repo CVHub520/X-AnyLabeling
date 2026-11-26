@@ -1,5 +1,27 @@
 # X-AnyLabeling Changelog
 
+## `v4.3.4` (Nov 27, 2026)
+
+X-AnyLabeling 4.3.4 adds optional boundary reset for rotation boxes and improves OCR geometry, training dataset validation, and model export reliability.
+
+### 🚀 New Features
+
+- Optionally reset out-of-bounds rotation boxes after editing and auto-labeling. (#1502)
+
+### 🐛 Bug Fixes
+
+- Preserve tilted PPOCR detection boxes. (#1508)
+- Restore Ultralytics ONNX export and support the legacy end-to-end API.
+- Preserve custom training project directories and normalize default project paths. (#1507)
+- Accept list and text-file dataset splits, and report invalid custom datasets instead of falling back to annotation snapshots. (#1510)
+- Recover model export state after errors and completion races. (#1505)
+
+### 🌟 Contributors
+
+A total of 3 developers contributed to this release.
+
+Thank @CVHub520, @gezerui888 and @SajjadPSavoji
+
 ## `v4.3.3` (Nov 15, 2026)
 
 X-AnyLabeling 4.3.3 adds Ctrl-drag box selection and configurable YOLO end-to-end export and inference, and improves canvas responsiveness and brush editing stability.
