@@ -126,6 +126,25 @@ def test_external_export_reports_payload_errors():
     assert events == [("export_error", data)]
 
 
+def test_external_export_recovers_when_payload_creation_fails(monkeypatch):
+    def fail_payload(*args, **kwargs):
+        raise OSError("temporary directory unavailable")
+
+    monkeypatch.setattr(exporter, "create_worker_payload", fail_payload)
+    manager = ExportManager()
+    manager.is_exporting = True
+    events = []
+    manager.callbacks = [lambda event, data: events.append((event, data))]
+
+    manager._external_export_worker("/model.pt", "onnx")
+
+    assert events == [
+        ("export_error", {"error": "temporary directory unavailable"})
+    ]
+    assert not manager.is_exporting
+    assert manager.export_process is None
+
+
 def test_stopped_export_ignores_late_worker_events():
     manager = ExportManager()
     events = []

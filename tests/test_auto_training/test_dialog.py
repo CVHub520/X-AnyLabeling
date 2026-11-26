@@ -6,7 +6,7 @@ import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PyQt6.QtCore import QEvent, QPoint, QPointF, Qt, QTranslator
+from PyQt6.QtCore import QEvent, QPoint, QPointF, Qt, QTimer, QTranslator
 from PyQt6.QtGui import QPixmap, QWheelEvent
 from PyQt6.QtWidgets import (
     QApplication,
@@ -37,6 +37,61 @@ def test_compiled_chinese_training_translations_are_available():
     assert (
         translator.translate("UltralyticsDialog", "Stop Export") == "停止导出"
     )
+
+
+def test_stop_export_resets_dialog_when_export_already_finished(monkeypatch):
+    actions = []
+    monkeypatch.setattr(
+        QMessageBox, "question", lambda *args: QMessageBox.StandardButton.Yes
+    )
+    dialog = SimpleNamespace(
+        tr=lambda text: text,
+        export_manager=SimpleNamespace(stop_export=lambda: False),
+        export_dialog=SimpleNamespace(
+            action_state="stop",
+            reset_export=lambda: actions.append("dialog")
+        ),
+        append_training_log=lambda text: actions.append(text),
+        reset_export_button=lambda: actions.append("button"),
+    )
+
+    UltralyticsDialog.stop_export(dialog)
+
+    assert actions == ["No export is in progress", "dialog", "button"]
+
+
+def test_stop_confirmation_preserves_completed_export():
+    app = QApplication.instance() or QApplication([])
+    dialog = QWidget()
+    export_dialog = ExportFormatDialog(dialog)
+    export_dialog.set_exporting()
+    dialog.export_dialog = export_dialog
+    dialog.export_manager = SimpleNamespace(stop_export=lambda: False)
+    dialog.export_button = QPushButton("Stop Export")
+    dialog.append_training_log = lambda text: None
+    dialog.reset_export_button = lambda: (
+        UltralyticsDialog.reset_export_button(dialog)
+    )
+
+    def complete_and_confirm():
+        UltralyticsDialog.on_export_event(
+            dialog,
+            "export_completed",
+            {"exported_path": "model.onnx", "format": "onnx"},
+        )
+        message = QApplication.activeModalWidget()
+        message.button(QMessageBox.StandardButton.Yes).click()
+
+    QTimer.singleShot(0, complete_and_confirm)
+    UltralyticsDialog.stop_export(dialog)
+
+    assert export_dialog.action_state == "apply"
+    assert export_dialog.ok_btn.text() == "Apply"
+    assert dialog.exported_onnx_path == "model.onnx"
+    UltralyticsDialog.on_export_event(dialog, "export_stopped", {})
+    assert export_dialog.action_state == "apply"
+    dialog.close()
+    app.processEvents()
 
 
 def test_redetect_resets_state_and_starts_new_probe():

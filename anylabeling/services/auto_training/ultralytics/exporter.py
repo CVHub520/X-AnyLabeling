@@ -456,16 +456,17 @@ class ExportManager:
     def _external_export_worker(
         self, weights_path: str, export_format: str, end2end=None
     ):
-        payload_path = create_worker_payload(
-            "export",
-            args={"format": export_format, "end2end": end2end},
-            paths={
-                "data_directory": get_trainer_root_dir(),
-                "weights_path": weights_path,
-            },
-            options={"auto_install_packages": self.auto_install_packages},
-        )
+        payload_path = None
         try:
+            payload_path = create_worker_payload(
+                "export",
+                args={"format": export_format, "end2end": end2end},
+                paths={
+                    "data_directory": get_trainer_root_dir(),
+                    "weights_path": weights_path,
+                },
+                options={"auto_install_packages": self.auto_install_packages},
+            )
             if self.stop_event.is_set():
                 return
             self.export_process = subprocess.Popen(
@@ -512,10 +513,11 @@ class ExportManager:
         finally:
             self.is_exporting = False
             self.export_process = None
-            try:
-                os.remove(payload_path)
-            except OSError:
-                pass
+            if payload_path is not None:
+                try:
+                    os.remove(payload_path)
+                except OSError:
+                    pass
 
     def _notify_external_export_event(
         self, event_type: str, data: dict

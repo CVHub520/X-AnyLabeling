@@ -599,7 +599,8 @@ class UltralyticsDialog(QDialog):
         default_dir = get_default_project_dir()
         normalized_current = os.path.normcase(os.path.normpath(current))
         if not current or any(
-            normalized_current == os.path.normcase(
+            normalized_current
+            == os.path.normcase(
                 os.path.normpath(os.path.join(default_dir, task.lower()))
             )
             for task in TASK_TYPES
@@ -2472,7 +2473,10 @@ class UltralyticsDialog(QDialog):
         elif event_type == "export_stopped":
             self.append_training_log(self.tr("Export stopped by user"))
             export_dialog = getattr(self, "export_dialog", None)
-            if export_dialog is not None:
+            if export_dialog is not None and export_dialog.action_state in {
+                "stop",
+                "exporting",
+            }:
                 export_dialog.reset_export()
             self.reset_export_button()
         elif event_type == "export_log":
@@ -2604,6 +2608,10 @@ class UltralyticsDialog(QDialog):
             return
         if not self.export_manager.stop_export():
             self.append_training_log(self.tr("No export is in progress"))
+            if self.export_dialog is not None and (
+                self.export_dialog.action_state in {"stop", "exporting"}
+            ):
+                self.export_dialog.reset_export()
             self.reset_export_button()
 
     def reset_train_tab(self):
