@@ -631,6 +631,8 @@ def test_basic_settings_adds_editable_project_and_environment():
     [
         ("custom", "custom"),
         ("detect", "segment"),
+        ("DETECT", "segment" if os.name == "nt" else "DETECT"),
+        (os.path.join("detect", "."), "segment"),
         ("", "segment"),
         (" ", "segment"),
     ],
@@ -642,7 +644,7 @@ def test_next_preserves_custom_training_project(
     expected: str,
 ) -> None:
     """Keep a custom project when Next opens the training settings."""
-    paths = [str(tmp_path / initial) if initial.strip() else initial]
+    paths = [os.path.join(str(tmp_path), initial) if initial.strip() else initial]
     project = SimpleNamespace(text=lambda: paths[-1], setText=paths.append)
     monkeypatch.setattr(
         "anylabeling.views.training.ultralytics_dialog.get_default_project_dir",

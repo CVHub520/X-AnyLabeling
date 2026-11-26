@@ -597,8 +597,11 @@ class UltralyticsDialog(QDialog):
         project = self.config_widgets["project"]
         current = project.text().strip()
         default_dir = get_default_project_dir()
+        normalized_current = os.path.normcase(os.path.normpath(current))
         if not current or any(
-            current == os.path.join(default_dir, task.lower())
+            normalized_current == os.path.normcase(
+                os.path.normpath(os.path.join(default_dir, task.lower()))
+            )
             for task in TASK_TYPES
         ):
             project.setText(
