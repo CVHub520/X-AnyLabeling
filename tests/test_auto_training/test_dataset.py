@@ -108,6 +108,54 @@ def test_is_prepared_dataset_resolves_relative_split_directories(tmp_path):
     assert not is_prepared_dataset(str(data_path))
 
 
+def test_is_prepared_dataset_accepts_list_and_file_splits(tmp_path):
+    for name in ("b1", "b2", "val"):
+        (tmp_path / name / "images").mkdir(parents=True)
+    (tmp_path / "train.txt").write_text("b1/images/a.jpg\n", encoding="utf-8")
+    list_yaml = tmp_path / "list.yaml"
+    list_yaml.write_text(
+        f"path: {tmp_path.as_posix()}\n"
+        "train: [b1/images, b2/images]\n"
+        "val: [val/images]\n"
+        "names: [cat]\n",
+        encoding="utf-8",
+    )
+    file_yaml = tmp_path / "file.yaml"
+    file_yaml.write_text(
+        f"path: {tmp_path.as_posix()}\n"
+        "train: train.txt\n"
+        "val: val/images\n"
+        "names: [cat]\n",
+        encoding="utf-8",
+    )
+    missing_yaml = tmp_path / "missing.yaml"
+    missing_yaml.write_text(
+        f"path: {tmp_path.as_posix()}\n"
+        "train: [b1/images, nope]\n"
+        "val: val/images\n"
+        "names: [cat]\n",
+        encoding="utf-8",
+    )
+
+    assert resolve_prepared_dataset(str(list_yaml)) == (str(list_yaml), "")
+    assert resolve_prepared_dataset(str(file_yaml)) == (str(file_yaml), "")
+    resolved_path, error = resolve_prepared_dataset(str(missing_yaml))
+    assert resolved_path is None
+    assert "nope" in error
+
+    invalid_yaml = tmp_path / "invalid.yaml"
+    invalid_yaml.write_text(
+        f"path: {tmp_path.as_posix()}\n"
+        "train: [b1/images, 3]\n"
+        "val: val/images\n"
+        "names: [cat]\n",
+        encoding="utf-8",
+    )
+    resolved_path, error = resolve_prepared_dataset(str(invalid_yaml))
+    assert resolved_path is None
+    assert "list of paths" in error
+
+
 def test_data_yaml_without_dataset_root_uses_automatic_preparation(tmp_path):
     data_path = tmp_path / "data.yaml"
     data_path.write_text("names: [cat]\n", encoding="utf-8")
@@ -148,6 +196,43 @@ def test_wsl_dataset_paths_are_normalized_for_windows(monkeypatch, tmp_path):
     assert resolved_data["path"] == mapped_root
     assert resolved_data["train"] == "images/train"
     assert resolved_data["val"] == "images/val"
+
+
+def test_wsl_dataset_list_splits_keep_list_shape(monkeypatch, tmp_path):
+    data_file = "//wsl.localhost/Ubuntu-24.04/home/user/project/data.yaml"
+    wsl_root = "//wsl.localhost/Ubuntu-24.04"
+    monkeypatch.setattr(
+        general,
+        "load_yaml_config",
+        lambda _path: {
+            "path": "/home/user/datasets",
+            "train": ["/home/user/datasets/b1", "/home/user/datasets/b2"],
+            "val": "/home/user/datasets/val",
+            "names": ["cat"],
+        },
+    )
+    monkeypatch.setattr(
+        general.os.path,
+        "isdir",
+        lambda path: path.replace("\\", "/")
+        in {
+            f"{wsl_root}/home/user/datasets",
+            f"{wsl_root}/home/user/datasets/b1",
+            f"{wsl_root}/home/user/datasets/b2",
+            f"{wsl_root}/home/user/datasets/val",
+        },
+    )
+    monkeypatch.setattr(general, "get_dataset_path", lambda: str(tmp_path))
+
+    resolved_path, error = resolve_prepared_dataset(data_file)
+
+    assert error == ""
+    resolved_data = load_yaml_config(resolved_path)
+    assert resolved_data["train"] == [
+        f"{wsl_root}/home/user/datasets/b1",
+        f"{wsl_root}/home/user/datasets/b2",
+    ]
+    assert resolved_data["val"] == f"{wsl_root}/home/user/datasets/val"
 
 
 def test_wsl_dataset_reports_checked_mapped_path(monkeypatch):
